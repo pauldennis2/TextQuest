@@ -3,6 +3,7 @@ package entities;
 import enums.Direction;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
@@ -21,7 +22,15 @@ public class DungeonRoom {
     private boolean dungeonEntrance;
     private boolean hasPrince;
 
+    private Hero hero;
+
+    private int id;
+
+    private static int nextId = 1;
+
     public DungeonRoom (Random random) {
+        id = nextId;
+        nextId++;
         finalRoom = false;
         dungeonEntrance = false;
         connectedRooms = new HashMap<>();
@@ -36,6 +45,8 @@ public class DungeonRoom {
     }
 
     public DungeonRoom (boolean finalRoom, boolean dungeonEntrance) {
+        id = nextId;
+        nextId++;
         if (!finalRoom && !dungeonEntrance) {
             //Should only be used with one of these == true
             throw new AssertionError();
@@ -67,12 +78,17 @@ public class DungeonRoom {
     }
 
     public void connectTo (Direction direction, DungeonRoom other) {
-        if (connectedRooms.get(direction) != null || other == null) {
+        if (connectedRooms.get(direction) != null) {
+            System.out.println("Already connected in that direction");
+            throw new AssertionError();
+        }
+        if (other == null) {
+            System.out.println("Cannot connect to null room");
             throw new AssertionError();
         }
 
         connectedRooms.put(direction, other);
-        other.connectTo(direction.getOpposite(), this);
+        other.connectedRooms.put(direction.getOpposite(), this);
     }
 
     public Set<Direction> getTravelDirections () {
@@ -81,6 +97,7 @@ public class DungeonRoom {
 
     public void describeRoom () {
         Random random = new Random();
+        System.out.println("You are in room " + id);
         if (lighting > 0.8) {
             System.out.println("The room is well lit. You can clearly see:");
             monsters.stream().forEach(System.out::println);
@@ -91,16 +108,41 @@ public class DungeonRoom {
             if (monsters.size() + items.size() == 0) {
                 System.out.println("(There is nothing in the room.)");
             }
+            if (hasPrince) {
+                System.out.println("You see a handsome prince tied to a chair. " +
+                        "He looks like he'd really like to be rescued.");
+            }
         } else if (lighting == 0) {
             System.out.println("The room is pitch black. You cannot see anything.");
         } else {
-            System.out.println("The room is not well lit. You can only make out a few shapes.");
-            System.out.println("You can see " + monsters.size() + " figures moving in the darkness.");
-            System.out.println("You think you can see the following items:");
-            items.stream()
-                    .filter(e -> Math.random() < lighting * 2)
-                    .forEach(System.out::println);
+            if (monsters.size() + items.size() > 0) {
+                System.out.println("The room is not well lit. You can only make out a few shapes.");
+                if (monsters.size() > 0) {
+                    System.out.println("You can see " + monsters.size() + " figures moving in the darkness.");
+                }
+                if (items.size() > 0) {
+                    System.out.println("You think you can see the following items:");
+                    items.stream()
+                            .filter(e -> Math.random() < lighting * 2)
+                            .forEach(System.out::println);
+                }
+            }
+            if (hasPrince) {
+                System.out.println("You think you see a handsome prince but it's hard to tell.");
+            }
         }
+    }
+
+    public List<BackpackItem> lootRoom () {
+        List<BackpackItem> lootedItems = items;
+        items = new ArrayList<>();
+        return lootedItems;
+    }
+
+    public void updateMonsters () {
+        monsters = monsters.stream()
+                .filter(e -> e.getHealth() > 0)
+                .collect(Collectors.toList());
     }
 
     public double getLighting () {
@@ -141,7 +183,26 @@ public class DungeonRoom {
         return dungeonEntrance;
     }
 
-    public boolean isHasPrince() {
+    public boolean hasPrince() {
         return hasPrince;
+    }
+
+    public boolean hasChest () {
+        if (chest == null) {
+            return false;
+        }
+        return true;
+    }
+
+    public Hero getHero () {
+        return hero;
+    }
+
+    public void addHero (Hero hero) {
+        this.hero = hero;
+    }
+
+    public void removeHero () {
+        hero = null;
     }
 }

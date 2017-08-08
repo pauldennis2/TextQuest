@@ -32,15 +32,18 @@ public class Dungeon {
         rooms = new ArrayList<>();
 
         entrance = new DungeonRoom(false, true);
-        finalRoom = new DungeonRoom(true, false);
         middleRoom = new DungeonRoom(random);
+        finalRoom = new DungeonRoom(true, false);
 
         entrance.connectTo(EAST, middleRoom);
         middleRoom.connectTo(EAST, finalRoom);
 
-        dungeonName = getDungeonName();
+        middleRoom.addItem(new BackpackItem("Potion"));
+
+        dungeonName = getRandomDungeonName();
         goalDescription = GOAL_INTRO + dungeonName;
-        goal = DungeonGoalType.values()[random.nextInt(DungeonGoalType.values().length)];
+        //goal = DungeonGoalType.values()[random.nextInt(DungeonGoalType.values().length)];
+        goal = DungeonGoalType.RECOVER_ITEM;
         switch (goal) {
             case SLAY_MONSTER:
                 boss = new Monster(true, random);
@@ -88,8 +91,12 @@ public class Dungeon {
         return middleRoom;
     }
 
+    public String getDungeonName() {
+        return dungeonName;
+    }
+
     public static final String[] DUNGEON_DESCRIPTORS = {"Spooky", "Scary", "Haunted", "Weird", "Shadowy", "Drip-Drip"};
-    public static String getDungeonName () {
+    private static String getRandomDungeonName() {
         Random random = new Random();
         String response = "";
         int numDescriptors = random.nextInt(2) + 1;

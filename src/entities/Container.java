@@ -59,7 +59,7 @@ public class Container {
     public static final String[] BINDING = {"Iron-Bound", "Copper-Bound", "Enchanted"};
     public static String getContainerName () {
         Random random = new Random();
-        String response = SIZES[random.nextInt(SIZES.length)];
+        String response = SIZES[random.nextInt(SIZES.length)] + " ";
         response += BINDING[random.nextInt(BINDING.length)] + " Chest";
         return response;
     }

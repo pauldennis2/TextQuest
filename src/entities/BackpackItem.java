@@ -1,5 +1,7 @@
 package entities;
 
+import interfaces.RoomAction;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -13,16 +15,9 @@ public class BackpackItem {
     private boolean isQuestItem;
     private int value;
 
-    private static Map<String, RoomAction> itemActionMap = new HashMap<>();
-    private static boolean actionMapInit = false;
-
     public BackpackItem (String name) {
         this.name = name;
         isQuestItem = false;
-
-        if (actionMapInit == false) {
-
-        }
     }
 
     public BackpackItem (boolean quest) {
@@ -43,13 +38,6 @@ public class BackpackItem {
         return name + " (" + value + ")";
     }
 
-    public static void initActionMap () {
-        itemActionMap.put("Torch", e -> e.setLighting(e.getLighting() + 0.5));
-
-        itemActionMap.put("Key", e -> e.getChest().unlock(e.getChest().getKey()));
-        itemActionMap.put("Fight", e -> e.getMonsters());
-    }
-
     public static String[] DESCRIPTORS = {"Fabled", "Awesome", "Sought-After", "Fabulous", "Enchanted", "Teeny Tiny"};
     public static String[] ITEMS = {"Scepter", "Sword", "Gem", "McGuffin"};
     public static String[] PLACES = {"Aer", "Dal", "Tifen", "Coldon", "Manos"};
@@ -62,8 +50,12 @@ public class BackpackItem {
         response += PLACES[random.nextInt(PLACES.length)] + "'" + PLACES[random.nextInt(PLACES.length)];
         return response;
     }
-}
 
-interface RoomAction {
-    void doAction (DungeonRoom room);
+    public boolean isQuestItem() {
+        return isQuestItem;
+    }
+
+    public int getValue() {
+        return value;
+    }
 }

@@ -20,6 +20,7 @@ public class Monster {
     public static final int MAX_BOSS_STR = 8;
 
     public static final int BOSS_XP = 50;
+    public static final int MONSTER_XP = 3;
 
     public Monster (boolean isBoss, Random random) {
         this.isBoss = isBoss;
@@ -27,13 +28,23 @@ public class Monster {
         if (!isBoss) {
             strength = random.nextInt(MAX_RANDOM_STR);
             health = random.nextInt(MAX_RANDOM_HEALTH);
-            exp = health + 2 * strength;
+            if (health == 0) {
+                health = 1;
+            }
+            exp = health + 2 * strength + MONSTER_XP;
             name = getRandomMonsterName();
         } else {
             strength = random.nextInt(MAX_BOSS_STR);
             health = random.nextInt(MAX_BOSS_HEALTH);
             exp = health + 2 * strength + BOSS_XP;
             name = getRandomBossName();
+        }
+    }
+
+    public void takeDamage (int damageAmt) {
+        health -= damageAmt;
+        if (health < 0) {
+            health = 0;
         }
     }
 
