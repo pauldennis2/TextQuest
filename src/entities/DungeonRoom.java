@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRoom {
+public class DungeonRoom extends Location {
 
     private Map<Direction, DungeonRoom> connectedRooms;
 

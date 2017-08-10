@@ -18,12 +18,12 @@ public class Container {
     public Container () {
         locked = true;
         name = getContainerName();
-        key = new BackpackItem(name + "'s Key");
+        key = new BackpackItem(name + "'s Key", null);
         boolean response = keys.add(key);
         //Each chest must have a unique name. If we didn't find one, try again.
         while (response == false) {
             name = getContainerName();
-            key = new BackpackItem(name + "'s Key");
+            key = new BackpackItem(name + "'s Key", null);
             response = keys.add(key);
         }
         contents = new ArrayList<>();

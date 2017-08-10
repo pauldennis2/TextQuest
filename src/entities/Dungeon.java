@@ -1,9 +1,11 @@
 package entities;
 
 import enums.DungeonGoalType;
+import interfaces.listeners.OnPickup;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static enums.Direction.*;
@@ -11,7 +13,7 @@ import static enums.Direction.*;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class Dungeon {
+public class Dungeon extends MetaLocation {
 
     private List<DungeonRoom> rooms;
     private DungeonGoalType goal;
@@ -25,6 +27,8 @@ public class Dungeon {
     private DungeonRoom middleRoom;
 
     public static final String GOAL_INTRO = "You must venture into the ";
+
+    Map<BackpackItem, OnPickup> pickupListenerMap;
 
     public Dungeon (int level) {
         this.level = level;
@@ -42,7 +46,10 @@ public class Dungeon {
         entrance.connectTo(EAST, middleRoom);
         middleRoom.connectTo(EAST, finalRoom);
 
-        middleRoom.addItem(new BackpackItem("Potion"));
+        middleRoom.addItem(new BackpackItem("Potion", middleRoom));
+
+        BackpackItem bomb = new BackpackItem("Bomb", entrance);
+        bomb.setPickupListener(() -> System.out.println("You picked up a bomb you dummy! Have some sense!"));
 
         dungeonName = getRandomDungeonName();
         goalDescription = GOAL_INTRO + dungeonName;
@@ -55,12 +62,16 @@ public class Dungeon {
                 goalDescription += " and slay the vicious monster " + boss.getName() + ".";
                 break;
             case RECOVER_ITEM:
-                itemToRecover = new BackpackItem(true);
+                itemToRecover = new BackpackItem(true, finalRoom);
+                itemToRecover.setPickupListener(() -> System.out.println("*******\n\n\nListener worked****"));
                 Container goalContainer = new Container();
                 goalContainer.addItem(itemToRecover);
                 finalRoom.addContainer(goalContainer);
 
-                Container.getKeys().stream().forEach(e -> middleRoom.addItem(e));
+                Container.getKeys().stream().forEach(e -> {
+                        middleRoom.addItem(e);
+                        e.setLocation(middleRoom);
+                });
 
                 goalDescription += " and recover the " + itemToRecover.getName() + ".";
                 break;
@@ -70,6 +81,7 @@ public class Dungeon {
                 break;
         }
     }
+
 
     public List<DungeonRoom> getRooms() {
         return rooms;

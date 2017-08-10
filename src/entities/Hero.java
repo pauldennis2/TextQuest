@@ -32,7 +32,8 @@ public class Hero {
     private int level;
     private int exp;
 
-    private List<BackpackItem> backpack;
+    //private List<BackpackItem> backpack;
+    private Backpack backpack;
     private DungeonRoom location;
     private DungeonRoom previousLocation;
 
@@ -65,16 +66,16 @@ public class Hero {
         exp = 0;
         maxSpellsPerDay = 0;
 
-        backpack = new ArrayList<>();
+        backpack = new Backpack();
         heroActionMap = new HashMap<>();
         spellMap = new HashMap<>();
         safeNumScanner = new SafeNumScanner(System.in);
         initLevelUpMap();
         initPossibleSpellMap();
         initActionMap();
-        backpack.add(new BackpackItem("Torch"));
-        backpack.add(new BackpackItem("Sword"));
-        backpack.add(new BackpackItem("Bow & Arrows"));
+        backpack.add(new BackpackItem("Torch", backpack));
+        backpack.add(new BackpackItem("Sword", backpack));
+        backpack.add(new BackpackItem("Bow & Arrows", backpack));
     }
 
     private void initActionMap () {
@@ -98,17 +99,29 @@ public class Hero {
 
         heroActionMap.put("Key", room -> room.getChest().unlock(room.getChest().getKey()));
 
-        heroActionMap.put("Loot Chest", room -> {
+        heroActionMap.put("Unlock Chest", room -> {
             Container chest = room.getChest();
             room.getHero().backpack.stream()
                     .filter(item -> item.getName().contains("Key"))
                     .forEach(chest::unlock);
+            if (chest.isLocked()) {
+                System.out.println("You don't have the key");
+            } else {
+                System.out.println("Trademarked chest-opening music, rapid ascending style.");
+            }
+        });
 
+        heroActionMap.put("Loot Chest", room -> {
+            Container chest = room.getChest();
             List<BackpackItem> contents = chest.removeContents();
+            if(contents == null) {
+                throw new AssertionError("Chest was probably locked. Option should not have been offered.");
+            }
             boolean victoryFlag = false;
             //contents.stream().forEach(backpack::add);
             for (BackpackItem item : contents) {
                 backpack.add(item);
+                item.setLocation(backpack);
                 if (item.isQuestItem()) {
                     victoryFlag = true;
                 }
@@ -152,10 +165,10 @@ public class Hero {
         possibleSpellMap.put("Moonlight Shadow", hero -> hero.sneak += 5);
         possibleSpellMap.put("Fireblast", hero -> {
             DungeonRoom room = hero.getLocation();
-            room.getMonsters().stream().forEach(e -> e.takeDamage(3));
+            room.getMonsters().forEach(e -> e.takeDamage(3));
             room.updateMonsters();
         });
-        possibleSpellMap.put("Weaken", hero ->  hero.getLocation().getMonsters().stream()
+        possibleSpellMap.put("Weaken", hero ->  hero.getLocation().getMonsters()
                 .forEach(e -> e.setMight(e.getMight() - 1)));
     }
 
@@ -302,13 +315,17 @@ public class Hero {
             actions.add("Retreat");
         } else if (location.getMonsters().size() == 0 || isSneaking) {
             //If monsters are gone or we are sneaking
-            if (location.getItems().size() > 0 || location.hasChest()) {
+            if (location.getItems().size() > 0) {
                 actions.add("Loot");
             }
             if (location.hasChest()) {
                 Container chest = location.getChest();
                 if (chest.getContents().size() > 0) {
-                    actions.add("Loot Chest");
+                    if (chest.isLocked()) {
+                        actions.add("Unlock Chest");
+                    } else {
+                        actions.add("Loot Chest");
+                    }
                 }
             }
             if (location.hasPrince()) {
@@ -360,7 +377,7 @@ public class Hero {
         return exp;
     }
 
-    public List<BackpackItem> getBackpack() {
+    public Backpack getBackpack() {
         return backpack;
     }
 
