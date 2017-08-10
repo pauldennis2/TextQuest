@@ -27,7 +27,7 @@ public class DungeonRunner {
     boolean done = false;
 
     List<MetaLocation> metaLocations;
-
+    //Solidify interface
     public DungeonRunner () {
         hero = new Hero();
         analyzer = new StatementAnalyzer();
