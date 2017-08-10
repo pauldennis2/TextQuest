@@ -1,0 +1,48 @@
+|Void Action Words: (i.e. it's always the same parameter. Fight what? The monsters)
+|===
+@VoidAction
+rescue - untie, release
+fight - attack, melee, combat
+sneak - hide, conceal, evade, creep, ambush
+explore - search, find, examine
+loot - gather
+retreat - skedaddle, vamoose, runaway
+plunder - lootchest
+|
+|Param Action Words: (i.e. "travel where?" "use what?", "cast what spell?")
+|===
+@ParamAction
+travel - sail, journey
+view - see, inspect
+use - utilize, wield, employ
+move - proceed, go
+learn - study
+cast - incant
+|
+|Concept Words:
+|===
+@Concept
+status - stats, character
+torch - light
+map - sketch
+monster - enemy, goblin, fiend
+backpack - pack, inventory, items
+goal - quest, objective, mission
+room - here
+dungeon - cave
+boss - overlord
+prince - rescuee
+item - thing
+magic - wizardry, sorcery, arcana
+spell - incantation
+bow - arrow, ranged attack, shoot, snipe
+|Direction Words:
+|===
+@Direction
+up - upstairs, ascend
+down - downstairs, descend
+east - right, eastern
+north - northern
+south - southern
+west - left, western
+portal - teleport, gateway
