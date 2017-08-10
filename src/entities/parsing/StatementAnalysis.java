@@ -14,13 +14,18 @@ public class StatementAnalysis {
     private String[] tokens;
     private String[] secondTokens;
 
-    private String statementAnalysis;
-    private String secondStatementAnalysis;
-
     private List<String> comments;
 
     private Map<WordType, List<String>> tokenMatchMap;
     private Map<WordType, List<String>> secondTokenMatchMap;
+
+    private String actionWord;
+    private String actionParam;
+    private boolean actionable;
+
+    private String secondActionWord;
+    private String secondActionParam;
+    private boolean secondActionable;
 
     public StatementAnalysis(String originalStatement, String[] tokens) {
         this.originalStatement = originalStatement;
@@ -75,7 +80,7 @@ public class StatementAnalysis {
 
     public void printFinalAnalysis () {
         System.out.println("Final analysis of \"" + originalStatement + "\":");
-        System.out.println(statementAnalysis);
+        System.out.println("Action Word: " + actionWord + ", Param Word: " + actionParam + ", Actionable: " + actionable);
         if (comments.size() > 0) {
             System.out.println("Comments:");
             comments.forEach(e -> System.out.println("\t" + e));
@@ -98,20 +103,10 @@ public class StatementAnalysis {
         return secondTokens;
     }
 
-    public String getStatementAnalysis() {
-        return statementAnalysis;
-    }
-
-    public void setStatementAnalysis(String statementAnalysis) {
-        this.statementAnalysis = statementAnalysis;
-    }
-
-    public String getSecondStatementAnalysis() {
-        return secondStatementAnalysis;
-    }
-
-    public void setSecondStatementAnalysis(String secondStatementAnalysis) {
-        this.secondStatementAnalysis = secondStatementAnalysis;
+    public void setAnalysis (String actionWord, String actionParam, boolean actionable) {
+        this.actionWord = actionWord;
+        this.actionParam = actionParam;
+        this.actionable = actionable;
     }
 
     public void addTokenMatch (String match, WordType type) {
@@ -136,5 +131,17 @@ public class StatementAnalysis {
 
     public void addComment(String comment) {
         comments.add(comment);
+    }
+
+    public boolean isActionable () {
+        return actionable;
+    }
+
+    public String getActionWord() {
+        return actionWord;
+    }
+
+    public String getActionParam() {
+        return actionParam;
     }
 }

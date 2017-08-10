@@ -1,7 +1,8 @@
 package entities;
 
 import enums.Direction;
-import interfaces.RoomAction;
+import interfaces.ParamAction;
+import interfaces.VoidAction;
 import utils.SafeNumScanner;
 import utils.VictoryException;
 
@@ -28,7 +29,11 @@ public class Hero {
 
     private boolean isSneaking;
 
-    private Map<String, RoomAction> heroActionMap;
+    private Map<String, VoidAction> heroVoidActions;
+    private Map<String, ParamAction> heroParamActions;
+
+    private Map<String, VoidAction> itemActions;
+    private Map<String, VoidAction> views;
 
     public static final double TORCH_LIGHT = 1.0;
     public static final int POTION_VALUE = 9;
@@ -46,35 +51,41 @@ public class Hero {
         exp = 0;
 
         backpack = new ArrayList<>();
-        heroActionMap = new HashMap<>();
+        heroVoidActions = new HashMap<>();
+        heroParamActions = new HashMap<>();
+        itemActions = new HashMap<>();
+        views = new HashMap<>();
         initActionMap();
+        initItemActions();
+        initViews();
         backpack.add(new BackpackItem("Torch"));
         backpack.add(new BackpackItem("Sword"));
         backpack.add(new BackpackItem("Bow & Arrows"));
     }
 
-    private void initActionMap () {
-        heroActionMap.put("Torch", room -> room.setLighting(TORCH_LIGHT));
-        heroActionMap.put("Fight", room -> {
-            room.getMonsters().stream().forEach(room.getHero()::fightMonster);
-            room.updateMonsters();
-        });
-        heroActionMap.put("Potion", room -> {
+    private void initItemActions () {
+        itemActions.put("torch", room -> room.setLighting(TORCH_LIGHT));
+        itemActions.put("potion", room -> {
             room.getHero().restoreHealth(POTION_VALUE);
             room.getHero().removeItem("Potion");
         });
+    }
 
-        heroActionMap.put("Loot", room -> room.lootRoom().stream().forEach(backpack::add));
-        heroActionMap.put("Proceed", room -> proceed(chooseDirection(room.getTravelDirections())));
-        heroActionMap.put("Retreat", room -> room.getHero().retreat());
-        heroActionMap.put("Character Status", room -> room.getHero().printStats());
-        heroActionMap.put("Show Map (NYI)", room -> System.out.println("Showing map is Not Yet Implemented"));
-        heroActionMap.put("Rescue Prince", room -> rescuePrince());
+    private void initViews () {
+        views.put("status", room -> room.getHero().printStats());
+        views.put("map", room -> System.out.println("Map not yet implemented."));
+    }
 
+    private void initActionMap () {
+        heroVoidActions.put("loot", room -> room.lootRoom().forEach(backpack::add));
+        heroVoidActions.put("retreat", room -> room.getHero().retreat());
+        heroVoidActions.put("fight", room -> {
+            room.getMonsters().forEach(room.getHero()::fightMonster);
+            room.updateMonsters();
+        });
+        heroVoidActions.put("rescue", room -> rescuePrince());
 
-        heroActionMap.put("Key", room -> room.getChest().unlock(room.getChest().getKey()));
-
-        heroActionMap.put("Loot Chest", room -> {
+        heroVoidActions.put("plunder", room -> {
             Container chest = room.getChest();
             room.getHero().backpack.stream()
                     .filter(item -> item.getName().contains("Key"))
@@ -93,6 +104,10 @@ public class Hero {
                 throw new VictoryException("Found the special item.");
             }
         });
+
+        heroParamActions.put("use", (room, param) -> itemActions.get(param).doAction(room));
+        heroParamActions.put("move", (room, param) -> proceed(Direction.valueOf(param.toUpperCase())));
+        heroParamActions.put("view", (room, param) -> views.get(param).doAction(room));
     }
 
     public void rescuePrince () {
@@ -129,32 +144,24 @@ public class Hero {
         setLocation(nextRoom);
     }
 
-    private Direction chooseDirection (Set<Direction> directions) {
-        if (directions.size() > 1) {
-            int index = 1;
-            System.out.println("Which direction do you want to go?");
-            List<Direction> directionList = directions.stream().collect(Collectors.toList());
-            for (Direction direction : directionList) {
-                System.out.println("" + index + ". " + direction);
-                index++;
-            }
-            SafeNumScanner safeNumScanner = new SafeNumScanner(System.in);
-            int response = safeNumScanner.getSafeNum(1, directionList.size());
-            return directionList.get(response - 1);
-        } else {
-            System.out.println("Only one possible way to go.");
-            return directions.stream().findFirst().get();
-        }
-    }
-
     private void retreat () {
         setLocation(previousLocation);
     }
 
     public void takeAction (String action) {
-        RoomAction roomAction = heroActionMap.get(action);
-        if (roomAction != null) {
-            roomAction.doAction(location);
+        VoidAction voidAction = heroVoidActions.get(action);
+        if (voidAction != null) {
+            voidAction.doAction(location);
+        } else {
+            System.out.println("Action not in map.");
+            throw new AssertionError();
+        }
+    }
+
+    public void takeAction (String action, String param) {
+        ParamAction paramAction = heroParamActions.get(action);
+        if (paramAction != null) {
+            paramAction.doAction(location, param);
         } else {
             System.out.println("Action not in map.");
             throw new AssertionError();
@@ -192,46 +199,6 @@ public class Hero {
         if (curHealth < 0) {
             curHealth = 0;
         }
-    }
-
-    public List<String> getRoomActions () {
-        List<String> actions = getBackpackItemActions();
-
-        //Always available, informational (for now)
-        actions.add("Show Map (NYI)");
-        actions.add("Character Status");
-
-        if (location.getMonsters().size() > 0) {
-            //If monsters are present, can only do these:
-            actions.add("Fight");
-            actions.add("Sneak");
-            actions.add("Retreat");
-        } else if (location.getMonsters().size() == 0 || isSneaking) {
-            //If monsters are gone or we are sneaking
-            if (location.getItems().size() > 0 || location.hasChest()) {
-                actions.add("Loot");
-            }
-            if (location.hasChest()) {
-                Container chest = location.getChest();
-                if (chest.getContents().size() > 0) {
-                    actions.add("Loot Chest");
-                }
-            }
-            if (location.hasPrince()) {
-                actions.add("Rescue Prince");
-            }
-            actions.add("Proceed");
-        }
-        return actions;
-    }
-
-    private List<String> getBackpackItemActions () {
-        Set<String> actionMapKeys = heroActionMap.keySet();
-
-        return backpack.stream()
-                .map(e -> e.getName())
-                .filter(e -> actionMapKeys.contains(e))
-                .collect(Collectors.toList());
     }
 
     public int getCurHealth() {

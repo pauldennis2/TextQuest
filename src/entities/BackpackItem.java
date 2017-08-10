@@ -1,9 +1,5 @@
 package entities;
 
-import interfaces.RoomAction;
-
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
 
 /**

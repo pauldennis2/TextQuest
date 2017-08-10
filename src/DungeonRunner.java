@@ -1,10 +1,14 @@
 import entities.Dungeon;
 import entities.DungeonRoom;
 import entities.Hero;
+import entities.parsing.StatementAnalysis;
+import entities.parsing.StatementAnalyzer;
+import interfaces.ParamAction;
 import utils.SafeNumScanner;
 import utils.VictoryException;
 
 import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
@@ -15,14 +19,16 @@ public class DungeonRunner {
     Hero hero;
 
     DungeonRoom currentRoom;
-    SafeNumScanner numScanner;
+    StatementAnalyzer analyzer;
+    Scanner scanner;
 
     boolean done = false;
 
     public DungeonRunner () {
         hero = new Hero();
         dungeon = new Dungeon();
-        numScanner = new SafeNumScanner(System.in);
+        analyzer = new StatementAnalyzer();
+        scanner = new Scanner(System.in);
     }
 
     public void run () {
@@ -37,28 +43,30 @@ public class DungeonRunner {
 
     public void mainActionMenu () {
         currentRoom.describeRoom();
-        List<String> actions = hero.getRoomActions();
         System.out.println("What would you like to do?");
-        int index = 1;
-        for (String action : actions) {
-            System.out.println(index + ". " + action);
-            index++;
-        }
-        int response = numScanner.getSafeNum(1, actions.size());
-
-        System.out.println("Ok, you want to " + actions.get(response - 1));
-        String chosenAction = actions.get(response - 1);
-        try {
-            hero.takeAction(chosenAction);
-        } catch (VictoryException ex) {
-            System.out.println("Victory!");
-            System.out.println(ex.getMessage());
-            System.out.println("The bards will sing of this day.");
-            done = true;
-        }
-        currentRoom = hero.getLocation();
-        if (!done) {
-            mainActionMenu();
+        String response = scanner.nextLine();
+        StatementAnalysis analysis = analyzer.analyzeStatement(response);
+        if (analysis.isActionable()) {
+            try {
+                analysis.printFinalAnalysis();
+                if (analysis.getActionParam() != null) {
+                    hero.takeAction(analysis.getActionWord(), analysis.getActionParam());
+                } else {
+                    hero.takeAction(analysis.getActionWord());
+                }
+            } catch (VictoryException ex) {
+                System.out.println("Victory!");
+                System.out.println(ex.getMessage());
+                System.out.println("The bards will sing of this day.");
+                done = true;
+            }
+            currentRoom = hero.getLocation();
+            if (!done) {
+                mainActionMenu();
+            }
+        } else {
+            System.out.println("Could not analyze to an actionable statement.\nComments:");
+            analysis.getComments().forEach(System.out::print);
         }
     }
 

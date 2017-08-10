@@ -61,7 +61,7 @@ public class StatementAnalyzer {
         List<String> paramActionWords = analysis.getTokenMatchMap().get(WordType.PARAM_ACTION);
 
         if (voidActionWords.size() > 0) {
-            analysis.setStatementAnalysis("DO void action: " + voidActionWords.get(0));
+            analysis.setAnalysis(voidActionWords.get(0), null, true);
             if (paramActionWords.size() > 0) {
                 analysis.addComment("Ignoring param action words.");
             }
@@ -76,24 +76,24 @@ public class StatementAnalyzer {
             if (actionWord.equals("move")) {
                 List<String> directionWords = analysis.getTokenMatchMap().get(WordType.DIRECTION);
                 if (directionWords.size() > 0) {
-                    analysis.setStatementAnalysis("Move (" + directionWords.get(0) + ")");
+                    analysis.setAnalysis("move", directionWords.get(0), true);
                 } else {
-                    analysis.setStatementAnalysis("Received move param but no direction. Move where?");
+                    analysis.addComment("Received move param but no direction. Move where?");
                 }
             } else {
                 List<String> conceptWords = analysis.getTokenMatchMap().get(WordType.CONCEPT);
                 if (conceptWords.size() > 0) {
-                    analysis.setStatementAnalysis("DO param action: " + actionWord + "(" + conceptWords.get(0) + ")");
+                    analysis.setAnalysis(actionWord,conceptWords.get(0), true);
                     if (conceptWords.size() > 1) {
                         analysis.addComment("Ignoring extra concept words.");
                     }
                 } else {
-                    analysis.setStatementAnalysis("Received param action word but no concepts to act on." +
+                    analysis.addComment("Received param action word but no concepts to act on." +
                             "\ni.e. " + actionWord + " on what?");
                 }
             }
         } else {
-            analysis.setStatementAnalysis("There were no action words.");
+            //Do nothing
         }
         return analysis;
     }
@@ -116,11 +116,10 @@ public class StatementAnalyzer {
         return analysis;
     }
 
-    public void analyzeStatement (String statement) {
+    public StatementAnalysis analyzeStatement (String statement) {
         String cleaned = cleanStatement(statement);
         StatementAnalysis analysis = finalAnalysis(findTokenMatches(parseStatement(cleaned)));
-        analysis.printAnalysis();
-        analysis.printFinalAnalysis();
+        return analysis;
     }
 
     private void updateWordMap (WordGroup changedGroup) {
@@ -230,7 +229,6 @@ public class StatementAnalyzer {
                 Arrays.stream(associatedWords).forEach(wordSet::add);
                 WordGroup wg = new WordGroup(primaryWord, wordSet, currentType);
                 wordGroups.add(wg);
-                System.out.println(wg);
             }
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
