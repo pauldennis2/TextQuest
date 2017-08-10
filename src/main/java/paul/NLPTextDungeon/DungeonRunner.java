@@ -9,6 +9,7 @@ import paul.NLPTextDungeon.entities.parsing.StatementAnalyzer;
 import paul.NLPTextDungeon.utils.VictoryException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -25,6 +26,8 @@ public class DungeonRunner {
     Scanner scanner;
 
     boolean done = false;
+
+    static List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue");
 
     List<MetaLocation> metaLocations;
     //Solidify interface
@@ -56,16 +59,25 @@ public class DungeonRunner {
         if (analysis.isActionable()) {
             try {
                 //analysis.printFinalAnalysis();
-                if (analysis.getActionParam() != null) {
-                    hero.takeAction(analysis.getActionWord(), analysis.getActionParam());
+                String actionWord = analysis.getActionWord();
+                if (CLEAR_REQUIRED_FOR_ACTION.contains(actionWord) && !currentRoom.isCleared()) {
+                    System.out.println("Oh honey, you have to clear the room of monsters first.");
                 } else {
-                    hero.takeAction(analysis.getActionWord());
+                    if (analysis.getActionParam() != null) {
+                        hero.takeAction(actionWord, analysis.getActionParam());
+                    } else {
+                        hero.takeAction(actionWord);
+                    }
                 }
             } catch (VictoryException ex) {
                 System.out.println("Victory!");
                 System.out.println(ex.getMessage());
                 System.out.println("The bards will sing of this day.");
                 done = true;
+            } catch (Exception ex) {
+                System.out.println("Let's keep going, but the message was:");
+                System.out.println(ex.getMessage() + " and of type " + ex.getClass());
+
             }
             currentRoom = hero.getLocation();
             if (!done) {

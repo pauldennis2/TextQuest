@@ -56,8 +56,7 @@ public class Dungeon extends MetaLocation {
 
         dungeonName = getRandomDungeonName();
         goalDescription = GOAL_INTRO + dungeonName;
-        //goal = DungeonGoalType.values()[random.nextInt(DungeonGoalType.values().length)];
-        goal = DungeonGoalType.RECOVER_ITEM;
+        goal = DungeonGoalType.values()[random.nextInt(DungeonGoalType.values().length)];
         switch (goal) {
             case SLAY_MONSTER:
                 boss = new Monster(true, random);
@@ -72,6 +71,7 @@ public class Dungeon extends MetaLocation {
                 Chest goalChest = new Chest();
                 goalChest.addItem(itemToRecover);
                 finalRoom.addContainer(goalChest);
+                finalRoom.addMonster(new Monster(false, random));
 
                 Chest.getKeys().stream().forEach(e -> {
                         middleRoom.addItem(e);
@@ -82,6 +82,7 @@ public class Dungeon extends MetaLocation {
                 break;
             case RESCUE_PRINCE:
                 goalDescription += " and rescue Prince Charming.";
+                finalRoom.addMonster(new Monster(false, random));
                 finalRoom.setHasPrince(true);
                 break;
         }

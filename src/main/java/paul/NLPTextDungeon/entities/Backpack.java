@@ -2,6 +2,7 @@ package paul.NLPTextDungeon.entities;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -29,5 +30,12 @@ public class Backpack extends Location {
     @Override
     public String toString () {
         return items.toString();
+    }
+
+    public boolean contains (String itemName) {
+        return items.stream()
+                .map(e -> e.getName().toLowerCase())
+                .collect(Collectors.toList())
+                .contains(itemName);
     }
 }

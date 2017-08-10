@@ -222,4 +222,8 @@ public class DungeonRoom extends Location {
     public void setRoomName () {
         throw new AssertionError("todo: make this method come up with a name");
     }
+
+    public boolean isCleared () {
+        return monsters.size() == 0;
+    }
 }

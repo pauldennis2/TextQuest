@@ -5,6 +5,7 @@ import paul.NLPTextDungeon.interfaces.LevelUpAction;
 import paul.NLPTextDungeon.interfaces.ParamAction;
 import paul.NLPTextDungeon.interfaces.SpellAction;
 import paul.NLPTextDungeon.interfaces.VoidAction;
+import paul.NLPTextDungeon.utils.ItemActionMap;
 import paul.NLPTextDungeon.utils.SafeNumScanner;
 import paul.NLPTextDungeon.utils.VictoryException;
 
@@ -46,7 +47,8 @@ public class Hero {
     private Map<String, VoidAction> heroVoidActions;
     private Map<String, ParamAction> heroParamActions;
 
-    private Map<String, VoidAction> itemActions;
+    private ItemActionMap itemActions;
+    //private Map<String, VoidAction> itemActions;
     private Map<String, VoidAction> views;
     Map<String, LevelUpAction> levelUpActionMap;
     Map<String, SpellAction> possibleSpellMap;
@@ -77,7 +79,7 @@ public class Hero {
         backpack = new Backpack();
         heroVoidActions = new HashMap<>();
         heroParamActions = new HashMap<>();
-        itemActions = new HashMap<>();
+        itemActions = new ItemActionMap();
         views = new HashMap<>();
         initActionMap();
         initItemActions();
@@ -86,10 +88,30 @@ public class Hero {
         backpack = new Backpack();
         backpack.add(new BackpackItem("Torch", backpack));
         backpack.add(new BackpackItem("Sword", backpack));
-        backpack.add(new BackpackItem("Bow & Arrows", backpack));
+        backpack.add(new BackpackItem("Bow", backpack));
         spellMap = new HashMap<>();
         initLevelUpMap();
         initPossibleSpellMap();
+    }
+
+    public void takeAction (String action) {
+        VoidAction voidAction = heroVoidActions.get(action);
+        if (voidAction != null) {
+            voidAction.doAction(location);
+        } else {
+            System.out.println("Action not in map.");
+            throw new AssertionError();
+        }
+    }
+
+    public void takeAction (String action, String param) {
+        ParamAction paramAction = heroParamActions.get(action);
+        if (paramAction != null) {
+            paramAction.doAction(location, param);
+        } else {
+            System.out.println("Action not in map.");
+            throw new AssertionError();
+        }
     }
 
     private void initItemActions () {
@@ -98,6 +120,7 @@ public class Hero {
             room.getHero().restoreHealth(POTION_VALUE);
             room.getHero().removeItem("Potion");
         });
+        itemActions.put("bow", room -> System.out.println("You don't know how to use that yet."));
     }
 
     private void initViews () {
@@ -113,7 +136,13 @@ public class Hero {
             room.getMonsters().forEach(room.getHero()::fightMonster);
             room.updateMonsters();
         });
-        heroVoidActions.put("rescue", room -> rescuePrince());
+        heroVoidActions.put("rescue", room -> {
+            if (room.isCleared()) {
+                rescuePrince();
+            } else {
+                System.out.println("Oh honey, you've got to clear the room of monsters first.");
+            }
+        });
 
         heroVoidActions.put("plunder", room -> {
             Chest chest = room.getChest();
@@ -135,7 +164,13 @@ public class Hero {
             });
         });
 
-        heroParamActions.put("use", (room, param) -> itemActions.get(param).doAction(room));
+        heroParamActions.put("use", (room, param) -> {
+            if (room.getHero().getBackpack().contains(param)) {
+                itemActions.get(param).doAction(room);
+            } else {
+                System.out.println("You don't have a " + param + " to use.");
+            }
+        });
         heroParamActions.put("move", (room, param) -> proceed(Direction.valueOf(param.toUpperCase())));
         heroParamActions.put("view", (room, param) -> views.get(param).doAction(room));
     }
@@ -235,25 +270,7 @@ public class Hero {
         setLocation(previousLocation);
     }
 
-    public void takeAction (String action) {
-        VoidAction voidAction = heroVoidActions.get(action);
-        if (voidAction != null) {
-            voidAction.doAction(location);
-        } else {
-            System.out.println("Action not in map.");
-            throw new AssertionError();
-        }
-    }
 
-    public void takeAction (String action, String param) {
-        ParamAction paramAction = heroParamActions.get(action);
-        if (paramAction != null) {
-            paramAction.doAction(location, param);
-        } else {
-            System.out.println("Action not in map.");
-            throw new AssertionError();
-        }
-    }
 
     public static final int[] LEVEL_AMTS = {250, 1000, 2500, 4500, 6500, 9000, 12000, 15000, 18500, 21500, 25000, 35000, 50000};
     //Max level 12
