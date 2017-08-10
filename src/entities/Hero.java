@@ -26,6 +26,9 @@ public class Hero {
     private int sneak;
     private int maxSneak;
 
+    private int defense;
+    private int maxDefense;
+
     private int level;
     private int exp;
 

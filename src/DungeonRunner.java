@@ -21,8 +21,12 @@ public class DungeonRunner {
 
     public DungeonRunner () {
         hero = new Hero();
-        dungeon = new Dungeon();
+        System.out.println("Input dungeon level");
+
         numScanner = new SafeNumScanner(System.in);
+        int level = numScanner.getSafeNum(0, 2);
+        dungeon = new Dungeon(level);
+
     }
 
     public void run () {

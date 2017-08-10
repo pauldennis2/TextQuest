@@ -18,13 +18,16 @@ public class Dungeon {
     private String goalDescription;
     private String dungeonName;
 
+    private int level;
+
     private DungeonRoom finalRoom;
     private DungeonRoom entrance;
     private DungeonRoom middleRoom;
 
     public static final String GOAL_INTRO = "You must venture into the ";
 
-    public Dungeon () {
+    public Dungeon (int level) {
+        this.level = level;
         Random random = new Random();
         rooms = new ArrayList<>();
         Monster boss;
@@ -32,6 +35,7 @@ public class Dungeon {
         rooms = new ArrayList<>();
 
         entrance = new DungeonRoom(false, true);
+        entrance.setRoomName("Entryway");
         middleRoom = new DungeonRoom(random);
         finalRoom = new DungeonRoom(true, false);
 
@@ -96,6 +100,8 @@ public class Dungeon {
     }
 
     public static final String[] DUNGEON_DESCRIPTORS = {"Spooky", "Scary", "Haunted", "Weird", "Shadowy", "Drip-Drip"};
+    public static final String[] OFS = {"of Doom", "of Doom and Gloom", "of Truly, Horrible, Epicly Bad Doom",
+            "of Jet-Skis and Rainbows", "of Weirdness", "of \"Hey, do we have enough names yet?\""};
     private static String getRandomDungeonName() {
         Random random = new Random();
         String response = "";

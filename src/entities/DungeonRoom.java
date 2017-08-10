@@ -23,6 +23,8 @@ public class DungeonRoom {
     private boolean dungeonEntrance;
     private boolean hasPrince;
 
+    private String roomName;
+
     private Hero hero;
 
     private int id;
@@ -38,11 +40,6 @@ public class DungeonRoom {
         monsters = new ArrayList<>();
         items = new ArrayList<>();
         lighting = Math.random();
-
-        int numMonsters = random.nextInt(3);
-        for (int i = 0; i < numMonsters; i++) {
-            monsters.add(new Monster(false, random));
-        }
     }
 
     public DungeonRoom (boolean finalRoom, boolean dungeonEntrance) {
@@ -212,5 +209,13 @@ public class DungeonRoom {
 
     public void removeHero () {
         hero = null;
+    }
+
+    public void setRoomName (String roomName) {
+        this.roomName = roomName;
+    }
+
+    public void setRoomName () {
+        throw new AssertionError("todo: make this method come up with a name");
     }
 }
