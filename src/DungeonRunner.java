@@ -1,12 +1,16 @@
 import entities.Dungeon;
 import entities.DungeonRoom;
 import entities.Hero;
+
 import entities.parsing.StatementAnalysis;
 import entities.parsing.StatementAnalyzer;
 import interfaces.ParamAction;
+import entities.MetaLocation;
+
 import utils.SafeNumScanner;
 import utils.VictoryException;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -24,11 +28,17 @@ public class DungeonRunner {
 
     boolean done = false;
 
+    List<MetaLocation> metaLocations;
+
     public DungeonRunner () {
         hero = new Hero();
         dungeon = new Dungeon();
         analyzer = new StatementAnalyzer();
         scanner = new Scanner(System.in);
+
+        dungeon = new Dungeon(1);
+        metaLocations = new ArrayList<>();
+        metaLocations.add(dungeon);
     }
 
     public void run () {

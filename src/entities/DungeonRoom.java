@@ -1,6 +1,7 @@
 package entities;
 
 import enums.Direction;
+import enums.LightingLevel;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -8,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRoom {
+public class DungeonRoom extends Location {
 
     private Map<Direction, DungeonRoom> connectedRooms;
 
@@ -21,6 +22,8 @@ public class DungeonRoom {
     private boolean finalRoom; //Contains either boss, item, or prince
     private boolean dungeonEntrance;
     private boolean hasPrince;
+
+    private String roomName;
 
     private Hero hero;
 
@@ -37,11 +40,6 @@ public class DungeonRoom {
         monsters = new ArrayList<>();
         items = new ArrayList<>();
         lighting = Math.random();
-
-        int numMonsters = random.nextInt(3);
-        for (int i = 0; i < numMonsters; i++) {
-            monsters.add(new Monster(false, random));
-        }
     }
 
     public DungeonRoom (boolean finalRoom, boolean dungeonEntrance) {
@@ -98,38 +96,45 @@ public class DungeonRoom {
     public void describeRoom () {
         Random random = new Random();
         System.out.println("You are in room " + id);
-        if (lighting > 0.8) {
-            System.out.println("The room is well lit. You can clearly see:");
-            monsters.stream().forEach(System.out::println);
-            items.stream().forEach(System.out::println);
-            if (chest != null) {
-                System.out.println(chest);
-            }
-            if (monsters.size() + items.size() == 0) {
-                System.out.println("(There is nothing in the room.)");
-            }
-            if (hasPrince) {
-                System.out.println("You see a handsome prince tied to a chair. " +
-                        "He looks like he'd really like to be rescued.");
-            }
-        } else if (lighting == 0) {
-            System.out.println("The room is pitch black. You cannot see anything.");
-        } else {
-            if (monsters.size() + items.size() > 0) {
-                System.out.println("The room is not well lit. You can only make out a few shapes.");
-                if (monsters.size() > 0) {
-                    System.out.println("You can see " + monsters.size() + " figures moving in the darkness.");
+        LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
+        switch (lightingLevel) {
+            case WELL_LIT:
+                System.out.println("The room is well lit. You can clearly see:");
+                monsters.stream().forEach(System.out::println);
+                items.stream().forEach(System.out::println);
+                if (chest != null) {
+                    System.out.println(chest);
                 }
-                if (items.size() > 0) {
-                    System.out.println("You think you can see the following items:");
-                    items.stream()
-                            .filter(e -> Math.random() < lighting * 2)
-                            .forEach(System.out::println);
+                if (monsters.size() + items.size() == 0) {
+                    System.out.println("(There is nothing in the room.)");
                 }
-            }
-            if (hasPrince) {
-                System.out.println("You think you see a handsome prince but it's hard to tell.");
-            }
+                if (hasPrince) {
+                    System.out.println("You see a handsome prince tied to a chair. " +
+                            "He looks like he'd really like to be rescued.");
+                }
+                break;
+
+            case PITCH_BLACK:
+                System.out.println("The room is pitch black. You cannot see anything.");
+                break;
+
+            case DIM:
+                if (monsters.size() + items.size() > 0) {
+                    System.out.println("The room is not well lit. You can only make out a few shapes.");
+                    if (monsters.size() > 0) {
+                        System.out.println("You can see " + monsters.size() + " figures moving in the darkness.");
+                    }
+                    if (items.size() > 0) {
+                        System.out.println("You think you can see the following items:");
+                        items.stream()
+                                .filter(e -> Math.random() < lighting * 2)
+                                .forEach(System.out::println);
+                    }
+                }
+                if (hasPrince) {
+                    System.out.println("You think you see a handsome prince but it's hard to tell.");
+                }
+                break;
         }
     }
 
@@ -204,5 +209,13 @@ public class DungeonRoom {
 
     public void removeHero () {
         hero = null;
+    }
+
+    public void setRoomName (String roomName) {
+        this.roomName = roomName;
+    }
+
+    public void setRoomName () {
+        throw new AssertionError("todo: make this method come up with a name");
     }
 }

@@ -3,6 +3,9 @@ package entities;
 import enums.Direction;
 import interfaces.ParamAction;
 import interfaces.VoidAction;
+import interfaces.LevelUpAction;
+import interfaces.RoomAction;
+import interfaces.SpellAction;
 import utils.SafeNumScanner;
 import utils.VictoryException;
 
@@ -14,16 +17,25 @@ import java.util.stream.Collectors;
  */
 public class Hero {
 
-    private int curHealth;
+    private int health;
     private int maxHealth;
+
     private int might;
+    private int maxMight;
+
     private int magic;
+
     private int sneak;
+    private int maxSneak;
+
+    private int defense;
+    private int maxDefense;
 
     private int level;
     private int exp;
 
-    private List<BackpackItem> backpack;
+    //private List<BackpackItem> backpack;
+    private Backpack backpack;
     private DungeonRoom location;
     private DungeonRoom previousLocation;
 
@@ -34,21 +46,32 @@ public class Hero {
 
     private Map<String, VoidAction> itemActions;
     private Map<String, VoidAction> views;
+    private Map<String, RoomAction> heroActionMap;
+    Map<String, LevelUpAction> levelUpActionMap;
+    Map<String, SpellAction> possibleSpellMap;
+    Map<String, SpellAction> spellMap;
+
+    private int maxSpellsPerDay;
 
     public static final double TORCH_LIGHT = 1.0;
     public static final int POTION_VALUE = 9;
     private Random random;
 
+    SafeNumScanner safeNumScanner;
+
     public Hero () {
         random = new Random();
-        curHealth = 50;
+        health = 50;
         maxHealth = 50;
         might = 10;
+        maxMight = 10;
         magic = 2;
         sneak = 0;
+        maxSneak = 2;
 
-        level = 1;
+        level = 0;
         exp = 0;
+        maxSpellsPerDay = 0;
 
         backpack = new ArrayList<>();
         heroVoidActions = new HashMap<>();
@@ -58,9 +81,14 @@ public class Hero {
         initActionMap();
         initItemActions();
         initViews();
+        
+        backpack = new Backpack();
         backpack.add(new BackpackItem("Torch"));
         backpack.add(new BackpackItem("Sword"));
         backpack.add(new BackpackItem("Bow & Arrows"));
+        spellMap = new HashMap<>();
+        initLevelUpMap();
+        initPossibleSpellMap();
     }
 
     private void initItemActions () {
@@ -86,16 +114,29 @@ public class Hero {
         heroVoidActions.put("rescue", room -> rescuePrince());
 
         heroVoidActions.put("plunder", room -> {
+
             Container chest = room.getChest();
             room.getHero().backpack.stream()
                     .filter(item -> item.getName().contains("Key"))
                     .forEach(chest::unlock);
+            if (chest.isLocked()) {
+                System.out.println("You don't have the key");
+            } else {
+                System.out.println("Trademarked chest-opening music, rapid ascending style.");
+            }
+        });
 
+        heroActionMap.put("Loot Chest", room -> {
+            Container chest = room.getChest();
             List<BackpackItem> contents = chest.removeContents();
+            if(contents == null) {
+                throw new AssertionError("Chest was probably locked. Option should not have been offered.");
+            }
             boolean victoryFlag = false;
             //contents.stream().forEach(backpack::add);
             for (BackpackItem item : contents) {
                 backpack.add(item);
+                item.setLocation(backpack);
                 if (item.isQuestItem()) {
                     victoryFlag = true;
                 }
@@ -108,6 +149,63 @@ public class Hero {
         heroParamActions.put("use", (room, param) -> itemActions.get(param).doAction(room));
         heroParamActions.put("move", (room, param) -> proceed(Direction.valueOf(param.toUpperCase())));
         heroParamActions.put("view", (room, param) -> views.get(param).doAction(room));
+    }
+
+    private void levelUp () {
+        if (level >= 12) {
+            System.out.println("You are max level");
+            return;
+        }
+        System.out.println("What would you like to do?");
+        List<String> levelUpActionStrings = levelUpActionMap.keySet().stream().collect(Collectors.toList());
+        int index = 1;
+        for (String action : levelUpActionStrings) {
+            System.out.println(index + ". " + action);
+            index++;
+        }
+        int response = safeNumScanner.getSafeNum(1, levelUpActionStrings.size());
+        LevelUpAction action = levelUpActionMap.get(levelUpActionStrings.get(response - 1));
+        action.doAction(this);
+        level++;
+        printStats();
+    }
+
+    private void initLevelUpMap () {
+        levelUpActionMap = new HashMap<>();
+        levelUpActionMap.put("Increase HP", hero -> hero.maxHealth += 5);
+        levelUpActionMap.put("Increase Might", hero -> hero.might++);
+        levelUpActionMap.put("Sneak", hero -> hero.sneak++);
+        levelUpActionMap.put("Learn Spell", hero -> hero.learnNewSpell());
+    }
+
+    private void initPossibleSpellMap () {
+        possibleSpellMap = new HashMap<>();
+        possibleSpellMap.put("Heal", hero -> hero.restoreHealth(15));
+        possibleSpellMap.put("Moonlight Shadow", hero -> hero.sneak += 5);
+        possibleSpellMap.put("Fireblast", hero -> {
+            DungeonRoom room = hero.getLocation();
+            room.getMonsters().forEach(e -> e.takeDamage(3));
+            room.updateMonsters();
+        });
+        possibleSpellMap.put("Weaken", hero ->  hero.getLocation().getMonsters()
+                .forEach(e -> e.setMight(e.getMight() - 1)));
+    }
+
+    private void learnNewSpell () {
+        maxSpellsPerDay++;
+        List<String> spellNames = possibleSpellMap.keySet().stream()
+                //.filter(e -> ) //filter out spells we know
+                .collect(Collectors.toList());
+        int index = 1;
+        System.out.println("Which spell to learn?");
+        for (String spell : spellNames) {
+            System.out.println(index + ". " + spell);
+            index++;
+        }
+        int response = safeNumScanner.getSafeNum(1, spellNames.size());
+        String actionString = spellNames.get(response - 1);
+        spellMap.put(actionString, possibleSpellMap.get(actionString));
+        System.out.println("You have learned " + actionString);
     }
 
     public void rescuePrince () {
@@ -124,15 +222,15 @@ public class Hero {
     }
 
     public void restoreHealth (int healthAmount) {
-        curHealth += healthAmount;
-        if (curHealth > maxHealth) {
-            curHealth = maxHealth;
+        health += healthAmount;
+        if (health > maxHealth) {
+            health = maxHealth;
         }
     }
 
     public void printStats () {
-        System.out.println("Health: " + curHealth + "/" + maxHealth + "  (Might, Magic, Sneak, Exp)  4" +
-                might + ", " + magic + ", " + sneak + ", " + exp);
+        System.out.println("Health: " + health + "/" + maxHealth + "  (Might, Magic, Sneak) (" +
+                might + ", " + magic + ", " + sneak + ") Level: " + level + ", Exp: " + exp);
     }
 
     private void proceed (Direction direction) {
@@ -168,6 +266,19 @@ public class Hero {
         }
     }
 
+    public static final int[] LEVEL_AMTS = {250, 1000, 2500, 4500, 6500, 9000, 12000, 15000, 18500, 21500, 25000, 35000, 50000};
+    //Max level 12
+    public void addExp (int exp) {
+        if (exp < 0) {
+            throw new AssertionError();
+        }
+        this.exp += exp;
+        System.out.println("Gained " + exp + " exp.");
+        if (LEVEL_AMTS[level] < exp) {
+            levelUp();
+        }
+    }
+
     public void fightMonster (Monster monster) {
         System.out.println("Fighting " + monster.getName());
         while (true) {
@@ -176,18 +287,18 @@ public class Hero {
             monster.takeDamage(damageRoll);
 
             if (monster.getHealth() == 0) {
-                exp += monster.getExp();
-                System.out.println("Won fight against " + monster.getName() + ". Gained " + monster.getExp() + " exp.");
+                addExp(monster.getExp());
+                System.out.println("Won fight against " + monster.getName() + ".");
                 if (monster.isBoss()) {
                     throw new VictoryException("Beat the evil boss, " + monster.getName() + ".");
                 }
                 break;
             }
 
-            int monsterDamage = random.nextInt(monster.getStrength() + 1);
+            int monsterDamage = random.nextInt(monster.getMight() + 1);
             System.out.println("\t" + monster.getName() + " did " + monsterDamage + " to you.");
             takeDamage(monsterDamage);
-            if (curHealth == 0) {
+            if (health == 0) {
                 System.out.println("You lost the fight against " + monster.getName());
                 break;
             }
@@ -195,14 +306,59 @@ public class Hero {
     }
 
     private void takeDamage (int damageAmount) {
-        curHealth -= damageAmount;
-        if (curHealth < 0) {
-            curHealth = 0;
+        health -= damageAmount;
+        if (health < 0) {
+            health = 0;
         }
     }
 
-    public int getCurHealth() {
-        return curHealth;
+    /*
+    public List<String> getRoomActions () {
+        List<String> actions = getBackpackItemActions();
+
+        //Always available, informational (for now)
+        actions.add("Show Map (NYI)");
+        actions.add("Character Status");
+
+        if (location.getMonsters().size() > 0) {
+            //If monsters are present, can only do these:
+            actions.add("Fight");
+            actions.add("Sneak");
+            actions.add("Retreat");
+        } else if (location.getMonsters().size() == 0 || isSneaking) {
+            //If monsters are gone or we are sneaking
+            if (location.getItems().size() > 0) {
+                actions.add("Loot");
+            }
+            if (location.hasChest()) {
+                Container chest = location.getChest();
+                if (chest.getContents().size() > 0) {
+                    if (chest.isLocked()) {
+                        actions.add("Unlock Chest");
+                    } else {
+                        actions.add("Loot Chest");
+                    }
+                }
+            }
+            if (location.hasPrince()) {
+                actions.add("Rescue Prince");
+            }
+            actions.add("Proceed");
+        }
+        return actions;
+    }
+
+    private List<String> getBackpackItemActions () {
+        Set<String> actionMapKeys = heroActionMap.keySet();
+
+        return backpack.stream()
+                .map(e -> e.getName())
+                .filter(e -> actionMapKeys.contains(e))
+                .collect(Collectors.toList());
+    }*/
+
+    public int getHealth() {
+        return health;
     }
 
     public int getMaxHealth() {
@@ -233,7 +389,7 @@ public class Hero {
         return exp;
     }
 
-    public List<BackpackItem> getBackpack() {
+    public Backpack getBackpack() {
         return backpack;
     }
 
@@ -249,5 +405,4 @@ public class Hero {
             previousLocation.removeHero();
         }
     }
-
 }
