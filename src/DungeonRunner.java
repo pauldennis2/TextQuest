@@ -1,9 +1,11 @@
 import entities.Dungeon;
 import entities.DungeonRoom;
 import entities.Hero;
+import entities.MetaLocation;
 import utils.SafeNumScanner;
 import utils.VictoryException;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -19,10 +21,17 @@ public class DungeonRunner {
 
     boolean done = false;
 
+    List<MetaLocation> metaLocations;
+
     public DungeonRunner () {
         hero = new Hero();
-        dungeon = new Dungeon();
+        System.out.println("Input dungeon level");
+
         numScanner = new SafeNumScanner(System.in);
+        int level = numScanner.getSafeNum(0, 2);
+        dungeon = new Dungeon(level);
+        metaLocations = new ArrayList<>();
+        metaLocations.add(dungeon);
     }
 
     public void run () {

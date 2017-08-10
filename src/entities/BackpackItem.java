@@ -1,6 +1,7 @@
 package entities;
 
 import interfaces.RoomAction;
+import interfaces.listeners.OnPickup;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,14 +16,38 @@ public class BackpackItem {
     private boolean isQuestItem;
     private int value;
 
-    public BackpackItem (String name) {
+    private Location location;
+
+    private OnPickup pickupListener;
+
+    public BackpackItem (String name, Location location) {
         this.name = name;
+        this.location = location;
         isQuestItem = false;
     }
 
-    public BackpackItem (boolean quest) {
+    public BackpackItem (boolean quest, Location location) {
         isQuestItem = quest;
         name = getQuestItemName();
+    }
+
+    public OnPickup getPickupListener() {
+        return pickupListener;
+    }
+
+    public void setPickupListener(OnPickup pickupListener) {
+        this.pickupListener = pickupListener;
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
+        if (pickupListener != null) {
+            pickupListener.doAction();
+        }
     }
 
     public String getName() {

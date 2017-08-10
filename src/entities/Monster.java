@@ -8,7 +8,7 @@ import java.util.Random;
 public class Monster {
 
     private int health;
-    private int strength;
+    private int might;
     private int exp;
     private String name;
     private boolean isBoss;
@@ -26,17 +26,17 @@ public class Monster {
         this.isBoss = isBoss;
 
         if (!isBoss) {
-            strength = random.nextInt(MAX_RANDOM_STR);
+            might = random.nextInt(MAX_RANDOM_STR);
             health = random.nextInt(MAX_RANDOM_HEALTH);
             if (health == 0) {
                 health = 1;
             }
-            exp = health + 2 * strength + MONSTER_XP;
+            exp = health + 2 * might + MONSTER_XP;
             name = getRandomMonsterName();
         } else {
-            strength = random.nextInt(MAX_BOSS_STR);
+            might = random.nextInt(MAX_BOSS_STR);
             health = random.nextInt(MAX_BOSS_HEALTH);
-            exp = health + 2 * strength + BOSS_XP;
+            exp = health + 2 * might + BOSS_XP;
             name = getRandomBossName();
         }
     }
@@ -51,7 +51,7 @@ public class Monster {
     @Override
     public String toString () {
         String response = name;
-        if (strength < 2) {
+        if (might < 2) {
             response += ", weak of claw";
         } else {
             response += ", strong of claw";
@@ -68,8 +68,12 @@ public class Monster {
         return health;
     }
 
-    public int getStrength() {
-        return strength;
+    public int getMight() {
+        return might;
+    }
+
+    public void setMight (int might) {
+        this.might = might;
     }
 
     public int getExp() {
