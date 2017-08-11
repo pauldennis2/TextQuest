@@ -51,11 +51,18 @@ public class DungeonRunner {
         mainActionMenu();
     }
 
+    String nextActionWord;
+    String nextParamWord;
+    boolean processAnd;
+
     public void mainActionMenu () {
         currentRoom.describeRoom();
         System.out.println("What would you like to do?");
         String response = scanner.nextLine();
         StatementAnalysis analysis = analyzer.analyzeStatement(response);
+        if (1 == 1) {
+            throw new AssertionError("Fix to make it accept ands.");
+        }
         if (analysis.isActionable()) {
             try {
                 //analysis.printFinalAnalysis();
@@ -87,6 +94,11 @@ public class DungeonRunner {
             System.out.println("Could not analyze to an actionable statement.\nComments:");
             analysis.getComments().forEach(System.out::print);
             mainActionMenu();
+        }
+        if (analysis.hasAnd() && analysis.isSecondActionable()) {
+            processAnd = true;
+            nextActionWord = analysis.getSecondActionWord();
+            nextParamWord = analysis.getSecondActionParam();
         }
     }
 

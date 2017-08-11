@@ -132,6 +132,10 @@ public class Hero {
     private void initActionMap () {
         heroVoidActions.put("loot", room -> room.lootRoom().forEach(backpack::add));
         heroVoidActions.put("retreat", room -> room.getHero().retreat());
+        heroVoidActions.put("sneak", room -> System.out.println("You don't know how to sneak yet."));
+        heroVoidActions.put("cast", room -> System.out.println("You don't know any spells yet."));
+        heroVoidActions.put("learn", room -> System.out.println("That function is not available at this time."));
+        heroVoidActions.put("explore", room -> System.out.println("That function is also not available at this time."));
         heroVoidActions.put("fight", room -> {
             room.getMonsters().forEach(room.getHero()::fightMonster);
             room.updateMonsters();
