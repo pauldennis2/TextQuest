@@ -1,0 +1,13 @@
+|Word Association for Words about moving around the dungeon
+
+|Move Words
+@Move
+crawl - squirm
+climb - ascend
+jump - leap, hop
+
+dig - tunnel, burrow
+
+smash - bash
+burn - alight
+douse - smother, snuff

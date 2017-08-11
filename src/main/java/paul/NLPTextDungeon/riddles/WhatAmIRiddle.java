@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.entities;
+package paul.NLPTextDungeon.riddles;
 
 import java.util.ArrayList;
 import java.util.List;

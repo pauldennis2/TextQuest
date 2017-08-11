@@ -96,10 +96,13 @@ public class StatementAnalyzer {
             analysis.addComment("No action words.");
         }
         if (analysis.hasAnd()) {
+            System.out.println("Detected and. analyzing");
             StatementAnalysis andAnalysis = new StatementAnalysis(analysis.getOriginalStatement() +
                     " JUST THE AND BIT", analysis.getSecondTokens());
-            andAnalysis = finalAnalysis(andAnalysis);
-            analysis.setSecondAnalysis(andAnalysis.getActionWord(), andAnalysis.getActionParam(), andAnalysis.isActionable());
+            andAnalysis = finalAnalysis(findTokenMatches(andAnalysis));
+            System.out.println(andAnalysis);
+            analysis.setSecondAnalysis(andAnalysis.getActionWord(), andAnalysis.getActionParam(), true);
+            System.out.println(analysis);
         }
         return analysis;
     }

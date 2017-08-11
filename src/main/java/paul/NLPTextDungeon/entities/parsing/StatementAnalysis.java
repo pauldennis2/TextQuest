@@ -51,6 +51,17 @@ public class StatementAnalysis {
         Arrays.stream(WordType.values()).forEach(e -> secondTokenMatchMap.put(e, new ArrayList<>()));
     }
 
+    public StatementAnalysis (String actionWord, String actionParam) {
+        originalStatement = "second half of an AND";
+        this.actionable = true;
+        this.actionWord = actionWord;
+        this.actionParam = actionParam;
+
+        tokenMatchMap = new HashMap<>();
+        secondTokenMatchMap = new HashMap<>();
+        comments = new ArrayList<>();
+    }
+
     public void printAnalysis () {
         System.out.println("Analysis of \"" + originalStatement + "\":");
         System.out.print("Matches: ");
@@ -162,5 +173,24 @@ public class StatementAnalysis {
 
     public String getSecondActionParam() {
         return secondActionParam;
+    }
+
+    @Override
+    public String toString() {
+        return "StatementAnalysis{" +
+                "originalStatement='" + originalStatement + '\'' +
+                ", hasAnd=" + hasAnd +
+                ", tokens=" + Arrays.toString(tokens) +
+                ", secondTokens=" + Arrays.toString(secondTokens) +
+                ", comments=" + comments +
+                ", tokenMatchMap=" + tokenMatchMap +
+                ", secondTokenMatchMap=" + secondTokenMatchMap +
+                ", actionWord='" + actionWord + '\'' +
+                ", actionParam='" + actionParam + '\'' +
+                ", actionable=" + actionable +
+                ", secondActionWord='" + secondActionWord + '\'' +
+                ", secondActionParam='" + secondActionParam + '\'' +
+                ", secondActionable=" + secondActionable +
+                '}';
     }
 }
