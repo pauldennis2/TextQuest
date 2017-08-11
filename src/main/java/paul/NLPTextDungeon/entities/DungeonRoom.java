@@ -140,6 +140,8 @@ public class DungeonRoom extends Location {
                 }
                 break;
         }
+        System.out.print("There are passages leading " );
+        connectedRooms.keySet().forEach(e-> System.out.print(" " + e + " "));
     }
 
     public List<BackpackItem> lootRoom () {

@@ -264,10 +264,12 @@ public class Hero {
     private void proceed (Direction direction) {
         DungeonRoom nextRoom = location.getConnectedRooms().get(direction);
         if (nextRoom == null) {
-            throw new AssertionError();
+            System.out.println("Cannot go that way (no connected room).");
+            return;
         }
-
+        location.removeHero();
         setLocation(nextRoom);
+        nextRoom.addHero(this);
     }
 
     private void retreat () {
