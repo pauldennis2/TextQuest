@@ -1,6 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
 import paul.NLPTextDungeon.enums.Direction;
+import paul.NLPTextDungeon.enums.SpeakingVolume;
 import paul.NLPTextDungeon.interfaces.LevelUpAction;
 import paul.NLPTextDungeon.interfaces.ParamAction;
 import paul.NLPTextDungeon.interfaces.SpellAction;
@@ -177,6 +178,14 @@ public class Hero {
         });
         heroParamActions.put("move", (room, param) -> proceed(Direction.valueOf(param.toUpperCase())));
         heroParamActions.put("view", (room, param) -> views.get(param).doAction(room));
+
+        heroParamActions.put("say", (room, param) -> room.getHero().vocalize(param, SpeakingVolume.SAY));
+        heroParamActions.put("whisper", (room, param) -> room.getHero().vocalize(param, SpeakingVolume.WHISPER));
+        heroParamActions.put("shout", (room, param) -> room.getHero().vocalize(param, SpeakingVolume.SHOUT));
+    }
+
+    private void vocalize (String message, SpeakingVolume volume) {
+        System.out.println("Player " + volume.toString().toLowerCase() + "s:" + message);
     }
 
     private void levelUp () {
