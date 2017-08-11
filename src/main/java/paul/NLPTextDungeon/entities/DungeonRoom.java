@@ -140,6 +140,8 @@ public class DungeonRoom extends Location {
                 }
                 break;
         }
+        System.out.print("There are passages leading " );
+        connectedRooms.keySet().forEach(e-> System.out.print(" " + e + " "));
     }
 
     public List<BackpackItem> lootRoom () {
@@ -221,5 +223,9 @@ public class DungeonRoom extends Location {
 
     public void setRoomName () {
         throw new AssertionError("todo: make this method come up with a name");
+    }
+
+    public boolean isCleared () {
+        return monsters.size() == 0;
     }
 }

@@ -24,6 +24,7 @@ cast - incant
 @Concept
 status - stats, character
 torch - light
+potion - healthpot, flask
 map - sketch
 monster - enemy, goblin, fiend
 backpack - pack, inventory, items

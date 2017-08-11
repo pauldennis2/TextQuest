@@ -60,7 +60,6 @@ public class StatementAnalyzer {
     private StatementAnalysis finalAnalysis (StatementAnalysis analysis) {
         List<String> voidActionWords = analysis.getTokenMatchMap().get(WordType.VOID_ACTION);
         List<String> paramActionWords = analysis.getTokenMatchMap().get(WordType.PARAM_ACTION);
-
         if (voidActionWords.size() > 0) {
             analysis.setAnalysis(voidActionWords.get(0), null, true);
             if (paramActionWords.size() > 0) {
@@ -94,7 +93,16 @@ public class StatementAnalyzer {
                 }
             }
         } else {
-            //Do nothing
+            analysis.addComment("No action words.");
+        }
+        if (analysis.hasAnd()) {
+            System.out.println("Detected and. analyzing");
+            StatementAnalysis andAnalysis = new StatementAnalysis(analysis.getOriginalStatement() +
+                    " JUST THE AND BIT", analysis.getSecondTokens());
+            andAnalysis = finalAnalysis(findTokenMatches(andAnalysis));
+            System.out.println(andAnalysis);
+            analysis.setSecondAnalysis(andAnalysis.getActionWord(), andAnalysis.getActionParam(), true);
+            System.out.println(analysis);
         }
         return analysis;
     }

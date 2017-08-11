@@ -51,6 +51,17 @@ public class StatementAnalysis {
         Arrays.stream(WordType.values()).forEach(e -> secondTokenMatchMap.put(e, new ArrayList<>()));
     }
 
+    public StatementAnalysis (String actionWord, String actionParam) {
+        originalStatement = "second half of an AND";
+        this.actionable = true;
+        this.actionWord = actionWord;
+        this.actionParam = actionParam;
+
+        tokenMatchMap = new HashMap<>();
+        secondTokenMatchMap = new HashMap<>();
+        comments = new ArrayList<>();
+    }
+
     public void printAnalysis () {
         System.out.println("Analysis of \"" + originalStatement + "\":");
         System.out.print("Matches: ");
@@ -110,6 +121,12 @@ public class StatementAnalysis {
         this.actionable = actionable;
     }
 
+    public void setSecondAnalysis (String secondActionWord, String secondActionParam, boolean secondActionable) {
+        this.secondActionWord = secondActionWord;
+        this.secondActionParam = secondActionParam;
+        this.secondActionable = secondActionable;
+    }
+
     public void addTokenMatch (String match, WordType type) {
         tokenMatchMap.get(type).add(match);
     }
@@ -144,5 +161,36 @@ public class StatementAnalysis {
 
     public String getActionParam() {
         return actionParam;
+    }
+
+    public boolean isSecondActionable () {
+        return secondActionable;
+    }
+
+    public String getSecondActionWord() {
+        return secondActionWord;
+    }
+
+    public String getSecondActionParam() {
+        return secondActionParam;
+    }
+
+    @Override
+    public String toString() {
+        return "StatementAnalysis{" +
+                "originalStatement='" + originalStatement + '\'' +
+                ", hasAnd=" + hasAnd +
+                ", tokens=" + Arrays.toString(tokens) +
+                ", secondTokens=" + Arrays.toString(secondTokens) +
+                ", comments=" + comments +
+                ", tokenMatchMap=" + tokenMatchMap +
+                ", secondTokenMatchMap=" + secondTokenMatchMap +
+                ", actionWord='" + actionWord + '\'' +
+                ", actionParam='" + actionParam + '\'' +
+                ", actionable=" + actionable +
+                ", secondActionWord='" + secondActionWord + '\'' +
+                ", secondActionParam='" + secondActionParam + '\'' +
+                ", secondActionable=" + secondActionable +
+                '}';
     }
 }

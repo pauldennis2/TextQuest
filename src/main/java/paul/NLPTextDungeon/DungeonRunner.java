@@ -9,6 +9,7 @@ import paul.NLPTextDungeon.entities.parsing.StatementAnalyzer;
 import paul.NLPTextDungeon.utils.VictoryException;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 
@@ -17,17 +18,19 @@ import java.util.Scanner;
  */
 public class DungeonRunner {
 
-    Dungeon dungeon;
-    Hero hero;
+    private Dungeon dungeon;
+    private Hero hero;
 
-    DungeonRoom currentRoom;
-    StatementAnalyzer analyzer;
-    Scanner scanner;
+    private DungeonRoom currentRoom;
+    private StatementAnalyzer analyzer;
+    private Scanner scanner;
 
-    boolean done = false;
+    private boolean done = false;
 
-    List<MetaLocation> metaLocations;
+    private static final List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue");
 
+    private List<MetaLocation> metaLocations;
+    //Solidify interface
     public DungeonRunner () {
         hero = new Hero();
         analyzer = new StatementAnalyzer();
@@ -48,32 +51,59 @@ public class DungeonRunner {
         mainActionMenu();
     }
 
+    String nextActionWord;
+    String nextParamWord;
+    boolean processAnd;
+
     public void mainActionMenu () {
-        currentRoom.describeRoom();
-        System.out.println("What would you like to do?");
-        String response = scanner.nextLine();
-        StatementAnalysis analysis = analyzer.analyzeStatement(response);
+        StatementAnalysis analysis;
+        if (processAnd) {
+            System.out.println("Running 2nd half of AND statement.");
+            analysis = new StatementAnalysis(nextActionWord, nextParamWord);
+            System.out.println(analysis);
+            processAnd = false;
+        } else {
+            currentRoom.describeRoom();
+            System.out.println("What would you like to do?");
+            String response = scanner.nextLine();
+            analysis = analyzer.analyzeStatement(response);
+        }
         if (analysis.isActionable()) {
             try {
-                //analysis.printFinalAnalysis();
-                if (analysis.getActionParam() != null) {
-                    hero.takeAction(analysis.getActionWord(), analysis.getActionParam());
+                analysis.printFinalAnalysis();
+                String actionWord = analysis.getActionWord();
+                if (CLEAR_REQUIRED_FOR_ACTION.contains(actionWord) && !currentRoom.isCleared()) {
+                    System.out.println("Oh honey, you have to clear the room of monsters first.");
                 } else {
-                    hero.takeAction(analysis.getActionWord());
+                    if (analysis.getActionParam() != null) {
+                        hero.takeAction(actionWord, analysis.getActionParam());
+                    } else {
+                        hero.takeAction(actionWord);
+                    }
                 }
             } catch (VictoryException ex) {
                 System.out.println("Victory!");
                 System.out.println(ex.getMessage());
                 System.out.println("The bards will sing of this day.");
                 done = true;
-            }
+            } /*catch (Exception ex) {
+                System.out.println("Let's keep going, but the message was:");
+                System.out.println(ex.getMessage() + " and of type " + ex.getClass());
+
+            }*/
             currentRoom = hero.getLocation();
-            if (!done) {
-                mainActionMenu();
-            }
         } else {
             System.out.println("Could not analyze to an actionable statement.\nComments:");
             analysis.getComments().forEach(System.out::print);
+            mainActionMenu();
+        }
+        if (analysis.hasAnd() && analysis.isSecondActionable()) {
+            processAnd = true;
+            nextActionWord = analysis.getSecondActionWord();
+            nextParamWord = analysis.getSecondActionParam();
+            System.out.println("Next words: " + nextActionWord + " param " + nextParamWord);
+        }
+        if (!done) {
             mainActionMenu();
         }
     }
