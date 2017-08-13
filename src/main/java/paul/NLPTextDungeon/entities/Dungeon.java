@@ -57,6 +57,7 @@ public class Dungeon extends MetaLocation {
         });
     }
 
+    //wiring interface
     public static void main(String[] args) throws IOException {
         String DUNGEON_FILE_PATH = "content_files/dungeons/";
         String dungeonJson = readDungeonFromFile(DUNGEON_FILE_PATH + "first_dungeon.json");
