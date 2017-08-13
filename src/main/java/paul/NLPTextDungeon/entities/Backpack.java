@@ -15,18 +15,13 @@ import java.util.stream.Stream;
  */
 public class Backpack extends Location {
 
-    private static Map<String, OnPickup> listenerMap;
-    private static boolean initialized;
 
     private List<BackpackItem> items;
 
     public Backpack () {
         items = new ArrayList<>();
-        if (!initialized) {
-            initListenerMap();
-            initialized = true;
-        }
     }
+
 
     public Stream<BackpackItem> stream () {
         return items.stream();
@@ -34,16 +29,6 @@ public class Backpack extends Location {
 
     public void add (BackpackItem item) {
         items.add(item);
-        if (item.hasPickupAction()) {
-            listenerMap.get(item.getPickupAction()).doAction();
-        }
-    }
-
-    private static void initListenerMap () {
-        listenerMap = new HashMap<>();
-        listenerMap.put("victory", () -> {
-            throw new VictoryException("You win!");
-        });
     }
 
     public void remove (BackpackItem item) {

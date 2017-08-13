@@ -1,10 +1,13 @@
 package paul.NLPTextDungeon.entities;
 
+import paul.NLPTextDungeon.entities.obstacles.Chasm;
 import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.interfaces.LevelUpAction;
 import paul.NLPTextDungeon.interfaces.ParamAction;
 import paul.NLPTextDungeon.interfaces.SpellAction;
 import paul.NLPTextDungeon.interfaces.VoidAction;
+import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
+import paul.NLPTextDungeon.utils.DefeatException;
 import paul.NLPTextDungeon.utils.ItemActionMap;
 import paul.NLPTextDungeon.utils.SafeNumScanner;
 import paul.NLPTextDungeon.utils.VictoryException;
@@ -92,6 +95,7 @@ public class Hero {
         spellMap = new HashMap<>();
         initLevelUpMap();
         initPossibleSpellMap();
+        initPickupListenerMap();
     }
 
     public void takeAction (String action) {
@@ -127,6 +131,19 @@ public class Hero {
         views.put("status", room -> room.getHero().printStats());
         views.put("map", room -> System.out.println("Map not yet implemented."));
         views.put("backpack", room -> System.out.println(room.getHero().backpack));
+    }
+
+
+    private Map<String, OnPickup> listenerMap;
+    private void initPickupListenerMap () {
+        listenerMap = new HashMap<>();
+        listenerMap.put("victory", () -> {
+            throw new VictoryException("You win!");
+        });
+        listenerMap.put("crackFloor", () -> {
+            System.out.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
+            getLocation().addObstacle(new Chasm());
+        });
     }
 
     private void initActionMap () {
@@ -313,8 +330,9 @@ public class Hero {
 
     public void takeDamage (int damageAmount) {
         health -= damageAmount;
-        if (health < 0) {
+        if (health <= 0) {
             health = 0;
+            throw new DefeatException("Health reduced to zero. You died.");
         }
     }
 

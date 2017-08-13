@@ -1,6 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
 import org.junit.Test;
+import paul.NLPTextDungeon.entities.obstacles.Chasm;
 
 import java.util.List;
 
@@ -24,6 +25,31 @@ public class DungeonRoomTest {
 
         //Check that it's been removed (no items are at the fountain now)
         assertEquals(room.searchForHiddenItems("fountain").size(), 0);
+    }
+
+    @Test
+    public void testIsCleared () {
+        DungeonRoom room = new DungeonRoom("Room", "Description");
+
+        assertTrue(room.isCleared());
+        Monster bob = new Monster (5, 2, "bob");
+        room.addMonster(bob);
+
+        assertFalse(room.isCleared());
+
+        bob.takeDamage(10);
+        room.updateMonsters();
+
+        assertTrue(room.isCleared());
+
+        Chasm chasm = new Chasm();
+        room.addObstacle(chasm);
+
+        assertFalse(room.isCleared());
+
+        chasm.attempt("jump", null);
+        assertTrue(chasm.isCleared());
+        assertTrue(room.isCleared());
     }
 
 }

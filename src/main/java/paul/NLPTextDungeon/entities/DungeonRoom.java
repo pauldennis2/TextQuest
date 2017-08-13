@@ -1,14 +1,12 @@
 package paul.NLPTextDungeon.entities;
 
 
+import paul.NLPTextDungeon.entities.obstacles.Obstacle;
 import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.enums.LightingLevel;
 
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static paul.NLPTextDungeon.enums.LightingLevel.DIM;
-import static paul.NLPTextDungeon.enums.LightingLevel.PITCH_BLACK;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
@@ -23,16 +21,17 @@ public class DungeonRoom extends Location {
     private double lighting;
     private List<Monster> monsters;
     private List<BackpackItem> items;
+    private List<Obstacle> obstacles;
     private Chest chest;
 
     //Temporary variables for JSONification
     private Map<Direction, Integer> connectedRoomIds;
-    private Map<String, String> hiddenItemNames;
 
 
     //The "Key" for hidden items is a word location in the room. By convention the word should appear in the description
     //Of the room. For example if the description references a "fountain" than an item would be hidden by "fountain"
-    private transient Map<String, List<BackpackItem>> hiddenItems;
+    private Map<String, List<BackpackItem>> hiddenItems;
+
     private transient Map<Direction, DungeonRoom> connectedRooms;
     private transient Hero hero;
 
@@ -43,8 +42,9 @@ public class DungeonRoom extends Location {
         monsters = new ArrayList<>();
         items = new ArrayList<>();
         connectedRoomIds = new HashMap<>();
-        hiddenItemNames = new HashMap<>();
         connectedRooms = new HashMap<>();
+        obstacles = new ArrayList<>();
+        hiddenItems = new HashMap<>();
     }
 
     public DungeonRoom (String name, String description) {
@@ -54,8 +54,9 @@ public class DungeonRoom extends Location {
         monsters = new ArrayList<>();
         items = new ArrayList<>();
         connectedRoomIds = new HashMap<>();
-        hiddenItemNames = new HashMap<>();
         connectedRooms = new HashMap<>();
+        obstacles = new ArrayList<>();
+        hiddenItems = new HashMap<>();
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {
@@ -189,7 +190,12 @@ public class DungeonRoom extends Location {
     }
 
     public boolean isCleared () {
-        return monsters.size() == 0;
+        boolean noMonsters = monsters.size() == 0;
+        boolean obstaclesCleared = obstacles.stream()
+                .filter(e -> !e.isCleared())
+                .collect(Collectors.toList())
+                .size() == 0;
+        return noMonsters && obstaclesCleared;
     }
 
     public String getName() {
@@ -268,11 +274,23 @@ public class DungeonRoom extends Location {
         this.connectedRooms = connectedRooms;
     }
 
-    public Map<String, String> getHiddenItemNames() {
-        return hiddenItemNames;
+    public Map<String, List<BackpackItem>> getHiddenItems() {
+        return hiddenItems;
     }
 
-    public void setHiddenItemNames(Map<String, String> hiddenItemNames) {
-        this.hiddenItemNames = hiddenItemNames;
+    public void setHiddenItems(Map<String, List<BackpackItem>> hiddenItems) {
+        this.hiddenItems = hiddenItems;
+    }
+
+    public List<Obstacle> getObstacles() {
+        return obstacles;
+    }
+
+    public void setObstacles(List<Obstacle> obstacles) {
+        this.obstacles = obstacles;
+    }
+
+    public void addObstacle (Obstacle obstacle) {
+        obstacles.add(obstacle);
     }
 }

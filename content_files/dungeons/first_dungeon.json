@@ -1,0 +1,206 @@
+{
+  "dungeonName":"Lair of Pihop-pi",
+  "description":"The first real dungeon.",
+  "rooms":
+  [
+    {
+      "name":"Entryway",
+      "id":1,
+      "description":"This is the entryway. It's boring.",
+      "lighting": 1.0,
+      "connectedRoomIds":
+      {
+        "EAST":2
+      }
+    },
+    {
+      "name":"Guard Room",
+      "id":2,
+      "description":"This is the guard room.",
+      "lighting": 0.4,
+      "items":
+      [
+        {
+          "name":"Potion"
+        }
+      ],
+      "monsters":
+      [
+        {
+          "name":"Red BlobGoblin",
+          "health": 5,
+          "might": 2
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "WEST":1,
+        "EAST":3,
+        "SOUTH":5
+      }
+    },
+    {
+      "name":"Passageway",
+      "id":3,
+      "description":"A passageway.",
+      "lighting": 0.9,
+      "connectedRoomIds":
+      {
+        "WEST":2,
+        "EAST":4,
+        "SOUTH":6
+      }
+    },
+    {
+      "name":"Miniboss Room",
+      "id":4,
+      "description":"Has the miniboss and dungeon item.",
+      "lighting": 1.0,
+      "monsters":
+      [
+        {
+          "name":"I am Jack's First Miniboss",
+          "health": 15,
+          "might": 2
+        }
+      ],
+      "items":
+      [
+        {
+          "name": "Boots of Vaulting",
+          "pickupAction": "crackFloor"
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "WEST":3
+      }
+    },
+    {
+      "name":"Chasm Room",
+      "id":5,
+      "description":"There is a huge chasm in the room.",
+      "lighting": 1.0,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.NLPTextDungeon.entities.obstacles.Chasm",
+          "name": "Chasm",
+          "solution": "jump"
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "NORTH":2,
+        "SOUTH":7
+      }
+    },
+    {
+      "name":"Chasm Treasure Room",
+      "id":6,
+      "description":"There's some treasure across the chasm.",
+      "lighting": 1.0,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.NLPTextDungeon.entities.obstacles.Chasm",
+          "name": "Chasm",
+          "solution": "jump"
+        }
+      ],
+      "items":
+      [
+        {
+          "name":"Massive Ruby",
+          "value":100
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "NORTH":3
+      }
+    },
+    {
+      "name":"Riddle Room",
+      "id":7,
+      "description":"You must answer the riddle before you can pass.",
+      "lighting":1.0,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.NLPTextDungeon.entities.obstacles.RiddleObstacle",
+          "name": "Sphinx Riddle",
+          "solution": "boots",
+          "riddle": "Two brothers we are, great burdens we bear. All day we are bitterly pressed. Yet this we will say, we are full all the day, and empty when we go to rest."
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "NORTH":5,
+        "SOUTH":8
+      }
+    },
+    {
+      "name":"Monsters After Riddle Room",
+      "id":8,
+      "description":"The monsters are angry you got past the riddle.",
+      "lighting":1.0,
+      "monsters":
+      [
+        {
+          "name":"Orange BlobGoblin",
+          "health":10,
+          "might":3
+        },
+        {
+          "name":"Red BlobGoblin",
+          "health": 5,
+          "might": 2
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "NORTH":7,
+        "SOUTH":9
+      }
+    },
+    {
+      "name":"Healing Fountain",
+      "id":9,
+      "description":"This room has a healing fountain. How nice.",
+      "lighting":1.0,
+      "hiddenItems":
+      {
+        "fountain":
+        [
+          {
+            "name":"Pihop-pi's Chest Key"
+          }
+        ]
+      },
+      "connectedRoomIds":
+      {
+        "NORTH":8,
+        "EAST":10
+      }
+    },
+    {
+      "name":"Boss Room",
+      "id":10,
+      "description":"The lair of Pihop-pi. It kinda stinks in here.",
+      "lighting":1.0,
+      "chest":
+      {
+        "name":"Pihop-pi's Chest",
+        "locked":true,
+        "key":"Pihop-pi's Chest Key",
+        "contents":
+        [
+          {
+            "name":"Longsword + 1"
+          }
+        ]
+      }
+    }
+  ]
+}
