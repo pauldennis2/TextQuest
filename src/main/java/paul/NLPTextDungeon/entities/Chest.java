@@ -14,8 +14,12 @@ public class Chest {
     private List<BackpackItem> contents;
 
     public Chest() {
+        contents = new ArrayList<>();
+    }
+
+    public Chest (String name) {
         locked = true;
-        name = getContainerName();
+        this.name = name;
         key = name + "'s Key";
         contents = new ArrayList<>();
     }
@@ -46,14 +50,7 @@ public class Chest {
         return returnContent;
     }
 
-    public static final String[] SIZES = {"Small", "Medium", "Large", "Massive"};
-    public static final String[] BINDING = {"Iron-Bound", "Copper-Bound", "Enchanted"};
-    public static String getContainerName () {
-        Random random = new Random();
-        String response = SIZES[random.nextInt(SIZES.length)] + " ";
-        response += BINDING[random.nextInt(BINDING.length)] + " Chest";
-        return response;
-    }
+
 
 
     public boolean isLocked() {
@@ -66,5 +63,25 @@ public class Chest {
 
     public List<BackpackItem> getContents() {
         return contents;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setContents(List<BackpackItem> contents) {
+        this.contents = contents;
     }
 }

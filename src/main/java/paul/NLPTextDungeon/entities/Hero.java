@@ -264,9 +264,9 @@ public class Hero {
             System.out.println("Cannot go that way (no connected room).");
             return;
         }
-        location.removeHero();
+        location.setHero(null);
         setLocation(nextRoom);
-        nextRoom.addHero(this);
+        nextRoom.setHero(this);
     }
 
     private void retreat () {
@@ -406,9 +406,9 @@ public class Hero {
     public void setLocation (DungeonRoom location) {
         previousLocation = this.location;
         this.location = location;
-        this.location.addHero(this);
+        this.location.setHero(this);
         if (previousLocation != null) {
-            previousLocation.removeHero();
+            previousLocation.setHero(null);
         }
     }
 }

@@ -11,6 +11,10 @@ public class Monster {
     private int might;
     private String name;
 
+    public Monster () {
+        name = "Biff the Understudy";
+    }
+
     public Monster(int health, int might, String name) {
         this.health = health;
         this.might = might;
@@ -60,25 +64,11 @@ public class Monster {
         return name;
     }
 
-
-    public static final String[] NAME_COLORS = {"Red", "Blue", "Yellow", "Green"};
-    public static final String[] NAME_DESCRIPTION = {"Knob", "Blob", "Hob", "Meanie", "Under", "Uber", "Backwards"};
-    public static final String[] MONSTER_TYPE = {"Goblin", "Orcar", "Git", "Ronot", "Fovok"};
-    public static String getRandomMonsterName () {
-        Random random = new Random();
-        boolean color = random.nextBoolean();
-        String response = "";
-        if (color) {
-            response += NAME_COLORS[random.nextInt(NAME_COLORS.length)];
-        }
-        response += NAME_DESCRIPTION[random.nextInt(NAME_DESCRIPTION.length)];
-        response += MONSTER_TYPE[random.nextInt(MONSTER_TYPE.length)];
-        return response;
+    public void setHealth(int health) {
+        this.health = health;
     }
 
-    public static final String[] BOSS_NAMES = {"Tim", "Bob", "Joe", "Abe", "Ada", "Amy", "Dan", "Ned", "Sal"};
-    public static String getRandomBossName () {
-        Random random = new Random();
-        return BOSS_NAMES[random.nextInt(BOSS_NAMES.length)];
+    public void setName(String name) {
+        this.name = name;
     }
 }

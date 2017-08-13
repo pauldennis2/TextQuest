@@ -36,7 +36,7 @@ public class DungeonRunner {
         analyzer = new StatementAnalyzer();
         scanner = new Scanner(System.in);
 
-        dungeon = new Dungeon(1);
+        dungeon = new Dungeon();
         metaLocations = new ArrayList<>();
         metaLocations.add(dungeon);
     }
@@ -44,10 +44,9 @@ public class DungeonRunner {
     public void run () {
         currentRoom = dungeon.getEntrance();
         hero.setLocation(currentRoom);
-        currentRoom.addHero(hero);
+        currentRoom.setHero(hero);
         System.out.println("Welcome to the " + dungeon.getDungeonName());
         System.out.println("Your goal:");
-        System.out.println(dungeon.getGoalDescription());
         mainActionMenu();
     }
 
