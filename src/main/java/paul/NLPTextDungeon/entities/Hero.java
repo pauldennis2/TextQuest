@@ -1,10 +1,13 @@
 package paul.NLPTextDungeon.entities;
 
+import paul.NLPTextDungeon.entities.obstacles.Chasm;
 import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.interfaces.LevelUpAction;
 import paul.NLPTextDungeon.interfaces.ParamAction;
 import paul.NLPTextDungeon.interfaces.SpellAction;
 import paul.NLPTextDungeon.interfaces.VoidAction;
+import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
+import paul.NLPTextDungeon.utils.DefeatException;
 import paul.NLPTextDungeon.utils.ItemActionMap;
 import paul.NLPTextDungeon.utils.SafeNumScanner;
 import paul.NLPTextDungeon.utils.VictoryException;
@@ -86,12 +89,13 @@ public class Hero {
         initViews();
         
         backpack = new Backpack();
-        backpack.add(new BackpackItem("Torch", backpack));
-        backpack.add(new BackpackItem("Sword", backpack));
-        backpack.add(new BackpackItem("Bow", backpack));
+        backpack.add(new BackpackItem("Torch"));
+        backpack.add(new BackpackItem("Sword"));
+        backpack.add(new BackpackItem("Bow"));
         spellMap = new HashMap<>();
         initLevelUpMap();
         initPossibleSpellMap();
+        initPickupListenerMap();
     }
 
     public void takeAction (String action) {
@@ -129,6 +133,19 @@ public class Hero {
         views.put("backpack", room -> System.out.println(room.getHero().backpack));
     }
 
+
+    private Map<String, OnPickup> listenerMap;
+    private void initPickupListenerMap () {
+        listenerMap = new HashMap<>();
+        listenerMap.put("victory", () -> {
+            throw new VictoryException("You win!");
+        });
+        listenerMap.put("crackFloor", () -> {
+            System.out.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
+            getLocation().addObstacle(new Chasm());
+        });
+    }
+
     private void initActionMap () {
         heroVoidActions.put("loot", room -> room.lootRoom().forEach(backpack::add));
         heroVoidActions.put("retreat", room -> room.getHero().retreat());
@@ -162,10 +179,7 @@ public class Hero {
                 System.out.println("Trademarked chest-opening music, rapid ascending style.");
             }
             List<BackpackItem> chestContents = chest.removeContents();
-            chestContents.forEach(item -> {
-                    item.setLocation(backpack);
-                    backpack.add(item);
-            });
+            chestContents.forEach(backpack::add);
         });
 
         heroParamActions.put("use", (room, param) -> {
@@ -267,9 +281,9 @@ public class Hero {
             System.out.println("Cannot go that way (no connected room).");
             return;
         }
-        location.removeHero();
+        location.setHero(null);
         setLocation(nextRoom);
-        nextRoom.addHero(this);
+        nextRoom.setHero(this);
     }
 
     private void retreat () {
@@ -301,9 +315,6 @@ public class Hero {
             if (monster.getHealth() == 0) {
                 addExp(monster.getExp());
                 System.out.println("Won fight against " + monster.getName() + ".");
-                if (monster.isBoss()) {
-                    throw new VictoryException("Beat the evil boss, " + monster.getName() + ".");
-                }
                 break;
             }
 
@@ -317,10 +328,11 @@ public class Hero {
         }
     }
 
-    private void takeDamage (int damageAmount) {
+    public void takeDamage (int damageAmount) {
         health -= damageAmount;
-        if (health < 0) {
+        if (health <= 0) {
             health = 0;
+            throw new DefeatException("Health reduced to zero. You died.");
         }
     }
 
@@ -412,9 +424,9 @@ public class Hero {
     public void setLocation (DungeonRoom location) {
         previousLocation = this.location;
         this.location = location;
-        this.location.addHero(this);
+        this.location.setHero(this);
         if (previousLocation != null) {
-            previousLocation.removeHero();
+            previousLocation.setHero(null);
         }
     }
 }

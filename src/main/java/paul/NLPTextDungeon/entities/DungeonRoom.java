@@ -1,66 +1,80 @@
 package paul.NLPTextDungeon.entities;
 
 
+import paul.NLPTextDungeon.entities.obstacles.Obstacle;
 import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.enums.LightingLevel;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static paul.NLPTextDungeon.enums.LightingLevel.DIM;
-import static paul.NLPTextDungeon.enums.LightingLevel.PITCH_BLACK;
-
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
 public class DungeonRoom extends Location {
 
-    private Map<Direction, DungeonRoom> connectedRooms;
+    private String name;
+    private String description;
+    private int id;
 
+    private boolean hasPrince;
     private double lighting;
-
     private List<Monster> monsters;
     private List<BackpackItem> items;
+    private List<Obstacle> obstacles;
     private Chest chest;
 
-    private boolean finalRoom; //Contains either boss, item, or prince
-    private boolean dungeonEntrance;
-    private boolean hasPrince;
+    //Temporary variables for JSONification
+    private Map<Direction, Integer> connectedRoomIds;
 
-    private String roomName;
 
-    private Hero hero;
+    //The "Key" for hidden items is a word location in the room. By convention the word should appear in the description
+    //Of the room. For example if the description references a "fountain" than an item would be hidden by "fountain"
+    private Map<String, List<BackpackItem>> hiddenItems;
 
-    private int id;
+    private transient Map<Direction, DungeonRoom> connectedRooms;
+    private transient Hero hero;
 
     private static int nextId = 1;
 
-    public DungeonRoom (Random random) {
-        id = nextId;
-        nextId++;
-        finalRoom = false;
-        dungeonEntrance = false;
-        connectedRooms = new HashMap<>();
+    public DungeonRoom () {
+        hiddenItems = new HashMap<>();
         monsters = new ArrayList<>();
         items = new ArrayList<>();
-        lighting = Math.random();
+        connectedRoomIds = new HashMap<>();
+        connectedRooms = new HashMap<>();
+        obstacles = new ArrayList<>();
+        hiddenItems = new HashMap<>();
     }
 
-    public DungeonRoom (boolean finalRoom, boolean dungeonEntrance) {
-        id = nextId;
-        nextId++;
-        if (!finalRoom && !dungeonEntrance) {
-            //Should only be used with one of these == true
-            throw new AssertionError();
-        }
-        this.finalRoom = finalRoom;
-        this.dungeonEntrance = dungeonEntrance;
-
-        connectedRooms = new HashMap<>();
+    public DungeonRoom (String name, String description) {
+        this.name = name;
+        this.description = description;
+        hiddenItems = new HashMap<>();
         monsters = new ArrayList<>();
         items = new ArrayList<>();
+        connectedRoomIds = new HashMap<>();
+        connectedRooms = new HashMap<>();
+        obstacles = new ArrayList<>();
+        hiddenItems = new HashMap<>();
+    }
 
-        lighting = 0.9;
+    public List<BackpackItem> searchForHiddenItems (String location) {
+        List<BackpackItem> hiddenItemList = hiddenItems.get(location);
+        if (hiddenItemList != null) {
+            hiddenItems.put(location, new ArrayList<>());
+            return hiddenItemList;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public void addHiddenItem (String locationName, BackpackItem item) {
+        if (hiddenItems.get(locationName) == null) {
+            List<BackpackItem> singleItemList = new ArrayList<>();
+            singleItemList.add(item);
+            hiddenItems.put(locationName, singleItemList);
+        }
     }
 
     public void setHasPrince(boolean hasPrince) {
@@ -81,8 +95,12 @@ public class DungeonRoom extends Location {
 
     public void connectTo (Direction direction, DungeonRoom other) {
         if (connectedRooms.get(direction) != null) {
-            System.out.println("Already connected in that direction");
-            throw new AssertionError();
+            if (connectedRooms.get(direction) == other) {
+                System.out.println("Already connected but that's OK.");
+            } else {
+                System.out.println("Already connected in that direction");
+                throw new AssertionError();
+            }
         }
         if (other == null) {
             System.out.println("Cannot connect to null room");
@@ -101,6 +119,7 @@ public class DungeonRoom extends Location {
         Random random = new Random();
         System.out.println("\n\n\n\nYou are in room " + id);
         LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
+        System.out.println(description);
         switch (lightingLevel) {
             case WELL_LIT:
                 System.out.println("The room is well lit. You can clearly see:");
@@ -170,62 +189,108 @@ public class DungeonRoom extends Location {
         }
     }
 
-    public Map<Direction, DungeonRoom> getConnectedRooms() {
-        return connectedRooms;
+    public boolean isCleared () {
+        boolean noMonsters = monsters.size() == 0;
+        boolean obstaclesCleared = obstacles.stream()
+                .filter(e -> !e.isCleared())
+                .collect(Collectors.toList())
+                .size() == 0;
+        return noMonsters && obstaclesCleared;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public boolean isHasPrince() {
+        return hasPrince;
     }
 
     public List<Monster> getMonsters() {
         return monsters;
     }
 
+    public void setMonsters(List<Monster> monsters) {
+        this.monsters = monsters;
+    }
+
     public List<BackpackItem> getItems() {
         return items;
+    }
+
+    public void setItems(List<BackpackItem> items) {
+        this.items = items;
     }
 
     public Chest getChest() {
         return chest;
     }
 
-    public boolean isFinalRoom() {
-        return finalRoom;
+    public void setChest(Chest chest) {
+        this.chest = chest;
     }
 
-    public boolean isDungeonEntrance() {
-        return dungeonEntrance;
+    public Map<Direction, Integer> getConnectedRoomIds() {
+        return connectedRoomIds;
     }
 
-    public boolean hasPrince() {
-        return hasPrince;
+    public void setConnectedRoomIds(Map<Direction, Integer> connectedRoomIds) {
+        this.connectedRoomIds = connectedRoomIds;
     }
 
-    public boolean hasChest () {
-        if (chest == null) {
-            return false;
-        }
-        return true;
-    }
-
-    public Hero getHero () {
+    public Hero getHero() {
         return hero;
     }
 
-    public void addHero (Hero hero) {
+    public void setHero(Hero hero) {
         this.hero = hero;
     }
 
-    public void removeHero () {
-        hero = null;
+    public Map<Direction, DungeonRoom> getConnectedRooms() {
+        return connectedRooms;
     }
 
-    public void setRoomName (String roomName) {
-        this.roomName = roomName;
+    public void setConnectedRooms(Map<Direction, DungeonRoom> connectedRooms) {
+        this.connectedRooms = connectedRooms;
     }
 
-    public void setRoomName () {
-        throw new AssertionError("todo: make this method come up with a name");
+    public Map<String, List<BackpackItem>> getHiddenItems() {
+        return hiddenItems;
     }
 
-    public boolean isCleared () {
-        return monsters.size() == 0;
+    public void setHiddenItems(Map<String, List<BackpackItem>> hiddenItems) {
+        this.hiddenItems = hiddenItems;
+    }
+
+    public List<Obstacle> getObstacles() {
+        return obstacles;
+    }
+
+    public void setObstacles(List<Obstacle> obstacles) {
+        this.obstacles = obstacles;
+    }
+
+    public void addObstacle (Obstacle obstacle) {
+        obstacles.add(obstacle);
     }
 }

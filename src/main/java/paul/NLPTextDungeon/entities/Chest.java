@@ -8,24 +8,19 @@ import java.util.*;
 public class Chest {
 
     private boolean locked;
-    private BackpackItem key;
+    private String key;
     private String name;
 
     private List<BackpackItem> contents;
 
-    private static Set<BackpackItem> keys = new HashSet<>();
-
     public Chest() {
+        contents = new ArrayList<>();
+    }
+
+    public Chest (String name) {
         locked = true;
-        name = getContainerName();
-        key = new BackpackItem(name + "'s Key", null);
-        boolean response = keys.add(key);
-        //Each chest must have a unique name. If we didn't find one, try again.
-        while (response == false) {
-            name = getContainerName();
-            key = new BackpackItem(name + "'s Key", null);
-            response = keys.add(key);
-        }
+        this.name = name;
+        key = name + "'s Key";
         contents = new ArrayList<>();
     }
 
@@ -40,7 +35,7 @@ public class Chest {
     }
 
     public void unlock (BackpackItem key) {
-        if (key.getName().equals(this.key.getName())) {
+        if (key.getName().equals(name)) {
             locked = false;
         }
     }
@@ -55,25 +50,11 @@ public class Chest {
         return returnContent;
     }
 
-    public static final String[] SIZES = {"Small", "Medium", "Large", "Massive"};
-    public static final String[] BINDING = {"Iron-Bound", "Copper-Bound", "Enchanted"};
-    public static String getContainerName () {
-        Random random = new Random();
-        String response = SIZES[random.nextInt(SIZES.length)] + " ";
-        response += BINDING[random.nextInt(BINDING.length)] + " Chest";
-        return response;
-    }
 
-    public static Set<BackpackItem> getKeys () {
-        return keys;
-    }
+
 
     public boolean isLocked() {
         return locked;
-    }
-
-    public BackpackItem getKey() {
-        return key;
     }
 
     public String getName() {
@@ -82,5 +63,25 @@ public class Chest {
 
     public List<BackpackItem> getContents() {
         return contents;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setContents(List<BackpackItem> contents) {
+        this.contents = contents;
     }
 }

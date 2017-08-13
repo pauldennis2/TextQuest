@@ -1,0 +1,77 @@
+{
+  "dungeonName":"Practice Dungeon",
+  "description":"The practice dungeon.",
+  "rooms": [
+    {
+      "name":"Entryway",
+      "id":1,
+      "description":"This is the entryway. It's boring.",
+      "lighting": 1.0,
+      "hiddenItemNames":{},
+      "items":[],
+      "monsters":[],
+      "connectedRoomIds":{
+        "EAST":2
+      }
+    },
+    {
+      "name":"Middle Room",
+      "id":2,
+      "description":"This is the middle room.",
+      "lighting": 0.3,
+      "hiddenItemNames":{},
+      "chest":{},
+      "items":[
+        {
+          "name":"Potion"
+        },
+        {
+          "name":"Iron-Bound Chest Key"
+        }
+      ],
+      "monsters":[
+        {
+          "name":"Red BlobGoblin",
+          "health": 5,
+          "might": 2
+        }
+      ],
+      "connectedRoomIds":{
+        "WEST":1,
+        "EAST":3
+      }
+    },
+    {
+      "name":"Final Room",
+      "id":3,
+      "description":"The final room.",
+      "lighting": 0.9,
+      "chest":{
+        "name":"Iron-Bound Chest",
+        "locked":true,
+        "key":"Iron-Bound Chest's Key",
+        "contents":[
+          {
+            "name":"Fabled McGuffin of Aer'Dal",
+            "pickupAction":"victory"
+          }
+        ]
+      },
+      "monsters":[
+        {
+          "name":"Red BlobGoblin",
+          "health": 5,
+          "might": 2
+        },
+        {
+          "name":"Weak Bloblin",
+          "health": 3,
+          "might": 1
+        }
+      ],
+      "connectedRoomIds":{
+        "WEST":2
+      }
+    }
+  ]
+}

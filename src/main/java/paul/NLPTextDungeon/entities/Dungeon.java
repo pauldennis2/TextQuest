@@ -1,17 +1,13 @@
 package paul.NLPTextDungeon.entities;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import paul.NLPTextDungeon.enums.Direction;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.*;
 
-import paul.NLPTextDungeon.enums.DungeonGoalType;
-import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
-import paul.NLPTextDungeon.utils.VictoryException;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-
-import static paul.NLPTextDungeon.enums.Direction.*;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
@@ -19,116 +15,86 @@ import static paul.NLPTextDungeon.enums.Direction.*;
 public class Dungeon extends MetaLocation {
 
     private List<DungeonRoom> rooms;
-    private DungeonGoalType goal;
-    private String goalDescription;
+    private String description;
     private String dungeonName;
 
-    private int level;
+    private transient DungeonRoom entrance;
 
-    private DungeonRoom finalRoom;
-    private DungeonRoom entrance;
-    private DungeonRoom middleRoom;
-
-    public static final String GOAL_INTRO = "You must venture into the ";
-
-    Map<BackpackItem, OnPickup> pickupListenerMap;
-
-    public Dungeon (int level) {
-        this.level = level;
-        Random random = new Random();
+    public Dungeon () {
         rooms = new ArrayList<>();
-        Monster boss;
-        BackpackItem itemToRecover;
-        rooms = new ArrayList<>();
+    }
 
-        entrance = new DungeonRoom(false, true);
-        entrance.setRoomName("Entryway");
-        middleRoom = new DungeonRoom(random);
-        finalRoom = new DungeonRoom(true, false);
 
-        entrance.connectTo(EAST, middleRoom);
-        middleRoom.connectTo(EAST, finalRoom);
+    public static Dungeon jsonRestore(String dungeonJson) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(dungeonJson, Dungeon.class);
+    }
 
-        middleRoom.addItem(new BackpackItem("Potion", middleRoom));
-
-        BackpackItem bomb = new BackpackItem("Bomb", entrance);
-        bomb.setPickupListener(() -> System.out.println("You picked up a bomb you dummy! Have some sense!"));
-
-        dungeonName = getRandomDungeonName();
-        goalDescription = GOAL_INTRO + dungeonName;
-        goal = DungeonGoalType.values()[random.nextInt(DungeonGoalType.values().length)];
-        switch (goal) {
-            case SLAY_MONSTER:
-                boss = new Monster(true, random);
-                finalRoom.addMonster(boss);
-                goalDescription += " and slay the vicious monster " + boss.getName() + ".";
-                break;
-            case RECOVER_ITEM:
-                itemToRecover = new BackpackItem(true, finalRoom);
-                itemToRecover.setPickupListener(() -> {
-                    throw new VictoryException("Recovered the " + itemToRecover.getName());
-                });
-                Chest goalChest = new Chest();
-                goalChest.addItem(itemToRecover);
-                finalRoom.addContainer(goalChest);
-                finalRoom.addMonster(new Monster(false, random));
-
-                Chest.getKeys().stream().forEach(e -> {
-                        middleRoom.addItem(e);
-                        e.setLocation(middleRoom);
-                });
-
-                goalDescription += " and recover the " + itemToRecover.getName() + ".";
-                break;
-            case RESCUE_PRINCE:
-                goalDescription += " and rescue Prince Charming.";
-                finalRoom.addMonster(new Monster(false, random));
-                finalRoom.setHasPrince(true);
-                break;
+    public static String readDungeonFromFile (String fileName) {
+        try (Scanner fileScanner = new Scanner(new File(fileName))) {
+            StringBuilder stringBuilder = new StringBuilder(fileScanner.nextLine());
+            while (fileScanner.hasNext()) {
+                stringBuilder.append(fileScanner.nextLine());
+            }
+            return stringBuilder.toString();
+        } catch (FileNotFoundException ex) {
+            System.out.println("Could not find file.");
+            throw new AssertionError();
         }
     }
 
+    private void connectRooms () {
+        Map<Integer, DungeonRoom> roomsById = new HashMap<>();
+        rooms.forEach(e -> roomsById.put(e.getId(), e));
+
+        rooms.forEach(e -> {
+            Map<Direction, Integer> connectedRoomIds = e.getConnectedRoomIds();
+            connectedRoomIds.keySet().forEach(f -> {
+                Integer id = connectedRoomIds.get(f);
+                DungeonRoom otherRoom = roomsById.get(id);
+                e.connectTo(f, otherRoom);
+            });
+        });
+    }
+
+    public static void main(String[] args) throws IOException {
+        String DUNGEON_FILE_PATH = "content_files/dungeons/";
+        String dungeonJson = readDungeonFromFile(DUNGEON_FILE_PATH + "first_dungeon.json");
+        System.out.println(dungeonJson);
+        Dungeon restored = jsonRestore(dungeonJson);
+        restored.connectRooms();
+        System.out.println(restored);
+    }
 
     public List<DungeonRoom> getRooms() {
         return rooms;
     }
 
-    public DungeonGoalType getGoal() {
-        return goal;
+    public void setRooms(List<DungeonRoom> rooms) {
+        this.rooms = rooms;
     }
 
-    public String getGoalDescription() {
-        return goalDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public DungeonRoom getFinalRoom() {
-        return finalRoom;
-    }
-
-    public DungeonRoom getEntrance() {
-        return entrance;
-    }
-
-    public DungeonRoom getMiddleRoom() {
-        return middleRoom;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public String getDungeonName() {
         return dungeonName;
     }
 
-    public static final String[] DUNGEON_DESCRIPTORS = {"Spooky", "Scary", "Haunted", "Weird", "Shadowy", "Drip-Drip"};
-    public static final String[] OFS = {"of Doom", "of Doom and Gloom", "of Truly, Horrible, Epicly Bad Doom",
-            "of Jet-Skis and Rainbows", "of Weirdness", "of \"Hey, do we have enough names yet?\""};
-    private static String getRandomDungeonName() {
-        Random random = new Random();
-        String response = "";
-        int numDescriptors = random.nextInt(2) + 1;
-        for (int i = 0; i < numDescriptors; i++) {
-            response += DUNGEON_DESCRIPTORS[random.nextInt(DUNGEON_DESCRIPTORS.length)];
-        }
-        response += " Dungeon";
-        return response;
+    public void setDungeonName(String dungeonName) {
+        this.dungeonName = dungeonName;
     }
 
+    public DungeonRoom getEntrance() {
+        return entrance;
+    }
+
+    public void setEntrance(DungeonRoom entrance) {
+        this.entrance = entrance;
+    }
 }

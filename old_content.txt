@@ -1,0 +1,37 @@
+    public static final String[] DUNGEON_DESCRIPTORS = {"Spooky", "Scary", "Haunted", "Weird", "Shadowy", "Drip-Drip"};
+    public static final String[] OFS = {"of Doom", "of Doom and Gloom", "of Truly, Horrible, Epicly Bad Doom",
+            "of Jet-Skis and Rainbows", "of Weirdness", "of \"Hey, do we have enough names yet?\""};
+
+                public static String[] DESCRIPTORS = {"Fabled", "Awesome", "Sought-After", "Fabulous", "Enchanted", "Teeny Tiny"};
+                public static String[] ITEMS = {"Scepter", "Sword", "Gem", "McGuffin"};
+                public static String[] PLACES = {"Aer", "Dal", "Tifen", "Coldon", "Manos"};
+
+public static final String[] NAME_COLORS = {"Red", "Blue", "Yellow", "Green"};
+    public static final String[] NAME_DESCRIPTION = {"Knob", "Blob", "Hob", "Meanie", "Under", "Uber", "Backwards"};
+    public static final String[] MONSTER_TYPE = {"Goblin", "Orcar", "Git", "Ronot", "Fovok"};
+    public static String getRandomMonsterName () {
+        Random random = new Random();
+        boolean color = random.nextBoolean();
+        String response = "";
+        if (color) {
+            response += NAME_COLORS[random.nextInt(NAME_COLORS.length)];
+        }
+        response += NAME_DESCRIPTION[random.nextInt(NAME_DESCRIPTION.length)];
+        response += MONSTER_TYPE[random.nextInt(MONSTER_TYPE.length)];
+        return response;
+    }
+
+    public static final String[] BOSS_NAMES = {"Tim", "Bob", "Joe", "Abe", "Ada", "Amy", "Dan", "Ned", "Sal"};
+    public static String getRandomBossName () {
+        Random random = new Random();
+        return BOSS_NAMES[random.nextInt(BOSS_NAMES.length)];
+    }
+
+    public static final String[] SIZES = {"Small", "Medium", "Large", "Massive"};
+        public static final String[] BINDING = {"Iron-Bound", "Copper-Bound", "Enchanted"};
+        public static String getContainerName () {
+            Random random = new Random();
+            String response = SIZES[random.nextInt(SIZES.length)] + " ";
+            response += BINDING[random.nextInt(BINDING.length)] + " Chest";
+            return response;
+        }

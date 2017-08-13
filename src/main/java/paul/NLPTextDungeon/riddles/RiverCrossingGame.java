@@ -14,7 +14,7 @@ import static paul.NLPTextDungeon.enums.BoatThings.*;
 /**
  * Created by Paul Dennis on 8/9/2017.
  */
-public class Riddle {
+public class RiverCrossingGame {
 
     //Boat-crossing riddle
     static Set<BoatThings> nearShore;
