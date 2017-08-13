@@ -1,0 +1,3 @@
+    public static final String[] DUNGEON_DESCRIPTORS = {"Spooky", "Scary", "Haunted", "Weird", "Shadowy", "Drip-Drip"};
+    public static final String[] OFS = {"of Doom", "of Doom and Gloom", "of Truly, Horrible, Epicly Bad Doom",
+            "of Jet-Skis and Rainbows", "of Weirdness", "of \"Hey, do we have enough names yet?\""};

@@ -9,36 +9,12 @@ public class Monster {
 
     private int health;
     private int might;
-    private int exp;
     private String name;
-    private boolean isBoss;
 
-    public static final int MAX_RANDOM_HEALTH = 10;
-    public static final int MAX_RANDOM_STR = 4;
-
-    public static final int MAX_BOSS_HEALTH = 30;
-    public static final int MAX_BOSS_STR = 8;
-
-    public static final int BOSS_XP = 50;
-    public static final int MONSTER_XP = 3;
-
-    public Monster (boolean isBoss, Random random) {
-        this.isBoss = isBoss;
-
-        if (!isBoss) {
-            might = random.nextInt(MAX_RANDOM_STR);
-            health = random.nextInt(MAX_RANDOM_HEALTH);
-            if (health == 0) {
-                health = 1;
-            }
-            exp = health + 2 * might + MONSTER_XP;
-            name = getRandomMonsterName();
-        } else {
-            might = random.nextInt(MAX_BOSS_STR);
-            health = random.nextInt(MAX_BOSS_HEALTH);
-            exp = health + 2 * might + BOSS_XP;
-            name = getRandomBossName();
-        }
+    public Monster(int health, int might, String name) {
+        this.health = health;
+        this.might = might;
+        this.name = name;
     }
 
     public void takeDamage (int damageAmt) {
@@ -77,16 +53,13 @@ public class Monster {
     }
 
     public int getExp() {
-        return exp;
+        return health + 2 * might + 3;
     }
 
     public String getName() {
         return name;
     }
 
-    public boolean isBoss() {
-        return isBoss;
-    }
 
     public static final String[] NAME_COLORS = {"Red", "Blue", "Yellow", "Green"};
     public static final String[] NAME_DESCRIPTION = {"Knob", "Blob", "Hob", "Meanie", "Under", "Uber", "Backwards"};

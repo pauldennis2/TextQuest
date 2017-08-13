@@ -28,12 +28,40 @@ public class DungeonRoom extends Location {
     private boolean hasPrince;
 
     private String roomName;
+    private String roomDescription;
+    //The "Key" for hidden items is a word location in the room. By convention the word should appear in the description
+    //Of the room. For example if the description references a "fountain" than an item would be hidden by "fountain"
+    private Map<String, List<BackpackItem>> hiddenItems;
 
     private Hero hero;
 
     private int id;
 
     private static int nextId = 1;
+
+    public DungeonRoom (String roomName, String roomDescription) {
+        this.roomName = roomName;
+        this.roomDescription = roomDescription;
+        hiddenItems = new HashMap<>();
+    }
+
+    public List<BackpackItem> searchForHiddenItems (String location) {
+        List<BackpackItem> hiddenItemList = hiddenItems.get(location);
+        if (hiddenItemList != null) {
+            hiddenItems.put(location, new ArrayList<>());
+            return hiddenItemList;
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public void addHiddenItem (String locationName, BackpackItem item) {
+        if (hiddenItems.get(locationName) == null) {
+            List<BackpackItem> singleItemList = new ArrayList<>();
+            singleItemList.add(item);
+            hiddenItems.put(locationName, singleItemList);
+        }
+    }
 
     public DungeonRoom (Random random) {
         id = nextId;
@@ -44,6 +72,8 @@ public class DungeonRoom extends Location {
         monsters = new ArrayList<>();
         items = new ArrayList<>();
         lighting = Math.random();
+        hiddenItems = new HashMap<>();
+        roomDescription = "This room is randomly generated.";
     }
 
     public DungeonRoom (boolean finalRoom, boolean dungeonEntrance) {
@@ -61,6 +91,8 @@ public class DungeonRoom extends Location {
         items = new ArrayList<>();
 
         lighting = 0.9;
+        hiddenItems = new HashMap<>();
+        roomDescription = "This room is an entrance or final room";
     }
 
     public void setHasPrince(boolean hasPrince) {
@@ -101,6 +133,7 @@ public class DungeonRoom extends Location {
         Random random = new Random();
         System.out.println("\n\n\n\nYou are in room " + id);
         LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
+        System.out.println(roomDescription);
         switch (lightingLevel) {
             case WELL_LIT:
                 System.out.println("The room is well lit. You can clearly see:");

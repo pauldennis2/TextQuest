@@ -86,9 +86,9 @@ public class Hero {
         initViews();
         
         backpack = new Backpack();
-        backpack.add(new BackpackItem("Torch", backpack));
-        backpack.add(new BackpackItem("Sword", backpack));
-        backpack.add(new BackpackItem("Bow", backpack));
+        backpack.add(new BackpackItem("Torch"));
+        backpack.add(new BackpackItem("Sword"));
+        backpack.add(new BackpackItem("Bow"));
         spellMap = new HashMap<>();
         initLevelUpMap();
         initPossibleSpellMap();
@@ -162,10 +162,7 @@ public class Hero {
                 System.out.println("Trademarked chest-opening music, rapid ascending style.");
             }
             List<BackpackItem> chestContents = chest.removeContents();
-            chestContents.forEach(item -> {
-                    item.setLocation(backpack);
-                    backpack.add(item);
-            });
+            chestContents.forEach(backpack::add);
         });
 
         heroParamActions.put("use", (room, param) -> {
@@ -301,9 +298,6 @@ public class Hero {
             if (monster.getHealth() == 0) {
                 addExp(monster.getExp());
                 System.out.println("Won fight against " + monster.getName() + ".");
-                if (monster.isBoss()) {
-                    throw new VictoryException("Beat the evil boss, " + monster.getName() + ".");
-                }
                 break;
             }
 
@@ -317,7 +311,7 @@ public class Hero {
         }
     }
 
-    private void takeDamage (int damageAmount) {
+    public void takeDamage (int damageAmount) {
         health -= damageAmount;
         if (health < 0) {
             health = 0;

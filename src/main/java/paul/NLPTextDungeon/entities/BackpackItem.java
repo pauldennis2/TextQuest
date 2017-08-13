@@ -13,38 +13,25 @@ public class BackpackItem {
     private boolean isQuestItem;
     private int value;
 
-    private Location location;
 
-    private OnPickup pickupListener;
+    private String pickupAction;
 
-    public BackpackItem (String name, Location location) {
+    public BackpackItem (String name) {
         this.name = name;
-        this.location = location;
         isQuestItem = false;
     }
 
-    public BackpackItem (boolean quest, Location location) {
+    public BackpackItem (String name, boolean quest) {
         isQuestItem = quest;
-        name = getQuestItemName();
+        this.name = name;
     }
 
-    public OnPickup getPickupListener() {
-        return pickupListener;
+    public boolean hasPickupAction () {
+        return pickupAction != null;
     }
 
-    public void setPickupListener(OnPickup pickupListener) {
-        this.pickupListener = pickupListener;
-    }
-
-    public Location getLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        this.location = location;
-        if (pickupListener != null) {
-            pickupListener.doAction();
-        }
+    public String getPickupAction () {
+        return pickupAction;
     }
 
     public String getName() {
