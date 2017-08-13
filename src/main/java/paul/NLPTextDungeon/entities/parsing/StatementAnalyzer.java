@@ -1,8 +1,6 @@
 package paul.NLPTextDungeon.entities.parsing;
 
 
-import paul.NLPTextDungeon.enums.WordType;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
@@ -207,10 +205,8 @@ public class StatementAnalyzer {
         wordMap = new HashMap<>();
         wordGroups.forEach(e -> wordMap.put(e.getCoreWord(), e));
 
-        wordGroups.forEach(wordGroup -> {
-            wordGroup.getRelatedWords()
-                    .forEach(word -> wordMap.put(word, wordGroup));
-        });
+        wordGroups.forEach(wordGroup -> wordGroup.getRelatedWords()
+                .forEach(word -> wordMap.put(word, wordGroup)));
     }
 
     private void initializeWordGroups () {

@@ -47,3 +47,9 @@ north - northern
 south - southern
 west - left, western
 portal - teleport, gateway
+|Speaking Words:
+|===
+@Speaking
+say - speak
+shout - yell
+whisper - murmur

@@ -1,8 +1,6 @@
 package paul.NLPTextDungeon.entities.parsing;
 
 
-import paul.NLPTextDungeon.enums.WordType;
-
 import java.util.*;
 
 /**
