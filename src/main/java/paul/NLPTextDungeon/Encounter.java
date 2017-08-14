@@ -12,7 +12,7 @@ import java.util.Random;
 /**
  * Created by Paul Dennis on 8/12/2017.
  */
-public class BossFight {
+public class Encounter {
 
     Monster boss;
     Hero hero;
@@ -20,7 +20,7 @@ public class BossFight {
     BossFightNumberRule rule;
     static Random random;
 
-    public BossFight (Monster boss, BossFightNumberRule rule, Hero hero) {
+    public Encounter(Monster boss, BossFightNumberRule rule, Hero hero) {
         this.boss = boss;
         this.rule = rule;
         this.hero = hero;
@@ -85,7 +85,7 @@ public class BossFight {
         Monster boss = new Monster(30, 5, "Bob");
         Hero hero = new Hero();
 
-        BossFight bossFight = new BossFight(boss, rule, hero);
-        bossFight.doFight();
+        Encounter encounter = new Encounter(boss, rule, hero);
+        encounter.doFight();
     }
 }

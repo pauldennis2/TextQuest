@@ -1,0 +1,20 @@
+{
+  "name":"Pihop-pi",
+  "health":30,
+  "attackBehavior":
+  {
+    "name":"pee",
+    "solution":"jump",
+    "damage":1,
+    "actionDescription":"Pihop-pi just peed all over the floor.",
+    "avoidDescription":"But you jumped to avoid it."
+  },
+  "vulnBehavior"://Chance to hit the boss
+  {
+    "name":"hop on platforms",
+    "params":"2random",
+    "actionType":"SUM",
+    "rule":"MOD5",
+    "failureDamage":10
+  }
+}
