@@ -4,6 +4,7 @@ package paul.NLPTextDungeon.entities;
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
 import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.enums.LightingLevel;
+import paul.NLPTextDungeon.interfaces.listeners.SpeechListener;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +27,8 @@ public class DungeonRoom extends Location {
 
     //Temporary variables for JSONification
     private Map<Direction, Integer> connectedRoomIds;
+
+    private transient List<SpeechListener>
 
 
     //The "Key" for hidden items is a word location in the room. By convention the word should appear in the description

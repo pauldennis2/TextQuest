@@ -8,6 +8,7 @@ explore - search, find, examine
 loot - gather
 retreat - skedaddle, vamoose, runaway
 plunder - lootchest
+jump - leap, vault, vaultingboots
 |
 |Param Action Words: (i.e. "travel where?" "use what?", "cast what spell?")
 |===
@@ -18,6 +19,9 @@ use - utilize, wield, employ
 move - proceed, go
 learn - study
 cast - incant
+say - speak
+shout - yell
+whisper - murmur
 |
 |Concept Words:
 |===
@@ -49,7 +53,6 @@ west - left, western
 portal - teleport, gateway
 |Speaking Words:
 |===
-@Speaking
-say - speak
-shout - yell
-whisper - murmur
+|$Shades of Piercing Vision
+|magic Xray sunglasses!
+|examine - xray, piercevision

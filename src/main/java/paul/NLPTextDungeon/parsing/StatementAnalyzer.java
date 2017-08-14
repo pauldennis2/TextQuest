@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.entities.parsing;
+package paul.NLPTextDungeon.parsing;
 
 
 import java.io.File;
@@ -21,6 +21,7 @@ public class StatementAnalyzer {
         scanner = new Scanner(System.in);
     }
 
+    /*
     public static void main(String[] args) {
         StatementAnalyzer analyzer = new StatementAnalyzer();
         Scanner scanner = new Scanner(System.in);
@@ -32,7 +33,7 @@ public class StatementAnalyzer {
             }
             analyzer.analyzeStatement(response);
         }
-    }
+    }*/
 
     private String cleanStatement (String statement) {
         String response = statement.toLowerCase().trim()
@@ -58,6 +59,7 @@ public class StatementAnalyzer {
     private StatementAnalysis finalAnalysis (StatementAnalysis analysis) {
         List<String> voidActionWords = analysis.getTokenMatchMap().get(WordType.VOID_ACTION);
         List<String> paramActionWords = analysis.getTokenMatchMap().get(WordType.PARAM_ACTION);
+
         if (voidActionWords.size() > 0) {
             analysis.setAnalysis(voidActionWords.get(0), null, true);
             if (paramActionWords.size() > 0) {
@@ -78,6 +80,9 @@ public class StatementAnalyzer {
                 } else {
                     analysis.addComment("Received move param but no direction. Move where?");
                 }
+            } else if (actionWord.equals("say")) {
+                    analysis.setActionable(true);
+                    analysis.setActionWord("say");
             } else {
                 List<String> conceptWords = analysis.getTokenMatchMap().get(WordType.CONCEPT);
                 if (conceptWords.size() > 0) {
@@ -124,8 +129,19 @@ public class StatementAnalyzer {
     }
 
     public StatementAnalysis analyzeStatement (String statement) {
+        String quote = null;
+        if (statement.contains("\"")) {
+            int beginIndex = statement.indexOf("\"") + 1;
+            int endIndex = statement.lastIndexOf("\"");
+            quote = statement.substring(beginIndex, endIndex);
+            statement = statement.substring(0, beginIndex - 1) + statement.substring(endIndex);
+        }
         String cleaned = cleanStatement(statement);
         StatementAnalysis analysis = finalAnalysis(findTokenMatches(parseStatement(cleaned)));
+        if (quote != null) {
+            analysis.setActionParam(quote);
+            analysis.setActionable(true);
+        }
         return analysis;
     }
 
@@ -214,6 +230,8 @@ public class StatementAnalyzer {
         File wordAssocFile = new File("word_association.txt");
         WordType currentType = null;
         try (Scanner fileScanner = new Scanner(wordAssocFile)) {
+            boolean itemGroupNext = false;
+            String nextItemName = null;
             while (fileScanner.hasNext()) {
                 String token = fileScanner.nextLine();
                 if (token.startsWith("|") || token.trim().equals("")) {
@@ -221,6 +239,11 @@ public class StatementAnalyzer {
                 }
                 if (token.startsWith("@")) {
                     currentType = WordType.getTypeFromFileAnnotation(token);
+                    continue;
+                }
+                if (token.startsWith("$")) {
+                    nextItemName = token.substring(1);
+                    itemGroupNext = true;
                     continue;
                 }
                 String primaryWord = token.split("-")[0].trim();

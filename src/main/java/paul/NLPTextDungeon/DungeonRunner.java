@@ -4,10 +4,11 @@ import paul.NLPTextDungeon.entities.Dungeon;
 import paul.NLPTextDungeon.entities.DungeonRoom;
 import paul.NLPTextDungeon.entities.Hero;
 import paul.NLPTextDungeon.entities.MetaLocation;
-import paul.NLPTextDungeon.entities.parsing.StatementAnalysis;
-import paul.NLPTextDungeon.entities.parsing.StatementAnalyzer;
+import paul.NLPTextDungeon.parsing.StatementAnalysis;
+import paul.NLPTextDungeon.parsing.StatementAnalyzer;
 import paul.NLPTextDungeon.utils.VictoryException;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -29,14 +30,16 @@ public class DungeonRunner {
 
     private static final List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue");
 
+    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
+
     private List<MetaLocation> metaLocations;
     //Solidify interface
-    public DungeonRunner () {
+    public DungeonRunner () throws IOException {
         hero = new Hero();
         analyzer = new StatementAnalyzer();
         scanner = new Scanner(System.in);
 
-        dungeon = new Dungeon();
+        dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
         metaLocations = new ArrayList<>();
         metaLocations.add(dungeon);
     }
@@ -72,7 +75,7 @@ public class DungeonRunner {
                 analysis.printFinalAnalysis();
                 String actionWord = analysis.getActionWord();
                 if (CLEAR_REQUIRED_FOR_ACTION.contains(actionWord) && !currentRoom.isCleared()) {
-                    System.out.println("Oh honey, you have to clear the room of monsters first.");
+                    System.out.println("Oh honey, you have to clear the room of monsters and obstacles first.");
                 } else {
                     if (analysis.getActionParam() != null) {
                         hero.takeAction(actionWord, analysis.getActionParam());
@@ -107,7 +110,7 @@ public class DungeonRunner {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         new DungeonRunner().run();
     }
 }

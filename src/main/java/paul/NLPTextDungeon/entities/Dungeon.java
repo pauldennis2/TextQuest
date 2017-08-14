@@ -25,12 +25,18 @@ public class Dungeon extends MetaLocation {
     }
 
 
-    public static Dungeon jsonRestore(String dungeonJson) throws IOException {
+    public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
+        Dungeon restored = jsonRestore(readDungeonFromFile(fileName));
+        restored.connectRooms();
+        return restored;
+    }
+
+    private static Dungeon jsonRestore(String dungeonJson) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(dungeonJson, Dungeon.class);
     }
 
-    public static String readDungeonFromFile (String fileName) {
+    private static String readDungeonFromFile (String fileName) {
         try (Scanner fileScanner = new Scanner(new File(fileName))) {
             StringBuilder stringBuilder = new StringBuilder(fileScanner.nextLine());
             while (fileScanner.hasNext()) {
@@ -46,6 +52,8 @@ public class Dungeon extends MetaLocation {
     private void connectRooms () {
         Map<Integer, DungeonRoom> roomsById = new HashMap<>();
         rooms.forEach(e -> roomsById.put(e.getId(), e));
+
+        entrance = roomsById.get(1);
 
         rooms.forEach(e -> {
             Map<Direction, Integer> connectedRoomIds = e.getConnectedRoomIds();

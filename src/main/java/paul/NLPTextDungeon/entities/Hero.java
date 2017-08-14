@@ -122,8 +122,8 @@ public class Hero {
     private void initItemActions () {
         itemActions.put("torch", room -> room.setLighting(TORCH_LIGHT));
         itemActions.put("potion", room -> {
-            room.getHero().restoreHealth(POTION_VALUE);
-            room.getHero().removeItem("Potion");
+            this.restoreHealth(POTION_VALUE);
+            this.removeItem("Potion");
         });
         itemActions.put("bow", room -> System.out.println("You don't know how to use that yet."));
     }
@@ -144,11 +144,18 @@ public class Hero {
         listenerMap.put("crackFloor", () -> {
             System.out.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
             getLocation().addObstacle(new Chasm());
+            previousLocation = null; //Prevent retreating
         });
     }
 
     private void initActionMap () {
-        heroVoidActions.put("loot", room -> room.lootRoom().forEach(backpack::add));
+        heroVoidActions.put("loot", room -> room.lootRoom().forEach(item -> {
+            if (item.hasPickupAction()) {
+                OnPickup action = listenerMap.get(item.getPickupAction());
+                action.doAction();
+            }
+            backpack.add(item);
+        }));
         heroVoidActions.put("retreat", room -> room.getHero().retreat());
         heroVoidActions.put("sneak", room -> System.out.println("You don't know how to sneak yet."));
         heroVoidActions.put("cast", room -> System.out.println("You don't know any spells yet."));
@@ -180,7 +187,13 @@ public class Hero {
                 System.out.println("Trademarked chest-opening music, rapid ascending style.");
             }
             List<BackpackItem> chestContents = chest.removeContents();
-            chestContents.forEach(backpack::add);
+            chestContents.forEach(item -> {
+                if (item.hasPickupAction()) {
+                    OnPickup action = listenerMap.get(item.getPickupAction());
+                    action.doAction();
+                }
+                backpack.add(item);
+            });
         });
 
         heroParamActions.put("use", (room, param) -> {
@@ -196,6 +209,22 @@ public class Hero {
         heroParamActions.put("say", (room, param) -> room.getHero().vocalize(param, SpeakingVolume.SAY));
         heroParamActions.put("whisper", (room, param) -> room.getHero().vocalize(param, SpeakingVolume.WHISPER));
         heroParamActions.put("shout", (room, param) -> room.getHero().vocalize(param, SpeakingVolume.SHOUT));
+        heroVoidActions.put("jump", room -> {
+            if (backpack.contains("Boots of Vaulting")) {
+                if (room.getObstacles().size() == 0) {
+                    System.out.println("Nothing to jump.");
+                } else {
+                    room.getObstacles().stream()
+                            .filter(e -> e.getSolution().equals("jump")) //Filter out non-chasms
+                            .forEach(e -> {
+                                boolean success = e.attempt("jump", this);
+                                System.out.println("You made it across!");
+                            });
+                }
+            } else {
+                System.out.println("Hmm... not much happened.");
+            }
+        });
     }
 
     private void vocalize (String message, SpeakingVolume volume) {
@@ -296,7 +325,11 @@ public class Hero {
     }
 
     private void retreat () {
-        setLocation(previousLocation);
+        if (previousLocation != null) {
+            setLocation(previousLocation);
+        } else {
+            System.out.println("Cannot retreat right now.");
+        }
     }
 
 
