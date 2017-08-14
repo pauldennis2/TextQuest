@@ -52,4 +52,15 @@ public abstract class Obstacle {
     protected void setSolution(String solution) {
         this.solution = solution;
     }
+
+    @Override
+    public String toString () {
+        String response = name + " , Cleared: ";
+        if (isCleared) {
+            response += "yes";
+        } else {
+            response += "no";
+        }
+        return response;
+    }
 }

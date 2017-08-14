@@ -3,8 +3,9 @@
 @VoidAction
 rescue - untie, release
 fight - attack, melee, combat
-sneak - hide, conceal, evade, creep, ambush
-explore - search, find, examine
+sneak - hide, conceal, evade, creep
+|search is VoidAction because it opens a new interface
+search - find, examine, look
 loot - gather
 retreat - skedaddle, vamoose, runaway
 plunder - lootchest
@@ -14,7 +15,7 @@ jump - leap, vault, vaultingboots
 |===
 @ParamAction
 travel - sail, journey
-view - see, inspect
+view - see, inspect, show
 use - utilize, wield, employ
 move - proceed, go
 learn - study

@@ -80,9 +80,10 @@ public class StatementAnalyzer {
                 } else {
                     analysis.addComment("Received move param but no direction. Move where?");
                 }
-            } else if (actionWord.equals("say")) {
+            //This part is genuinely terrible. TODO please fix
+            } else if (actionWord.equals("say") || actionWord.equals("whisper") || actionWord.equals("shout")) {
                     analysis.setActionable(true);
-                    analysis.setActionWord("say");
+                    analysis.setActionWord(actionWord);
             } else {
                 List<String> conceptWords = analysis.getTokenMatchMap().get(WordType.CONCEPT);
                 if (conceptWords.size() > 0) {

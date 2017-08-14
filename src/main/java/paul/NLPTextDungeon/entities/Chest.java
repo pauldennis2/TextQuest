@@ -35,7 +35,7 @@ public class Chest {
     }
 
     public void unlock (BackpackItem key) {
-        if (key.getName().equals(name)) {
+        if (key.getName().equals(this.key)) {
             locked = false;
         }
     }

@@ -2,8 +2,10 @@ package paul.NLPTextDungeon.entities;
 
 
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
+import paul.NLPTextDungeon.entities.obstacles.RiddleObstacle;
 import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.enums.LightingLevel;
+import paul.NLPTextDungeon.enums.SpeakingVolume;
 import paul.NLPTextDungeon.interfaces.listeners.SpeechListener;
 
 import java.util.*;
@@ -28,7 +30,7 @@ public class DungeonRoom extends Location {
     //Temporary variables for JSONification
     private Map<Direction, Integer> connectedRoomIds;
 
-    private transient List<SpeechListener>
+    private transient List<SpeechListener> speechListeners;
 
 
     //The "Key" for hidden items is a word location in the room. By convention the word should appear in the description
@@ -48,6 +50,8 @@ public class DungeonRoom extends Location {
         connectedRooms = new HashMap<>();
         obstacles = new ArrayList<>();
         hiddenItems = new HashMap<>();
+        speechListeners = new ArrayList<>();
+        initUniversalSpeechListeners();
     }
 
     public DungeonRoom (String name, String description) {
@@ -60,6 +64,8 @@ public class DungeonRoom extends Location {
         connectedRooms = new HashMap<>();
         obstacles = new ArrayList<>();
         hiddenItems = new HashMap<>();
+        speechListeners = new ArrayList<>();
+        initUniversalSpeechListeners();
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {
@@ -80,12 +86,56 @@ public class DungeonRoom extends Location {
         }
     }
 
+    public void vocalize (String message, SpeakingVolume volume) {
+        System.out.println("Player " + volume.toString().toLowerCase() + "s:" + message);
+        speechListeners.forEach(e -> e.notify(message, volume));
+    }
+
+    private void initUniversalSpeechListeners () {
+        SpeechListener riddleAnswerListener = (message, volume) -> {
+            if (volume == SpeakingVolume.SAY) {
+                obstacles.stream()
+                        .filter(e -> {
+                            try {
+                                RiddleObstacle riddle = (RiddleObstacle) e;
+                                return true;
+                            } catch (ClassCastException ex) {
+                                return false;
+                            }
+                        })
+                        .forEach(e -> e.attempt(message, hero));
+            }
+        };
+        SpeechListener shoutAggroListener = (message, volume) -> {
+            if (volume == SpeakingVolume.SHOUT) {
+                List<DungeonRoom> adjacentRooms = new ArrayList<>(connectedRooms.values());
+                adjacentRooms.forEach(adjRoom -> addMonsters(adjRoom.removeMonsters()));
+                System.out.println("Looks like your shouting got some attention.");
+
+                monsters.forEach(hero::fightMonster);
+                updateMonsters();
+            }
+        };
+        speechListeners.add(riddleAnswerListener);
+        speechListeners.add(shoutAggroListener);
+    }
+
+    public List<Monster> removeMonsters () {
+        List<Monster> removed = monsters;
+        monsters = new ArrayList<>();
+        return removed;
+    }
+
     public void setHasPrince(boolean hasPrince) {
         this.hasPrince = hasPrince;
     }
 
     public void addMonster (Monster monster) {
         monsters.add(monster);
+    }
+
+    public void addMonsters (List<Monster> monsters) {
+        monsters.forEach(this::addMonster);
     }
 
     public void addContainer (Chest chest) {
@@ -123,11 +173,21 @@ public class DungeonRoom extends Location {
         System.out.println("\n\n\n\nYou are in room " + id);
         LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
         System.out.println(description);
+        System.out.println("The room has the following obstacles:");
+        obstacles.forEach(System.out::println);
+
+        //Print riddles
+
+        obstacles.stream()
+                .filter(e -> e.getClass() == RiddleObstacle.class)
+                .filter(e -> !e.isCleared())
+                .forEach(e -> System.out.println(((RiddleObstacle)e).getRiddle()));
+
         switch (lightingLevel) {
             case WELL_LIT:
                 System.out.println("The room is well lit. You can clearly see:");
-                monsters.stream().forEach(System.out::println);
-                items.stream().forEach(System.out::println);
+                monsters.forEach(System.out::println);
+                items.forEach(System.out::println);
                 if (chest != null) {
                     System.out.println(chest);
                 }
