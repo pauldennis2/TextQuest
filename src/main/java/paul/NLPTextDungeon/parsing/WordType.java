@@ -4,7 +4,7 @@ package paul.NLPTextDungeon.parsing;
  * Created by Paul Dennis on 8/10/2017.
  */
 public enum WordType {
-    CONCEPT, VOID_ACTION, PARAM_ACTION, DIRECTION, SPEAKING, ITEM;
+    CONCEPT, VOID_ACTION, PARAM_ACTION, DIRECTION, SPEAKING, ITEM, TIMING;
 
 
     public static WordType getTypeFromFileAnnotation (String annotation) {
@@ -21,6 +21,8 @@ public enum WordType {
                 return SPEAKING;
             case "@Item":
                 return ITEM;
+            case "@Timing":
+                return TIMING;
             default:
                 throw new AssertionError();
         }

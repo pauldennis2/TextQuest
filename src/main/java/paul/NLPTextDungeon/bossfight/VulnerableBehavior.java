@@ -10,30 +10,31 @@ import java.util.*;
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
-public class VulnBehavior {
+public class VulnerableBehavior {
 
     private String name;
     private String params;
     private NumberActionType actionType;
-    private NumberRuleType rule;
+    private NumberRuleType ruleType;
     private int failureDamage;
 
     private String numberChoosingBehaviorDescription;
     private String solutionBehaviorIndication;
+    private String playerNumberChoicePrompt;
 
     private transient Random random;
 
-    public VulnBehavior () {
+    public VulnerableBehavior() {
         random = new Random();
     }
 
-    public VulnBehavior(String name, String params, NumberActionType actionType, NumberRuleType rule, int failureDamage) {
+    public VulnerableBehavior(String name, String params, NumberActionType actionType, NumberRuleType rule, int failureDamage) {
         random = new Random();
 
         this.name = name;
         this.params = params;
         this.actionType = actionType;
-        this.rule = rule;
+        this.ruleType = rule;
         this.failureDamage = failureDamage;
     }
 
@@ -49,7 +50,8 @@ public class VulnBehavior {
         System.out.println(solutionBehaviorIndication + " : " + solution);
     }
 
-    public void doBehavior (Hero hero) {
+    //Returns damage to be taken by the boss
+    public int doBehavior (Hero hero) {
         //if (params.equals("2random")
         int firstRandom = random.nextInt(10);
         int secondRandom = random.nextInt(10);
@@ -57,21 +59,22 @@ public class VulnBehavior {
         System.out.println(numberChoosingBehaviorDescription + " " + firstRandom);
         System.out.println(numberChoosingBehaviorDescription + " " + secondRandom);
 
-        System.out.println("Jump on which platform? Hint: sum mod 5");
+        System.out.println(playerNumberChoicePrompt);
         SafeNumScanner scanner = new SafeNumScanner(System.in);
         int userNumber = scanner.getSafeNum(0, 9);
         if (checkRule(firstRandom,secondRandom, userNumber)) {
             System.out.println("Cool, you got it right.");
-            System.out.println("Boss nominally takes 10 damage.");
+            System.out.println("Boss takes 10 damage.");
+            return 10;
         } else {
             System.out.println("WRONG!");
             hero.takeDamage(failureDamage);
+            return 0;
         }
-
     }
 
     public static void main(String[] args) {
-        VulnBehavior hop = new VulnBehavior("hop", "2random", NumberActionType.SUM, NumberRuleType.MOD5, 10);
+        VulnerableBehavior hop = new VulnerableBehavior("hop", "2random", NumberActionType.SUM, NumberRuleType.MOD5, 10);
         hop.numberChoosingBehaviorDescription = "Pihop-pi jumps on platform ";
         hop.solutionBehaviorIndication = "One of the platforms starts glowing";
 
@@ -107,7 +110,7 @@ public class VulnBehavior {
             default:
                 throw new AssertionError();
         }
-        switch (rule) {
+        switch (ruleType) {
             case MOD5:
                 return result % 5;
             default:
@@ -115,4 +118,59 @@ public class VulnBehavior {
         }
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getParams() {
+        return params;
+    }
+
+    public void setParams(String params) {
+        this.params = params;
+    }
+
+    public NumberActionType getActionType() {
+        return actionType;
+    }
+
+    public void setActionType(NumberActionType actionType) {
+        this.actionType = actionType;
+    }
+
+    public NumberRuleType getRule() {
+        return ruleType;
+    }
+
+    public void setRule(NumberRuleType rule) {
+        this.ruleType = rule;
+    }
+
+    public int getFailureDamage() {
+        return failureDamage;
+    }
+
+    public void setFailureDamage(int failureDamage) {
+        this.failureDamage = failureDamage;
+    }
+
+    public String getNumberChoosingBehaviorDescription() {
+        return numberChoosingBehaviorDescription;
+    }
+
+    public void setNumberChoosingBehaviorDescription(String numberChoosingBehaviorDescription) {
+        this.numberChoosingBehaviorDescription = numberChoosingBehaviorDescription;
+    }
+
+    public String getSolutionBehaviorIndication() {
+        return solutionBehaviorIndication;
+    }
+
+    public void setSolutionBehaviorIndication(String solutionBehaviorIndication) {
+        this.solutionBehaviorIndication = solutionBehaviorIndication;
+    }
 }

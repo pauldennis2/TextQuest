@@ -8,26 +8,26 @@ import paul.NLPTextDungeon.entities.Hero;
 public class AttackBehavior {
 
     private String name;
-    private String solution;
+    private Solution solution;
+
+    private String actionDescription;
+    private String avoidDescription;
+
     private int damage;
 
     private transient int numTimesDone;
     private transient boolean solved;
 
-    private String actionDescription;
-    private String avoidDescription;
-
     public AttackBehavior () {
         numTimesDone = 0;
     }
 
-    public AttackBehavior(String name, String solution, int damage, String actionDescription, String avoidDescription) {
-        numTimesDone = 0;
+    public AttackBehavior(String name, Solution solution, String actionDescription, String avoidDescription, int damage) {
         this.name = name;
         this.solution = solution;
-        this.damage = damage;
         this.actionDescription = actionDescription;
         this.avoidDescription = avoidDescription;
+        this.damage = damage;
     }
 
     public void doBehavior (Hero hero) {
@@ -39,14 +39,13 @@ public class AttackBehavior {
             System.out.println("You took " + damage + " damage.");
             if (numTimesDone >= 1) {
                 System.out.println("What would you like to do next time?");
-                if (new java.util.Scanner(System.in).nextLine().equals(solution)) {
-                    solved = true;
-                }
+                System.out.println("Giving you a pass for now. You'll jump.");
+                solved = true;
             }
         }
         numTimesDone++;
     }
-    //Adding boss
+
     public String getName() {
         return name;
     }
@@ -55,11 +54,11 @@ public class AttackBehavior {
         this.name = name;
     }
 
-    public String getSolution() {
+    public Solution getSolution() {
         return solution;
     }
 
-    public void setSolution(String solution) {
+    public void setSolution(Solution solution) {
         this.solution = solution;
     }
 
