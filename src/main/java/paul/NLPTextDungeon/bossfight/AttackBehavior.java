@@ -46,7 +46,7 @@ public class AttackBehavior {
         }
         numTimesDone++;
     }
-
+    //Adding boss
     public String getName() {
         return name;
     }
