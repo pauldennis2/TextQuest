@@ -44,6 +44,6 @@ public class Backpack extends Location {
         return items.stream()
                 .map(e -> e.getName().toLowerCase())
                 .collect(Collectors.toList())
-                .contains(itemName);
+                .contains(itemName.toLowerCase());
     }
 }

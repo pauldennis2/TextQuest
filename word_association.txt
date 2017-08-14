@@ -3,21 +3,26 @@
 @VoidAction
 rescue - untie, release
 fight - attack, melee, combat
-sneak - hide, conceal, evade, creep, ambush
-explore - search, find, examine
+sneak - hide, conceal, evade, creep
+|search is VoidAction because it opens a new interface
+search - find, examine, look
 loot - gather
 retreat - skedaddle, vamoose, runaway
 plunder - lootchest
+jump - leap, vault, vaultingboots
 |
 |Param Action Words: (i.e. "travel where?" "use what?", "cast what spell?")
 |===
 @ParamAction
 travel - sail, journey
-view - see, inspect
+view - see, inspect, show
 use - utilize, wield, employ
 move - proceed, go
 learn - study
 cast - incant
+say - speak
+shout - yell
+whisper - murmur
 |
 |Concept Words:
 |===
@@ -49,7 +54,6 @@ west - left, western
 portal - teleport, gateway
 |Speaking Words:
 |===
-@Speaking
-say - speak
-shout - yell
-whisper - murmur
+|$Shades of Piercing Vision
+|magic Xray sunglasses!
+|examine - xray, piercevision

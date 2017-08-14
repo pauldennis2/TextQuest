@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.entities.parsing;
+package paul.NLPTextDungeon.parsing;
 
 
 import java.util.Set;

@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.entities.parsing;
+package paul.NLPTextDungeon.parsing;
 
 
 import java.util.*;
@@ -190,5 +190,17 @@ public class StatementAnalysis {
                 ", secondActionParam='" + secondActionParam + '\'' +
                 ", secondActionable=" + secondActionable +
                 '}';
+    }
+
+    public void setActionParam(String actionParam) {
+        this.actionParam = actionParam;
+    }
+
+    public void setActionable (boolean actionable) {
+        this.actionable = actionable;
+    }
+
+    public void setActionWord(String actionWord) {
+        this.actionWord = actionWord;
     }
 }

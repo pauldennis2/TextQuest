@@ -8,15 +8,13 @@ import paul.NLPTextDungeon.interfaces.ParamAction;
 import paul.NLPTextDungeon.interfaces.SpellAction;
 import paul.NLPTextDungeon.interfaces.VoidAction;
 import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
+import paul.NLPTextDungeon.parsing.StatementAnalyzer;
 import paul.NLPTextDungeon.utils.DefeatException;
 import paul.NLPTextDungeon.utils.ItemActionMap;
 import paul.NLPTextDungeon.utils.SafeNumScanner;
 import paul.NLPTextDungeon.utils.VictoryException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -122,8 +120,8 @@ public class Hero {
     private void initItemActions () {
         itemActions.put("torch", room -> room.setLighting(TORCH_LIGHT));
         itemActions.put("potion", room -> {
-            room.getHero().restoreHealth(POTION_VALUE);
-            room.getHero().removeItem("Potion");
+            this.restoreHealth(POTION_VALUE);
+            this.removeItem("Potion");
         });
         itemActions.put("bow", room -> System.out.println("You don't know how to use that yet."));
     }
@@ -144,16 +142,41 @@ public class Hero {
         listenerMap.put("crackFloor", () -> {
             System.out.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
             getLocation().addObstacle(new Chasm());
+            previousLocation = null; //Prevent retreating
         });
     }
 
     private void initActionMap () {
-        heroVoidActions.put("loot", room -> room.lootRoom().forEach(backpack::add));
+        heroVoidActions.put("loot", room -> room.lootRoom().forEach(item -> {
+            if (item.hasPickupAction()) {
+                OnPickup action = listenerMap.get(item.getPickupAction());
+                action.doAction();
+            }
+            backpack.add(item);
+        }));
         heroVoidActions.put("retreat", room -> room.getHero().retreat());
         heroVoidActions.put("sneak", room -> System.out.println("You don't know how to sneak yet."));
         heroVoidActions.put("cast", room -> System.out.println("You don't know any spells yet."));
         heroVoidActions.put("learn", room -> System.out.println("That function is not available at this time."));
-        heroVoidActions.put("explore", room -> System.out.println("That function is also not available at this time."));
+        heroVoidActions.put("search", room -> {
+            System.out.println("Search where?");
+            Scanner scanner = new Scanner(System.in);
+            String response = scanner.nextLine();
+            StatementAnalyzer analyzer = new StatementAnalyzer();
+            String[] tokens = analyzer.analyzeStatement(response).getTokens();
+            Arrays.stream(tokens).forEach(token -> {
+                List<BackpackItem> hiddenItems = room.searchForHiddenItems(token);
+                if (hiddenItems.size() > 0) {
+                    System.out.println("Searching around " + token + ", you found:");
+                    hiddenItems.forEach(item -> {
+                        System.out.println(item);
+                        backpack.add(item);
+                    });
+                } else {
+                    System.out.println("You did not find anything near " + token + ".");
+                }
+            });
+        });
         heroVoidActions.put("fight", room -> {
             room.getMonsters().forEach(room.getHero()::fightMonster);
             room.updateMonsters();
@@ -180,7 +203,13 @@ public class Hero {
                 System.out.println("Trademarked chest-opening music, rapid ascending style.");
             }
             List<BackpackItem> chestContents = chest.removeContents();
-            chestContents.forEach(backpack::add);
+            chestContents.forEach(item -> {
+                if (item.hasPickupAction()) {
+                    OnPickup action = listenerMap.get(item.getPickupAction());
+                    action.doAction();
+                }
+                backpack.add(item);
+            });
         });
 
         heroParamActions.put("use", (room, param) -> {
@@ -193,13 +222,25 @@ public class Hero {
         heroParamActions.put("move", (room, param) -> proceed(Direction.valueOf(param.toUpperCase())));
         heroParamActions.put("view", (room, param) -> views.get(param).doAction(room));
 
-        heroParamActions.put("say", (room, param) -> room.getHero().vocalize(param, SpeakingVolume.SAY));
-        heroParamActions.put("whisper", (room, param) -> room.getHero().vocalize(param, SpeakingVolume.WHISPER));
-        heroParamActions.put("shout", (room, param) -> room.getHero().vocalize(param, SpeakingVolume.SHOUT));
-    }
-
-    private void vocalize (String message, SpeakingVolume volume) {
-        System.out.println("Player " + volume.toString().toLowerCase() + "s:" + message);
+        heroParamActions.put("say", (room, param) -> room.vocalize(param, SpeakingVolume.SAY));
+        heroParamActions.put("whisper", (room, param) -> room.vocalize(param, SpeakingVolume.WHISPER));
+        heroParamActions.put("shout", (room, param) -> room.vocalize(param, SpeakingVolume.SHOUT));
+        heroVoidActions.put("jump", room -> {
+            if (backpack.contains("Boots of Vaulting")) {
+                if (room.getObstacles().size() == 0) {
+                    System.out.println("Nothing to jump.");
+                } else {
+                    room.getObstacles().stream()
+                            .filter(e -> e.getSolution().equals("jump")) //Filter out non-chasms
+                            .forEach(e -> {
+                                boolean success = e.attempt("jump", this);
+                                System.out.println("You made it across!");
+                            });
+                }
+            } else {
+                System.out.println("Hmm... not much happened.");
+            }
+        });
     }
 
     private void levelUp () {
@@ -208,7 +249,7 @@ public class Hero {
             return;
         }
         System.out.println("What would you like to do?");
-        List<String> levelUpActionStrings = levelUpActionMap.keySet().stream().collect(Collectors.toList());
+        List<String> levelUpActionStrings = new ArrayList<>(levelUpActionMap.keySet());
         int index = 1;
         for (String action : levelUpActionStrings) {
             System.out.println(index + ". " + action);
@@ -226,7 +267,7 @@ public class Hero {
         levelUpActionMap.put("Increase HP", hero -> hero.maxHealth += 5);
         levelUpActionMap.put("Increase Might", hero -> hero.might++);
         levelUpActionMap.put("Sneak", hero -> hero.sneak++);
-        levelUpActionMap.put("Learn Spell", hero -> hero.learnNewSpell());
+        levelUpActionMap.put("Learn Spell", Hero::learnNewSpell);
     }
 
     private void initPossibleSpellMap () {
@@ -296,7 +337,11 @@ public class Hero {
     }
 
     private void retreat () {
-        setLocation(previousLocation);
+        if (previousLocation != null) {
+            setLocation(previousLocation);
+        } else {
+            System.out.println("Cannot retreat right now.");
+        }
     }
 
 

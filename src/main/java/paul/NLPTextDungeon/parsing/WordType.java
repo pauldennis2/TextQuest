@@ -1,10 +1,10 @@
-package paul.NLPTextDungeon.entities.parsing;
+package paul.NLPTextDungeon.parsing;
 
 /**
  * Created by Paul Dennis on 8/10/2017.
  */
 public enum WordType {
-    CONCEPT, VOID_ACTION, PARAM_ACTION, DIRECTION, SPEAKING;
+    CONCEPT, VOID_ACTION, PARAM_ACTION, DIRECTION, SPEAKING, ITEM;
 
 
     public static WordType getTypeFromFileAnnotation (String annotation) {
@@ -19,6 +19,8 @@ public enum WordType {
                 return DIRECTION;
             case "@Speaking":
                 return SPEAKING;
+            case "@Item":
+                return ITEM;
             default:
                 throw new AssertionError();
         }
