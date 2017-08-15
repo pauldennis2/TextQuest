@@ -43,12 +43,13 @@ public class BossFight {
 
     public void doFight () {
         int numTimesAttackedWithoutVuln = 0;
-        vulnerableBehavior.demoBehavior();
+
         System.out.println("Welcome to Boss Fight");
         System.out.println("Boss: " + name);
         System.out.println("Description: " + bossDescription);
         System.out.println("Room Description: " + roomDescription);
-
+        System.out.println("-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.\n\n\n\n");
+        vulnerableBehavior.demoBehavior();
         while (true) {
             int chosenAttack = 0;
             if (attackBehaviors.size() > 1) {

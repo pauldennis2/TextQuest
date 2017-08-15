@@ -22,6 +22,9 @@ public class VulnerableBehavior {
     private String solutionBehaviorIndication;
     private String playerNumberChoicePrompt;
 
+    private String correctChoiceMessage;
+    private String wrongChoiceMessage;
+
     private transient Random random;
 
     public VulnerableBehavior() {
@@ -51,6 +54,7 @@ public class VulnerableBehavior {
     }
 
     //Returns damage to be taken by the boss
+    public static final int BOSS_DAMAGE_TAKEN = 10;
     public int doBehavior (Hero hero) {
         //if (params.equals("2random")
         int firstRandom = random.nextInt(10);
@@ -63,18 +67,19 @@ public class VulnerableBehavior {
         SafeNumScanner scanner = new SafeNumScanner(System.in);
         int userNumber = scanner.getSafeNum(0, 9);
         if (checkRule(firstRandom,secondRandom, userNumber)) {
-            System.out.println("Cool, you got it right.");
-            System.out.println("Boss takes 10 damage.");
-            return 10;
+            System.out.println(correctChoiceMessage);
+            System.out.println("Boss takes " + BOSS_DAMAGE_TAKEN + " damage.");
+            return BOSS_DAMAGE_TAKEN;
         } else {
-            System.out.println("WRONG!");
+            System.out.println(wrongChoiceMessage);
             hero.takeDamage(failureDamage);
+            demoBehavior();
             return 0;
         }
     }
 
     public static void main(String[] args) {
-        VulnerableBehavior hop = new VulnerableBehavior("hop", "2random", NumberActionType.SUM, NumberRuleType.MOD5, 10);
+        VulnerableBehavior hop = new VulnerableBehavior("hop", "2random", NumberActionType.SUM, NumberRuleType.MOD10, 10);
         hop.numberChoosingBehaviorDescription = "Pihop-pi jumps on platform ";
         hop.solutionBehaviorIndication = "One of the platforms starts glowing";
 
@@ -111,8 +116,8 @@ public class VulnerableBehavior {
                 throw new AssertionError();
         }
         switch (ruleType) {
-            case MOD5:
-                return result % 5;
+            case MOD10:
+                return result % 10;
             default:
                 throw new AssertionError();
         }
@@ -172,5 +177,37 @@ public class VulnerableBehavior {
 
     public void setSolutionBehaviorIndication(String solutionBehaviorIndication) {
         this.solutionBehaviorIndication = solutionBehaviorIndication;
+    }
+
+    public String getPlayerNumberChoicePrompt() {
+        return playerNumberChoicePrompt;
+    }
+
+    public void setPlayerNumberChoicePrompt(String playerNumberChoicePrompt) {
+        this.playerNumberChoicePrompt = playerNumberChoicePrompt;
+    }
+
+    public String getCorrectChoiceMessage() {
+        return correctChoiceMessage;
+    }
+
+    public void setCorrectChoiceMessage(String correctChoiceMessage) {
+        this.correctChoiceMessage = correctChoiceMessage;
+    }
+
+    public String getWrongChoiceMessage() {
+        return wrongChoiceMessage;
+    }
+
+    public void setWrongChoiceMessage(String wrongChoiceMessage) {
+        this.wrongChoiceMessage = wrongChoiceMessage;
+    }
+
+    public NumberRuleType getRuleType() {
+        return ruleType;
+    }
+
+    public void setRuleType(NumberRuleType ruleType) {
+        this.ruleType = ruleType;
     }
 }

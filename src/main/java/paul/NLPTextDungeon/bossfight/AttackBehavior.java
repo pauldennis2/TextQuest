@@ -1,6 +1,13 @@
 package paul.NLPTextDungeon.bossfight;
 
 import paul.NLPTextDungeon.entities.Hero;
+import paul.NLPTextDungeon.enums.ActionResponseTiming;
+import paul.NLPTextDungeon.parsing.StatementAnalysis;
+import paul.NLPTextDungeon.parsing.StatementAnalyzer;
+import paul.NLPTextDungeon.parsing.WordType;
+
+import java.util.List;
+import java.util.Scanner;
 
 /**
  * Created by Paul Dennis on 8/13/2017.
@@ -8,7 +15,7 @@ import paul.NLPTextDungeon.entities.Hero;
 public class AttackBehavior {
 
     private String name;
-    private Solution solution;
+    private BehaviorResponse solution; //Expresses not just "a" response but "THE" response (solution) to the attack
 
     private String actionDescription;
     private String avoidDescription;
@@ -17,12 +24,13 @@ public class AttackBehavior {
 
     private transient int numTimesDone;
     private transient boolean solved;
+    private transient BehaviorResponse attemptedSolution;
 
     public AttackBehavior () {
         numTimesDone = 0;
     }
 
-    public AttackBehavior(String name, Solution solution, String actionDescription, String avoidDescription, int damage) {
+    public AttackBehavior(String name, BehaviorResponse solution, String actionDescription, String avoidDescription, int damage) {
         this.name = name;
         this.solution = solution;
         this.actionDescription = actionDescription;
@@ -34,13 +42,33 @@ public class AttackBehavior {
         System.out.println(actionDescription);
         if (solved) {
             System.out.println(avoidDescription);
+        } else if (attemptedSolution != null) {
+            System.out.println("Attempting: " + attemptedSolution);
+            if (solution.equals(attemptedSolution)) {
+                System.out.println(avoidDescription);
+                solved = true;
+            } else {
+                System.out.println("It doesn't seem to have worked.");
+                attemptedSolution = null;
+                doBehavior(hero);
+            }
         } else {
             hero.takeDamage(damage);
             System.out.println("You took " + damage + " damage.");
             if (numTimesDone >= 1) {
                 System.out.println("What would you like to do next time?");
-                System.out.println("Giving you a pass for now. You'll jump.");
-                solved = true;
+                String response = new Scanner(System.in).nextLine();
+                StatementAnalyzer statementAnalyzer = new StatementAnalyzer();
+                StatementAnalysis analysis = statementAnalyzer.analyzeStatement(response);
+                List<String> timingWords = analysis.getTokenMatchMap().get(WordType.TIMING);
+                List<String> actionWords = analysis.getTokenMatchMap().get(WordType.VOID_ACTION);
+                if (timingWords.size() > 0 && actionWords.size() > 0) {
+                    //Build a solution object
+                    attemptedSolution = new BehaviorResponse(this.name,
+                            actionWords.get(0), ActionResponseTiming.getFromString(timingWords.get(0)));
+                } else {
+                    System.out.println("Could not find an actionable solution. Requires a timing and an action word.");
+                }
             }
         }
         numTimesDone++;
@@ -54,11 +82,11 @@ public class AttackBehavior {
         this.name = name;
     }
 
-    public Solution getSolution() {
+    public BehaviorResponse getSolution() {
         return solution;
     }
 
-    public void setSolution(Solution solution) {
+    public void setSolution(BehaviorResponse solution) {
         this.solution = solution;
     }
 

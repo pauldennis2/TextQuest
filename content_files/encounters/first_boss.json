@@ -13,7 +13,8 @@
       "avoidDescription":"But you jumped to avoid it.",
       "solution":
       {
-        "actionWord":"jump",
+        "causingAction":"pee",
+        "responseAction":"jump",
         "timing":"BEFORE"
       }
     }
@@ -23,9 +24,12 @@
     "name":"hop on platforms",
     "params":"2random",
     "actionType":"SUM",
-    "rule":"MOD5",
+    "ruleType":"MOD10",
     "failureDamage":10,
     "numberChoosingBehaviorDescription":"Pihop-pi jumps on platform",
-    "solutionBehaviorIndication":"One of the platforms starts glowing"
+    "solutionBehaviorIndication":"One of the platforms starts glowing",
+    "playerNumberChoicePrompt":"Which platform do you want to jump on?",
+    "correctChoiceMessage":"Zap! A small bolt of lightning strikes the boss.",
+    "wrongChoiceMessage":"\"Glurk glurk glurk!\" Pihop-pi laughs at you and sprays you directly with acid."
   }
 }
