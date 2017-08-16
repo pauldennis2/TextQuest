@@ -1,0 +1,40 @@
+{
+  "name":"Timepiece Town",
+  "description":"This is a very small town - more of a trading post, really. A few shops for basic things, and one store that'll deal with adventurers. In an empty, disused building a giant spiderweb spells out \"SOOM MOON\".",
+  "shops":
+  [
+    {
+      "name":"Timepiece Adventurer Emporium",
+      "description":"Despite the grandiose name, this is a small shop with a few basic adventuring supplies and items.",
+      "itemsForSale":
+      [
+        {
+          "name":"Potion",
+          "quantity":-1,
+          "value":50
+        },
+        {
+          "name":"Hammer",
+          "quantity":1,
+          "value":25
+        },
+        {
+          "name":"Rope",
+          "quantity":3,
+          "value":10
+        },
+        {
+          "name":"Fabulous McGuffin of Lonas'Dal",
+          "quantity":1,
+          "isQuestItem":true,
+          "value":200
+        },
+        {
+          "name":"Shield +1",
+          "quantity":1,
+          "value":350
+        }
+      ]
+    }
+  ]
+}

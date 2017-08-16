@@ -9,5 +9,4 @@ public class ShopArea extends MetaLocation {
     //representing a town, trading post, etc
     //Has a list of shops and sublocations
     List<Shop> shops;
-    //Adding shops
 }
