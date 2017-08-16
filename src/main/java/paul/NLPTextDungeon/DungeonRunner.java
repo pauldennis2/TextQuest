@@ -1,5 +1,6 @@
 package paul.NLPTextDungeon;
 
+import paul.NLPTextDungeon.awebappexp.BufferedOutputTextStream;
 import paul.NLPTextDungeon.entities.Dungeon;
 import paul.NLPTextDungeon.entities.DungeonRoom;
 import paul.NLPTextDungeon.entities.Hero;
@@ -24,7 +25,6 @@ public class DungeonRunner {
 
     private DungeonRoom currentRoom;
     private StatementAnalyzer analyzer;
-    private Scanner scanner;
 
     private boolean done = false;
 
@@ -32,50 +32,59 @@ public class DungeonRunner {
 
     public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
 
+    private BufferedOutputTextStream textOut;
+
     private List<MetaLocation> metaLocations;
-    //Solidify interface
     public DungeonRunner () throws IOException {
         hero = new Hero();
         analyzer = new StatementAnalyzer();
-        scanner = new Scanner(System.in);
 
         dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
         metaLocations = new ArrayList<>();
         metaLocations.add(dungeon);
+        textOut = new BufferedOutputTextStream();
+        hero.setTextOut(textOut);
+        dungeon.setTextOut(textOut);
     }
 
-    public void run () {
+    public void start () {
         currentRoom = dungeon.getEntrance();
         hero.setLocation(currentRoom);
         currentRoom.setHero(hero);
-        System.out.println("Welcome to the " + dungeon.getDungeonName());
-        System.out.println("Your goal:");
-        mainActionMenu();
+        textOut.println("Welcome to the " + dungeon.getDungeonName());
+        textOut.println("Your goal:");
     }
 
-    String nextActionWord;
-    String nextParamWord;
-    boolean processAnd;
-
-    public void mainActionMenu () {
-        StatementAnalysis analysis;
-        if (processAnd) {
-            System.out.println("Running 2nd half of AND statement.");
+    public void analyzeAndExecuteStatement (String userInput) {
+        StatementAnalysis analysis = analyzer.analyzeStatement(userInput);
+        doActionFromAnalysis(analysis);
+        if (analysis.hasAnd() && analysis.isSecondActionable()) {
+            String nextActionWord = analysis.getSecondActionWord();
+            String nextParamWord = analysis.getSecondActionParam();
+            textOut.debug("Next words: " + nextActionWord + " param " + nextParamWord);
+            textOut.debug("Running 2nd half of AND statement.");
             analysis = new StatementAnalysis(nextActionWord, nextParamWord);
-            System.out.println(analysis);
-            processAnd = false;
-        } else {
-            currentRoom.describeRoom();
-            System.out.println("What would you like to do?");
-            String response = scanner.nextLine();
-            analysis = analyzer.analyzeStatement(response);
+            textOut.debug(analysis);
+            doActionFromAnalysis(analysis);
         }
+    }
+
+    public void describeRoom () {
+        currentRoom.describeRoom();
+        textOut.println("What would you like to do?");
+    }
+
+    public void doActionFromAnalysis (StatementAnalysis analysis) {
         if (analysis.isActionable()) {
             try {
                 analysis.printFinalAnalysis();
                 String actionWord = analysis.getActionWord();
                 if (CLEAR_REQUIRED_FOR_ACTION.contains(actionWord) && !currentRoom.isCleared()) {
-                    System.out.println("Oh honey, you have to clear the room of monsters and obstacles first.");
+                    if (currentRoom.getMonsters().size() > 0) {
+                        textOut.println("You have to clear the room of monsters first.");
+                    } else {
+                        textOut.println("You have to clear the room of obstacles first.");
+                    }
                 } else {
                     if (analysis.getActionParam() != null) {
                         hero.takeAction(actionWord, analysis.getActionParam());
@@ -84,33 +93,20 @@ public class DungeonRunner {
                     }
                 }
             } catch (VictoryException ex) {
-                System.out.println("Victory!");
-                System.out.println(ex.getMessage());
-                System.out.println("The bards will sing of this day.");
+                textOut.println("Victory!");
+                textOut.println(ex.getMessage());
+                textOut.println("The bards will sing of this day.");
                 done = true;
-            } /*catch (Exception ex) {
-                System.out.println("Let's keep going, but the message was:");
-                System.out.println(ex.getMessage() + " and of type " + ex.getClass());
-
-            }*/
+            }
             currentRoom = hero.getLocation();
         } else {
-            System.out.println("Could not analyze to an actionable statement.\nComments:");
-            analysis.getComments().forEach(System.out::print);
-            mainActionMenu();
-        }
-        if (analysis.hasAnd() && analysis.isSecondActionable()) {
-            processAnd = true;
-            nextActionWord = analysis.getSecondActionWord();
-            nextParamWord = analysis.getSecondActionParam();
-            System.out.println("Next words: " + nextActionWord + " param " + nextParamWord);
-        }
-        if (!done) {
-            mainActionMenu();
+            textOut.println("Could not analyze to an actionable statement.");
+            textOut.debug("Comments:");
+            analysis.getComments().forEach(textOut::debug);
         }
     }
 
-    public static void main(String[] args) throws IOException {
-        new DungeonRunner().run();
+    public BufferedOutputTextStream getTextOut() {
+        return textOut;
     }
 }

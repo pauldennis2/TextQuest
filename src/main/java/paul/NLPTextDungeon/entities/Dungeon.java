@@ -1,6 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import paul.NLPTextDungeon.awebappexp.BufferedOutputTextStream;
 import paul.NLPTextDungeon.enums.Direction;
 
 import java.io.File;
@@ -19,11 +20,11 @@ public class Dungeon extends MetaLocation {
     private String dungeonName;
 
     private transient DungeonRoom entrance;
+    private transient BufferedOutputTextStream textOut;
 
     public Dungeon () {
         rooms = new ArrayList<>();
     }
-
 
     public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
         Dungeon restored = jsonRestore(readDungeonFromFile(fileName));
@@ -44,8 +45,7 @@ public class Dungeon extends MetaLocation {
             }
             return stringBuilder.toString();
         } catch (FileNotFoundException ex) {
-            System.out.println("Could not find file.");
-            throw new AssertionError();
+            throw new AssertionError("Could not read from file");
         }
     }
 
@@ -63,16 +63,6 @@ public class Dungeon extends MetaLocation {
                 e.connectTo(f, otherRoom);
             });
         });
-    }
-
-    //wiring interface
-    public static void main(String[] args) throws IOException {
-        String DUNGEON_FILE_PATH = "content_files/dungeons/";
-        String dungeonJson = readDungeonFromFile(DUNGEON_FILE_PATH + "first_dungeon.json");
-        System.out.println(dungeonJson);
-        Dungeon restored = jsonRestore(dungeonJson);
-        restored.connectRooms();
-        System.out.println(restored);
     }
 
     public List<DungeonRoom> getRooms() {
@@ -105,5 +95,11 @@ public class Dungeon extends MetaLocation {
 
     public void setEntrance(DungeonRoom entrance) {
         this.entrance = entrance;
+    }
+
+    public void setTextOut(BufferedOutputTextStream textOut) {
+        this.textOut = textOut;
+
+        rooms.forEach(room -> room.setTextOut(textOut));
     }
 }

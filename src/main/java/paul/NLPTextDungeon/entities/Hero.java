@@ -1,5 +1,6 @@
 package paul.NLPTextDungeon.entities;
 
+import paul.NLPTextDungeon.awebappexp.BufferedOutputTextStream;
 import paul.NLPTextDungeon.entities.obstacles.Chasm;
 import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.enums.SpeakingVolume;
@@ -62,7 +63,7 @@ public class Hero {
     public static final int POTION_VALUE = 9;
     private Random random;
 
-    SafeNumScanner safeNumScanner;
+    BufferedOutputTextStream textOut;
 
     public Hero () {
         random = new Random();
@@ -102,9 +103,13 @@ public class Hero {
         if (voidAction != null) {
             voidAction.doAction(location);
         } else {
-            System.out.println("Action not in map.");
+            textOut.debug("Action not in map.");
             throw new AssertionError();
         }
+    }
+
+    public void setTextOut (BufferedOutputTextStream textOut) {
+        this.textOut = textOut;
     }
 
     public void takeAction (String action, String param) {
@@ -112,24 +117,28 @@ public class Hero {
         if (paramAction != null) {
             paramAction.doAction(location, param);
         } else {
-            System.out.println("Action not in map.");
+            textOut.debug("Action not in map.");
             throw new AssertionError();
         }
     }
 
     private void initItemActions () {
-        itemActions.put("torch", room -> room.setLighting(TORCH_LIGHT));
+        itemActions.put("torch", room -> {
+            room.setLighting(TORCH_LIGHT);
+            textOut.println("The room brightens up.");
+        });
         itemActions.put("potion", room -> {
             this.restoreHealth(POTION_VALUE);
             this.removeItem("Potion");
+            textOut.println("Drank a potion and restored up to 9 health.");
         });
-        itemActions.put("bow", room -> System.out.println("You don't know how to use that yet."));
+        itemActions.put("bow", room -> textOut.println("You don't know how to use that yet."));
     }
 
     private void initViews () {
         views.put("status", room -> room.getHero().printStats());
-        views.put("map", room -> System.out.println("Map not yet implemented."));
-        views.put("backpack", room -> System.out.println(room.getHero().backpack));
+        views.put("map", room -> textOut.println("Map not yet implemented."));
+        views.put("backpack", room -> textOut.println(room.getHero().backpack));
     }
 
 
@@ -140,7 +149,7 @@ public class Hero {
             throw new VictoryException("You win!");
         });
         listenerMap.put("crackFloor", () -> {
-            System.out.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
+            textOut.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
             getLocation().addObstacle(new Chasm());
             previousLocation = null; //Prevent retreating
         });
@@ -155,11 +164,15 @@ public class Hero {
             backpack.add(item);
         }));
         heroVoidActions.put("retreat", room -> room.getHero().retreat());
-        heroVoidActions.put("sneak", room -> System.out.println("You don't know how to sneak yet."));
-        heroVoidActions.put("cast", room -> System.out.println("You don't know any spells yet."));
-        heroVoidActions.put("learn", room -> System.out.println("That function is not available at this time."));
+        heroVoidActions.put("sneak", room -> textOut.println("You don't know how to sneak yet."));
+        heroVoidActions.put("cast", room -> textOut.println("You don't know any spells yet."));
+        heroVoidActions.put("learn", room -> textOut.println("That function is not available at this time."));
         heroVoidActions.put("search", room -> {
-            System.out.println("Search where?");
+            if (1 == 1) {
+                //TODO FIX
+                throw new AssertionError("Fix");
+            }
+            textOut.println("Search where?");
             Scanner scanner = new Scanner(System.in);
             String response = scanner.nextLine();
             StatementAnalyzer analyzer = new StatementAnalyzer();
@@ -167,13 +180,13 @@ public class Hero {
             Arrays.stream(tokens).forEach(token -> {
                 List<BackpackItem> hiddenItems = room.searchForHiddenItems(token);
                 if (hiddenItems.size() > 0) {
-                    System.out.println("Searching around " + token + ", you found:");
+                    textOut.println("Searching around " + token + ", you found:");
                     hiddenItems.forEach(item -> {
-                        System.out.println(item);
+                        textOut.println(item);
                         backpack.add(item);
                     });
                 } else {
-                    System.out.println("You did not find anything near " + token + ".");
+                    textOut.println("You did not find anything near " + token + ".");
                 }
             });
         });
@@ -181,26 +194,20 @@ public class Hero {
             room.getMonsters().forEach(room.getHero()::fightMonster);
             room.updateMonsters();
         });
-        heroVoidActions.put("rescue", room -> {
-            if (room.isCleared()) {
-                rescuePrince();
-            } else {
-                System.out.println("Oh honey, you've got to clear the room of monsters first.");
-            }
-        });
+        heroVoidActions.put("rescue", room -> textOut.println("No princes to rescue right now."));
 
         heroVoidActions.put("plunder", room -> {
             Chest chest = room.getChest();
             if (chest == null) {
-                System.out.println("Nothing to plunder here.");
+                textOut.println("Nothing to plunder here.");
             }
             room.getHero().backpack.stream()
                     .filter(item -> item.getName().contains("Key"))
                     .forEach(chest::unlock);
             if (chest.isLocked()) {
-                System.out.println("You don't have the key");
+                textOut.println("You don't have the key");
             } else {
-                System.out.println("Trademarked chest-opening music, rapid ascending style.");
+                textOut.println("Trademarked chest-opening music, rapid ascending style.");
             }
             List<BackpackItem> chestContents = chest.removeContents();
             chestContents.forEach(item -> {
@@ -216,7 +223,7 @@ public class Hero {
             if (room.getHero().getBackpack().contains(param)) {
                 itemActions.get(param).doAction(room);
             } else {
-                System.out.println("You don't have a " + param + " to use.");
+                textOut.println("You don't have a " + param + " to use.");
             }
         });
         heroParamActions.put("move", (room, param) -> proceed(Direction.valueOf(param.toUpperCase())));
@@ -228,34 +235,38 @@ public class Hero {
         heroVoidActions.put("jump", room -> {
             if (backpack.contains("Boots of Vaulting")) {
                 if (room.getObstacles().size() == 0) {
-                    System.out.println("Nothing to jump.");
+                    textOut.println("Nothing to jump.");
                 } else {
                     room.getObstacles().stream()
                             .filter(e -> e.getSolution().equals("jump")) //Filter out non-chasms
                             .forEach(e -> {
                                 boolean success = e.attempt("jump", this);
-                                System.out.println("You made it across!");
+                                textOut.println("You made it across!");
                             });
                 }
             } else {
-                System.out.println("Hmm... not much happened.");
+                textOut.println("Hmm... not much happened.");
             }
         });
     }
 
     private void levelUp () {
         if (level >= 12) {
-            System.out.println("You are max level");
+            textOut.println("You are max level");
             return;
         }
-        System.out.println("What would you like to do?");
+        textOut.println("What would you like to do?");
         List<String> levelUpActionStrings = new ArrayList<>(levelUpActionMap.keySet());
         int index = 1;
         for (String action : levelUpActionStrings) {
-            System.out.println(index + ". " + action);
+            textOut.println(index + ". " + action);
             index++;
         }
-        int response = safeNumScanner.getSafeNum(1, levelUpActionStrings.size());
+        int response = 1;
+        if (response == 1) {
+            //todo fix
+            throw new AssertionError("fix");
+        }
         LevelUpAction action = levelUpActionMap.get(levelUpActionStrings.get(response - 1));
         action.doAction(this);
         level++;
@@ -286,18 +297,22 @@ public class Hero {
     private void learnNewSpell () {
         maxSpellsPerDay++;
         List<String> spellNames = possibleSpellMap.keySet().stream()
-                //.filter(e -> ) //filter out spells we know
+                .filter(e -> e.length() > 0) //filter out spells we know. TODO write actual filter
                 .collect(Collectors.toList());
         int index = 1;
-        System.out.println("Which spell to learn?");
+        textOut.println("Which spell to learn?");
         for (String spell : spellNames) {
-            System.out.println(index + ". " + spell);
+           textOut.println(index + ". " + spell);
             index++;
         }
-        int response = safeNumScanner.getSafeNum(1, spellNames.size());
+        int response = 1;
+        if (response == 1) {
+            //Todo fix
+            throw new AssertionError("fix");
+        }
         String actionString = spellNames.get(response - 1);
         spellMap.put(actionString, possibleSpellMap.get(actionString));
-        System.out.println("You have learned " + actionString);
+        textOut.println("You have learned " + actionString);
     }
 
     public void rescuePrince () {
@@ -321,14 +336,14 @@ public class Hero {
     }
 
     public void printStats () {
-        System.out.println("Health: " + health + "/" + maxHealth + "  (Might, Magic, Sneak) (" +
+        textOut.println("Health: " + health + "/" + maxHealth + "  (Might, Magic, Sneak) (" +
                 might + ", " + magic + ", " + sneak + ") Level: " + level + ", Exp: " + exp);
     }
 
     private void proceed (Direction direction) {
         DungeonRoom nextRoom = location.getConnectedRooms().get(direction);
         if (nextRoom == null) {
-            System.out.println("Cannot go that way (no connected room).");
+            textOut.println("Cannot go that way (no connected room).");
             return;
         }
         location.setHero(null);
@@ -340,7 +355,7 @@ public class Hero {
         if (previousLocation != null) {
             setLocation(previousLocation);
         } else {
-            System.out.println("Cannot retreat right now.");
+            textOut.println("Cannot retreat right now.");
         }
     }
 
@@ -353,87 +368,43 @@ public class Hero {
             throw new AssertionError();
         }
         this.exp += exp;
-        System.out.println("Gained " + exp + " exp.");
+        textOut.println("Gained " + exp + " exp.");
         if (LEVEL_AMTS[level] < exp) {
             levelUp();
         }
     }
 
     public void fightMonster (Monster monster) {
-        System.out.println("Fighting " + monster.getName());
+        textOut.println("Fighting " + monster.getName());
         while (true) {
             int damageRoll = random.nextInt(might) + 1;
-            System.out.println("\tYou did " + damageRoll + " damage.");
+            textOut.println("\tYou did " + damageRoll + " damage.");
             monster.takeDamage(damageRoll);
 
             if (monster.getHealth() == 0) {
                 addExp(monster.getExp());
-                System.out.println("Won fight against " + monster.getName() + ".");
+                textOut.println("Won fight against " + monster.getName() + ".");
                 break;
             }
 
             int monsterDamage = random.nextInt(monster.getMight() + 1);
-            System.out.println("\t" + monster.getName() + " did " + monsterDamage + " to you.");
+            textOut.println("\t" + monster.getName() + " did " + monsterDamage + " to you.");
             takeDamage(monsterDamage);
             if (health == 0) {
-                System.out.println("You lost the fight against " + monster.getName());
+                textOut.println("You lost the fight against " + monster.getName());
                 break;
             }
         }
     }
 
-    public void takeDamage (int damageAmount) {
-        health -= damageAmount;
+    public void takeDamage (int damage) {
+        health -= damage;
         if (health <= 0) {
             health = 0;
-            throw new DefeatException("Health reduced to zero. You died.");
+            textOut.println("You took " + damage + " and died.");
+            throw new DefeatException("Died from damage. Or perhaps dafighter.");
         }
     }
-
-    /*
-    public List<String> getRoomActions () {
-        List<String> actions = getBackpackItemActions();
-
-        //Always available, informational (for now)
-        actions.add("Show Map (NYI)");
-        actions.add("Character Status");
-
-        if (location.getMonsters().size() > 0) {
-            //If monsters are present, can only do these:
-            actions.add("Fight");
-            actions.add("Sneak");
-            actions.add("Retreat");
-        } else if (location.getMonsters().size() == 0 || isSneaking) {
-            //If monsters are gone or we are sneaking
-            if (location.getItems().size() > 0) {
-                actions.add("Loot");
-            }
-            if (location.hasChest()) {
-                Chest chest = location.getChest();
-                if (chest.getContents().size() > 0) {
-                    if (chest.isLocked()) {
-                        actions.add("Unlock Chest");
-                    } else {
-                        actions.add("Loot Chest");
-                    }
-                }
-            }
-            if (location.hasPrince()) {
-                actions.add("Rescue Prince");
-            }
-            actions.add("Proceed");
-        }
-        return actions;
-    }
-
-    private List<String> getBackpackItemActions () {
-        Set<String> actionMapKeys = heroActionMap.keySet();
-
-        return backpack.stream()
-                .map(e -> e.getName())
-                .filter(e -> actionMapKeys.contains(e))
-                .collect(Collectors.toList());
-    }*/
 
     public int getHealth() {
         return health;
