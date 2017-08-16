@@ -1,6 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
 
+import paul.NLPTextDungeon.bossfight.BossFight;
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
 import paul.NLPTextDungeon.entities.obstacles.RiddleObstacle;
 import paul.NLPTextDungeon.enums.Direction;
@@ -8,6 +9,7 @@ import paul.NLPTextDungeon.enums.LightingLevel;
 import paul.NLPTextDungeon.enums.SpeakingVolume;
 import paul.NLPTextDungeon.interfaces.listeners.SpeechListener;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,6 +28,7 @@ public class DungeonRoom extends Location {
     private List<BackpackItem> items;
     private List<Obstacle> obstacles;
     private Chest chest;
+    private String bossFightFileLocation;
 
     //Temporary variables for JSONification
     private Map<Direction, Integer> connectedRoomIds;
@@ -38,6 +41,7 @@ public class DungeonRoom extends Location {
     private Map<String, List<BackpackItem>> hiddenItems;
 
     private transient Map<Direction, DungeonRoom> connectedRooms;
+    private transient BossFight bossFight;
     private transient Hero hero;
 
     private static int nextId = 1;
@@ -327,6 +331,13 @@ public class DungeonRoom extends Location {
 
     public void setHero(Hero hero) {
         this.hero = hero;
+
+        if (bossFight != null) {
+            if (!bossFight.isConquered()) {
+                bossFight.setHero(hero);
+                bossFight.doFight();
+            }
+        }
     }
 
     public Map<Direction, DungeonRoom> getConnectedRooms() {
@@ -355,5 +366,15 @@ public class DungeonRoom extends Location {
 
     public void addObstacle (Obstacle obstacle) {
         obstacles.add(obstacle);
+    }
+
+    public String getBossFightFileLocation() {
+        return bossFightFileLocation;
+    }
+
+    public void setBossFightFileLocation(String bossFightFileLocation) throws IOException {
+        this.bossFightFileLocation = bossFightFileLocation;
+
+        this.bossFight = BossFight.buildBossFightFromFile(bossFightFileLocation);
     }
 }

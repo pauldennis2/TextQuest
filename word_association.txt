@@ -52,6 +52,12 @@ north - northern
 south - southern
 west - left, western
 portal - teleport, gateway
+|Timing Words:
+|===
+@Timing
+before - inadvanceof
+during - while
+after - afterwards
 |Speaking Words:
 |===
 |$Shades of Piercing Vision
