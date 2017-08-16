@@ -24,6 +24,12 @@ public class BackpackItem {
         this.name = name;
     }
 
+    public BackpackItem (String name, int value) {
+        this.name = name;
+        this.value = value;
+        isQuestItem = false;
+    }
+
     public String getName() {
         return name;
     }
