@@ -27,6 +27,7 @@ public class BossFight {
 
     private transient Random random;
     private transient Hero hero;
+    private transient boolean conquered;
 
     public BossFight () {
         attackBehaviors = new ArrayList<>();
@@ -62,6 +63,7 @@ public class BossFight {
                 health -= damage;
                 if (health <= 0) {
                     System.out.println("You beat the boss!");
+                    conquered = true;
                     break;
                 }
                 numTimesAttackedWithoutVuln = 0;
@@ -77,15 +79,16 @@ public class BossFight {
 
     public static void main(String[] args) throws IOException {
 
-        BossFight fight = buildBossFightFromFile("content_files/encounters/first_boss.json");
+        BossFight fight = buildBossFightFromFile("first_boss.json");
         Hero hero = new Hero();
         fight.setHero(hero);
         System.out.println("Are you not entertained?");
         fight.doFight();
     }
 
+    public static final String ENCOUNTER_FILE_PATH = "content_files/encounters/";
     public static BossFight buildBossFightFromFile (String fileName) throws IOException {
-        return getBossFightFromJson(getJsonFromFile(fileName));
+        return getBossFightFromJson(getJsonFromFile(ENCOUNTER_FILE_PATH + fileName));
     }
 
     private static String getJsonFromFile (String fileName) {
@@ -164,5 +167,9 @@ public class BossFight {
 
     public void setRoomDescription(String roomDescription) {
         this.roomDescription = roomDescription;
+    }
+
+    public boolean isConquered() {
+        return conquered;
     }
 }

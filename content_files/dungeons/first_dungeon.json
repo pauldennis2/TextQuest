@@ -189,6 +189,7 @@
       "id":10,
       "description":"The lair of Pihop-pi. It kinda stinks in here.",
       "lighting":1.0,
+      "bossFightFileLocation":"first_boss.json",
       "chest":
       {
         "name":"Pihop-pi's Chest",
