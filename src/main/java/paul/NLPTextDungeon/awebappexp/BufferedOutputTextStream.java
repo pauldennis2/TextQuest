@@ -11,6 +11,7 @@ public class BufferedOutputTextStream {
 
     PrintStream printStream;
     List<String> buffer;
+    List<String> debug;
 
     String currentLine;
 
@@ -18,12 +19,34 @@ public class BufferedOutputTextStream {
 
     public BufferedOutputTextStream () {
         buffer = new ArrayList<>();
+        debug = new ArrayList<>();
     }
 
     public BufferedOutputTextStream (PrintStream printStream) {
         this.printStream = printStream;
         buffer = new ArrayList<>();
+        debug = new ArrayList<>();
         usingConsole = true;
+    }
+
+    public void debug (String s) {
+        debug.add(s);
+    }
+
+    public void debug (Object o) {
+        debug.add(o.toString());
+    }
+
+    public List<String> flushDebug () {
+        if (usingConsole) {
+            debug.forEach(e -> printStream.println("DEBUG: " + e));
+            debug = new ArrayList<>();
+            return null;
+        } else {
+            List<String> response = debug;
+            debug = new ArrayList<>();
+            return response;
+        }
     }
 
     public void println (String s) {

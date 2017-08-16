@@ -5,7 +5,9 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import paul.NLPTextDungeon.DungeonRunner;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -14,7 +16,14 @@ import java.util.List;
 @Controller
 public class GameController {
 
-    BufferedOutputTextStream textOut = new BufferedOutputTextStream();
+    BufferedOutputTextStream textOut;
+    DungeonRunner runner;
+
+    public GameController () throws IOException {
+        runner = new DungeonRunner();
+        runner.start();
+        textOut = runner.getTextOut();
+    }
 
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public String home () {
@@ -23,6 +32,7 @@ public class GameController {
 
     @RequestMapping(path = "/game", method = RequestMethod.GET)
     public String game (Model model) {
+        runner.describeRoom();
         List<String> lines  = textOut.flush();
         String output = "";
         for (String s : lines) {
@@ -39,15 +49,7 @@ public class GameController {
     public String submitAction (@RequestParam String userInput, Model model) {
         textOut.println("You entered:");
         textOut.println(userInput);
-        List<String> lines  = textOut.flush();
-        String output = "";
-        for (String s : lines) {
-            output += s + "\n";
-        }
-        if (lines.size() == 0) {
-            output = "There was nothing in the buffer.";
-        }
-        model.addAttribute("outputText", output);
-        return "game";
+        runner.analyzeAndExecuteStatement(userInput);
+        return "redirect:/game";
     }
 }
