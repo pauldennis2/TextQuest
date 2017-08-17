@@ -167,29 +167,7 @@ public class Hero {
         heroVoidActions.put("sneak", room -> textOut.println("You don't know how to sneak yet."));
         heroVoidActions.put("cast", room -> textOut.println("You don't know any spells yet."));
         heroVoidActions.put("learn", room -> textOut.println("That function is not available at this time."));
-        heroVoidActions.put("search", room -> {
-            if (1 == 1) {
-                //TODO FIX
-                throw new AssertionError("Fix");
-            }
-            textOut.println("Search where?");
-            Scanner scanner = new Scanner(System.in);
-            String response = scanner.nextLine();
-            StatementAnalyzer analyzer = new StatementAnalyzer();
-            String[] tokens = analyzer.analyzeStatement(response).getTokens();
-            Arrays.stream(tokens).forEach(token -> {
-                List<BackpackItem> hiddenItems = room.searchForHiddenItems(token);
-                if (hiddenItems.size() > 0) {
-                    textOut.println("Searching around " + token + ", you found:");
-                    hiddenItems.forEach(item -> {
-                        textOut.println(item);
-                        backpack.add(item);
-                    });
-                } else {
-                    textOut.println("You did not find anything near " + token + ".");
-                }
-            });
-        });
+
         heroVoidActions.put("fight", room -> {
             room.getMonsters().forEach(room.getHero()::fightMonster);
             room.updateMonsters();
@@ -232,6 +210,16 @@ public class Hero {
         heroParamActions.put("say", (room, param) -> room.vocalize(param, SpeakingVolume.SAY));
         heroParamActions.put("whisper", (room, param) -> room.vocalize(param, SpeakingVolume.WHISPER));
         heroParamActions.put("shout", (room, param) -> room.vocalize(param, SpeakingVolume.SHOUT));
+
+        heroParamActions.put("search", (room, param) -> {
+            List<BackpackItem> hiddenItems = room.getHiddenItems().get(param);
+            textOut.println("Searching around " + param + ", you found:");
+            hiddenItems.forEach(item -> {
+                textOut.println(item);
+                backpack.add(item);
+            });
+        });
+
         heroVoidActions.put("jump", room -> {
             if (backpack.contains("Boots of Vaulting")) {
                 if (room.getObstacles().size() == 0) {
@@ -333,6 +321,7 @@ public class Hero {
         if (health > maxHealth) {
             health = maxHealth;
         }
+        textOut.println("Restored up to " + healthAmount + ". Current health = " + health);
     }
 
     public void printStats () {
@@ -358,8 +347,6 @@ public class Hero {
             textOut.println("Cannot retreat right now.");
         }
     }
-
-
 
     public static final int[] LEVEL_AMTS = {250, 1000, 2500, 4500, 6500, 9000, 12000, 15000, 18500, 21500, 25000, 35000, 50000};
     //Max level 12
@@ -399,9 +386,9 @@ public class Hero {
 
     public void takeDamage (int damage) {
         health -= damage;
+        textOut.println("You took " + damage + " damage.");
         if (health <= 0) {
             health = 0;
-            textOut.println("You took " + damage + " and died.");
             throw new DefeatException("Died from damage. Or perhaps dafighter.");
         }
     }

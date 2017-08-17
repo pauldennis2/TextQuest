@@ -5,9 +5,8 @@ rescue - untie, release
 fight - attack, melee, combat
 sneak - hide, conceal, evade, creep
 |search is VoidAction because it opens a new interface
-search - find, examine, look
 loot - gather
-retreat - skedaddle, vamoose, runaway
+retreat - skedaddle, vamoose, runaway, back
 plunder - lootchest
 jump - leap, vault, vaultingboots
 |
@@ -23,6 +22,7 @@ cast - incant
 say - speak
 shout - yell
 whisper - murmur
+search - examine, look
 |
 |Concept Words:
 |===

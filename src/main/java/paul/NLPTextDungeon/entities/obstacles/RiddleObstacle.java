@@ -20,17 +20,7 @@ public class RiddleObstacle extends Obstacle {
 
     @Override
     public boolean attempt(String solution, Hero hero) {
-        System.out.println("You guessed " + solution);
-        if (solution.equals(this.getSolution())) {
-            System.out.println("Correct!");
-            setCleared(true);
-            return true;
-        } else {
-            System.out.println("Incorrect. You take 5 damage.");
-            hero.takeDamage(5);
-            System.out.println(riddle);
-            return false;
-        }
+        return solution.equals(this.getSolution());
     }
 
     public String getRiddle() {

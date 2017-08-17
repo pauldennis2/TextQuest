@@ -56,7 +56,7 @@ public class DungeonRunner {
     }
 
     public void analyzeAndExecuteStatement (String userInput) {
-        StatementAnalysis analysis = analyzer.analyzeStatement(userInput);
+        StatementAnalysis analysis = analyzer.analyzeStatement(userInput, currentRoom);
         doActionFromAnalysis(analysis);
         if (analysis.hasAnd() && analysis.isSecondActionable()) {
             String nextActionWord = analysis.getSecondActionWord();
@@ -108,5 +108,13 @@ public class DungeonRunner {
 
     public BufferedOutputTextStream getTextOut() {
         return textOut;
+    }
+
+    public Hero getHero() {
+        return hero;
+    }
+
+    public Dungeon getDungeon () {
+        return dungeon;
     }
 }

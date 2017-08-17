@@ -1,9 +1,12 @@
 package paul.NLPTextDungeon.parsing;
 
 
+import paul.NLPTextDungeon.entities.DungeonRoom;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Paul Dennis on 8/10/2017.
@@ -13,27 +16,14 @@ public class StatementAnalyzer {
     private Map<String, WordGroup> wordMap;
 
     private List<WordGroup> wordGroups;
-    private Scanner scanner;
+
+    private DungeonRoom location;
+
 
     public StatementAnalyzer () {
         initializeWordGroups();
         initializeWordMap();
-        scanner = new Scanner(System.in);
     }
-
-    /*
-    public static void main(String[] args) {
-        StatementAnalyzer analyzer = new StatementAnalyzer();
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.println("Enter String to analyze:");
-            String response = scanner.nextLine();
-            if (response.equals("")) {
-                break;
-            }
-            analyzer.analyzeStatement(response);
-        }
-    }*/
 
     private String cleanStatement (String statement) {
         String response = statement.toLowerCase().trim()
@@ -84,6 +74,40 @@ public class StatementAnalyzer {
             } else if (actionWord.equals("say") || actionWord.equals("whisper") || actionWord.equals("shout")) {
                     analysis.setActionable(true);
                     analysis.setActionWord(actionWord);
+            } else if (actionWord.equals("search")) {
+                Set<String> hiddenItemLocations = location.getHiddenItems().keySet();
+                String[] tokens = analysis.getTokens();
+                List<String> matches = Arrays.stream(tokens)
+                        .filter(hiddenItemLocations::contains)
+                        .collect(Collectors.toList());
+                if (matches.size() > 0) {
+                    String param = matches.get(0);
+                    analysis.setActionable(true);
+                    analysis.setActionParam(param);
+                    analysis.setActionWord(actionWord);
+                    if (matches.size() > 1) {
+                        analysis.addComment("Can only search one place at a time.");
+                    }
+                } else {
+                    //There are no matches.
+                    //We have to find what they tried to search for that isn't a match
+                    List<String> nonmatches = Arrays.stream(tokens)
+                            .filter(token -> {
+                                if (token.equals("search")) return false;
+                                if (token.equals("look")) return false;
+                                if (token.equals("examine")) return false;
+                                return true;
+                            }).collect(Collectors.toList());
+                    if (nonmatches.size() > 0) {
+                        String param = nonmatches.get(0);
+                        analysis.setActionable(true);
+                        analysis.setActionWord(actionWord);
+                        analysis.setActionParam(param);
+                        if (nonmatches.size() > 1) {
+                            analysis.addComment("Can only search one place at a time.");
+                        }
+                    }
+                }
             } else {
                 List<String> conceptWords = analysis.getTokenMatchMap().get(WordType.CONCEPT);
                 if (conceptWords.size() > 0) {
@@ -129,8 +153,9 @@ public class StatementAnalyzer {
         return analysis;
     }
 
-    public StatementAnalysis analyzeStatement (String statement) {
+    public StatementAnalysis analyzeStatement (String statement, DungeonRoom location) {
         String quote = null;
+        this.location = location;
         if (statement.contains("\"")) {
             int beginIndex = statement.indexOf("\"") + 1;
             int endIndex = statement.lastIndexOf("\"");
@@ -144,6 +169,12 @@ public class StatementAnalyzer {
             analysis.setActionable(true);
         }
         return analysis;
+    }
+
+    //This method should only be used if location doesn't matter (no searching)
+    //Will cause NPE otherwise
+    public StatementAnalysis analyzeStatement (String statement) {
+        return analyzeStatement(statement, null);
     }
 
     private void updateWordMap (WordGroup changedGroup) {
@@ -231,8 +262,6 @@ public class StatementAnalyzer {
         File wordAssocFile = new File("word_association.txt");
         WordType currentType = null;
         try (Scanner fileScanner = new Scanner(wordAssocFile)) {
-            boolean itemGroupNext = false;
-            String nextItemName = null;
             while (fileScanner.hasNext()) {
                 String token = fileScanner.nextLine();
                 if (token.startsWith("|") || token.trim().equals("")) {
@@ -240,11 +269,6 @@ public class StatementAnalyzer {
                 }
                 if (token.startsWith("@")) {
                     currentType = WordType.getTypeFromFileAnnotation(token);
-                    continue;
-                }
-                if (token.startsWith("$")) {
-                    nextItemName = token.substring(1);
-                    itemGroupNext = true;
                     continue;
                 }
                 String primaryWord = token.split("-")[0].trim();
