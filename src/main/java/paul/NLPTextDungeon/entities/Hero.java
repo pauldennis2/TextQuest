@@ -1,6 +1,6 @@
 package paul.NLPTextDungeon.entities;
 
-import paul.NLPTextDungeon.awebappexp.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.entities.obstacles.Chasm;
 import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.enums.SpeakingVolume;
@@ -9,10 +9,8 @@ import paul.NLPTextDungeon.interfaces.ParamAction;
 import paul.NLPTextDungeon.interfaces.SpellAction;
 import paul.NLPTextDungeon.interfaces.VoidAction;
 import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
-import paul.NLPTextDungeon.parsing.StatementAnalyzer;
 import paul.NLPTextDungeon.utils.DefeatException;
 import paul.NLPTextDungeon.utils.ItemActionMap;
-import paul.NLPTextDungeon.utils.SafeNumScanner;
 import paul.NLPTextDungeon.utils.VictoryException;
 
 import java.util.*;
@@ -213,11 +211,15 @@ public class Hero {
 
         heroParamActions.put("search", (room, param) -> {
             List<BackpackItem> hiddenItems = room.getHiddenItems().get(param);
-            textOut.println("Searching around " + param + ", you found:");
-            hiddenItems.forEach(item -> {
-                textOut.println(item);
-                backpack.add(item);
-            });
+            if (hiddenItems == null) {
+                textOut.println("You didn't find anything near " + param);
+            } else {
+                textOut.println("Searching around " + param + ", you found:");
+                hiddenItems.forEach(item -> {
+                    textOut.println(item);
+                    backpack.add(item);
+                });
+            }
         });
 
         heroVoidActions.put("jump", room -> {

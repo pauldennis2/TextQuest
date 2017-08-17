@@ -1,6 +1,6 @@
 package paul.NLPTextDungeon;
 
-import paul.NLPTextDungeon.awebappexp.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.entities.Dungeon;
 import paul.NLPTextDungeon.entities.DungeonRoom;
 import paul.NLPTextDungeon.entities.Hero;
@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Created by Paul Dennis on 8/8/2017.

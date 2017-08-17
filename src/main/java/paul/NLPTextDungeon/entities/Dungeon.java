@@ -1,7 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import paul.NLPTextDungeon.awebappexp.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.enums.Direction;
 
 import java.io.File;

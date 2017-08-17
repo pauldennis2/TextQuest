@@ -20,7 +20,11 @@ public class RiddleObstacle extends Obstacle {
 
     @Override
     public boolean attempt(String solution, Hero hero) {
-        return solution.equals(this.getSolution());
+        if (solution.equals(this.getSolution())) {
+            this.setCleared(true);
+            return true;
+        }
+        return false;
     }
 
     public String getRiddle() {

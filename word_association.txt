@@ -4,7 +4,6 @@
 rescue - untie, release
 fight - attack, melee, combat
 sneak - hide, conceal, evade, creep
-|search is VoidAction because it opens a new interface
 loot - gather
 retreat - skedaddle, vamoose, runaway, back
 plunder - lootchest

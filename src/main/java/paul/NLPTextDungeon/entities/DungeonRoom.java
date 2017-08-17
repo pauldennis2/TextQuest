@@ -1,7 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
 
-import paul.NLPTextDungeon.awebappexp.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.bossfight.BossFight;
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
 import paul.NLPTextDungeon.entities.obstacles.RiddleObstacle;
@@ -348,6 +348,7 @@ public class DungeonRoom extends Location {
         if (bossFight != null) {
             if (!bossFight.isConquered()) {
                 bossFight.setHero(hero);
+                bossFight.setTextOut(textOut);
                 bossFight.doFight();
             }
         }

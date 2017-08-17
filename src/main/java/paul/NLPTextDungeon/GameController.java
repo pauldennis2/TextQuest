@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.awebappexp;
+package paul.NLPTextDungeon;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import paul.NLPTextDungeon.DungeonRunner;
+import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;

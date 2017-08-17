@@ -1,9 +1,9 @@
 package paul.NLPTextDungeon.bossfight;
 
+import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.entities.Hero;
 import paul.NLPTextDungeon.enums.NumberActionType;
 import paul.NLPTextDungeon.enums.NumberRuleType;
-import paul.NLPTextDungeon.utils.SafeNumScanner;
 
 import java.util.*;
 
@@ -26,9 +26,14 @@ public class VulnerableBehavior {
     private String wrongChoiceMessage;
 
     private transient Random random;
+    private transient BufferedOutputTextStream textOut;
 
     public VulnerableBehavior() {
         random = new Random();
+    }
+
+    public void setTextOut(BufferedOutputTextStream textOut) {
+        this.textOut = textOut;
     }
 
     public VulnerableBehavior(String name, String params, NumberActionType actionType, NumberRuleType rule, int failureDamage) {
@@ -46,54 +51,38 @@ public class VulnerableBehavior {
         int secondRandom = random.nextInt(10);
 
         //Demonstrate the rule
-        System.out.println(numberChoosingBehaviorDescription + " " + firstRandom);
-        System.out.println(numberChoosingBehaviorDescription + " " + secondRandom);
+        textOut.println(numberChoosingBehaviorDescription + " " + firstRandom);
+        textOut.println(numberChoosingBehaviorDescription + " " + secondRandom);
 
         int solution = getSolution(firstRandom, secondRandom);
-        System.out.println(solutionBehaviorIndication + " : " + solution);
+        textOut.println(solutionBehaviorIndication + " : " + solution);
     }
 
     //Returns damage to be taken by the boss
     public static final int BOSS_DAMAGE_TAKEN = 10;
-    public int doBehavior (Hero hero) {
-        //if (params.equals("2random")
+    private int solutionNumber;
+
+    public void startBehavior (Hero hero) {
         int firstRandom = random.nextInt(10);
         int secondRandom = random.nextInt(10);
 
-        System.out.println(numberChoosingBehaviorDescription + " " + firstRandom);
-        System.out.println(numberChoosingBehaviorDescription + " " + secondRandom);
+        textOut.println(numberChoosingBehaviorDescription + " " + firstRandom);
+        textOut.println(numberChoosingBehaviorDescription + " " + secondRandom);
+        solutionNumber = getSolution(firstRandom, secondRandom);
+        textOut.println(playerNumberChoicePrompt);
+    }
 
-        System.out.println(playerNumberChoicePrompt);
-        SafeNumScanner scanner = new SafeNumScanner(System.in);
-        int userNumber = scanner.getSafeNum(0, 9);
-        if (checkRule(firstRandom,secondRandom, userNumber)) {
-            System.out.println(correctChoiceMessage);
-            System.out.println("Boss takes " + BOSS_DAMAGE_TAKEN + " damage.");
+    public int doResponse (Hero hero, int solution) {
+        if (solution == solutionNumber) {
+            textOut.println(correctChoiceMessage);
+            textOut.println("Boss takes " + BOSS_DAMAGE_TAKEN + " damage.");
             return BOSS_DAMAGE_TAKEN;
         } else {
-            System.out.println(wrongChoiceMessage);
+            textOut.println(wrongChoiceMessage);
             hero.takeDamage(failureDamage);
             demoBehavior();
             return 0;
         }
-    }
-
-    public static void main(String[] args) {
-        VulnerableBehavior hop = new VulnerableBehavior("hop", "2random", NumberActionType.SUM, NumberRuleType.MOD10, 10);
-        hop.numberChoosingBehaviorDescription = "Pihop-pi jumps on platform ";
-        hop.solutionBehaviorIndication = "One of the platforms starts glowing";
-
-        System.out.println("First demo");
-        hop.demoBehavior();
-
-        System.out.println("Second demo");
-        hop.demoBehavior();
-
-        Hero hero = new Hero();
-
-        hop.doBehavior(hero);
-        hop.doBehavior(hero);
-        hop.doBehavior(hero);
     }
 
     private boolean checkRule (int firstInput, int secondInput, int solution) {
