@@ -1,6 +1,6 @@
 package paul.NLPTextDungeon;
 
-import paul.NLPTextDungeon.awebappexp.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.entities.Dungeon;
 import paul.NLPTextDungeon.entities.DungeonRoom;
 import paul.NLPTextDungeon.entities.Hero;
@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Scanner;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
@@ -56,7 +55,7 @@ public class DungeonRunner {
     }
 
     public void analyzeAndExecuteStatement (String userInput) {
-        StatementAnalysis analysis = analyzer.analyzeStatement(userInput);
+        StatementAnalysis analysis = analyzer.analyzeStatement(userInput, currentRoom);
         doActionFromAnalysis(analysis);
         if (analysis.hasAnd() && analysis.isSecondActionable()) {
             String nextActionWord = analysis.getSecondActionWord();
@@ -108,5 +107,13 @@ public class DungeonRunner {
 
     public BufferedOutputTextStream getTextOut() {
         return textOut;
+    }
+
+    public Hero getHero() {
+        return hero;
+    }
+
+    public Dungeon getDungeon () {
+        return dungeon;
     }
 }

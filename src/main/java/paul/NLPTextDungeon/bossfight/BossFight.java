@@ -1,7 +1,7 @@
 package paul.NLPTextDungeon.bossfight;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import paul.NLPTextDungeon.entities.Dungeon;
+import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.entities.Hero;
 
 import java.io.File;
@@ -28,6 +28,7 @@ public class BossFight {
     private transient Random random;
     private transient Hero hero;
     private transient boolean conquered;
+    private transient BufferedOutputTextStream textOut;
 
     public BossFight () {
         attackBehaviors = new ArrayList<>();
@@ -42,14 +43,20 @@ public class BossFight {
         random = new Random();
     }
 
+    public void setTextOut (BufferedOutputTextStream textOut) {
+        this.textOut = textOut;
+    }
+
     public void doFight () {
         int numTimesAttackedWithoutVuln = 0;
 
-        System.out.println("Welcome to Boss Fight");
-        System.out.println("Boss: " + name);
-        System.out.println("Description: " + bossDescription);
-        System.out.println("Room Description: " + roomDescription);
-        System.out.println("-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.\n\n\n\n");
+        textOut.println("Welcome to Boss Fight");
+        textOut.println("Boss: " + name);
+        textOut.println("Description: " + bossDescription);
+        textOut.println("Room Description: " + roomDescription);
+        textOut.println("-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.\n\n\n\n");
+        vulnerableBehavior.setTextOut(textOut);
+        attackBehaviors.forEach(e -> e.setTextOut(textOut));
         vulnerableBehavior.demoBehavior();
         while (true) {
             int chosenAttack = 0;
@@ -59,10 +66,10 @@ public class BossFight {
             attackBehaviors.get(chosenAttack).doBehavior(hero);
             numTimesAttackedWithoutVuln++;
             if (numTimesAttackedWithoutVuln >= maxAttacks) {
-                int damage = vulnerableBehavior.doBehavior(hero);
+                int damage = 0;//vulnerableBehavior.doBehavior(hero);
                 health -= damage;
                 if (health <= 0) {
-                    System.out.println("You beat the boss!");
+                    textOut.println("You beat the boss!");
                     conquered = true;
                     break;
                 }
@@ -75,15 +82,6 @@ public class BossFight {
                 }
             }
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-
-        BossFight fight = buildBossFightFromFile("first_boss.json");
-        Hero hero = new Hero();
-        fight.setHero(hero);
-        System.out.println("Are you not entertained?");
-        fight.doFight();
     }
 
     public static final String ENCOUNTER_FILE_PATH = "content_files/encounters/";
@@ -99,8 +97,7 @@ public class BossFight {
             }
             return stringBuilder.toString();
         } catch (FileNotFoundException ex) {
-            System.out.println("Could not find file.");
-            throw new AssertionError();
+            throw new AssertionError("Could not find file.");
         }
     }
 

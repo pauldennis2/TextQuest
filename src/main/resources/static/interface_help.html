@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Interface Help</title>
+</head>
+<body>
+<a href="/game">Back</a> to game.<br/>
+<h3>Welcome to interface help</h3>
+This is currently a static document.
+
+The <b>primary interface</b> for this game is <b>text</b>. The game will output text to you describing the situation, and will ask
+you to type in a text response. This response is then parsed. The parser is looking for keywords that it recognizes. For
+example, it knows the word "fight". But it also recognizes synonyms such as "combat" or "attack".
+<br/><br/>
+Once it finds some words it recognizes, depending on the type of the word, it will parse the rest of the message and try
+to come up with an actionable statement. For example, if it finds "move" (or one of its synonyms, "go" or "proceed") it
+will next start looking for a direction such as "east" or "west".
+<br/><br/>
+The parser:
+<ul>
+    <li>is NOT case sensitive ("EAST" is the same as "east")</li>
+    <li>is NOT synonym sensitive ("go east" is the *exact* same as "move east")</li>
+    <li>is NOT word-order sensitive ("east go" is the same as "go east")</li>
+    <li>will IGNORE words it can't match ("I want my character to proceed east" is the same as "go east")</li>
+</ul>
+
+The parser is able to interpret "single and" statements and will attempt to execute the first side and then the second.
+For example, "go east and fight the monsters" would be the same as typing "go east" and then "fight the monsters"
+sequentially. And statements can't be combined with search or say statements right now. And statements cannot be nested
+("go east and fight and loot"). <b>And statements may skip over some output.</b>
+</body>
+</html>

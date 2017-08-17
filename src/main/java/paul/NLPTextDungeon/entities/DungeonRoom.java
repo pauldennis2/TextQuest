@@ -1,7 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
 
-import paul.NLPTextDungeon.awebappexp.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.bossfight.BossFight;
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
 import paul.NLPTextDungeon.entities.obstacles.RiddleObstacle;
@@ -101,23 +101,33 @@ public class DungeonRoom extends Location {
     private void initUniversalSpeechListeners () {
         SpeechListener riddleAnswerListener = (message, volume) -> {
             if (volume == SpeakingVolume.SAY) {
-                obstacles.stream()
-                        .filter(e -> {
-                            try {
-                                RiddleObstacle riddle = (RiddleObstacle) e;
-                                return true;
-                            } catch (ClassCastException ex) {
-                                return false;
-                            }
-                        })
-                        .forEach(e -> e.attempt(message, hero));
+                List<RiddleObstacle> riddles = obstacles.stream()
+                        .filter(e -> e.getClass() == RiddleObstacle.class)
+                        .map(e -> (RiddleObstacle)e)
+                        .collect(Collectors.toList());
+
+                boolean oneCorrect = false;
+                for (RiddleObstacle riddle : riddles) {
+                    boolean response = riddle.attempt(message, null);
+                    if (response) {
+                        textOut.println("You got it right!");
+                        oneCorrect = true;
+                    }
+                }
+                if (riddles.size() > 0 && !oneCorrect) {
+                    textOut.println("Wrong. Feel the retribution of the sphinx.");
+                    hero.takeDamage(5);
+                }
             }
         };
         SpeechListener shoutAggroListener = (message, volume) -> {
             if (volume == SpeakingVolume.SHOUT) {
                 List<DungeonRoom> adjacentRooms = new ArrayList<>(connectedRooms.values());
+                int monstersNow = monsters.size();
                 adjacentRooms.forEach(adjRoom -> addMonsters(adjRoom.removeMonsters()));
-                textOut.println("Looks like your shouting got some attention.");
+                if (monstersNow < monsters.size()) {
+                    textOut.println("Looks like your shouting got some attention.");
+                }
 
                 monsters.forEach(hero::fightMonster);
                 updateMonsters();
@@ -338,6 +348,7 @@ public class DungeonRoom extends Location {
         if (bossFight != null) {
             if (!bossFight.isConquered()) {
                 bossFight.setHero(hero);
+                bossFight.setTextOut(textOut);
                 bossFight.doFight();
             }
         }

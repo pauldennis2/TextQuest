@@ -5,25 +5,32 @@
     <title>Game</title>
 </head>
 <body>
-<h3>This page is for the game.</h3>
+<h3 th:text="${location}"></h3>
 <br/>
-<div>
-    This div contains the span for game text output.
+<div style="height: 400px">
+    Game Output:
     <br/>
-    <span th:text="${outputText}"></span>
+    <ul style="list-style: none;">
+        <li th:each="line : ${outputText}" th:text="${line}" style="color:#04518A">
+        </li>
+    </ul>
 </div>
+<hr/>
 <br/>
-Here you can enter commands.<br/>
+<b>Enter Commands</b><br/>
 <form action="/submit-action" method="post">
-    <input name="userInput"/>
+    <input name="userInput" autofocus="true"/>
     <input type="submit" value="Enter"/>
 </form>
-<br/>
+<a href="/interface_help.html">Help</a>
 <br/>
 <div>
-    This div contains the span for game debug output.
+    <b>Debug</b>
     <br/>
-    <span th:text="${debugText}"></span>
+    <ul style="list-style: none;">
+        <li th:each="line : ${debugText}" th:text="${line}" style="color:#973621">
+        </li>
+    </ul>
 </div>
 </body>
 </html>
