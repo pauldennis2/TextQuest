@@ -1,6 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import paul.NLPTextDungeon.interfaces.TextOuter;
 import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.enums.Direction;
 
@@ -13,7 +14,7 @@ import java.util.*;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class Dungeon extends MetaLocation {
+public class Dungeon extends MetaLocation implements TextOuter {
 
     private List<DungeonRoom> rooms;
     private String description;

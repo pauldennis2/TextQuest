@@ -1,13 +1,10 @@
 package paul.NLPTextDungeon.entities;
 
+import paul.NLPTextDungeon.interfaces.*;
 import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.entities.obstacles.Chasm;
 import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.enums.SpeakingVolume;
-import paul.NLPTextDungeon.interfaces.LevelUpAction;
-import paul.NLPTextDungeon.interfaces.ParamAction;
-import paul.NLPTextDungeon.interfaces.SpellAction;
-import paul.NLPTextDungeon.interfaces.VoidAction;
 import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
 import paul.NLPTextDungeon.utils.DefeatException;
 import paul.NLPTextDungeon.utils.ItemActionMap;
@@ -19,7 +16,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class Hero {
+public class Hero implements TextOuter {
 
     private int health;
     private int maxHealth;

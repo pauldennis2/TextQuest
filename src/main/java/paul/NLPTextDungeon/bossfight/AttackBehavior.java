@@ -1,12 +1,13 @@
 package paul.NLPTextDungeon.bossfight;
 
+import paul.NLPTextDungeon.interfaces.TextOuter;
 import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.entities.Hero;
 
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
-public class AttackBehavior {
+public class AttackBehavior implements TextOuter {
 
     private String name;
     private BehaviorResponse solution; //Expresses not just "a" response but "THE" response (solution) to the attack
@@ -16,14 +17,13 @@ public class AttackBehavior {
 
     private int damage;
 
-    private transient int numTimesDone;
     private transient boolean solved;
     private transient BehaviorResponse attemptedSolution;
 
     private transient BufferedOutputTextStream textOut;
 
     public AttackBehavior () {
-        numTimesDone = 0;
+
     }
 
     public void setTextOut(BufferedOutputTextStream textOut) {
@@ -72,7 +72,6 @@ public class AttackBehavior {
                 }
             }*/
         }
-        numTimesDone++;
     }
 
     public String getName() {
