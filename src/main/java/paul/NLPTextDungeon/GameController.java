@@ -19,15 +19,6 @@ import java.util.List;
 @Controller
 public class GameController {
 
-    //BufferedOutputTextStream textOut;
-    //DungeonRunner runner;
-
-    /*public GameController () throws IOException {
-        runner = new DungeonRunner();
-        runner.start();
-        textOut = runner.getTextOut();
-    }*/
-
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public String home () {
         return "index";

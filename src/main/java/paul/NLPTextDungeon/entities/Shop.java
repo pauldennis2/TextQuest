@@ -1,5 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
+import paul.NLPTextDungeon.interfaces.TextOuter;
+import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.utils.SafeNumScanner;
 
 import java.util.ArrayList;
@@ -11,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/10/2017.
  */
-public class Shop extends Location {
+public class Shop extends Location implements TextOuter {
 
     private String name;
     private List<BackpackItem> itemsForSale;
@@ -19,6 +21,8 @@ public class Shop extends Location {
     private List<BackpackItem> itemsBoughtByShop;
 
     private double buyRate = 1.0;
+
+    private BufferedOutputTextStream textOut;
 
     public Shop () {
 
@@ -54,7 +58,7 @@ public class Shop extends Location {
 
         List<BackpackItem> itemsToSell = items.stream()
                 .filter (e -> {
-                    System.out.println("Do you want to sell " + e + "?");
+                    textOut.println("Do you want to sell " + e + "?");
                     String response = scanner.nextLine().toLowerCase();
                     if (response.contains("y")) {
                         return true;
@@ -71,17 +75,17 @@ public class Shop extends Location {
         SafeNumScanner safeNumScanner = new SafeNumScanner(System.in);
 
         while (true) {
-            System.out.println("You have " + yourGold + " gold.");
-            System.out.println("Items for sale:");
+            textOut.println("You have " + yourGold + " gold.");
+            textOut.println("Items for sale:");
             for (int i = 1; i <= itemsForSale.size(); i++) {
-                System.out.println(i + ". " + itemsForSale.get(i));
+                textOut.println(i + ". " + itemsForSale.get(i));
             }
-            System.out.println("Which item number do you want?");
+            textOut.println("Which item number do you want?");
             int itemNum = safeNumScanner.getSafeNum(1, itemsForSale.size());
             BackpackItem item = itemsForSale.get(itemNum);
             if (yourGold >= item.getValue()) {
                 itemsForSale.remove(item);
-                System.out.println("You bought " + item.getName() + " for " + item.getValue() + " gold.");
+                textOut.println("You bought " + item.getName() + " for " + item.getValue() + " gold.");
                 yourGold -= item.getValue();
             }
         }
@@ -97,5 +101,9 @@ public class Shop extends Location {
 
 
         shop.browseItems();
+    }
+
+    public void setTextOut (BufferedOutputTextStream textOut) {
+        this.textOut = textOut;
     }
 }

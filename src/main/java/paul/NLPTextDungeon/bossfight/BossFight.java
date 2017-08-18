@@ -1,6 +1,7 @@
 package paul.NLPTextDungeon.bossfight;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import paul.NLPTextDungeon.interfaces.TextOuter;
 import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.entities.Hero;
 
@@ -15,7 +16,7 @@ import java.util.Scanner;
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
-public class BossFight {
+public class BossFight implements TextOuter {
 
     private String name;
     private int health;

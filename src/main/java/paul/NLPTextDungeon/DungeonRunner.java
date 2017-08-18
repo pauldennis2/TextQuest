@@ -1,5 +1,6 @@
 package paul.NLPTextDungeon;
 
+import paul.NLPTextDungeon.interfaces.TextOuter;
 import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.entities.Dungeon;
 import paul.NLPTextDungeon.entities.DungeonRoom;
@@ -17,7 +18,7 @@ import java.util.List;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRunner {
+public class DungeonRunner implements TextOuter {
 
     private Dungeon dungeon;
     private Hero hero;
@@ -114,5 +115,9 @@ public class DungeonRunner {
 
     public Dungeon getDungeon () {
         return dungeon;
+    }
+
+    public void setTextOut (BufferedOutputTextStream textOut) {
+        throw new AssertionError("This is the class that owns/creates the original text-outer");
     }
 }

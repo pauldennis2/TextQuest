@@ -1,5 +1,6 @@
 package paul.NLPTextDungeon.bossfight;
 
+import paul.NLPTextDungeon.interfaces.TextOuter;
 import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.entities.Hero;
 import paul.NLPTextDungeon.enums.NumberActionType;
@@ -10,7 +11,7 @@ import java.util.*;
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
-public class VulnerableBehavior {
+public class VulnerableBehavior implements TextOuter {
 
     private String name;
     private String params;
