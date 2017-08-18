@@ -25,6 +25,7 @@ public class Hero implements TextOuter {
     private int maxMight;
 
     private int magic;
+    private int maxMagic;
 
     private int sneak;
     private int maxSneak;
@@ -32,33 +33,31 @@ public class Hero implements TextOuter {
     private int defense;
     private int maxDefense;
 
+    private int numSpellsAvailable;
+    private int maxSpellsPerDay;
+
     private int level;
     private int exp;
 
-    //private List<BackpackItem> backpack;
     private Backpack backpack;
-    private DungeonRoom location;
-    private DungeonRoom previousLocation;
 
-    private boolean isSneaking;
+    private transient DungeonRoom location;
+    private transient DungeonRoom previousLocation;
+    private transient boolean isSneaking;
 
-    private Map<String, VoidAction> heroVoidActions;
-    private Map<String, ParamAction> heroParamActions;
-
-    private ItemActionMap itemActions;
-    //private Map<String, VoidAction> itemActions;
-    private Map<String, VoidAction> views;
-    Map<String, LevelUpAction> levelUpActionMap;
-    Map<String, SpellAction> possibleSpellMap;
-    Map<String, SpellAction> spellMap;
-
-    private int maxSpellsPerDay;
+    private transient Map<String, VoidAction> heroVoidActions;
+    private transient Map<String, ParamAction> heroParamActions;
+    private transient ItemActionMap itemActions;
+    private transient Map<String, VoidAction> views;
+    private transient Map<String, LevelUpAction> levelUpActionMap;
+    private transient Map<String, SpellAction> possibleSpellMap;
+    private transient Map<String, SpellAction> spellMap;
 
     public static final double TORCH_LIGHT = 1.0;
     public static final int POTION_VALUE = 9;
     private Random random;
 
-    BufferedOutputTextStream textOut;
+    private BufferedOutputTextStream textOut;
 
     public Hero () {
         random = new Random();
@@ -441,3 +440,4 @@ public class Hero implements TextOuter {
         }
     }
 }
+
