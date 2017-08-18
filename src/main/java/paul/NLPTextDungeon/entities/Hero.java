@@ -149,6 +149,7 @@ public class Hero {
         listenerMap.put("crackFloor", () -> {
             textOut.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
             getLocation().addObstacle(new Chasm());
+            textOut.tutorial("Try using your new Boots of Vaulting to JUMP across the chasm.");
             previousLocation = null; //Prevent retreating
         });
     }
@@ -337,9 +338,8 @@ public class Hero {
             textOut.println("Cannot go that way (no connected room).");
             return;
         }
-        location.setHero(null);
+        location.removeHero();
         setLocation(nextRoom);
-        nextRoom.setHero(this);
     }
 
     private void retreat () {
@@ -440,7 +440,7 @@ public class Hero {
         this.location = location;
         this.location.setHero(this);
         if (previousLocation != null) {
-            previousLocation.setHero(null);
+            previousLocation.removeHero();
         }
     }
 }

@@ -8,6 +8,7 @@ import paul.NLPTextDungeon.entities.Hero;
 public class RiddleObstacle extends Obstacle {
 
     private String riddle;
+    private transient int numAttempts = 0;
 
     public RiddleObstacle () {
 
@@ -20,6 +21,7 @@ public class RiddleObstacle extends Obstacle {
 
     @Override
     public boolean attempt(String solution, Hero hero) {
+        numAttempts++;
         if (solution.equals(this.getSolution())) {
             this.setCleared(true);
             return true;
@@ -33,5 +35,9 @@ public class RiddleObstacle extends Obstacle {
 
     public void setRiddle(String riddle) {
         this.riddle = riddle;
+    }
+
+    public int getNumAttempts() {
+        return numAttempts;
     }
 }

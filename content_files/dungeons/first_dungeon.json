@@ -1,12 +1,13 @@
 {
   "dungeonName":"Lair of Pihop-pi",
-  "description":"The first real dungeon.",
+  "description":"",
   "rooms":
   [
     {
       "name":"Entryway",
       "id":1,
-      "description":"This is the entryway. It's boring.",
+      "description":"This is the entryway.",
+      "tutorial":"To navigate the dungeon, you can say \"move\", \"go\", or \"proceed\". You will need to pair this command with a direction. Since the only available direction is East, try typing \"go east\" (without the quotes).",
       "lighting": 1.0,
       "connectedRoomIds":
       {
@@ -17,6 +18,7 @@
       "name":"Guard Room",
       "id":2,
       "description":"This is the guard room.",
+      "tutorial":"Uh-oh - there's a monster in this room. You can retreat, but you won't be able to proceed further until you've defeated him. Try typing: \"fight\" (no quotes).",
       "lighting": 0.4,
       "items":
       [
@@ -43,6 +45,7 @@
       "name":"Passageway",
       "id":3,
       "description":"A passageway.",
+      "tutorial":"There's not much going on with this room. It's just a 3-way connector.",
       "lighting": 0.9,
       "connectedRoomIds":
       {
@@ -55,6 +58,7 @@
       "name":"Miniboss Room",
       "id":4,
       "description":"Has the miniboss and dungeon item.",
+      "tutorial":"This room has a very important item that you'll want to *loot*. First, you'll need to fight the mini-boss.",
       "lighting": 1.0,
       "monsters":
       [
@@ -80,6 +84,7 @@
       "name":"Chasm Room",
       "id":5,
       "description":"There is a huge chasm in the room.",
+      "tutorial":"If you can't figure out how to deal with the chasm you might need to go *back* or *retreat*.",
       "lighting": 1.0,
       "obstacles":
       [
@@ -99,6 +104,7 @@
       "name":"Chasm Treasure Room",
       "id":6,
       "description":"There's some treasure across the chasm.",
+      "tutorial":"If you can't figure out how to deal with the chasm you might need to go *back* or *retreat*.",
       "lighting": 1.0,
       "obstacles":
       [
@@ -124,6 +130,7 @@
       "name":"Riddle Room",
       "id":7,
       "description":"You must answer the riddle before you can pass.",
+      "tutorial":"To answer a riddle you will need to *say* the answer. To speak you can type: \"say \"riddle answer\" \" (don't include the outer quotes but do include quotes around what you want to say). As for solving the riddle... think about that great new item you just got.",
       "lighting":1.0,
       "obstacles":
       [
@@ -169,6 +176,7 @@
       "id":9,
       "description":"This room has a healing fountain. How nice.",
       "lighting":1.0,
+      "tutorial":"This might be a good time to try *search* out. Maybe search around the room's only feature?",
       "hiddenItems":
       {
         "fountain":
@@ -189,6 +197,7 @@
       "id":10,
       "description":"The lair of Pihop-pi. It kinda stinks in here.",
       "lighting":1.0,
+      "tutorial":"This is where the boss fight would be if it were fully implemented. Thanks for playing!",
       "bossFightFileLocation":"first_boss.json",
       "chest":
       {

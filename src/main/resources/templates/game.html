@@ -7,13 +7,21 @@
 <body>
 <h3 th:text="${location}"></h3>
 <br/>
-<div style="height: 400px">
-    Game Output:
-    <br/>
-    <ul style="list-style: none;">
-        <li th:each="line : ${outputText}" th:text="${line}" style="color:#04518A">
-        </li>
-    </ul>
+<div style="height: 400px; width: 800px">
+    <div style="width:600px">
+        Game Output:
+        <br/>
+        <ul style="list-style: none;">
+            <li th:each="line : ${outputText}" th:text="${line}" style="color:#04518A">
+            </li>
+        </ul>
+    </div>
+    <div style="width:300px; float:left">
+        Tutorial:
+        <br/>
+        <span th:each="line : ${tutorial}" th:text="${line}" style="color:#5bcbff">
+        </span>
+    </div>
 </div>
 <hr/>
 <br/>

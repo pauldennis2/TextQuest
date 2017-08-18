@@ -10,6 +10,7 @@ import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -48,6 +49,8 @@ public class GameController {
         if (output.size() == 0) {
             debug.add("There was no content in the buffer");
         }
+        List<String> tutorial = textOut.flushTutorial();
+        model.addAttribute("tutorial", tutorial);
         model.addAttribute("debugText", debug);
         model.addAttribute("outputText", output);
         String location = runner.getDungeon().getDungeonName();
