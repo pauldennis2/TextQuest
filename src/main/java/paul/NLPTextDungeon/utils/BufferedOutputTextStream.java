@@ -9,23 +9,26 @@ import java.util.List;
  */
 public class BufferedOutputTextStream {
 
-    PrintStream printStream;
-    List<String> buffer;
-    List<String> debug;
+    private PrintStream printStream;
+    private List<String> buffer;
+    private List<String> debug;
+    private List<String> tutorial;
 
-    String currentLine;
+    private String currentLine;
 
-    boolean usingConsole;
+    private boolean usingConsole;
 
     public BufferedOutputTextStream () {
         buffer = new ArrayList<>();
         debug = new ArrayList<>();
+        tutorial = new ArrayList<>();
     }
 
     public BufferedOutputTextStream (PrintStream printStream) {
         this.printStream = printStream;
         buffer = new ArrayList<>();
         debug = new ArrayList<>();
+        tutorial = new ArrayList<>();
         usingConsole = true;
     }
 
@@ -92,6 +95,16 @@ public class BufferedOutputTextStream {
             }
             return response;
         }
+    }
+
+    public List<String> flushTutorial () {
+        List<String> response = tutorial;
+        tutorial = new ArrayList<>();
+        return response;
+    }
+
+    public void tutorial (String tutorialString) {
+        tutorial.add(tutorialString);
     }
 
     public static void main(String[] args) {

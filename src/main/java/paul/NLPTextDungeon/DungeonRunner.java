@@ -49,7 +49,6 @@ public class DungeonRunner {
     public void start () {
         currentRoom = dungeon.getEntrance();
         hero.setLocation(currentRoom);
-        currentRoom.setHero(hero);
         textOut.println("Welcome to the " + dungeon.getDungeonName());
         textOut.println("Your goal:");
     }

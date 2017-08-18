@@ -1,6 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
 
+import paul.NLPTextDungeon.interfaces.TextOuter;
 import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
 import paul.NLPTextDungeon.bossfight.BossFight;
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRoom extends Location {
+public class DungeonRoom extends Location implements TextOuter {
 
     private String name;
     private String description;
@@ -47,7 +48,7 @@ public class DungeonRoom extends Location {
 
     private transient BufferedOutputTextStream textOut;
 
-    private static int nextId = 1;
+    private String tutorial;
 
     public DungeonRoom () {
         hiddenItems = new HashMap<>();
@@ -342,16 +343,31 @@ public class DungeonRoom extends Location {
         return hero;
     }
 
+    private transient int numVisits = 0;
     public void setHero(Hero hero) {
+        if (hero == null) {
+            throw new AssertionError("Cannot be used to remove hero. Use removeHero() instead.");
+        }
         this.hero = hero;
+        numVisits++;
+        if (numVisits == 1) {
+            textOut.tutorial(tutorial);
+        } else if (numVisits == 2) {
+            textOut.tutorial("Repeating tutorial just in case.");
+            textOut.tutorial(tutorial);
+        }
 
         if (bossFight != null) {
             if (!bossFight.isConquered()) {
                 bossFight.setHero(hero);
                 bossFight.setTextOut(textOut);
-                bossFight.doFight();
+                //bossFight.doFight();
             }
         }
+    }
+
+    public void removeHero () {
+        hero = null;
     }
 
     public Map<Direction, DungeonRoom> getConnectedRooms() {
@@ -394,5 +410,13 @@ public class DungeonRoom extends Location {
 
     public void setTextOut(BufferedOutputTextStream textOut) {
         this.textOut = textOut;
+    }
+
+    public String getTutorial() {
+        return tutorial;
+    }
+
+    public void setTutorial(String tutorial) {
+        this.tutorial = tutorial;
     }
 }
