@@ -1,6 +1,7 @@
 package paul.NLPTextDungeon;
 
 import paul.NLPTextDungeon.interfaces.TextOuter;
+import paul.NLPTextDungeon.utils.InputType;
 import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Dungeon;
 import paul.NLPTextDungeon.entities.DungeonRoom;
@@ -68,9 +69,10 @@ public class DungeonRunner implements TextOuter {
         }
     }
 
-    public void describeRoom () {
+    public InputType describeRoom () {
         currentRoom.describeRoom();
         textOut.println("What would you like to do?");
+        return InputType.STD;
     }
 
     public void doActionFromAnalysis (StatementAnalysis analysis) {

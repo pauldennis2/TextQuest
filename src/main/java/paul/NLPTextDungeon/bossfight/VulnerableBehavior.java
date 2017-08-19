@@ -1,6 +1,8 @@
 package paul.NLPTextDungeon.bossfight;
 
 import paul.NLPTextDungeon.interfaces.TextOuter;
+import paul.NLPTextDungeon.interfaces.UserInterface;
+import paul.NLPTextDungeon.utils.InputType;
 import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Hero;
 import paul.NLPTextDungeon.enums.NumberActionType;
@@ -11,7 +13,7 @@ import java.util.*;
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
-public class VulnerableBehavior implements TextOuter {
+public class VulnerableBehavior implements UserInterface {
 
     private String name;
     private String params;
@@ -28,6 +30,8 @@ public class VulnerableBehavior implements TextOuter {
 
     private transient Random random;
     private transient TextInterface textOut;
+    private transient Hero hero;
+    private transient BossFight bossFight;
 
     public VulnerableBehavior() {
         random = new Random();
@@ -35,6 +39,10 @@ public class VulnerableBehavior implements TextOuter {
 
     public void setTextOut(TextInterface textOut) {
         this.textOut = textOut;
+    }
+
+    public void setBossFight (BossFight bossFight) {
+        this.bossFight = bossFight;
     }
 
     public VulnerableBehavior(String name, String params, NumberActionType actionType, NumberRuleType rule, int failureDamage) {
@@ -63,7 +71,7 @@ public class VulnerableBehavior implements TextOuter {
     public static final int BOSS_DAMAGE_TAKEN = 10;
     private int solutionNumber;
 
-    public void startBehavior (Hero hero) {
+    public InputType show () {
         int firstRandom = random.nextInt(10);
         int secondRandom = random.nextInt(10);
 
@@ -71,19 +79,21 @@ public class VulnerableBehavior implements TextOuter {
         textOut.println(numberChoosingBehaviorDescription + " " + secondRandom);
         solutionNumber = getSolution(firstRandom, secondRandom);
         textOut.println(playerNumberChoicePrompt);
+        return InputType.NUMBER;
     }
 
-    public int doResponse (Hero hero, int solution) {
+    public InputType processResponse (String guess) {
+        int solution = Integer.parseInt(guess);
         if (solution == solutionNumber) {
             textOut.println(correctChoiceMessage);
             textOut.println("Boss takes " + BOSS_DAMAGE_TAKEN + " damage.");
-            return BOSS_DAMAGE_TAKEN;
+            bossFight.setHealth(bossFight.getHealth() - BOSS_DAMAGE_TAKEN);
         } else {
             textOut.println(wrongChoiceMessage);
             hero.takeDamage(failureDamage);
             demoBehavior();
-            return 0;
         }
+        return InputType.NONE;
     }
 
     private boolean checkRule (int firstInput, int secondInput, int solution) {

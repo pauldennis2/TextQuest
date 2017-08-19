@@ -24,6 +24,8 @@ public class TextInterface {
 
     private DungeonRunner runner;
 
+    private InputType requestedInputType;
+
 
     public TextInterface() throws IOException {
         buffer = new ArrayList<>();
@@ -40,8 +42,24 @@ public class TextInterface {
         usingConsole = true;
     }
 
-    public void getGameOutput () {
+    public InputType getGameOutput () {
+        return requestedInputType = runner.describeRoom();
+    }
 
+    public void returnResponse (String userResponse) {
+        switch (requestedInputType) {
+            case STD:
+                runner.analyzeAndExecuteStatement(userResponse);
+
+                break;
+            case NUMBER:
+                int x = Integer.parseInt(userResponse);
+                break;
+        }
+    }
+
+    public void requestInput (InputType type) {
+        requestedInputType = type;
     }
 
     public void debug (String s) {
@@ -52,9 +70,7 @@ public class TextInterface {
         debug.add(o.toString());
     }
 
-    public void getStandardInput () {
 
-    }
 
     public int getNumberFromUser () {
         throw new AssertionError("Write");
@@ -140,5 +156,9 @@ public class TextInterface {
         textOut.print("on one ");
         textOut.println("line.");
         textOut.flush();
+    }
+
+    public DungeonRunner getRunner() {
+        return runner;
     }
 }

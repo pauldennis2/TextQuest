@@ -357,12 +357,10 @@ public class DungeonRoom extends Location implements TextOuter {
             textOut.tutorial(tutorial);
         }
 
-        if (bossFight != null) {
-            if (!bossFight.isConquered()) {
-                bossFight.setHero(hero);
-                bossFight.setTextOut(textOut);
-                //bossFight.doFight();
-            }
+        if (bossFight != null && !bossFight.isConquered()) {
+            bossFight.setHero(hero);
+            bossFight.setTextOut(textOut);
+            //bossFight.doFight();
         }
     }
 
