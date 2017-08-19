@@ -2,7 +2,7 @@ package paul.NLPTextDungeon.entities;
 
 
 import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.bossfight.BossFight;
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
 import paul.NLPTextDungeon.entities.obstacles.RiddleObstacle;
@@ -46,7 +46,7 @@ public class DungeonRoom extends Location implements TextOuter {
     private transient BossFight bossFight;
     private transient Hero hero;
 
-    private transient BufferedOutputTextStream textOut;
+    private transient TextInterface textOut;
 
     private String tutorial;
 
@@ -408,7 +408,7 @@ public class DungeonRoom extends Location implements TextOuter {
         this.bossFight = BossFight.buildBossFightFromFile(bossFightFileLocation);
     }
 
-    public void setTextOut(BufferedOutputTextStream textOut) {
+    public void setTextOut(TextInterface textOut) {
         this.textOut = textOut;
     }
 

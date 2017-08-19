@@ -1,5 +1,8 @@
 package paul.NLPTextDungeon.utils;
 
+import paul.NLPTextDungeon.DungeonRunner;
+
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +10,8 @@ import java.util.List;
 /**
  * Created by Paul Dennis on 8/16/2017.
  */
-public class BufferedOutputTextStream {
+
+public class TextInterface {
 
     private PrintStream printStream;
     private List<String> buffer;
@@ -18,18 +22,26 @@ public class BufferedOutputTextStream {
 
     private boolean usingConsole;
 
-    public BufferedOutputTextStream () {
+    private DungeonRunner runner;
+
+
+    public TextInterface() throws IOException {
         buffer = new ArrayList<>();
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();
+        runner = new DungeonRunner();
     }
 
-    public BufferedOutputTextStream (PrintStream printStream) {
+    public TextInterface(PrintStream printStream) {
         this.printStream = printStream;
         buffer = new ArrayList<>();
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();
         usingConsole = true;
+    }
+
+    public void getGameOutput () {
+
     }
 
     public void debug (String s) {
@@ -38,6 +50,14 @@ public class BufferedOutputTextStream {
 
     public void debug (Object o) {
         debug.add(o.toString());
+    }
+
+    public void getStandardInput () {
+
+    }
+
+    public int getNumberFromUser () {
+        throw new AssertionError("Write");
     }
 
     public List<String> flushDebug () {
@@ -108,7 +128,7 @@ public class BufferedOutputTextStream {
     }
 
     public static void main(String[] args) {
-        BufferedOutputTextStream textOut = new BufferedOutputTextStream(System.out);
+        TextInterface textOut = new TextInterface(System.out);
 
         textOut.println("Hello.");
         textOut.println("Do you like pizza?");

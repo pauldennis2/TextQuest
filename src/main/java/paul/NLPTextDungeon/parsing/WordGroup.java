@@ -10,9 +10,9 @@ public class WordGroup {
 
     private String coreWord;
     private Set<String> relatedWords;
-    private WordType type;
+    private Enum type;
 
-    public WordGroup(String coreWord, Set<String> relatedWords, WordType type) {
+    public WordGroup(String coreWord, Set<String> relatedWords, Enum type) {
         if (coreWord == null || relatedWords == null || type == null) {
             throw new AssertionError();
         }
@@ -41,11 +41,11 @@ public class WordGroup {
         this.relatedWords = relatedWords;
     }
 
-    public WordType getType() {
+    public Enum getType() {
         return type;
     }
 
-    public void setType(WordType type) {
+    public void setType(Enum type) {
         this.type = type;
     }
 

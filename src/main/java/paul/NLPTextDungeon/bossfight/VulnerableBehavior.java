@@ -1,7 +1,7 @@
 package paul.NLPTextDungeon.bossfight;
 
 import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Hero;
 import paul.NLPTextDungeon.enums.NumberActionType;
 import paul.NLPTextDungeon.enums.NumberRuleType;
@@ -27,13 +27,13 @@ public class VulnerableBehavior implements TextOuter {
     private String wrongChoiceMessage;
 
     private transient Random random;
-    private transient BufferedOutputTextStream textOut;
+    private transient TextInterface textOut;
 
     public VulnerableBehavior() {
         random = new Random();
     }
 
-    public void setTextOut(BufferedOutputTextStream textOut) {
+    public void setTextOut(TextInterface textOut) {
         this.textOut = textOut;
     }
 

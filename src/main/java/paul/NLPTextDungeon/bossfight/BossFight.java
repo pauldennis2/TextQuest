@@ -2,7 +2,7 @@ package paul.NLPTextDungeon.bossfight;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Hero;
 
 import java.io.File;
@@ -29,7 +29,7 @@ public class BossFight implements TextOuter {
     private transient Random random;
     private transient Hero hero;
     private transient boolean conquered;
-    private transient BufferedOutputTextStream textOut;
+    private transient TextInterface textOut;
 
     public BossFight () {
         attackBehaviors = new ArrayList<>();
@@ -44,7 +44,7 @@ public class BossFight implements TextOuter {
         random = new Random();
     }
 
-    public void setTextOut (BufferedOutputTextStream textOut) {
+    public void setTextOut (TextInterface textOut) {
         this.textOut = textOut;
     }
 

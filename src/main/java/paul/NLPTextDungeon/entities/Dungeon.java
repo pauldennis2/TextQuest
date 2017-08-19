@@ -2,7 +2,7 @@ package paul.NLPTextDungeon.entities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.enums.Direction;
 
 import java.io.File;
@@ -21,7 +21,7 @@ public class Dungeon extends MetaLocation implements TextOuter {
     private String dungeonName;
 
     private transient DungeonRoom entrance;
-    private transient BufferedOutputTextStream textOut;
+    private transient TextInterface textOut;
 
     public Dungeon () {
         rooms = new ArrayList<>();
@@ -98,7 +98,7 @@ public class Dungeon extends MetaLocation implements TextOuter {
         this.entrance = entrance;
     }
 
-    public void setTextOut(BufferedOutputTextStream textOut) {
+    public void setTextOut(TextInterface textOut) {
         this.textOut = textOut;
 
         rooms.forEach(room -> room.setTextOut(textOut));

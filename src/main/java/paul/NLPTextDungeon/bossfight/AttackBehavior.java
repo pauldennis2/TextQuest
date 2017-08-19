@@ -1,7 +1,7 @@
 package paul.NLPTextDungeon.bossfight;
 
 import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Hero;
 
 /**
@@ -20,13 +20,13 @@ public class AttackBehavior implements TextOuter {
     private transient boolean solved;
     private transient BehaviorResponse attemptedSolution;
 
-    private transient BufferedOutputTextStream textOut;
+    private transient TextInterface textOut;
 
     public AttackBehavior () {
 
     }
 
-    public void setTextOut(BufferedOutputTextStream textOut) {
+    public void setTextOut(TextInterface textOut) {
         this.textOut = textOut;
     }
 

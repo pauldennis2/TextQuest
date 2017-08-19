@@ -1,7 +1,7 @@
 package paul.NLPTextDungeon;
 
 import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Dungeon;
 import paul.NLPTextDungeon.entities.DungeonRoom;
 import paul.NLPTextDungeon.entities.Hero;
@@ -32,17 +32,17 @@ public class DungeonRunner implements TextOuter {
 
     public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
 
-    private BufferedOutputTextStream textOut;
+    private TextInterface textOut;
 
     private List<MetaLocation> metaLocations;
     public DungeonRunner () throws IOException {
-        hero = new Hero();
+        hero = new Hero("default");
         analyzer = new StatementAnalyzer();
 
         dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
         metaLocations = new ArrayList<>();
         metaLocations.add(dungeon);
-        textOut = new BufferedOutputTextStream();
+        textOut = new TextInterface();
         hero.setTextOut(textOut);
         dungeon.setTextOut(textOut);
     }
@@ -105,7 +105,7 @@ public class DungeonRunner implements TextOuter {
         }
     }
 
-    public BufferedOutputTextStream getTextOut() {
+    public TextInterface getTextOut() {
         return textOut;
     }
 
@@ -117,7 +117,7 @@ public class DungeonRunner implements TextOuter {
         return dungeon;
     }
 
-    public void setTextOut (BufferedOutputTextStream textOut) {
+    public void setTextOut (TextInterface textOut) {
         throw new AssertionError("This is the class that owns/creates the original text-outer");
     }
 }
