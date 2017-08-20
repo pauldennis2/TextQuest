@@ -25,8 +25,6 @@ public class TextInterface implements UserInterface {
 
     private DungeonRunner runner;
 
-    private InputType requestedInputType;
-
 
     public TextInterface() throws IOException {
         buffer = new ArrayList<>();
@@ -49,16 +47,13 @@ public class TextInterface implements UserInterface {
     }
 
     public InputType show () {
-        return requestedInputType = runner.show();
+        return runner.show();
     }
 
     public InputType processResponse (String userResponse) {
         return runner.processResponse(userResponse);
     }
 
-    public void requestInput (InputType type) {
-        requestedInputType = type;
-    }
 
     public void debug (String s) {
         debug.add(s);
@@ -68,11 +63,6 @@ public class TextInterface implements UserInterface {
         debug.add(o.toString());
     }
 
-
-
-    public int getNumberFromUser () {
-        throw new AssertionError("Write");
-    }
 
     public List<String> flushDebug () {
         if (usingConsole) {
@@ -139,21 +129,6 @@ public class TextInterface implements UserInterface {
 
     public void tutorial (String tutorialString) {
         tutorial.add(tutorialString);
-    }
-
-    public static void main(String[] args) {
-        TextInterface textOut = new TextInterface(System.out);
-
-        textOut.println("Hello.");
-        textOut.println("Do you like pizza?");
-        textOut.flush();
-        System.out.println("----------");
-        textOut.print("Many ");
-        textOut.print("words ");
-        System.out.println("_-------------_");
-        textOut.print("on one ");
-        textOut.println("line.");
-        textOut.flush();
     }
 
     public DungeonRunner getRunner() {

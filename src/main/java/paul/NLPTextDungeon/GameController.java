@@ -30,6 +30,7 @@ public class GameController {
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
         if (textOut == null) {
             textOut = new TextInterface();
+            textOut.start();
             session.setAttribute("textInterface", textOut);
         }
         System.out.println("Break");

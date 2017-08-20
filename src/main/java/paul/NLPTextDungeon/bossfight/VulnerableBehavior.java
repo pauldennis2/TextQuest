@@ -49,6 +49,7 @@ public class VulnerableBehavior implements UserInterface {
         this.bossFight = bossFight;
     }
 
+    @Override
     public void start () {
 
     }

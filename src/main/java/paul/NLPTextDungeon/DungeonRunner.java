@@ -35,6 +35,8 @@ public class DungeonRunner implements UserInterface {
     public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
 
     private TextInterface textOut;
+    private UserInterface requester;
+    private InputType requestType;
 
     private List<MetaLocation> metaLocations;
     public DungeonRunner () throws IOException {
@@ -59,28 +61,38 @@ public class DungeonRunner implements UserInterface {
 
     @Override
     public InputType processResponse (String userInput) {
-        StatementAnalysis analysis = analyzer.analyzeStatement(userInput, currentRoom);
-        doActionFromAnalysis(analysis);
-        if (analysis.hasAnd() && analysis.isSecondActionable()) {
-            String nextActionWord = analysis.getSecondActionWord();
-            String nextParamWord = analysis.getSecondActionParam();
-            textOut.debug("Next words: " + nextActionWord + " param " + nextParamWord);
-            textOut.debug("Running 2nd half of AND statement.");
-            analysis = new StatementAnalysis(nextActionWord, nextParamWord);
-            textOut.debug(analysis);
+        if (requester != null) {
+            InputType type = requester.processResponse(userInput);
+            requester = null;
+            return type;
+        } else {
+            StatementAnalysis analysis = analyzer.analyzeStatement(userInput, currentRoom);
             doActionFromAnalysis(analysis);
+            if (analysis.hasAnd() && analysis.isSecondActionable()) {
+                String nextActionWord = analysis.getSecondActionWord();
+                String nextParamWord = analysis.getSecondActionParam();
+                textOut.debug("Next words: " + nextActionWord + " param " + nextParamWord);
+                textOut.debug("Running 2nd half of AND statement.");
+                analysis = new StatementAnalysis(nextActionWord, nextParamWord);
+                textOut.debug(analysis);
+                doActionFromAnalysis(analysis);
+            }
+            return InputType.NONE;
         }
-        return InputType.NONE;
     }
 
     @Override
     public InputType show () {
-        currentRoom.describeRoom();
+        InputType type = currentRoom.show();
         textOut.println("What would you like to do?");
-        return InputType.STD;
+        if (type != InputType.NONE) {
+            requester = currentRoom;
+            requestType = type;
+        }
+        return type;
     }
 
-    public InputType doActionFromAnalysis (StatementAnalysis analysis) {
+    public void doActionFromAnalysis (StatementAnalysis analysis) {
         if (analysis.isActionable()) {
             try {
                 analysis.printFinalAnalysis();
@@ -110,7 +122,6 @@ public class DungeonRunner implements UserInterface {
             textOut.debug("Comments:");
             analysis.getComments().forEach(textOut::debug);
         }
-        return InputType.NONE;
     }
 
     public TextInterface getTextOut() {

@@ -36,7 +36,7 @@ public class Dungeon extends MetaLocation implements TextOuter {
         if (matches.size() == 0) {
             return null;
         }
-        return matches.get(1);
+        return matches.get(0);
     }
 
     public static Dungeon buildDungeonFromFile (String fileName) throws IOException {

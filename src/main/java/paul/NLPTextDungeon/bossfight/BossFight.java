@@ -30,10 +30,8 @@ public class BossFight implements UserInterface {
     private VulnerableBehavior vulnerableBehavior;
 
     private transient Random random;
-    private transient Hero hero;
     private transient boolean conquered;
     private transient TextInterface textOut;
-    private transient InputType requestedInputType;
     private UserInterface requester;
 
     private transient int numTimesAttackedWithoutVuln;
@@ -45,16 +43,6 @@ public class BossFight implements UserInterface {
         numTimesAttackedWithoutVuln = 0;
     }
 
-    public BossFight(String name, int health, List<AttackBehavior> attackBehaviors, VulnerableBehavior vulnerableBehavior) {
-        this.name = name;
-        this.health = health;
-        this.attackBehaviors = attackBehaviors;
-        this.vulnerableBehavior = vulnerableBehavior;
-        vulnerableBehavior.setBossFight(this);
-        random = new Random();
-        conquered = false;
-    }
-
     public void setTextOut (TextInterface textOut) {
         this.textOut = textOut;
         vulnerableBehavior.setTextOut(textOut);
@@ -64,7 +52,11 @@ public class BossFight implements UserInterface {
     public InputType processResponse (String response) {
         UserInterface rq = requester;
         requester = null;
-        return rq.processResponse(response);
+        InputType type = rq.processResponse(response);
+        if (type == InputType.FINISHED) {
+            conquered = true;
+        }
+        return type;
     }
 
     public InputType show () {
@@ -100,6 +92,7 @@ public class BossFight implements UserInterface {
         textOut.println("-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.\n\n\n\n");
 
         vulnerableBehavior.demoBehavior();
+        vulnerableBehavior.setBossFight(this);
     }
 
     public static final String ENCOUNTER_FILE_PATH = "content_files/encounters/";
@@ -165,7 +158,6 @@ public class BossFight implements UserInterface {
     }
 
     public void setHero (Hero hero) {
-        this.hero = hero;
         vulnerableBehavior.setHero(hero);
         attackBehaviors.forEach(e -> e.setHero(hero));
     }
