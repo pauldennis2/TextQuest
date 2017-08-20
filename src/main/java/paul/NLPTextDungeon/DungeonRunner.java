@@ -41,8 +41,7 @@ public class DungeonRunner extends UserInterfaceClass {
     @Override
     public void start (TextInterface textOut) {
         this.textOut = textOut;
-        //currentRoom = dungeon.getEntrance();
-        currentRoom = dungeon.getRoomByName("Healing Fountain");
+        currentRoom = dungeon.getEntrance();
         textOut.println("Welcome to the " + dungeon.getDungeonName());
         textOut.println("Your goal:");
 
