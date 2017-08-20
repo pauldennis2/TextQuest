@@ -1,8 +1,11 @@
 package paul.NLPTextDungeon.entities;
 
 
+import jdk.internal.util.xml.impl.Input;
 import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.interfaces.UserInterface;
+import paul.NLPTextDungeon.utils.InputType;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.bossfight.BossFight;
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
 import paul.NLPTextDungeon.entities.obstacles.RiddleObstacle;
@@ -18,7 +21,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRoom extends Location implements TextOuter {
+public class DungeonRoom extends Location implements UserInterface {
 
     private String name;
     private String description;
@@ -46,7 +49,8 @@ public class DungeonRoom extends Location implements TextOuter {
     private transient BossFight bossFight;
     private transient Hero hero;
 
-    private transient BufferedOutputTextStream textOut;
+    private transient TextInterface textOut;
+    private UserInterface requester;
 
     private String tutorial;
 
@@ -94,8 +98,21 @@ public class DungeonRoom extends Location implements TextOuter {
         }
     }
 
+    public void start () {
+        if (bossFight != null) {
+            bossFight.start();
+        }
+    }
+
+
+    public InputType processResponse (String response) {
+        InputType type = requester.processResponse(response);
+        requester = null;
+        return type;
+    }
+
     public void vocalize (String message, SpeakingVolume volume) {
-        textOut.println("Player " + volume.toString().toLowerCase() + "s:" + message);
+        textOut.println("Player " + volume.toString().toLowerCase() + "s: " + message);
         speechListeners.forEach(e -> e.notify(message, volume));
     }
 
@@ -183,65 +200,73 @@ public class DungeonRoom extends Location implements TextOuter {
         return connectedRooms.keySet();
     }
 
-    public void describeRoom () {
-        Random random = new Random();
-        textOut.println("\n\n\n\nYou are in the " + name + " (" + id + ").");
-        LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
-        textOut.println(description);
+    public InputType show () {
+        if (bossFight != null && !bossFight.isConquered()) {
+            InputType type = bossFight.show();
+            if (type != InputType.NONE) {
+                requester = bossFight;
+            }
+            return bossFight.show();
+        } else {
+            textOut.println("\n\n\n\nYou are in the " + name + " (" + id + ").");
+            LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
+            textOut.println(description);
 
-        if (obstacles.size() > 0) {
-            textOut.println("The room has the following obstacles:");
-            obstacles.forEach(e-> textOut.println(e));
-        }
+            if (obstacles.size() > 0) {
+                textOut.println("The room has the following obstacles:");
+                obstacles.forEach(e -> textOut.println(e));
+            }
 
-        //Print riddles
+            //Print riddles
 
-        obstacles.stream()
-                .filter(e -> e.getClass() == RiddleObstacle.class)
-                .filter(e -> !e.isCleared())
-                .forEach(e -> textOut.println(((RiddleObstacle)e).getRiddle()));
+            obstacles.stream()
+                    .filter(e -> e.getClass() == RiddleObstacle.class)
+                    .filter(e -> !e.isCleared())
+                    .forEach(e -> textOut.println(((RiddleObstacle) e).getRiddle()));
 
-        switch (lightingLevel) {
-            case WELL_LIT:
-                textOut.println("The room is well lit. You can clearly see:");
-                monsters.forEach(monster -> textOut.println(monster));
-                items.forEach(item -> textOut.println(item));
-                if (chest != null) {
-                    textOut.println(chest);
-                }
-                if (monsters.size() + items.size() == 0) {
-                    textOut.println("(There is nothing in the room.)");
-                }
-                if (hasPrince) {
-                    textOut.println("You see a handsome prince tied to a chair. " +
-                            "He looks like he'd really like to be rescued.");
-                }
-                break;
-
-            case PITCH_BLACK:
-                textOut.println("The room is pitch black. You cannot see anything.");
-                break;
-
-            case DIM:
-                if (monsters.size() + items.size() > 0) {
-                    textOut.println("The room is not well lit. You can only make out a few shapes.");
-                    if (monsters.size() > 0) {
-                        textOut.println("You can see " + monsters.size() + " figures moving in the darkness.");
+            switch (lightingLevel) {
+                case WELL_LIT:
+                    textOut.println("The room is well lit. You can clearly see:");
+                    monsters.forEach(monster -> textOut.println(monster));
+                    items.forEach(item -> textOut.println(item));
+                    if (chest != null) {
+                        textOut.println(chest);
                     }
-                    if (items.size() > 0) {
-                        textOut.println("You think you can see the following items:");
-                        items.stream()
-                                .filter(e -> Math.random() < lighting * 2)
-                                .forEach(item -> textOut.println(item));
+                    if (monsters.size() + items.size() == 0) {
+                        textOut.println("(There is nothing in the room.)");
                     }
-                }
-                if (hasPrince) {
-                    textOut.println("You think you see a handsome prince but it's hard to tell.");
-                }
-                break;
+                    if (hasPrince) {
+                        textOut.println("You see a handsome prince tied to a chair. " +
+                                "He looks like he'd really like to be rescued.");
+                    }
+                    break;
+
+                case PITCH_BLACK:
+                    textOut.println("The room is pitch black. You cannot see anything.");
+                    break;
+
+                case DIM:
+                    if (monsters.size() + items.size() > 0) {
+                        textOut.println("The room is not well lit. You can only make out a few shapes.");
+                        if (monsters.size() > 0) {
+                            textOut.println("You can see " + monsters.size() + " figures moving in the darkness.");
+                        }
+                        if (items.size() > 0) {
+                            textOut.println("You think you can see the following items:");
+                            items.stream()
+                                    .filter(e -> Math.random() < lighting * 2)
+                                    .forEach(item -> textOut.println(item));
+                        }
+                    }
+                    if (hasPrince) {
+                        textOut.println("You think you see a handsome prince but it's hard to tell.");
+                    }
+                    break;
+            }
+            textOut.print("There are passages leading ");
+            connectedRooms.keySet().forEach(e -> textOut.print(" " + e + " "));
+            return InputType.NONE;
         }
-        textOut.print("There are passages leading " );
-        connectedRooms.keySet().forEach(e-> textOut.print(" " + e + " "));
     }
 
     public List<BackpackItem> lootRoom () {
@@ -357,12 +382,10 @@ public class DungeonRoom extends Location implements TextOuter {
             textOut.tutorial(tutorial);
         }
 
-        if (bossFight != null) {
-            if (!bossFight.isConquered()) {
-                bossFight.setHero(hero);
-                bossFight.setTextOut(textOut);
-                //bossFight.doFight();
-            }
+        if (bossFight != null && !bossFight.isConquered()) {
+            bossFight.setHero(hero);
+            bossFight.setTextOut(textOut);
+            bossFight.start();
         }
     }
 
@@ -408,7 +431,7 @@ public class DungeonRoom extends Location implements TextOuter {
         this.bossFight = BossFight.buildBossFightFromFile(bossFightFileLocation);
     }
 
-    public void setTextOut(BufferedOutputTextStream textOut) {
+    public void setTextOut(TextInterface textOut) {
         this.textOut = textOut;
     }
 

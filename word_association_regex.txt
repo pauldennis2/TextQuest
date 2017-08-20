@@ -1,0 +1,64 @@
+|Void Action Words: (i.e. it's always the same parameter. Fight what? The monsters)
+|===
+@VoidAction
+rescue : untie, releas-, rescu-
+fight : attack, melee, combat
+sneak : hid-, conceal-, stealth-
+loot : gather
+retreat : skedaddle, vamoose, runaway, back
+plunder : lootchest
+jump : leap-, vault-, vaultingboots, jump-
+|
+|Param Action Words: (i.e. "travel where?" "use what?", "cast what spell?")
+|===
+@ParamAction
+travel : sail, journey, travel-
+view : see, inspect-, show-
+use : utilize, wield, employ-
+move : proceed, go, mov-
+learn : study-, learn-
+cast : incant-, cast-
+say : speak-, say-
+shout : yell-, shout-
+whisper : murmur-, whisper-
+search : examin-, search-
+|
+|Concept Words:
+|===
+@Concept
+status : stats, character
+torch : light
+potion : healthpot, flask
+map : sketch, atlas
+monster : enemy, goblin, fiend
+backpack : pack, inventory, items
+goal : quest, objective, mission
+room : here
+dungeon : cave
+boss : overlord
+prince : rescuee
+item : thing
+magic : wizardry, sorcery, arcana
+spell : incantation
+bow : arrow, ranged attack, shoot, snipe
+|Direction Words:
+|===
+@Direction
+up : upstairs, ascend-
+down : downstairs, descend-
+east : right, east-
+north : north-
+south : south-
+west : left, west-
+portal : teleport-, gateway
+|Timing Words:
+|===
+@Timing
+before : inadvanceof
+during : while
+after : afterward-
+|Speaking Words:
+|===
+|$Shades of Piercing Vision
+|magic Xray sunglasses!
+|examine : xray, piercevision

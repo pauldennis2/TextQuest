@@ -2,13 +2,14 @@ package paul.NLPTextDungeon.entities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.enums.Direction;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -21,10 +22,21 @@ public class Dungeon extends MetaLocation implements TextOuter {
     private String dungeonName;
 
     private transient DungeonRoom entrance;
-    private transient BufferedOutputTextStream textOut;
+    private transient TextInterface textOut;
 
     public Dungeon () {
         rooms = new ArrayList<>();
+    }
+
+    public DungeonRoom getRoomByName (String name) {
+        List<DungeonRoom> matches = rooms.stream()
+                .filter(room -> room.getName().equals(name))
+                .collect(Collectors.toList());
+
+        if (matches.size() == 0) {
+            return null;
+        }
+        return matches.get(0);
     }
 
     public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
@@ -98,7 +110,7 @@ public class Dungeon extends MetaLocation implements TextOuter {
         this.entrance = entrance;
     }
 
-    public void setTextOut(BufferedOutputTextStream textOut) {
+    public void setTextOut(TextInterface textOut) {
         this.textOut = textOut;
 
         rooms.forEach(room -> room.setTextOut(textOut));

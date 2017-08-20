@@ -1,7 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
 import paul.NLPTextDungeon.interfaces.*;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.obstacles.Chasm;
 import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.enums.SpeakingVolume;
@@ -18,76 +18,82 @@ import java.util.stream.Collectors;
  */
 public class Hero implements TextOuter {
 
+    private String name;
+
     private int health;
     private int maxHealth;
 
     private int might;
-    private int maxMight;
-
     private int magic;
-
     private int sneak;
-    private int maxSneak;
-
-    private int defense;
-    private int maxDefense;
+    private int defence;
+    private int maxSpellsPerDay;
 
     private int level;
     private int exp;
 
-    //private List<BackpackItem> backpack;
     private Backpack backpack;
-    private DungeonRoom location;
-    private DungeonRoom previousLocation;
 
-    private boolean isSneaking;
+    private transient int mightMod;
+    private transient int magicMod;
+    private transient int sneakMod;
+    private transient int defenceMod;
+    private transient int numSpellsAvailable;
 
-    private Map<String, VoidAction> heroVoidActions;
-    private Map<String, ParamAction> heroParamActions;
+    private transient DungeonRoom location;
+    private transient DungeonRoom previousLocation;
+    private transient boolean isSneaking;
 
-    private ItemActionMap itemActions;
-    //private Map<String, VoidAction> itemActions;
-    private Map<String, VoidAction> views;
-    Map<String, LevelUpAction> levelUpActionMap;
-    Map<String, SpellAction> possibleSpellMap;
-    Map<String, SpellAction> spellMap;
+    private transient Map<String, VoidAction> heroVoidActions;
+    private transient Map<String, ParamAction> heroParamActions;
+    private transient ItemActionMap itemActions;
+    private transient Map<String, VoidAction> views;
+    private transient Map<String, LevelUpAction> levelUpActionMap;
+    private transient Map<String, SpellAction> possibleSpellMap;
+    private transient Map<String, SpellAction> spellMap;
 
-    private int maxSpellsPerDay;
+    private transient Random random;
+    private transient TextInterface textOut;
 
     public static final double TORCH_LIGHT = 1.0;
     public static final int POTION_VALUE = 9;
-    private Random random;
 
-    BufferedOutputTextStream textOut;
 
     public Hero () {
+        random = new Random();
+        backpack = new Backpack();
+        initMaps();
+    }
+
+    public Hero (String standard) {
         random = new Random();
         health = 50;
         maxHealth = 50;
         might = 10;
-        maxMight = 10;
         magic = 2;
         sneak = 0;
-        maxSneak = 2;
 
         level = 0;
         exp = 0;
         maxSpellsPerDay = 0;
 
         backpack = new Backpack();
+        backpack.add(new BackpackItem("Torch"));
+        backpack.add(new BackpackItem("Sword"));
+        backpack.add(new BackpackItem("Bow"));
+        initMaps();
+    }
+
+
+    private void initMaps () {
         heroVoidActions = new HashMap<>();
         heroParamActions = new HashMap<>();
         itemActions = new ItemActionMap();
         views = new HashMap<>();
+        spellMap = new HashMap<>();
         initActionMap();
         initItemActions();
         initViews();
-        
-        backpack = new Backpack();
-        backpack.add(new BackpackItem("Torch"));
-        backpack.add(new BackpackItem("Sword"));
-        backpack.add(new BackpackItem("Bow"));
-        spellMap = new HashMap<>();
         initLevelUpMap();
         initPossibleSpellMap();
         initPickupListenerMap();
@@ -103,7 +109,7 @@ public class Hero implements TextOuter {
         }
     }
 
-    public void setTextOut (BufferedOutputTextStream textOut) {
+    public void setTextOut (TextInterface textOut) {
         this.textOut = textOut;
     }
 
@@ -271,15 +277,76 @@ public class Hero implements TextOuter {
 
     private void initPossibleSpellMap () {
         possibleSpellMap = new HashMap<>();
-        possibleSpellMap.put("Heal", hero -> hero.restoreHealth(15));
-        possibleSpellMap.put("Moonlight Shadow", hero -> hero.sneak += 5);
-        possibleSpellMap.put("Fireblast", hero -> {
-            DungeonRoom room = hero.getLocation();
-            room.getMonsters().forEach(e -> e.takeDamage(3));
-            room.updateMonsters();
+        possibleSpellMap.put("heal", hero -> {
+            hero.restoreHealth(15);
+            textOut.println("You are healed for 15 health.");
         });
-        possibleSpellMap.put("Weaken", hero ->  hero.getLocation().getMonsters()
-                .forEach(e -> e.setMight(e.getMight() - 1)));
+        possibleSpellMap.put("shadow", hero -> {
+            hero.sneakMod = 5;
+            textOut.println("The shadows surround you.");
+        });
+        possibleSpellMap.put("fire", hero -> {
+            DungeonRoom room = hero.getLocation();
+            room.getMonsters().forEach(e -> e.takeDamage(5));
+            room.updateMonsters();
+            textOut.println("All monsters are hit by a small fireblast, and take 5 damage.");
+        });
+        possibleSpellMap.put("lightning", hero -> {
+            DungeonRoom room = hero.getLocation();
+            Monster target = getRandomTarget(room.getMonsters());
+            if (target != null) {
+                textOut.println(target.getName() + " took 10 lightning damage.");
+                target.takeDamage(10);
+                room.updateMonsters();
+            } else {
+                textOut.println("There were no monsters to use lightning on. Spell wasted.");
+            }
+        });
+        possibleSpellMap.put("ice", hero -> {
+            DungeonRoom room = hero.getLocation();
+            Monster target = getRandomTarget(room.getMonsters());
+            if (target != null) {
+                textOut.println(target.getName() + " took 8 cold damage and is disabled 1 round.");
+                target.takeDamage(8);
+                target.disable(1);
+                room.updateMonsters();
+            } else {
+                textOut.println("No targets for ice spell. It was wasted.");
+            }
+        });
+        possibleSpellMap.put("light", hero -> {
+            textOut.debug("This spell doesn't really do what it should yet.");
+            textOut.println("The room brightens up.");
+            hero.getLocation().setLighting(TORCH_LIGHT);
+        });
+        possibleSpellMap.put("aegis", hero -> {
+            hero.defenceMod = 5;
+            textOut.debug("Aegis lasts forever.");
+            textOut.println("A magic shield surrounds you.");
+        });
+        possibleSpellMap.put("push", hero -> {
+            List<Monster> monsters = hero.getLocation().getMonsters();
+            monsters.forEach(monster -> {
+                monster.takeDamage(2);
+                monster.disable(1);
+            });
+            textOut.println("All monsters knocked down and damaged.");
+        });
+        possibleSpellMap.put("weaken", hero ->  {
+            hero.getLocation().getMonsters()
+                    .forEach(e -> e.setMight(e.getMight() - 1));
+            textOut.println("All enemies weakened.");
+        });
+    }
+
+    private static Monster getRandomTarget (List<Monster> monsters) {
+        if (monsters != null && monsters.size() > 1) {
+            return monsters.get(new Random().nextInt(monsters.size() - 1));
+        } else if (monsters != null && monsters.size() == 1) {
+            return monsters.get(0);
+        } else {
+            return null;
+        }
     }
 
     private void learnNewSpell () {
@@ -439,5 +506,61 @@ public class Hero implements TextOuter {
         if (previousLocation != null) {
             previousLocation.removeHero();
         }
+    }
+
+    public void setHealth(int health) {
+        this.health = health;
+    }
+
+    public void setMaxHealth(int maxHealth) {
+        this.maxHealth = maxHealth;
+    }
+
+    public void setMight(int might) {
+        this.might = might;
+    }
+
+    public void setMagic(int magic) {
+        this.magic = magic;
+    }
+
+    public void setSneak(int sneak) {
+        this.sneak = sneak;
+    }
+
+    public int getDefence() {
+        return defence;
+    }
+
+    public void setDefence(int defence) {
+        this.defence = defence;
+    }
+
+    public int getMaxSpellsPerDay() {
+        return maxSpellsPerDay;
+    }
+
+    public void setMaxSpellsPerDay(int maxSpellsPerDay) {
+        this.maxSpellsPerDay = maxSpellsPerDay;
+    }
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
+
+    public void setExp(int exp) {
+        this.exp = exp;
+    }
+
+    public void setBackpack(Backpack backpack) {
+        this.backpack = backpack;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

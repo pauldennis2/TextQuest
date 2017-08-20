@@ -1,5 +1,9 @@
 package paul.NLPTextDungeon.utils;
 
+import paul.NLPTextDungeon.DungeonRunner;
+import paul.NLPTextDungeon.interfaces.UserInterface;
+
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -7,7 +11,8 @@ import java.util.List;
 /**
  * Created by Paul Dennis on 8/16/2017.
  */
-public class BufferedOutputTextStream {
+
+public class TextInterface implements UserInterface {
 
     private PrintStream printStream;
     private List<String> buffer;
@@ -18,19 +23,37 @@ public class BufferedOutputTextStream {
 
     private boolean usingConsole;
 
-    public BufferedOutputTextStream () {
+    private DungeonRunner runner;
+
+
+    public TextInterface() throws IOException {
         buffer = new ArrayList<>();
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();
+        runner = new DungeonRunner();
+        runner.setTextOut(this);
     }
 
-    public BufferedOutputTextStream (PrintStream printStream) {
+    public TextInterface(PrintStream printStream) {
         this.printStream = printStream;
         buffer = new ArrayList<>();
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();
         usingConsole = true;
     }
+
+    public void start () {
+        runner.start();
+    }
+
+    public InputType show () {
+        return runner.show();
+    }
+
+    public InputType processResponse (String userResponse) {
+        return runner.processResponse(userResponse);
+    }
+
 
     public void debug (String s) {
         debug.add(s);
@@ -39,6 +62,7 @@ public class BufferedOutputTextStream {
     public void debug (Object o) {
         debug.add(o.toString());
     }
+
 
     public List<String> flushDebug () {
         if (usingConsole) {
@@ -107,18 +131,11 @@ public class BufferedOutputTextStream {
         tutorial.add(tutorialString);
     }
 
-    public static void main(String[] args) {
-        BufferedOutputTextStream textOut = new BufferedOutputTextStream(System.out);
+    public DungeonRunner getRunner() {
+        return runner;
+    }
 
-        textOut.println("Hello.");
-        textOut.println("Do you like pizza?");
-        textOut.flush();
-        System.out.println("----------");
-        textOut.print("Many ");
-        textOut.print("words ");
-        System.out.println("_-------------_");
-        textOut.print("on one ");
-        textOut.println("line.");
-        textOut.flush();
+    public void setTextOut (TextInterface textOut) {
+        throw new AssertionError("*I'm* the one who knocks");
     }
 }

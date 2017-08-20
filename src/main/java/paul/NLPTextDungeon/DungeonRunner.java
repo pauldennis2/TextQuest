@@ -1,7 +1,9 @@
 package paul.NLPTextDungeon;
 
 import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.interfaces.UserInterface;
+import paul.NLPTextDungeon.utils.InputType;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Dungeon;
 import paul.NLPTextDungeon.entities.DungeonRoom;
 import paul.NLPTextDungeon.entities.Hero;
@@ -18,7 +20,7 @@ import java.util.List;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRunner implements TextOuter {
+public class DungeonRunner implements UserInterface {
 
     private Dungeon dungeon;
     private Hero hero;
@@ -32,21 +34,21 @@ public class DungeonRunner implements TextOuter {
 
     public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
 
-    private BufferedOutputTextStream textOut;
+    private TextInterface textOut;
+    private UserInterface requester;
+    private InputType requestType;
 
     private List<MetaLocation> metaLocations;
     public DungeonRunner () throws IOException {
-        hero = new Hero();
+        hero = new Hero("default");
         analyzer = new StatementAnalyzer();
 
         dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
         metaLocations = new ArrayList<>();
         metaLocations.add(dungeon);
-        textOut = new BufferedOutputTextStream();
-        hero.setTextOut(textOut);
-        dungeon.setTextOut(textOut);
     }
 
+    @Override
     public void start () {
         currentRoom = dungeon.getEntrance();
         hero.setLocation(currentRoom);
@@ -54,23 +56,37 @@ public class DungeonRunner implements TextOuter {
         textOut.println("Your goal:");
     }
 
-    public void analyzeAndExecuteStatement (String userInput) {
-        StatementAnalysis analysis = analyzer.analyzeStatement(userInput, currentRoom);
-        doActionFromAnalysis(analysis);
-        if (analysis.hasAnd() && analysis.isSecondActionable()) {
-            String nextActionWord = analysis.getSecondActionWord();
-            String nextParamWord = analysis.getSecondActionParam();
-            textOut.debug("Next words: " + nextActionWord + " param " + nextParamWord);
-            textOut.debug("Running 2nd half of AND statement.");
-            analysis = new StatementAnalysis(nextActionWord, nextParamWord);
-            textOut.debug(analysis);
+    @Override
+    public InputType processResponse (String userInput) {
+        if (requester != null) {
+            InputType type = requester.processResponse(userInput);
+            requester = null;
+            return type;
+        } else {
+            StatementAnalysis analysis = analyzer.analyzeStatement(userInput, currentRoom);
             doActionFromAnalysis(analysis);
+            if (analysis.hasAnd() && analysis.isSecondActionable()) {
+                String nextActionWord = analysis.getSecondActionWord();
+                String nextParamWord = analysis.getSecondActionParam();
+                textOut.debug("Next words: " + nextActionWord + " param " + nextParamWord);
+                textOut.debug("Running 2nd half of AND statement.");
+                analysis = new StatementAnalysis(nextActionWord, nextParamWord);
+                textOut.debug(analysis);
+                doActionFromAnalysis(analysis);
+            }
+            return InputType.NONE;
         }
     }
 
-    public void describeRoom () {
-        currentRoom.describeRoom();
+    @Override
+    public InputType show () {
+        InputType type = currentRoom.show();
         textOut.println("What would you like to do?");
+        if (type != InputType.NONE) {
+            requester = currentRoom;
+            requestType = type;
+        }
+        return type;
     }
 
     public void doActionFromAnalysis (StatementAnalysis analysis) {
@@ -105,7 +121,7 @@ public class DungeonRunner implements TextOuter {
         }
     }
 
-    public BufferedOutputTextStream getTextOut() {
+    public TextInterface getTextOut() {
         return textOut;
     }
 
@@ -117,7 +133,9 @@ public class DungeonRunner implements TextOuter {
         return dungeon;
     }
 
-    public void setTextOut (BufferedOutputTextStream textOut) {
-        throw new AssertionError("This is the class that owns/creates the original text-outer");
+    public void setTextOut (TextInterface textOut) {
+        hero.setTextOut(textOut);
+        dungeon.setTextOut(textOut);
+        this.textOut = textOut;
     }
 }

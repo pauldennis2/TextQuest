@@ -13,7 +13,8 @@ import java.util.stream.Collectors;
  */
 public class StatementAnalyzer {
 
-    private Map<String, WordGroup> wordMap;
+    //private Map<String, WordGroup> wordMap;
+    private WordGroupMap wordMap;
 
     private List<WordGroup> wordGroups;
 
@@ -250,7 +251,7 @@ public class StatementAnalyzer {
     }
 
     private void initializeWordMap () {
-        wordMap = new HashMap<>();
+        wordMap = new WordGroupMap();
         wordGroups.forEach(e -> wordMap.put(e.getCoreWord(), e));
 
         wordGroups.forEach(wordGroup -> wordGroup.getRelatedWords()

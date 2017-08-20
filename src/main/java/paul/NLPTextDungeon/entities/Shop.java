@@ -1,7 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
 import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.utils.SafeNumScanner;
 
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ public class Shop extends Location implements TextOuter {
 
     private double buyRate = 1.0;
 
-    private BufferedOutputTextStream textOut;
+    private TextInterface textOut;
 
     public Shop () {
 
@@ -103,7 +103,7 @@ public class Shop extends Location implements TextOuter {
         shop.browseItems();
     }
 
-    public void setTextOut (BufferedOutputTextStream textOut) {
+    public void setTextOut (TextInterface textOut) {
         this.textOut = textOut;
     }
 }

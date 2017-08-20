@@ -11,6 +11,8 @@ public class Monster {
     private int might;
     private String name;
 
+    private transient int disabledForRounds = 0;
+
     public Monster () {
         name = "Biff the Understudy";
     }
@@ -19,6 +21,14 @@ public class Monster {
         this.health = health;
         this.might = might;
         this.name = name;
+    }
+
+    public void disable (int rounds) {
+        disabledForRounds = rounds;
+    }
+
+    public boolean isDisabled () {
+        return disabledForRounds == 0;
     }
 
     public void takeDamage (int damageAmt) {

@@ -1,13 +1,21 @@
 package paul.NLPTextDungeon.bossfight;
 
+import paul.NLPTextDungeon.enums.ActionResponseTiming;
 import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.interfaces.UserInterface;
+import paul.NLPTextDungeon.parsing.StatementAnalysis;
+import paul.NLPTextDungeon.parsing.StatementAnalyzer;
+import paul.NLPTextDungeon.parsing.WordType;
+import paul.NLPTextDungeon.utils.InputType;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Hero;
+
+import java.util.List;
 
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
-public class AttackBehavior implements TextOuter {
+public class AttackBehavior implements UserInterface {
 
     private String name;
     private BehaviorResponse solution; //Expresses not just "a" response but "THE" response (solution) to the attack
@@ -19,15 +27,25 @@ public class AttackBehavior implements TextOuter {
 
     private transient boolean solved;
     private transient BehaviorResponse attemptedSolution;
+    private transient int numTimesDone;
+    private transient Hero hero;
 
-    private transient BufferedOutputTextStream textOut;
+    private transient TextInterface textOut;
 
     public AttackBehavior () {
+        numTimesDone = 0;
+    }
+
+    public void start () {
 
     }
 
-    public void setTextOut(BufferedOutputTextStream textOut) {
+    public void setTextOut(TextInterface textOut) {
         this.textOut = textOut;
+    }
+
+    public void setHero (Hero hero) {
+        this.hero = hero;
     }
 
     public AttackBehavior(String name, BehaviorResponse solution, String actionDescription, String avoidDescription, int damage) {
@@ -36,42 +54,52 @@ public class AttackBehavior implements TextOuter {
         this.actionDescription = actionDescription;
         this.avoidDescription = avoidDescription;
         this.damage = damage;
+        numTimesDone = 0;
     }
 
-    public void doBehavior (Hero hero) {
+    public InputType show () {
         textOut.println(actionDescription);
+        numTimesDone++;
         if (solved) {
             textOut.println(avoidDescription);
+            return InputType.NONE;
         } else if (attemptedSolution != null) {
             textOut.println("Attempting: " + attemptedSolution);
             if (solution.equals(attemptedSolution)) {
                 textOut.println(avoidDescription);
                 solved = true;
+                return InputType.NONE;
             } else {
                 textOut.println("It doesn't seem to have worked.");
                 attemptedSolution = null;
-                doBehavior(hero);
+                return InputType.NONE;
             }
         } else {
             hero.takeDamage(damage);
-            //Todo fix so people can avoid attacks
-            /*
-            if (numTimesDone >= 1) {
+            if (numTimesDone >= 2) {
                 textOut.println("What would you like to do next time?");
-                String response = new Scanner(System.in).nextLine();
-                StatementAnalyzer statementAnalyzer = new StatementAnalyzer();
-                StatementAnalysis analysis = statementAnalyzer.analyzeStatement(response);
-                List<String> timingWords = analysis.getTokenMatchMap().get(WordType.TIMING);
-                List<String> actionWords = analysis.getTokenMatchMap().get(WordType.VOID_ACTION);
-                if (timingWords.size() > 0 && actionWords.size() > 0) {
-                    //Build a solution object
-                    attemptedSolution = new BehaviorResponse(this.name,
-                            actionWords.get(0), ActionResponseTiming.getFromString(timingWords.get(0)));
-                } else {
-                    textOut.println("Could not find an actionable solution. Requires a timing and an action word.");
-                }
-            }*/
+                return InputType.SOLUTION_STRING;
+            } else {
+                return InputType.NONE;
+            }
         }
+    }
+
+    public InputType processResponse (String solution) {
+
+        StatementAnalyzer statementAnalyzer = new StatementAnalyzer();
+        StatementAnalysis analysis = statementAnalyzer.analyzeStatement(solution);
+        List<String> timingWords = analysis.getTokenMatchMap().get(WordType.TIMING);
+        List<String> actionWords = analysis.getTokenMatchMap().get(WordType.VOID_ACTION);
+        if (timingWords.size() > 0 && actionWords.size() > 0) {
+            //Build a solution object
+            attemptedSolution = new BehaviorResponse(this.name,
+                    actionWords.get(0), ActionResponseTiming.getFromString(timingWords.get(0)));
+        } else {
+            textOut.println("Could not find an actionable solution. Requires a timing and an action word.");
+        }
+
+        return show();
     }
 
     public String getName() {

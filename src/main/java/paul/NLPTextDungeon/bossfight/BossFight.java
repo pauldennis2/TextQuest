@@ -1,8 +1,11 @@
 package paul.NLPTextDungeon.bossfight;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jdk.internal.util.xml.impl.Input;
 import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.utils.BufferedOutputTextStream;
+import paul.NLPTextDungeon.interfaces.UserInterface;
+import paul.NLPTextDungeon.utils.InputType;
+import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Hero;
 
 import java.io.File;
@@ -16,7 +19,7 @@ import java.util.Scanner;
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
-public class BossFight implements TextOuter {
+public class BossFight implements UserInterface {
 
     private String name;
     private int health;
@@ -27,62 +30,69 @@ public class BossFight implements TextOuter {
     private VulnerableBehavior vulnerableBehavior;
 
     private transient Random random;
-    private transient Hero hero;
     private transient boolean conquered;
-    private transient BufferedOutputTextStream textOut;
+    private transient TextInterface textOut;
+    private UserInterface requester;
+
+    private transient int numTimesAttackedWithoutVuln;
 
     public BossFight () {
         attackBehaviors = new ArrayList<>();
         random = new Random();
+        conquered = false;
+        numTimesAttackedWithoutVuln = 0;
     }
 
-    public BossFight(String name, int health, List<AttackBehavior> attackBehaviors, VulnerableBehavior vulnerableBehavior) {
-        this.name = name;
-        this.health = health;
-        this.attackBehaviors = attackBehaviors;
-        this.vulnerableBehavior = vulnerableBehavior;
-        random = new Random();
-    }
-
-    public void setTextOut (BufferedOutputTextStream textOut) {
+    public void setTextOut (TextInterface textOut) {
         this.textOut = textOut;
+        vulnerableBehavior.setTextOut(textOut);
+        attackBehaviors.forEach(e -> e.setTextOut(textOut));
     }
 
-    public void doFight () {
-        int numTimesAttackedWithoutVuln = 0;
+    public InputType processResponse (String response) {
+        UserInterface rq = requester;
+        requester = null;
+        InputType type = rq.processResponse(response);
+        if (type == InputType.FINISHED) {
+            conquered = true;
+        }
+        return type;
+    }
 
+    public InputType show () {
+        if (numTimesAttackedWithoutVuln >= maxAttacks) {
+            InputType type = vulnerableBehavior.show();
+            if (type != InputType.NONE) {
+                requester = vulnerableBehavior;
+                return type;
+            } else {
+                return show();
+            }
+        } else {
+            int chosenAttack = 0;
+            if (attackBehaviors.size() > 1) {
+                chosenAttack = random.nextInt(attackBehaviors.size() - 1);
+            }
+            numTimesAttackedWithoutVuln++;
+            InputType type = attackBehaviors.get(chosenAttack).show();
+            if (type != InputType.NONE) {
+                requester = attackBehaviors.get(chosenAttack);
+                return type;
+            } else { //InputType.NONE
+                return show();
+            }
+        }
+    }
+
+    public void start () {
         textOut.println("Welcome to Boss Fight");
         textOut.println("Boss: " + name);
         textOut.println("Description: " + bossDescription);
         textOut.println("Room Description: " + roomDescription);
         textOut.println("-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.\n\n\n\n");
-        vulnerableBehavior.setTextOut(textOut);
-        attackBehaviors.forEach(e -> e.setTextOut(textOut));
+
         vulnerableBehavior.demoBehavior();
-        while (true) {
-            int chosenAttack = 0;
-            if (attackBehaviors.size() > 1) {
-                chosenAttack = random.nextInt(attackBehaviors.size() - 1);
-            }
-            attackBehaviors.get(chosenAttack).doBehavior(hero);
-            numTimesAttackedWithoutVuln++;
-            if (numTimesAttackedWithoutVuln >= maxAttacks) {
-                int damage = 0;//vulnerableBehavior.doBehavior(hero);
-                health -= damage;
-                if (health <= 0) {
-                    textOut.println("You beat the boss!");
-                    conquered = true;
-                    break;
-                }
-                numTimesAttackedWithoutVuln = 0;
-            } else {
-                //50% chance to "skip" an attack
-                boolean coinToss = random.nextBoolean();
-                if (coinToss) {
-                    numTimesAttackedWithoutVuln++;
-                }
-            }
-        }
+        vulnerableBehavior.setBossFight(this);
     }
 
     public static final String ENCOUNTER_FILE_PATH = "content_files/encounters/";
@@ -148,7 +158,8 @@ public class BossFight implements TextOuter {
     }
 
     public void setHero (Hero hero) {
-        this.hero = hero;
+        vulnerableBehavior.setHero(hero);
+        attackBehaviors.forEach(e -> e.setHero(hero));
     }
 
     public String getBossDescription() {

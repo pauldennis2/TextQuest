@@ -1,0 +1,16 @@
+
+|Spells
+@CombatOnly
+fire : fire-, flame-, pyro-
+lightning : electr-, shock-
+ice : cold, snow, freeze, frozen, cryo-
+weaken : cripple, dwindle
+push : kineto-, forcepush, psychokinetics
+@Both
+light : photo-, photons, lightburst, sungrenade
+shadow : invis-, camo-
+heal : restoration, heal-, regen-
+aegis : shield, defen-
+@NonCombatOnly
+water : hydro-, waterblast
+earth : geo-, earth-
