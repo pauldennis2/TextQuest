@@ -1,6 +1,7 @@
 package paul.NLPTextDungeon.utils;
 
 import paul.NLPTextDungeon.DungeonRunner;
+import paul.NLPTextDungeon.interfaces.UserInterface;
 
 import java.io.IOException;
 import java.io.PrintStream;
@@ -11,7 +12,7 @@ import java.util.List;
  * Created by Paul Dennis on 8/16/2017.
  */
 
-public class TextInterface {
+public class TextInterface implements UserInterface {
 
     private PrintStream printStream;
     private List<String> buffer;
@@ -32,6 +33,7 @@ public class TextInterface {
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();
         runner = new DungeonRunner();
+        runner.setTextOut(this);
     }
 
     public TextInterface(PrintStream printStream) {
@@ -42,20 +44,16 @@ public class TextInterface {
         usingConsole = true;
     }
 
-    public InputType getGameOutput () {
-        return requestedInputType = runner.describeRoom();
+    public void start () {
+        runner.start();
     }
 
-    public void returnResponse (String userResponse) {
-        switch (requestedInputType) {
-            case STD:
-                runner.analyzeAndExecuteStatement(userResponse);
+    public InputType show () {
+        return requestedInputType = runner.show();
+    }
 
-                break;
-            case NUMBER:
-                int x = Integer.parseInt(userResponse);
-                break;
-        }
+    public InputType processResponse (String userResponse) {
+        return runner.processResponse(userResponse);
     }
 
     public void requestInput (InputType type) {
@@ -160,5 +158,9 @@ public class TextInterface {
 
     public DungeonRunner getRunner() {
         return runner;
+    }
+
+    public void setTextOut (TextInterface textOut) {
+        throw new AssertionError("*I'm* the one who knocks");
     }
 }

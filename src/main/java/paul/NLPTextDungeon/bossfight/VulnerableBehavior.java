@@ -41,8 +41,16 @@ public class VulnerableBehavior implements UserInterface {
         this.textOut = textOut;
     }
 
+    public void setHero (Hero hero) {
+        this.hero = hero;
+    }
+
     public void setBossFight (BossFight bossFight) {
         this.bossFight = bossFight;
+    }
+
+    public void start () {
+
     }
 
     public VulnerableBehavior(String name, String params, NumberActionType actionType, NumberRuleType rule, int failureDamage) {
@@ -88,6 +96,9 @@ public class VulnerableBehavior implements UserInterface {
             textOut.println(correctChoiceMessage);
             textOut.println("Boss takes " + BOSS_DAMAGE_TAKEN + " damage.");
             bossFight.setHealth(bossFight.getHealth() - BOSS_DAMAGE_TAKEN);
+            if (bossFight.getHealth() <= 0) {
+                return InputType.FINISHED;
+            }
         } else {
             textOut.println(wrongChoiceMessage);
             hero.takeDamage(failureDamage);

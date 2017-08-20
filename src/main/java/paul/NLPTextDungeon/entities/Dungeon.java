@@ -9,6 +9,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 /**
@@ -25,6 +26,17 @@ public class Dungeon extends MetaLocation implements TextOuter {
 
     public Dungeon () {
         rooms = new ArrayList<>();
+    }
+
+    public DungeonRoom getRoomByName (String name) {
+        List<DungeonRoom> matches = rooms.stream()
+                .filter(room -> room.getName().equals(name))
+                .collect(Collectors.toList());
+
+        if (matches.size() == 0) {
+            return null;
+        }
+        return matches.get(1);
     }
 
     public static Dungeon buildDungeonFromFile (String fileName) throws IOException {

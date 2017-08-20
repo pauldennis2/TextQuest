@@ -1,6 +1,7 @@
 package paul.NLPTextDungeon;
 
 import paul.NLPTextDungeon.interfaces.TextOuter;
+import paul.NLPTextDungeon.interfaces.UserInterface;
 import paul.NLPTextDungeon.utils.InputType;
 import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Dungeon;
@@ -19,7 +20,7 @@ import java.util.List;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRunner implements TextOuter {
+public class DungeonRunner implements UserInterface {
 
     private Dungeon dungeon;
     private Hero hero;
@@ -43,19 +44,21 @@ public class DungeonRunner implements TextOuter {
         dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
         metaLocations = new ArrayList<>();
         metaLocations.add(dungeon);
-        textOut = new TextInterface();
-        hero.setTextOut(textOut);
-        dungeon.setTextOut(textOut);
     }
 
+    @Override
     public void start () {
         currentRoom = dungeon.getEntrance();
         hero.setLocation(currentRoom);
         textOut.println("Welcome to the " + dungeon.getDungeonName());
         textOut.println("Your goal:");
+        //Temporary:
+        textOut.debug("Moved to the room near boss room for debugging");
+        hero.setLocation(dungeon.getRoomByName("Healing Fountain"));
     }
 
-    public void analyzeAndExecuteStatement (String userInput) {
+    @Override
+    public InputType processResponse (String userInput) {
         StatementAnalysis analysis = analyzer.analyzeStatement(userInput, currentRoom);
         doActionFromAnalysis(analysis);
         if (analysis.hasAnd() && analysis.isSecondActionable()) {
@@ -67,15 +70,17 @@ public class DungeonRunner implements TextOuter {
             textOut.debug(analysis);
             doActionFromAnalysis(analysis);
         }
+        return InputType.NONE;
     }
 
-    public InputType describeRoom () {
+    @Override
+    public InputType show () {
         currentRoom.describeRoom();
         textOut.println("What would you like to do?");
         return InputType.STD;
     }
 
-    public void doActionFromAnalysis (StatementAnalysis analysis) {
+    public InputType doActionFromAnalysis (StatementAnalysis analysis) {
         if (analysis.isActionable()) {
             try {
                 analysis.printFinalAnalysis();
@@ -105,6 +110,7 @@ public class DungeonRunner implements TextOuter {
             textOut.debug("Comments:");
             analysis.getComments().forEach(textOut::debug);
         }
+        return InputType.NONE;
     }
 
     public TextInterface getTextOut() {
@@ -120,6 +126,8 @@ public class DungeonRunner implements TextOuter {
     }
 
     public void setTextOut (TextInterface textOut) {
-        throw new AssertionError("This is the class that owns/creates the original text-outer");
+        hero.setTextOut(textOut);
+        dungeon.setTextOut(textOut);
+        this.textOut = textOut;
     }
 }

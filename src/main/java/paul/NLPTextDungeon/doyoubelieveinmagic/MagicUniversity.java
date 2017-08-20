@@ -18,6 +18,7 @@ public class MagicUniversity {
     private Scanner scanner;
 
     private List<WordGroup> wordGroups;
+    private Map<String, WordGroup> wordMap;
     private List<String> words;
 
     public MagicUniversity () {
@@ -31,9 +32,11 @@ public class MagicUniversity {
         while (true) {
             System.out.println("Welcome to Magic University (MagicU - Go Fightin' Tomes!). What do you want to learn today?");
 
-            String response = scanner.nextLine();
+            String response = scanner.nextLine().toLowerCase().trim();
 
             System.out.println("Regex match was: " + getRegexMatch(response));
+
+            System.out.println("Normal match was: " + wordMap.get(response));
         }
     }
 
@@ -43,20 +46,10 @@ public class MagicUniversity {
 
 
     private String getRegexMatch (String userInput) {
-        List<String> regexMatches = new ArrayList<>();
-        /*wordGroups.forEach(wordGroup -> {
-                    wordGroup.getRelatedWords().stream()
-                            .filter(word -> word.endsWith("-")) //Words with a dash mean match by regex
-                            .map(word -> word.substring(0, word.length() - 1)) //Remove the dash
-                            .filter(word -> userInput.matches("^" + word + "[a-z]*"))
-                            .forEach(regexMatches::add);
-                            //Match definition: "fire-" matches to any word starting with those letters with zero or
-                            //more letters (i.e. "fireblast", "firebolt", "fireball", etc)
-                });*/
-        regexMatches = words.stream()
-                .filter(word -> word.endsWith("-"))
-                .map(word -> word.substring(0, word.length() - 1))
-                .filter(word -> userInput.matches("^" + word + "[a-z]*"))
+        List<String> regexMatches = words.stream()
+                .filter(word -> word.endsWith("-"))//Words ending with dash should be matched to regex
+                .map(word -> word.substring(0, word.length() - 1))//Remove the dash
+                .filter(word -> userInput.matches("^" + word + "[a-z]*"))//Match to anything starting with the word
                 .collect(Collectors.toList());
 
         if (regexMatches.size() > 1) {
@@ -100,5 +93,14 @@ public class MagicUniversity {
         } catch (FileNotFoundException ex) {
             ex.printStackTrace();
         }
+
+        wordMap = new HashMap<>();
+
+        wordGroups.stream()
+                .forEach(wordGroup -> {
+                    List<String> words = new ArrayList<>(wordGroup.getRelatedWords());
+                    words.add(wordGroup.getCoreWord());
+                    words.forEach(word -> wordMap.put(word, wordGroup));
+                });
     }
 }

@@ -32,8 +32,8 @@ public class GameController {
             textOut = new TextInterface();
             session.setAttribute("textInterface", textOut);
         }
-
-        requestedInputType = textOut.getGameOutput();//Important
+        System.out.println("Break");
+        requestedInputType = textOut.show();//Important
 
         List<String> output = textOut.flush();
         List<String> debug = textOut.flushDebug();
@@ -65,7 +65,7 @@ public class GameController {
         }
         textOut.println("You entered:");
         textOut.println(userInput);
-        textOut.returnResponse(userInput);
+        textOut.processResponse(userInput);
         //runner.analyzeAndExecuteStatement(userInput);
         return "redirect:/game";
     }

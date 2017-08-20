@@ -1,6 +1,7 @@
 package paul.NLPTextDungeon.bossfight;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jdk.internal.util.xml.impl.Input;
 import paul.NLPTextDungeon.interfaces.TextOuter;
 import paul.NLPTextDungeon.interfaces.UserInterface;
 import paul.NLPTextDungeon.utils.InputType;
@@ -33,6 +34,7 @@ public class BossFight implements UserInterface {
     private transient boolean conquered;
     private transient TextInterface textOut;
     private transient InputType requestedInputType;
+    private UserInterface requester;
 
     private transient int numTimesAttackedWithoutVuln;
 
@@ -59,50 +61,38 @@ public class BossFight implements UserInterface {
         attackBehaviors.forEach(e -> e.setTextOut(textOut));
     }
 
-    /*
-    public void doFight () {
-        while (true) {
+    public InputType processResponse (String response) {
+        UserInterface rq = requester;
+        requester = null;
+        return rq.processResponse(response);
+    }
+
+    public InputType show () {
+        if (numTimesAttackedWithoutVuln >= maxAttacks) {
+            InputType type = vulnerableBehavior.show();
+            if (type != InputType.NONE) {
+                requester = vulnerableBehavior;
+                return type;
+            } else {
+                return show();
+            }
+        } else {
             int chosenAttack = 0;
             if (attackBehaviors.size() > 1) {
                 chosenAttack = random.nextInt(attackBehaviors.size() - 1);
             }
-            attackBehaviors.get(chosenAttack).doBehavior(hero);
             numTimesAttackedWithoutVuln++;
-            if (numTimesAttackedWithoutVuln >= maxAttacks) {
-                int damage = 0;//vulnerableBehavior.doBehavior(hero);
-                health -= damage;
-                if (health <= 0) {
-                    textOut.println("You beat the boss!");
-                    conquered = true;
-                    break;
-                }
-                numTimesAttackedWithoutVuln = 0;
-            } else {
-                //50% chance to "skip" an attack
-                boolean coinToss = random.nextBoolean();
-                if (coinToss) {
-                    numTimesAttackedWithoutVuln++;
-                }
+            InputType type = attackBehaviors.get(chosenAttack).show();
+            if (type != InputType.NONE) {
+                requester = attackBehaviors.get(chosenAttack);
+                return type;
+            } else { //InputType.NONE
+                return show();
             }
         }
-    }*/
-
-    public InputType processResponse (String response) {
-        return null;
     }
 
-    public InputType show () {
-        int chosenAttack = 0;
-        if (attackBehaviors.size() > 1) {
-            chosenAttack = random.nextInt(attackBehaviors.size() - 1);
-        }
-        InputType type = attackBehaviors.get(chosenAttack).show();
-        if (type != InputType.NONE) {
-            return type;
-        }
-    }
-
-    public void startFight () {
+    public void start () {
         textOut.println("Welcome to Boss Fight");
         textOut.println("Boss: " + name);
         textOut.println("Description: " + bossDescription);
@@ -110,20 +100,6 @@ public class BossFight implements UserInterface {
         textOut.println("-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.\n\n\n\n");
 
         vulnerableBehavior.demoBehavior();
-    }
-
-    public void getBossOutput () {
-        int chosenAttack = 0;
-        if (attackBehaviors.size() > 1) {
-            chosenAttack = random.nextInt(attackBehaviors.size() - 1);
-        }
-        attackBehaviors.get(chosenAttack).doBehavior(hero);
-        numTimesAttackedWithoutVuln++;
-
-    }
-
-    public void doResponse (String response) {
-
     }
 
     public static final String ENCOUNTER_FILE_PATH = "content_files/encounters/";

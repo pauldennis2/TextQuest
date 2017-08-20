@@ -36,6 +36,10 @@ public class AttackBehavior implements UserInterface {
         numTimesDone = 0;
     }
 
+    public void start () {
+
+    }
+
     public void setTextOut(TextInterface textOut) {
         this.textOut = textOut;
     }

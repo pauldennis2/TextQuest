@@ -7,6 +7,7 @@ import paul.NLPTextDungeon.utils.InputType;
  */
 public interface UserInterface extends TextOuter {
 
+    void start ();
     InputType show ();
     InputType processResponse (String response);
 
