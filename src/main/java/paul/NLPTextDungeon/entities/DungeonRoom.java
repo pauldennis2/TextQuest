@@ -1,9 +1,6 @@
 package paul.NLPTextDungeon.entities;
 
-
-import jdk.internal.util.xml.impl.Input;
-import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.interfaces.UserInterface;
+import paul.NLPTextDungeon.interfaces.UserInterfaceClass;
 import paul.NLPTextDungeon.utils.InputType;
 import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.bossfight.BossFight;
@@ -21,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRoom extends Location implements UserInterface {
+public class DungeonRoom extends UserInterfaceClass {
 
     private String name;
     private String description;
@@ -48,9 +45,6 @@ public class DungeonRoom extends Location implements UserInterface {
     private transient Map<Direction, DungeonRoom> connectedRooms;
     private transient BossFight bossFight;
     private transient Hero hero;
-
-    private transient TextInterface textOut;
-    private UserInterface requester;
 
     private String tutorial;
 
@@ -98,17 +92,15 @@ public class DungeonRoom extends Location implements UserInterface {
         }
     }
 
-    public void start () {
+    @Override
+    public void start (TextInterface textOut) {
+        this.textOut = textOut;
         if (bossFight != null) {
-            bossFight.start();
+            children = Collections.singletonList(bossFight);
+            bossFight.start(textOut);
+        } else {
+            children = new ArrayList<>();
         }
-    }
-
-
-    public InputType processResponse (String response) {
-        InputType type = requester.processResponse(response);
-        requester = null;
-        return type;
     }
 
     public void vocalize (String message, SpeakingVolume volume) {
@@ -200,11 +192,13 @@ public class DungeonRoom extends Location implements UserInterface {
         return connectedRooms.keySet();
     }
 
+    @Override
     public InputType show () {
         if (bossFight != null && !bossFight.isConquered()) {
             InputType type = bossFight.show();
             if (type != InputType.NONE) {
                 requester = bossFight;
+                return type;
             }
             return bossFight.show();
         } else {
@@ -369,6 +363,7 @@ public class DungeonRoom extends Location implements UserInterface {
     }
 
     private transient int numVisits = 0;
+
     public void setHero(Hero hero) {
         if (hero == null) {
             throw new AssertionError("Cannot be used to remove hero. Use removeHero() instead.");
@@ -381,11 +376,8 @@ public class DungeonRoom extends Location implements UserInterface {
             textOut.tutorial("Repeating tutorial just in case.");
             textOut.tutorial(tutorial);
         }
-
-        if (bossFight != null && !bossFight.isConquered()) {
+        if (bossFight != null) {
             bossFight.setHero(hero);
-            bossFight.setTextOut(textOut);
-            bossFight.start();
         }
     }
 
@@ -429,10 +421,6 @@ public class DungeonRoom extends Location implements UserInterface {
         this.bossFightFileLocation = bossFightFileLocation;
 
         this.bossFight = BossFight.buildBossFightFromFile(bossFightFileLocation);
-    }
-
-    public void setTextOut(TextInterface textOut) {
-        this.textOut = textOut;
     }
 
     public String getTutorial() {

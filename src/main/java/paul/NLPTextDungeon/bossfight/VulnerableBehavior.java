@@ -1,7 +1,6 @@
 package paul.NLPTextDungeon.bossfight;
 
-import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.interfaces.UserInterface;
+import paul.NLPTextDungeon.interfaces.UserInterfaceClass;
 import paul.NLPTextDungeon.utils.InputType;
 import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Hero;
@@ -13,7 +12,7 @@ import java.util.*;
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
-public class VulnerableBehavior implements UserInterface {
+public class VulnerableBehavior extends UserInterfaceClass {
 
     private String name;
     private String params;
@@ -29,16 +28,11 @@ public class VulnerableBehavior implements UserInterface {
     private String wrongChoiceMessage;
 
     private transient Random random;
-    private transient TextInterface textOut;
     private transient Hero hero;
     private transient BossFight bossFight;
 
     public VulnerableBehavior() {
         random = new Random();
-    }
-
-    public void setTextOut(TextInterface textOut) {
-        this.textOut = textOut;
     }
 
     public void setHero (Hero hero) {
@@ -49,20 +43,6 @@ public class VulnerableBehavior implements UserInterface {
         this.bossFight = bossFight;
     }
 
-    @Override
-    public void start () {
-
-    }
-
-    public VulnerableBehavior(String name, String params, NumberActionType actionType, NumberRuleType rule, int failureDamage) {
-        random = new Random();
-
-        this.name = name;
-        this.params = params;
-        this.actionType = actionType;
-        this.ruleType = rule;
-        this.failureDamage = failureDamage;
-    }
 
     public void demoBehavior () {
         int firstRandom = random.nextInt(10);
@@ -80,6 +60,13 @@ public class VulnerableBehavior implements UserInterface {
     public static final int BOSS_DAMAGE_TAKEN = 10;
     private int solutionNumber;
 
+    @Override
+    public void start (TextInterface textOut) {
+        this.textOut = textOut;
+        children = new ArrayList<>();
+    }
+
+    @Override
     public InputType show () {
         int firstRandom = random.nextInt(10);
         int secondRandom = random.nextInt(10);
@@ -91,8 +78,15 @@ public class VulnerableBehavior implements UserInterface {
         return InputType.NUMBER;
     }
 
-    public InputType processResponse (String guess) {
-        int solution = Integer.parseInt(guess);
+    @Override
+    public InputType handleResponse (String guess) {
+        int solution;
+        try {
+            solution = Integer.parseInt(guess);
+        } catch (NumberFormatException ex) {
+            textOut.debug("Expected a number. Could not parse from: " + guess);
+            return InputType.NUMBER;
+        }
         if (solution == solutionNumber) {
             textOut.println(correctChoiceMessage);
             textOut.println("Boss takes " + BOSS_DAMAGE_TAKEN + " damage.");

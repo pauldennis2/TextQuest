@@ -1,8 +1,7 @@
 package paul.NLPTextDungeon.bossfight;
 
 import paul.NLPTextDungeon.enums.ActionResponseTiming;
-import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.interfaces.UserInterface;
+import paul.NLPTextDungeon.interfaces.UserInterfaceClass;
 import paul.NLPTextDungeon.parsing.StatementAnalysis;
 import paul.NLPTextDungeon.parsing.StatementAnalyzer;
 import paul.NLPTextDungeon.parsing.WordType;
@@ -10,12 +9,13 @@ import paul.NLPTextDungeon.utils.InputType;
 import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Hero;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
-public class AttackBehavior implements UserInterface {
+public class AttackBehavior extends UserInterfaceClass {
 
     private String name;
     private BehaviorResponse solution; //Expresses not just "a" response but "THE" response (solution) to the attack
@@ -30,18 +30,9 @@ public class AttackBehavior implements UserInterface {
     private transient int numTimesDone;
     private transient Hero hero;
 
-    private transient TextInterface textOut;
 
     public AttackBehavior () {
         numTimesDone = 0;
-    }
-
-    public void start () {
-
-    }
-
-    public void setTextOut(TextInterface textOut) {
-        this.textOut = textOut;
     }
 
     public void setHero (Hero hero) {
@@ -57,6 +48,13 @@ public class AttackBehavior implements UserInterface {
         numTimesDone = 0;
     }
 
+    @Override
+    public void start (TextInterface textOut) {
+        this.textOut = textOut;
+        children = new ArrayList<>();
+    }
+
+    @Override
     public InputType show () {
         textOut.println(actionDescription);
         numTimesDone++;
@@ -85,7 +83,8 @@ public class AttackBehavior implements UserInterface {
         }
     }
 
-    public InputType processResponse (String solution) {
+    @Override
+    public InputType handleResponse (String solution) {
 
         StatementAnalyzer statementAnalyzer = new StatementAnalyzer();
         StatementAnalysis analysis = statementAnalyzer.analyzeStatement(solution);

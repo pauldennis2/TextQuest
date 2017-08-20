@@ -1,25 +1,22 @@
 package paul.NLPTextDungeon.bossfight;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jdk.internal.util.xml.impl.Input;
-import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.interfaces.UserInterface;
+import paul.NLPTextDungeon.interfaces.UserInterfaceClass;
 import paul.NLPTextDungeon.utils.InputType;
 import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Hero;
+import paul.NLPTextDungeon.utils.VictoryException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
-public class BossFight implements UserInterface {
+public class BossFight extends UserInterfaceClass {
 
     private String name;
     private int health;
@@ -31,10 +28,10 @@ public class BossFight implements UserInterface {
 
     private transient Random random;
     private transient boolean conquered;
-    private transient TextInterface textOut;
-    private UserInterface requester;
 
     private transient int numTimesAttackedWithoutVuln;
+
+    private transient boolean introDone = false;
 
     public BossFight () {
         attackBehaviors = new ArrayList<>();
@@ -43,29 +40,30 @@ public class BossFight implements UserInterface {
         numTimesAttackedWithoutVuln = 0;
     }
 
-    public void setTextOut (TextInterface textOut) {
-        this.textOut = textOut;
-        vulnerableBehavior.setTextOut(textOut);
-        attackBehaviors.forEach(e -> e.setTextOut(textOut));
+    @Override
+    public InputType handleResponse (String response) {
+        //This class is unable to receive a response. there's an error somewhere
+        throw new AssertionError("Can't handle. This method was called in error.");
     }
 
-    public InputType processResponse (String response) {
-        UserInterface rq = requester;
-        requester = null;
-        InputType type = rq.processResponse(response);
-        if (type == InputType.FINISHED) {
-            conquered = true;
-        }
-        return type;
-    }
-
+    @Override
     public InputType show () {
+        if (!introDone) {
+            textOut.println("Welcome to Boss Fight");
+            textOut.println("Boss: " + name);
+            textOut.println("Description: " + bossDescription);
+            textOut.println("Room Description: " + roomDescription);
+            textOut.println("-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.\n\n\n\n");
+            vulnerableBehavior.demoBehavior();
+            introDone = true;
+        }
         if (numTimesAttackedWithoutVuln >= maxAttacks) {
+            numTimesAttackedWithoutVuln = 0;
             InputType type = vulnerableBehavior.show();
             if (type != InputType.NONE) {
                 requester = vulnerableBehavior;
                 return type;
-            } else {
+            } else { //If no one wants input we'll just run the next attack
                 return show();
             }
         } else {
@@ -84,14 +82,15 @@ public class BossFight implements UserInterface {
         }
     }
 
-    public void start () {
-        textOut.println("Welcome to Boss Fight");
-        textOut.println("Boss: " + name);
-        textOut.println("Description: " + bossDescription);
-        textOut.println("Room Description: " + roomDescription);
-        textOut.println("-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.-.\n\n\n\n");
+    @Override
+    public void start (TextInterface textOut) {
+        this.textOut = textOut;
 
-        vulnerableBehavior.demoBehavior();
+        children = new ArrayList<>(attackBehaviors);
+        children.add(vulnerableBehavior);
+        children.forEach(child -> child.start(textOut));
+
+
         vulnerableBehavior.setBossFight(this);
     }
 
@@ -131,6 +130,10 @@ public class BossFight implements UserInterface {
 
     public void setHealth(int health) {
         this.health = health;
+        if (health <= 0) {
+            textOut.println("Game Over! You win.");
+            throw new VictoryException("You beat the boss!");
+        }
     }
 
     public int getMaxAttacks() {

@@ -1,13 +1,11 @@
 package paul.NLPTextDungeon;
 
-import paul.NLPTextDungeon.interfaces.TextOuter;
-import paul.NLPTextDungeon.interfaces.UserInterface;
+import paul.NLPTextDungeon.interfaces.UserInterfaceClass;
 import paul.NLPTextDungeon.utils.InputType;
 import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.entities.Dungeon;
 import paul.NLPTextDungeon.entities.DungeonRoom;
 import paul.NLPTextDungeon.entities.Hero;
-import paul.NLPTextDungeon.entities.MetaLocation;
 import paul.NLPTextDungeon.parsing.StatementAnalysis;
 import paul.NLPTextDungeon.parsing.StatementAnalyzer;
 import paul.NLPTextDungeon.utils.VictoryException;
@@ -20,7 +18,7 @@ import java.util.List;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRunner implements UserInterface {
+public class DungeonRunner extends UserInterfaceClass {
 
     private Dungeon dungeon;
     private Hero hero;
@@ -28,63 +26,66 @@ public class DungeonRunner implements UserInterface {
     private DungeonRoom currentRoom;
     private StatementAnalyzer analyzer;
 
-    private boolean done = false;
 
     private static final List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue", "search");
 
     public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
 
-    private TextInterface textOut;
-    private UserInterface requester;
-    private InputType requestType;
-
-    private List<MetaLocation> metaLocations;
     public DungeonRunner () throws IOException {
         hero = new Hero("default");
         analyzer = new StatementAnalyzer();
 
         dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
-        metaLocations = new ArrayList<>();
-        metaLocations.add(dungeon);
     }
 
     @Override
-    public void start () {
-        currentRoom = dungeon.getEntrance();
-        hero.setLocation(currentRoom);
+    public void start (TextInterface textOut) {
+        this.textOut = textOut;
+        //currentRoom = dungeon.getEntrance();
+        currentRoom = dungeon.getRoomByName("Healing Fountain");
         textOut.println("Welcome to the " + dungeon.getDungeonName());
         textOut.println("Your goal:");
+
+        children = new ArrayList<>(dungeon.getRooms());
+        children.add(hero);
+        children.forEach(child -> child.start(textOut));
+
+        hero.setLocation(currentRoom);
     }
 
     @Override
-    public InputType processResponse (String userInput) {
-        if (requester != null) {
-            InputType type = requester.processResponse(userInput);
-            requester = null;
-            return type;
-        } else {
-            StatementAnalysis analysis = analyzer.analyzeStatement(userInput, currentRoom);
+    protected InputType handleResponse (String response) {
+        StatementAnalysis analysis = analyzer.analyzeStatement(response, currentRoom);
+        doActionFromAnalysis(analysis);
+        if (analysis.hasAnd() && analysis.isSecondActionable()) {
+            String nextActionWord = analysis.getSecondActionWord();
+            String nextParamWord = analysis.getSecondActionParam();
+            textOut.debug("Next words: " + nextActionWord + " param " + nextParamWord);
+            textOut.debug("Running 2nd half of AND statement.");
+            analysis = new StatementAnalysis(nextActionWord, nextParamWord);
+            textOut.debug(analysis);
             doActionFromAnalysis(analysis);
-            if (analysis.hasAnd() && analysis.isSecondActionable()) {
-                String nextActionWord = analysis.getSecondActionWord();
-                String nextParamWord = analysis.getSecondActionParam();
-                textOut.debug("Next words: " + nextActionWord + " param " + nextParamWord);
-                textOut.debug("Running 2nd half of AND statement.");
-                analysis = new StatementAnalysis(nextActionWord, nextParamWord);
-                textOut.debug(analysis);
-                doActionFromAnalysis(analysis);
-            }
-            return InputType.NONE;
         }
+        return InputType.NONE;
     }
 
     @Override
     public InputType show () {
         InputType type = currentRoom.show();
-        textOut.println("What would you like to do?");
+
         if (type != InputType.NONE) {
+            switch (type) {
+                case STD:
+                    textOut.println("What would you like to do?");
+                    break;
+                case NUMBER:
+                    textOut.println("Please enter a number.");
+                    break;
+                case SOLUTION_STRING:
+                    textOut.println("Please enter your solution.");
+                    textOut.tutorial("Try \"jump before\"!");
+            }
             requester = currentRoom;
-            requestType = type;
         }
         return type;
     }
@@ -111,7 +112,6 @@ public class DungeonRunner implements UserInterface {
                 textOut.println("Victory!");
                 textOut.println(ex.getMessage());
                 textOut.println("The bards will sing of this day.");
-                done = true;
             }
             currentRoom = hero.getLocation();
         } else {
@@ -133,9 +133,4 @@ public class DungeonRunner implements UserInterface {
         return dungeon;
     }
 
-    public void setTextOut (TextInterface textOut) {
-        hero.setTextOut(textOut);
-        dungeon.setTextOut(textOut);
-        this.textOut = textOut;
-    }
 }

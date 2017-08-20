@@ -1,6 +1,5 @@
 package paul.NLPTextDungeon.entities;
 
-import paul.NLPTextDungeon.interfaces.TextOuter;
 import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.utils.SafeNumScanner;
 
@@ -13,7 +12,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/10/2017.
  */
-public class Shop extends Location implements TextOuter {
+public class Shop extends Location {
 
     private String name;
     private List<BackpackItem> itemsForSale;

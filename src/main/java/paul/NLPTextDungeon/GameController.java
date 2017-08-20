@@ -5,8 +5,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import paul.NLPTextDungeon.utils.DefeatException;
 import paul.NLPTextDungeon.utils.InputType;
 import paul.NLPTextDungeon.utils.TextInterface;
+import paul.NLPTextDungeon.utils.VictoryException;
 
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
@@ -30,7 +32,7 @@ public class GameController {
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
         if (textOut == null) {
             textOut = new TextInterface();
-            textOut.start();
+            textOut.start(null);
             session.setAttribute("textInterface", textOut);
         }
         System.out.println("Break");
@@ -66,8 +68,15 @@ public class GameController {
         }
         textOut.println("You entered:");
         textOut.println(userInput);
-        textOut.processResponse(userInput);
-        //runner.analyzeAndExecuteStatement(userInput);
+        try {
+            textOut.processResponse(userInput);
+        } catch (DefeatException ex) {
+            textOut.println(ex.getMessage());
+            textOut.println("You died. GAME OVER.");
+        } catch (VictoryException ex) {
+            textOut.println(ex.getMessage());
+            textOut.println("You won! Awesome!");
+        }
         return "redirect:/game";
     }
 }

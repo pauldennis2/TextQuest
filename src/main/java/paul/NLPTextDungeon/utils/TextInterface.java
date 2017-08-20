@@ -1,18 +1,20 @@
 package paul.NLPTextDungeon.utils;
 
 import paul.NLPTextDungeon.DungeonRunner;
-import paul.NLPTextDungeon.interfaces.UserInterface;
+import paul.NLPTextDungeon.interfaces.UserInterfaceClass;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Created by Paul Dennis on 8/16/2017.
  */
 
-public class TextInterface implements UserInterface {
+public class TextInterface extends UserInterfaceClass {
 
     private PrintStream printStream;
     private List<String> buffer;
@@ -25,35 +27,25 @@ public class TextInterface implements UserInterface {
 
     private DungeonRunner runner;
 
+    @Override
+    public void start (TextInterface textOut) {
+        children = Collections.singletonList(runner);
+        children.forEach(child -> child.start(this));
+    }
 
     public TextInterface() throws IOException {
         buffer = new ArrayList<>();
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();
         runner = new DungeonRunner();
-        runner.setTextOut(this);
+        defaultRequester = runner;
     }
 
-    public TextInterface(PrintStream printStream) {
-        this.printStream = printStream;
-        buffer = new ArrayList<>();
-        debug = new ArrayList<>();
-        tutorial = new ArrayList<>();
-        usingConsole = true;
-    }
 
-    public void start () {
-        runner.start();
-    }
-
+    @Override
     public InputType show () {
         return runner.show();
     }
-
-    public InputType processResponse (String userResponse) {
-        return runner.processResponse(userResponse);
-    }
-
 
     public void debug (String s) {
         debug.add(s);
@@ -62,7 +54,6 @@ public class TextInterface implements UserInterface {
     public void debug (Object o) {
         debug.add(o.toString());
     }
-
 
     public List<String> flushDebug () {
         if (usingConsole) {
@@ -133,9 +124,5 @@ public class TextInterface implements UserInterface {
 
     public DungeonRunner getRunner() {
         return runner;
-    }
-
-    public void setTextOut (TextInterface textOut) {
-        throw new AssertionError("*I'm* the one who knocks");
     }
 }

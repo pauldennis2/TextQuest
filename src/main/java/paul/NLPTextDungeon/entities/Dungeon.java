@@ -1,7 +1,6 @@
 package paul.NLPTextDungeon.entities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import paul.NLPTextDungeon.interfaces.TextOuter;
 import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.enums.Direction;
 
@@ -15,14 +14,13 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class Dungeon extends MetaLocation implements TextOuter {
+public class Dungeon extends MetaLocation {
 
     private List<DungeonRoom> rooms;
     private String description;
     private String dungeonName;
 
     private transient DungeonRoom entrance;
-    private transient TextInterface textOut;
 
     public Dungeon () {
         rooms = new ArrayList<>();
@@ -110,9 +108,4 @@ public class Dungeon extends MetaLocation implements TextOuter {
         this.entrance = entrance;
     }
 
-    public void setTextOut(TextInterface textOut) {
-        this.textOut = textOut;
-
-        rooms.forEach(room -> room.setTextOut(textOut));
-    }
 }

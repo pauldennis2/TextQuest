@@ -1,14 +1,11 @@
 package paul.NLPTextDungeon.entities;
 
 import paul.NLPTextDungeon.interfaces.*;
-import paul.NLPTextDungeon.utils.TextInterface;
+import paul.NLPTextDungeon.utils.*;
 import paul.NLPTextDungeon.entities.obstacles.Chasm;
 import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.enums.SpeakingVolume;
 import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
-import paul.NLPTextDungeon.utils.DefeatException;
-import paul.NLPTextDungeon.utils.ItemActionMap;
-import paul.NLPTextDungeon.utils.VictoryException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,7 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class Hero implements TextOuter {
+public class Hero extends UserInterfaceClass {
 
     private String name;
 
@@ -84,6 +81,16 @@ public class Hero implements TextOuter {
         initMaps();
     }
 
+    @Override
+    public void start (TextInterface textOut) {
+        this.textOut = textOut;
+    }
+
+    @Override
+    public InputType show () {
+        throw new AssertionError("not yet implemented");
+    }
+
 
     private void initMaps () {
         heroVoidActions = new HashMap<>();
@@ -107,10 +114,6 @@ public class Hero implements TextOuter {
             textOut.debug("Action not in map.");
             throw new AssertionError();
         }
-    }
-
-    public void setTextOut (TextInterface textOut) {
-        this.textOut = textOut;
     }
 
     public void takeAction (String action, String param) {
