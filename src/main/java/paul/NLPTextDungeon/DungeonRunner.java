@@ -38,6 +38,7 @@ public class DungeonRunner extends UserInterfaceClass {
         dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
     }
     //Ch-ch-ch-changes
+    //hope and ch-ch-change
     @Override
     public void start (TextInterface textOut) {
         this.textOut = textOut;
