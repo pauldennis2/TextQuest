@@ -54,9 +54,6 @@ public class DungeonRunner implements UserInterface {
         hero.setLocation(currentRoom);
         textOut.println("Welcome to the " + dungeon.getDungeonName());
         textOut.println("Your goal:");
-        //Temporary:
-        textOut.debug("Moved to the room near boss room for debugging");
-        hero.setLocation(dungeon.getRoomByName("Healing Fountain"));
     }
 
     @Override
