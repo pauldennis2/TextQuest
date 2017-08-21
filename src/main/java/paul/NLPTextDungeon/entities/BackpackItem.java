@@ -3,7 +3,7 @@ package paul.NLPTextDungeon.entities;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class BackpackItem {
+public class BackpackItem extends DungeonRoomEntity {
 
     private String name;
     private boolean isQuestItem;

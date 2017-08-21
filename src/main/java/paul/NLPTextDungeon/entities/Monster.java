@@ -5,7 +5,7 @@ import java.util.Random;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class Monster {
+public class Monster extends DungeonRoomEntity {
 
     private int health;
     private int might;

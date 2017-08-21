@@ -210,6 +210,10 @@
             "name":"Longsword + 1"
           }
         ]
+      },
+      "connectedRoomIds":
+      {
+        ""
       }
     }
   ]
