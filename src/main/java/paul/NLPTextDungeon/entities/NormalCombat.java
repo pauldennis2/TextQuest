@@ -10,7 +10,7 @@ import java.util.List;
  * Created by pauldennis on 8/21/17.
  */
 public class NormalCombat extends UserInterfaceClass {
-
+    //Working on combat-feature branch
 
     TextInterface textOut;
 
