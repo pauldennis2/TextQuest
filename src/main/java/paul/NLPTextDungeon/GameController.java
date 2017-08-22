@@ -50,7 +50,7 @@ public class GameController {
         model.addAttribute("location", textOut.getRunner().getDungeon().getDungeonName());
         return "game";
     }
-
+    //Changes
     @RequestMapping(path = "/submit-action", method = RequestMethod.POST)
     public String submitAction (@RequestParam String userInput, Model model, HttpSession session) {
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
