@@ -1,7 +1,4 @@
-package paul.NLPTextDungeon.interfaces;
-
-import paul.NLPTextDungeon.utils.InputType;
-import paul.NLPTextDungeon.utils.TextInterface;
+package paul.NLPTextDungeon.parsing;
 
 import java.util.List;
 
@@ -27,7 +24,6 @@ public abstract class UserInterfaceClass {
         }
         if (requester != null) {
             InputType type = requester.processResponse(response);
-            requester = null;
             return type;
         } else {
             return handleResponse(response);

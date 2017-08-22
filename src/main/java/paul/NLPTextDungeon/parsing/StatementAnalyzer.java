@@ -13,25 +13,31 @@ import java.util.stream.Collectors;
  */
 public class StatementAnalyzer {
 
-    //private Map<String, WordGroup> wordMap;
     private WordGroupMap wordMap;
 
     private List<WordGroup> wordGroups;
 
     private DungeonRoom location;
 
+    private static StatementAnalyzer instance;
 
-    public StatementAnalyzer () {
+    private StatementAnalyzer () {
         initializeWordGroups();
         initializeWordMap();
     }
 
+    public static StatementAnalyzer getInstance () {
+        if (instance == null) {
+            instance = new StatementAnalyzer();
+        }
+        return instance;
+    }
+
     private String cleanStatement (String statement) {
-        String response = statement.toLowerCase().trim()
+        return statement.toLowerCase().trim()
                 .replaceAll("[^a-z ]", "") //Removes everything but letters and spaces
                 .replaceAll(" {2,}", " ") //Removes extra spaces (leaves one space between words)
                 .trim(); //Just for the heck of it.
-        return response;
     }
 
     private StatementAnalysis parseStatement (String statement) {
@@ -125,13 +131,10 @@ public class StatementAnalyzer {
             analysis.addComment("No action words.");
         }
         if (analysis.hasAnd()) {
-            System.out.println("Detected and. analyzing");
             StatementAnalysis andAnalysis = new StatementAnalysis(analysis.getOriginalStatement() +
                     " JUST THE AND BIT", analysis.getSecondTokens());
             andAnalysis = finalAnalysis(findTokenMatches(andAnalysis));
-            System.out.println(andAnalysis);
             analysis.setSecondAnalysis(andAnalysis.getActionWord(), andAnalysis.getActionParam(), true);
-            System.out.println(analysis);
         }
         return analysis;
     }
