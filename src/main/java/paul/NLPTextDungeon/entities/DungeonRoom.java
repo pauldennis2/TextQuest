@@ -1,8 +1,8 @@
 package paul.NLPTextDungeon.entities;
 
-import paul.NLPTextDungeon.interfaces.UserInterfaceClass;
-import paul.NLPTextDungeon.utils.InputType;
-import paul.NLPTextDungeon.utils.TextInterface;
+import paul.NLPTextDungeon.parsing.UserInterfaceClass;
+import paul.NLPTextDungeon.parsing.InputType;
+import paul.NLPTextDungeon.parsing.TextInterface;
 import paul.NLPTextDungeon.bossfight.BossFight;
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
 import paul.NLPTextDungeon.entities.obstacles.RiddleObstacle;
@@ -138,8 +138,7 @@ public class DungeonRoom extends UserInterfaceClass {
                 if (monstersNow < monsters.size()) {
                     textOut.println("Looks like your shouting got some attention.");
                 }
-
-                monsters.forEach(hero::fightMonster);
+                hero.takeAction("fight");
                 updateMonsters();
             }
         };
@@ -242,6 +241,7 @@ public class DungeonRoom extends UserInterfaceClass {
                 case DIM:
                     if (monsters.size() + items.size() > 0) {
                         textOut.println("The room is not well lit. You can only make out a few shapes.");
+                        textOut.tutorial("You might want to try \"use torch\".");
                         if (monsters.size() > 0) {
                             textOut.println("You can see " + monsters.size() + " figures moving in the darkness.");
                         }

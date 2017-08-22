@@ -1,6 +1,10 @@
 package paul.NLPTextDungeon.entities;
 
+import paul.NLPTextDungeon.DungeonRunner;
 import paul.NLPTextDungeon.interfaces.*;
+import paul.NLPTextDungeon.parsing.InputType;
+import paul.NLPTextDungeon.parsing.TextInterface;
+import paul.NLPTextDungeon.parsing.UserInterfaceClass;
 import paul.NLPTextDungeon.utils.*;
 import paul.NLPTextDungeon.entities.obstacles.Chasm;
 import paul.NLPTextDungeon.enums.Direction;
@@ -86,7 +90,7 @@ public class Hero extends UserInterfaceClass {
         random = new Random();
         health = 50;
         maxHealth = 50;
-        might = 10;
+        might = 4;
         magic = 2;
         sneak = 0;
 
@@ -194,9 +198,9 @@ public class Hero extends UserInterfaceClass {
         heroVoidActions.put("learn", room -> textOut.println("That function is not available at this time."));
 
         heroVoidActions.put("fight", room -> {
-            room.getMonsters().forEach(room.getHero()::fightMonster);
-            room.updateMonsters();
+            textOut.getRunner().startCombat();
         });
+
         heroVoidActions.put("rescue", room -> textOut.println("No princes to rescue right now."));
 
         heroVoidActions.put("plunder", room -> {
@@ -448,70 +452,6 @@ public class Hero extends UserInterfaceClass {
         if (LEVEL_AMTS[level] < exp) {
             levelUp();
         }
-    }
-
-    public void fightMonster (Monster monster) {
-        textOut.println("Fighting " + monster.getName());
-        while (true) {
-            int damageRoll = random.nextInt(might) + 1;
-            textOut.println("\tYou did " + damageRoll + " damage.");
-            monster.takeDamage(damageRoll);
-
-            if (monster.getHealth() == 0) {
-                addExp(monster.getExp());
-                textOut.println("Won fight against " + monster.getName() + ".");
-                break;
-            }
-
-            int monsterDamage = random.nextInt(monster.getMight() + 1);
-            textOut.println("\t" + monster.getName() + " did " + monsterDamage + " to you.");
-            takeDamage(monsterDamage);
-            if (health == 0) {
-                textOut.println("You lost the fight against " + monster.getName());
-                break;
-            }
-        }
-    }
-
-    public void doCombatRound () {
-        //Todo: add initiative. For now the hero always gets it
-        List<Monster> monsters = location.getMonsters();
-        if (monsters.size() > 0) {
-            while (true) {
-                //Hero attack
-                int damageRoll = random.nextInt(might + 1) + might;
-                Monster monster = monsters.get(0);
-                double chance = calcAccuracy(might, monster.getDefence());
-                double roll = Math.random();
-                if (chance > roll) {
-                    int taken = monster.takeDamage(damageRoll);
-                    textOut.println("You hit " + monster.getName() + " for " + taken + " damage.");
-                    location.updateMonsters();
-                } else {
-                    textOut.println("You missed " + monster.getName() + ".");
-                }
-                monsters = location.getMonsters();
-                monsters.forEach(m -> {
-                    int monsterMight = m.getMight();
-                    int monsterDamageRoll = random.nextInt(monsterMight + 1) + monsterMight;
-                    double mChance = calcAccuracy(monsterMight, defence);
-                    double mRoll = Math.random();
-                    if (mChance > mRoll) {
-                        takeDamage(monsterDamageRoll);
-                    } else {
-                        textOut.println(monster.getName() + " missed you.");
-                    }
-                });
-            }
-        }
-    }
-
-    public static double calcAccuracy (int might, int defense) {
-        //Base chance 0.5
-        //Every 2 pts of defense = -0.05
-        //Every 4 pts of might = +0.05
-
-        return 0.5 + 0.05 * (might/4 - defense/2);
     }
 
     public void takeDamage (int damage) {

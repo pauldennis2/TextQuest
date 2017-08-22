@@ -1,12 +1,10 @@
-package paul.NLPTextDungeon.utils;
+package paul.NLPTextDungeon.parsing;
 
 import paul.NLPTextDungeon.DungeonRunner;
-import paul.NLPTextDungeon.interfaces.UserInterfaceClass;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 

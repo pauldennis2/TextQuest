@@ -6,8 +6,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import paul.NLPTextDungeon.utils.DefeatException;
-import paul.NLPTextDungeon.utils.InputType;
-import paul.NLPTextDungeon.utils.TextInterface;
+import paul.NLPTextDungeon.parsing.InputType;
+import paul.NLPTextDungeon.parsing.TextInterface;
 import paul.NLPTextDungeon.utils.VictoryException;
 
 import javax.servlet.http.HttpSession;
@@ -35,7 +35,6 @@ public class GameController {
             textOut.start(null);
             session.setAttribute("textInterface", textOut);
         }
-        System.out.println("Break");
         requestedInputType = textOut.show();//Important
 
         List<String> output = textOut.flush();

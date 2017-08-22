@@ -1,8 +1,9 @@
 package paul.NLPTextDungeon;
 
-import paul.NLPTextDungeon.interfaces.UserInterfaceClass;
-import paul.NLPTextDungeon.utils.InputType;
-import paul.NLPTextDungeon.utils.TextInterface;
+import paul.NLPTextDungeon.entities.NormalCombat;
+import paul.NLPTextDungeon.parsing.UserInterfaceClass;
+import paul.NLPTextDungeon.parsing.InputType;
+import paul.NLPTextDungeon.parsing.TextInterface;
 import paul.NLPTextDungeon.entities.Dungeon;
 import paul.NLPTextDungeon.entities.DungeonRoom;
 import paul.NLPTextDungeon.entities.Hero;
@@ -26,6 +27,8 @@ public class DungeonRunner extends UserInterfaceClass {
     private DungeonRoom currentRoom;
     private StatementAnalyzer analyzer;
 
+    private NormalCombat normalCombat;
+
 
     private static final List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue", "search");
 
@@ -33,7 +36,7 @@ public class DungeonRunner extends UserInterfaceClass {
 
     public DungeonRunner () throws IOException {
         hero = new Hero("default");
-        analyzer = new StatementAnalyzer();
+        analyzer = StatementAnalyzer.getInstance();
 
         dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
     }
@@ -71,23 +74,35 @@ public class DungeonRunner extends UserInterfaceClass {
 
     @Override
     public InputType show () {
-        InputType type = currentRoom.show();
+        if (normalCombat == null) {
+            InputType type = currentRoom.show();
 
-        if (type != InputType.NONE) {
-            switch (type) {
-                case STD:
-                    textOut.println("What would you like to do?");
-                    break;
-                case NUMBER:
-                    textOut.println("Please enter a number.");
-                    break;
-                case SOLUTION_STRING:
-                    textOut.println("Please enter your solution.");
-                    textOut.tutorial("Try \"jump before\"!");
+            if (type != InputType.NONE) {
+                switch (type) {
+                    case STD:
+                        textOut.println("What would you like to do?");
+                        break;
+                    case NUMBER:
+                        textOut.println("Please enter a number.");
+                        break;
+                    case SOLUTION_STRING:
+                        textOut.println("Please enter your solution.");
+                        textOut.tutorial("Try \"jump before\"!");
+                }
+                requester = currentRoom;
             }
-            requester = currentRoom;
+            return type;
+        } else {
+            InputType type = normalCombat.show();
+            if (type == InputType.FINISHED) {
+                normalCombat = null;
+                return InputType.STD;
+            } else if (type == InputType.COMBAT) {
+                return type;
+            } else {
+                throw new AssertionError("Type should be one of two above cases.");
+            }
         }
-        return type;
     }
 
     public void doActionFromAnalysis (StatementAnalysis analysis) {
@@ -131,6 +146,11 @@ public class DungeonRunner extends UserInterfaceClass {
 
     public Dungeon getDungeon () {
         return dungeon;
+    }
+
+    public void startCombat () {
+        normalCombat = new NormalCombat(currentRoom);
+        normalCombat.start(textOut);
     }
 
 }

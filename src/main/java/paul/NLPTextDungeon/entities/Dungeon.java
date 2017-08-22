@@ -1,7 +1,6 @@
 package paul.NLPTextDungeon.entities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import paul.NLPTextDungeon.utils.TextInterface;
 import paul.NLPTextDungeon.enums.Direction;
 
 import java.io.File;

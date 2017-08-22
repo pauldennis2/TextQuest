@@ -41,8 +41,8 @@
       [
         {
           "name":"Red BlobGoblin",
-          "health": 5,
-          "might": 2
+          "health": 9,
+          "might": 4
         }
       ],
       "connectedRoomIds":
