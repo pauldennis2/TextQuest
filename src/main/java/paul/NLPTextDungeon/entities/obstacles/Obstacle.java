@@ -1,13 +1,14 @@
 package paul.NLPTextDungeon.entities.obstacles;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import paul.NLPTextDungeon.entities.DungeonRoomEntity;
 import paul.NLPTextDungeon.entities.Hero;
 
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
 @JsonTypeInfo(use=JsonTypeInfo.Id.CLASS, include= JsonTypeInfo.As.PROPERTY, property="@class")
-public abstract class Obstacle {
+public abstract class Obstacle extends DungeonRoomEntity {
 
 
     private String name;
@@ -16,6 +17,10 @@ public abstract class Obstacle {
     //Cleared variable represents whether the room can be freely traversed
     //Up to the implementing class to decide how it works (whether cleared is permanent, etc)
     private boolean isCleared;
+
+    //TODO Implement
+    //Represents whether this is a "major obstacle" puzzle or just a smashed barrel or something
+    private boolean displayIfCleared;
 
     public Obstacle () {
 

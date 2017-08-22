@@ -1,0 +1,15 @@
+
+Spells
+
+Water
+
+Level 1 Allows you to breathe underwater and swim naturally. -> Water Dungeon
+Douse torches
+
+Earth
+
+Level 1 allows dig/tunnel actions. -> Earth Dungeon?
+
+Wind
+
+Direct the wind for sailing?

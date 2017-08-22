@@ -26,6 +26,26 @@ public class Hero extends UserInterfaceClass {
     private int defence;
     private int maxSpellsPerDay;
 
+    //Base chance to be hit is 50%
+    //Every 2 points of defense reduces chance to be hit 5%
+
+    //Damage is reduced by 2 for every 5 points of defense
+    //Damage is increased by 1 for every point of might
+    //Damage = might + roll(0-might)
+    //Every 4 points of might increases hit chance by 5%
+
+    //Mine: might 5, def 3
+    //Yours: might 3, def 1
+
+    //My chance to hit: 50%, 5-10 damage
+    //Your chance to hit: 45%, 3-6
+
+    //Mine: might 10, def 8
+    //Yours: attack 12, def 4
+
+    //My chance to hit: 10-20 damage, 55% accurate
+    //Your chance to hit: 10-22, 45% accurate
+
     private int level;
     private int exp;
 
@@ -453,12 +473,58 @@ public class Hero extends UserInterfaceClass {
         }
     }
 
+    public void doCombatRound () {
+        //Todo: add initiative. For now the hero always gets it
+        List<Monster> monsters = location.getMonsters();
+        if (monsters.size() > 0) {
+            while (true) {
+                //Hero attack
+                int damageRoll = random.nextInt(might + 1) + might;
+                Monster monster = monsters.get(0);
+                double chance = calcAccuracy(might, monster.getDefence());
+                double roll = Math.random();
+                if (chance > roll) {
+                    int taken = monster.takeDamage(damageRoll);
+                    textOut.println("You hit " + monster.getName() + " for " + taken + " damage.");
+                    location.updateMonsters();
+                } else {
+                    textOut.println("You missed " + monster.getName() + ".");
+                }
+                monsters = location.getMonsters();
+                monsters.forEach(m -> {
+                    int monsterMight = m.getMight();
+                    int monsterDamageRoll = random.nextInt(monsterMight + 1) + monsterMight;
+                    double mChance = calcAccuracy(monsterMight, defence);
+                    double mRoll = Math.random();
+                    if (mChance > mRoll) {
+                        takeDamage(monsterDamageRoll);
+                    } else {
+                        textOut.println(monster.getName() + " missed you.");
+                    }
+                });
+            }
+        }
+    }
+
+    public static double calcAccuracy (int might, int defense) {
+        //Base chance 0.5
+        //Every 2 pts of defense = -0.05
+        //Every 4 pts of might = +0.05
+
+        return 0.5 + 0.05 * (might/4 - defense/2);
+    }
+
     public void takeDamage (int damage) {
-        health -= damage;
-        textOut.println("You took " + damage + " damage.");
-        if (health <= 0) {
-            health = 0;
-            throw new DefeatException("Died from damage. Or perhaps dafighter.");
+        damage -= (defence / 5) * 2;
+        if (damage <= 0) {
+            textOut.println("Damage completely mitigated.");
+        } else {
+            health -= damage;
+            textOut.println("You took " + damage + " damage.");
+            if (health <= 0) {
+                health = 0;
+                throw new DefeatException("Died from damage. Or perhaps dafighter.");
+            }
         }
     }
 

@@ -5,10 +5,11 @@ import java.util.Random;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class Monster {
+public class Monster extends DungeonRoomEntity {
 
     private int health;
     private int might;
+    private int defence;
     private String name;
 
     private transient int disabledForRounds = 0;
@@ -31,11 +32,13 @@ public class Monster {
         return disabledForRounds == 0;
     }
 
-    public void takeDamage (int damageAmt) {
+    public int takeDamage (int damageAmt) {
+        damageAmt -= (defence / 5) * 2;
         health -= damageAmt;
         if (health < 0) {
             health = 0;
         }
+        return damageAmt;
     }
 
     @Override
@@ -80,5 +83,13 @@ public class Monster {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getDefence() {
+        return defence;
+    }
+
+    public void setDefence(int defence) {
+        this.defence = defence;
     }
 }

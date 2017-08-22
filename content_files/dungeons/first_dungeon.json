@@ -9,6 +9,17 @@
       "description":"This is the entryway.",
       "tutorial":"To navigate the dungeon, you can say \"move\", \"go\", or \"proceed\". You will need to pair this command with a direction. Since the only available direction is East, try typing \"go east\" (without the quotes).",
       "lighting": 1.0,
+      "hiddenItems":
+      {
+        "floor":
+        [
+          {
+            "type":"note",
+            "name":"Note: Dad Joke",
+            "text":"Why are frogs so *hoppy*? They eat whatever bugs them!"
+          }
+        ]
+      },
       "connectedRoomIds":
       {
         "EAST":2
@@ -210,6 +221,10 @@
             "name":"Longsword + 1"
           }
         ]
+      },
+      "connectedRoomIds":
+      {
+        "WEST":9
       }
     }
   ]
