@@ -1,8 +1,19 @@
 package paul.NLPTextDungeon.entities;
 
+import com.fasterxml.jackson.annotation.JsonSubTypes;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
+
+
+
+@JsonTypeInfo(defaultImpl=BackpackItem.class,
+        use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes({
+        @JsonSubTypes.Type(value = Note.class, name = "note")
+})
 public class BackpackItem extends DungeonRoomEntity {
 
     private String name;
@@ -19,15 +30,9 @@ public class BackpackItem extends DungeonRoomEntity {
         isQuestItem = false;
     }
 
-    public BackpackItem (String name, boolean quest) {
-        isQuestItem = quest;
-        this.name = name;
-    }
-
-    public BackpackItem (String name, int value) {
+    public BackpackItem(String name, int value) {
         this.name = name;
         this.value = value;
-        isQuestItem = false;
     }
 
     public String getName() {
