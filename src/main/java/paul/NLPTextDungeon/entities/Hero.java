@@ -1,6 +1,8 @@
 package paul.NLPTextDungeon.entities;
 
 import paul.NLPTextDungeon.DungeonRunner;
+import paul.NLPTextDungeon.entities.obstacles.Obstacle;
+import paul.NLPTextDungeon.entities.obstacles.SmashableObstacle;
 import paul.NLPTextDungeon.interfaces.*;
 import paul.NLPTextDungeon.parsing.InputType;
 import paul.NLPTextDungeon.parsing.TextInterface;
@@ -185,6 +187,21 @@ public class Hero extends UserInterfaceClass {
     }
 
     private void initActionMap () {
+
+        heroVoidActions.put("smash", room -> {
+            textOut.println("Starting a smashing spree.");
+            room.getObstacles().stream()
+                    .filter(obs -> obs.getClass() == SmashableObstacle.class)
+                    .filter(obs -> !obs.isCleared())
+                    .forEach(obs -> {
+                        boolean success = obs.attempt("smash", room.getHero());
+                        if (success) {
+                            textOut.println("You smashed " + obs.getName() + ".");
+                        } else {
+                            textOut.println("Ouch! " + obs.getName() + " is hard.");
+                        }
+                    });
+        });
         heroVoidActions.put("loot", room -> room.lootRoom().forEach(item -> {
             if (item.hasPickupAction()) {
                 OnPickup action = listenerMap.get(item.getPickupAction());
@@ -402,12 +419,9 @@ public class Hero extends UserInterfaceClass {
     }
 
     public void removeItem (String itemName) {
-        BackpackItem toBeRemoved = backpack.stream()
+        backpack.stream()
                 .filter(e -> e.getName().equals(itemName))
-                .findFirst()
-                .get();
-
-        backpack.remove(toBeRemoved);
+                .findAny().ifPresent(item -> backpack.remove(item));
     }
 
     public void restoreHealth (int healthAmount) {
@@ -463,8 +477,16 @@ public class Hero extends UserInterfaceClass {
             textOut.println("You took " + damage + " damage.");
             if (health <= 0) {
                 health = 0;
-                throw new DefeatException("Died from damage. Or perhaps dafighter.");
+                throw new DefeatException("Died from damage. Or perhaps dafighter. Har har.");
             }
+        }
+    }
+
+    public void takeNonMitigatedDamage (int damage) {
+        health -= damage;
+        textOut.println("You took " + damage + " damage.");
+        if (health <= 0) {
+            throw new DefeatException("Died from non-combat damage.");
         }
     }
 
@@ -571,5 +593,9 @@ public class Hero extends UserInterfaceClass {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public TextInterface getTextOut() {
+        return textOut;
     }
 }

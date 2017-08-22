@@ -9,6 +9,23 @@
       "description":"This is the entryway.",
       "tutorial":"To navigate the dungeon, you can say \"move\", \"go\", or \"proceed\". You will need to pair this command with a direction. Since the only available direction is East, try typing \"go east\" (without the quotes).",
       "lighting": 1.0,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.NLPTextDungeon.entities.obstacles.SmashableObstacle",
+          "name": "Barrel",
+          "onSmash":"explode",
+          "contents":
+          [
+            {
+              "name":"Potion"
+            },
+            {
+              "name":"Fluffy"
+            }
+          ]
+        }
+      ],
       "hiddenItems":
       {
         "floor":
@@ -69,7 +86,7 @@
       "name":"Miniboss Room",
       "id":4,
       "description":"Has the miniboss and dungeon item.",
-      "tutorial":"This room has a very important item that you'll want to *loot*. First, you'll need to fight the mini-boss.",
+      "tutorial":"This room has a very important item that you'll want to *loot*. First, you'll need to fight the mini-boss. Then \"loot\" to get the boots.",
       "lighting": 1.0,
       "monsters":
       [
@@ -167,7 +184,7 @@
       [
         {
           "name":"Orange BlobGoblin",
-          "health":10,
+          "health":5,
           "might":3
         },
         {

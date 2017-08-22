@@ -13,6 +13,8 @@ public abstract class Obstacle extends DungeonRoomEntity {
 
     private String name;
     private String solution;
+    private int expAmount;
+    public static final int DEFAULT_XP_AMT = 25;
 
     //Cleared variable represents whether the room can be freely traversed
     //Up to the implementing class to decide how it works (whether cleared is permanent, etc)
@@ -67,5 +69,13 @@ public abstract class Obstacle extends DungeonRoomEntity {
             response += "no";
         }
         return response;
+    }
+
+    public int getExpAmount() {
+        return expAmount;
+    }
+
+    public void setExpAmount(int expAmount) {
+        this.expAmount = expAmount;
     }
 }

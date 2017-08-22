@@ -14,14 +14,9 @@ import java.util.List;
 
 public class TextInterface extends UserInterfaceClass {
 
-    private PrintStream printStream;
     private List<String> buffer;
     private List<String> debug;
     private List<String> tutorial;
-
-    private String currentLine;
-
-    private boolean usingConsole;
 
     private DungeonRunner runner;
 
@@ -54,60 +49,23 @@ public class TextInterface extends UserInterfaceClass {
     }
 
     public List<String> flushDebug () {
-        if (usingConsole) {
-            debug.forEach(e -> printStream.println("DEBUG: " + e));
-            debug = new ArrayList<>();
-            return null;
-        } else {
-            List<String> response = debug;
-            debug = new ArrayList<>();
-            return response;
-        }
+        List<String> response = debug;
+        debug = new ArrayList<>();
+        return response;
     }
 
     public void println (String s) {
-        if (currentLine != null) {
-            buffer.add(currentLine + s);
-            currentLine = null;
-        } else {
-            buffer.add(s);
-        }
+        buffer.add(s);
     }
 
     public void println (Object o) {
         println(o.toString());
     }
 
-    public void print (String s) {
-        if (currentLine != null) {
-            currentLine += s;
-        } else {
-            currentLine = s;
-        }
-    }
-
-    public void print (Object o) {
-        print(o.toString());
-    }
-
     public List<String> flush () {
-        if (usingConsole) {
-            buffer.forEach(e -> printStream.println(e));
-            buffer = new ArrayList<>();
-            if (currentLine != null) {
-                printStream.print(currentLine);
-                currentLine = null;
-            }
-            return null;
-        } else {
-            List<String> response = buffer;
-            buffer = new ArrayList<>();
-            if (currentLine != null) {
-                response.add(currentLine);
-                currentLine = null;
-            }
-            return response;
-        }
+        List<String> response = buffer;
+        buffer = new ArrayList<>();
+        return response;
     }
 
     public List<String> flushTutorial () {

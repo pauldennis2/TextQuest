@@ -17,6 +17,7 @@ public class Chasm extends Obstacle {
     public boolean attempt (String solution, Hero hero) {
         if (solution.equals(this.getSolution())) {
             setCleared(true);
+            hero.addExp(DEFAULT_XP_AMT);
             return true;
         }
         return false;

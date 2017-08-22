@@ -8,6 +8,7 @@ loot - gather, take, grab, pickup
 retreat - skedaddle, vamoose, runaway, back
 plunder - lootchest
 jump - leap, vault, vaultingboots
+smash - crush, bash
 |
 |Param Action Words: (i.e. "travel where?" "use what?", "cast what spell?")
 |===

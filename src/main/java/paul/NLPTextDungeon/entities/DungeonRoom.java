@@ -257,8 +257,8 @@ public class DungeonRoom extends UserInterfaceClass {
                     }
                     break;
             }
-            textOut.print("There are passages leading ");
-            connectedRooms.keySet().forEach(e -> textOut.print(" " + e + " "));
+            textOut.println("There are passages leading:");
+            connectedRooms.keySet().forEach(e -> textOut.println(" " + e + " "));
             return InputType.NONE;
         }
     }

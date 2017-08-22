@@ -11,15 +11,24 @@ import java.util.Random;
 public class NormalCombat extends UserInterfaceClass {
     //Working on combat-feature branch
 
-    TextInterface textOut;
-    DungeonRoom room;
-    Random random;
-    StatementAnalyzer analyzer;
+    private TextInterface textOut;
+    private DungeonRoom room;
+    private Random random;
+    private StatementAnalyzer analyzer;
+
+    private int expCalc;
+
+    public static final int BASE_COMBAT_XP = 25;
+
+    private boolean finished = false;
 
     public NormalCombat (DungeonRoom room) {
         this.room = room;
         random = new Random();
         analyzer = StatementAnalyzer.getInstance();
+        expCalc = room.getMonsters().stream()
+                .mapToInt(Monster::getExp)
+                .sum();
     }
 
     public void start (TextInterface textOut) {
@@ -34,11 +43,15 @@ public class NormalCombat extends UserInterfaceClass {
         if (room.getMonsters().size() > 0) {
             return show();
         } else {
+            endCombat();
             return InputType.FINISHED;
         }
     }
 
     public InputType show () {
+        if (finished) {
+            throw new AssertionError("Fight is over");
+        }
         //Todo: add initiative. For now the hero always gets it
         List<Monster> monsters = room.getMonsters();
         Hero hero = room.getHero();
@@ -59,6 +72,7 @@ public class NormalCombat extends UserInterfaceClass {
             monsters = room.getMonsters();
 
             if (monsters.size() == 0) {
+                endCombat();
                 return InputType.FINISHED;
             }
             monsters.forEach(m -> {
@@ -77,9 +91,20 @@ public class NormalCombat extends UserInterfaceClass {
                     }
                 }
             });
+        } else {
+            endCombat();
+            return InputType.FINISHED;
         }
         textOut.println("End of combat round. Take an action? Enter to proceed with no special action.");
         return InputType.COMBAT;
+    }
+
+    private void endCombat () {
+        if (expCalc > 0) {
+            room.getHero().addExp(expCalc + BASE_COMBAT_XP);
+        }
+        expCalc = 0;
+        finished = true;
     }
 
     public static final double BASE_ACCURACY = 0.8;

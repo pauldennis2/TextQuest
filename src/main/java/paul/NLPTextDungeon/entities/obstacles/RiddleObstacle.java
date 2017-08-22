@@ -10,6 +10,8 @@ public class RiddleObstacle extends Obstacle {
     private String riddle;
     private transient int numAttempts = 0;
 
+    public final static int RIDDLE_MULT = 4;
+
     public RiddleObstacle () {
 
     }
@@ -24,6 +26,7 @@ public class RiddleObstacle extends Obstacle {
         numAttempts++;
         if (solution.equals(this.getSolution())) {
             this.setCleared(true);
+            hero.addExp(DEFAULT_XP_AMT * RIDDLE_MULT);
             return true;
         }
         return false;
