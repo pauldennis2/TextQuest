@@ -20,9 +20,9 @@ public class TextInterface extends UserInterfaceClass {
 
     private DungeonRunner runner;
 
+
     @Override
     public void start (TextInterface textOut) {
-        children = Collections.singletonList(runner);
         children.forEach(child -> child.start(this));
     }
 
@@ -30,14 +30,36 @@ public class TextInterface extends UserInterfaceClass {
         buffer = new ArrayList<>();
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();
+        children = new ArrayList<>();
         runner = new DungeonRunner();
+        children.add(runner);
         defaultRequester = runner;
+    }
+
+    //"Please make me your child"
+    public void request (UserInterfaceClass newChild) {
+        children.add(newChild);
+        newChild.start(this);
+        requester = newChild;
+        newChild.show();
+    }
+
+    //"Please cast me adrift"
+    public void release (UserInterfaceClass orphan) {
+        boolean response = children.remove(orphan);
+        if (!response) { //If it wasn't a child, why is it asking to be released?
+            debug(orphan + " weird release request.");
+        }
+        requester = defaultRequester;
     }
 
 
     @Override
     public InputType show () {
-        return runner.show();
+        if (requester == null) {
+            requester = defaultRequester;
+        }
+        return requester.show();
     }
 
     public void debug (String s) {

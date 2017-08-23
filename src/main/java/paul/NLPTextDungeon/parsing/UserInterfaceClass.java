@@ -23,8 +23,7 @@ public abstract class UserInterfaceClass {
             requester = defaultRequester;
         }
         if (requester != null) {
-            InputType type = requester.processResponse(response);
-            return type;
+            return requester.processResponse(response);
         } else {
             return handleResponse(response);
         }

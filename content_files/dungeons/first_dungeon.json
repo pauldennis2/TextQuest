@@ -14,7 +14,7 @@
         {
           "@class" : "paul.NLPTextDungeon.entities.obstacles.SmashableObstacle",
           "name": "Barrel",
-          "onSmash":"explode",
+          "onSmash":"giveExp",
           "contents":
           [
             {

@@ -54,16 +54,12 @@ public class GameController {
     public String submitAction (@RequestParam String userInput, Model model, HttpSession session) {
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
 
-        switch (requestedInputType) {
-            case STD:
-                break;
-            case NUMBER: //Number means integer for now
-                try {
-                    int value = Integer.parseInt(userInput);
-                } catch (NumberFormatException ex) {
-                    textOut.println("You were supposed to enter a whole number. Please try again.");
-                    textOut.debug("You broke it by not entering a number.");
-                }
+        if (requestedInputType == InputType.NUMBER) {
+            try {
+                Integer.parseInt(userInput);
+            } catch (NumberFormatException ex) {
+                textOut.debug("You broke it by not entering a number. Thanks");
+            }
         }
         textOut.println("You entered:");
         textOut.println(userInput);

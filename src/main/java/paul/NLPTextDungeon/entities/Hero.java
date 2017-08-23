@@ -140,6 +140,7 @@ public class Hero extends UserInterfaceClass {
             textOut.println(LevelUpCategory.getPrompt(category));
             return InputType.LEVEL_UP;
         } else {
+            textOut.release(this);
             return InputType.FINISHED;
         }
     }
@@ -187,6 +188,8 @@ public class Hero extends UserInterfaceClass {
                     return InputType.LEVEL_UP;
                 }
                 levelUpTodo.remove(0);
+                maxSpellsPerDay++;
+                numSpellsAvailable = maxSpellsPerDay;
                 return show();
 
             default:
@@ -194,11 +197,15 @@ public class Hero extends UserInterfaceClass {
         }
     }
 
-    private static Map<Integer, List<LevelUpCategory>> levelUpActions;
+    private static Map<Integer, ArrayList<LevelUpCategory>> levelUpActions;
 
     private static void initLevelUpActionMap () {
         levelUpActions = new HashMap<>();
-        levelUpActions.put(1, Arrays.asList(NEW_SPELL, NEW_SKILL, INC_STATS));
+        ArrayList<LevelUpCategory> list = new ArrayList<>();
+        list.add(NEW_SPELL);
+        list.add(NEW_SKILL);
+        list.add(INC_STATS);
+        levelUpActions.put(1, list);
     }
 
 
@@ -339,7 +346,18 @@ public class Hero extends UserInterfaceClass {
         });
 
         heroParamActions.put("cast", (room, param) -> {
-
+            if (numSpellsAvailable < 1) {
+                textOut.println("Cannot cast anymore spells today.");
+            } else {
+                SpellAction action = spellMap.get(param);
+                if (action != null) {
+                    textOut.println("Casting " + param + " spell.");
+                    action.doAction(this);
+                    numSpellsAvailable--;
+                } else {
+                    textOut.println("You do not know a " + param + " spell.");
+                }
+            }
         });
 
         heroParamActions.put("use", (room, param) -> {
@@ -480,8 +498,8 @@ public class Hero extends UserInterfaceClass {
     }
 
     public void printStats () {
-        textOut.println("Health: " + health + "/" + maxHealth + "  (Might, Magic, Sneak) (" +
-                might + ", " + magic + ", " + sneak + ") Level: " + level + ", Exp: " + exp);
+        textOut.println("Health: " + health + "/" + maxHealth + "  (Might, Magic, Defence) (" +
+                might + ", " + magic + ", " + defence + ") Level: " + level + ", Exp: " + exp);
     }
 
     private void proceed (Direction direction) {
@@ -511,7 +529,8 @@ public class Hero extends UserInterfaceClass {
         this.exp += expToAdd;
         textOut.println("Gained " + expToAdd + " exp.");
         if (LEVEL_AMTS[level] < exp) {
-            textOut.println("***Ding! You'll be able to level up after the dungeon.");
+            textOut.println("***Ding! Level up.");
+            textOut.request(this);
         }
     }
 

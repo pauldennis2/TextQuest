@@ -69,6 +69,7 @@ public class SmashableObstacle extends Obstacle {
             room.getHero().takeNonMitigatedDamage(5);
             //This            ^^ is a good reason for this functionality to be somewhere else
         });
+        smashActionMap.put("giveExp", room -> room.getHero().addExp(500));
     }
 
     public int getRequiredMight() {
