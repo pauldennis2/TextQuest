@@ -290,15 +290,19 @@ public class StatementAnalyzer {
                     currentType = WordType.getTypeFromFileAnnotation(token);
                     continue;
                 }
-                String primaryWord = token.split("-")[0].trim();
-                String[] associatedWords = token.split("-")[1].split(",");
+                if (token.startsWith("$")) {
+                    System.out.println("Inference = " + token);
+                    continue;
+                }
+                String primaryWord = token.split(":")[0].trim();
+                String[] associatedWords = token.split(":")[1].split(",");
                 int index = 0;
                 for (String s : associatedWords) {
                     associatedWords[index] = s.trim().toLowerCase();
                     index++;
                 }
                 Set<String> wordSet = new HashSet<>();
-                Arrays.stream(associatedWords).forEach(wordSet::add);
+                wordSet.addAll(Arrays.asList(associatedWords));
                 WordGroup wg = new WordGroup(primaryWord, wordSet, currentType);
                 wordGroups.add(wg);
             }

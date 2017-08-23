@@ -130,13 +130,13 @@ public class Hero extends UserInterfaceClass {
             levelUpTodo = levelUpActions.get(level);
             textOut.println("You are now level " + level + ". You can:");
             levelUpTodo.stream()
-                    .map(LevelUpCategory::toString)
+                    .map(LevelUpCategory::getPrettyName)
                     .forEach(e -> textOut.println(e));
             //Else if there are remaining level up actions to take
             return show();
         } else if (levelUpTodo != null && levelUpTodo.size() > 0) {
             LevelUpCategory category = levelUpTodo.get(0);
-            textOut.println("Right now you can: " + category.toString());
+            textOut.println("Right now you can: " + LevelUpCategory.getPrettyName(category));
             textOut.println(LevelUpCategory.getPrompt(category));
             return InputType.LEVEL_UP;
         } else {
