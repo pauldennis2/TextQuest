@@ -11,7 +11,6 @@ public class Monster extends DungeonRoomEntity {
     private int might;
     private int defence;
     private String name;
-    private double accuracyAdjustment;
 
     private transient int disabledForRounds = 0;
 
@@ -89,11 +88,4 @@ public class Monster extends DungeonRoomEntity {
         this.defence = defence;
     }
 
-    public double getAccuracyAdjustment() {
-        return accuracyAdjustment;
-    }
-
-    public void setAccuracyAdjustment(double accuracyAdjustment) {
-        this.accuracyAdjustment = accuracyAdjustment;
-    }
 }

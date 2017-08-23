@@ -1,6 +1,10 @@
 package paul.NLPTextDungeon.entities;
 
 import paul.NLPTextDungeon.DungeonRunner;
+import paul.NLPTextDungeon.doyoubelieveinmagic.MagicUniversity;
+import paul.NLPTextDungeon.entities.obstacles.Obstacle;
+import paul.NLPTextDungeon.entities.obstacles.SmashableObstacle;
+import paul.NLPTextDungeon.enums.LevelUpCategory;
 import paul.NLPTextDungeon.interfaces.*;
 import paul.NLPTextDungeon.parsing.InputType;
 import paul.NLPTextDungeon.parsing.TextInterface;
@@ -13,6 +17,10 @@ import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
 
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static paul.NLPTextDungeon.enums.LevelUpCategory.INC_STATS;
+import static paul.NLPTextDungeon.enums.LevelUpCategory.NEW_SKILL;
+import static paul.NLPTextDungeon.enums.LevelUpCategory.NEW_SPELL;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
@@ -96,7 +104,7 @@ public class Hero extends UserInterfaceClass {
 
         level = 0;
         exp = 0;
-        maxSpellsPerDay = 0;
+        maxSpellsPerDay = 1;
 
         backpack = new Backpack();
         backpack.add(new BackpackItem("Torch"));
@@ -110,9 +118,94 @@ public class Hero extends UserInterfaceClass {
         this.textOut = textOut;
     }
 
+    private transient List<LevelUpCategory> levelUpTodo;
     @Override
+    //This is for level-up
     public InputType show () {
-        throw new AssertionError("not yet implemented");
+        if (levelUpActions == null) {
+            initLevelUpActionMap();
+        }
+        if (LEVEL_AMTS[level] < exp) {
+            level++;
+            levelUpTodo = levelUpActions.get(level);
+            textOut.println("You are now level " + level + ". You can:");
+            levelUpTodo.stream()
+                    .map(LevelUpCategory::toString)
+                    .forEach(e -> textOut.println(e));
+            //Else if there are remaining level up actions to take
+            return show();
+        } else if (levelUpTodo != null && levelUpTodo.size() > 0) {
+            LevelUpCategory category = levelUpTodo.get(0);
+            textOut.println("Right now you can: " + category.toString());
+            textOut.println(LevelUpCategory.getPrompt(category));
+            return InputType.LEVEL_UP;
+        } else {
+            textOut.release(this);
+            return InputType.FINISHED;
+        }
+    }
+
+    @Override
+    public InputType handleResponse (String response) {
+        LevelUpCategory category = levelUpTodo.get(0);
+        response = response.trim().toLowerCase();
+        switch (category) {
+            case INC_STATS:
+                if (response.equals("might") || response.equals("strength")) {
+                    might++;
+                    textOut.println("Might permanently increased by 1");
+                } else if (response.equals("health") || response.equals("hp") || response.equals("hitpoints")) {
+                    maxHealth += 5;
+                    textOut.println("Max HP increased by 5");
+                } else if (response.startsWith("def")){
+                    defence++;
+                    textOut.println("Defence increased by 1 permanently");
+                } else {
+                    textOut.println("Could not read a stat");
+                    return InputType.LEVEL_UP;
+                }
+                levelUpTodo.remove(0);
+                return show();
+
+            case NEW_SKILL:
+                if (response.contains("sneak") || response.contains("stealth")) {
+                    sneak++;
+                    textOut.println("You've learned basic sneaking.");
+                } else {
+                    textOut.println("Could not find a skill (only one available is sneak - try that).");
+                    return InputType.LEVEL_UP;
+                }
+                levelUpTodo.remove(0);
+                return show();
+
+            case NEW_SPELL:
+                MagicUniversity magicUniversity = MagicUniversity.getInstance();
+                String spellMatch = magicUniversity.getSpellMatch(response);
+                if (spellMatch != null) {
+                    spellMap.put(spellMatch, possibleSpellMap.get(spellMatch));
+                } else {
+                    textOut.println("Could not find the spell you want to learn.");
+                    return InputType.LEVEL_UP;
+                }
+                levelUpTodo.remove(0);
+                maxSpellsPerDay++;
+                numSpellsAvailable = maxSpellsPerDay;
+                return show();
+
+            default:
+                throw new AssertionError();
+        }
+    }
+
+    private static Map<Integer, ArrayList<LevelUpCategory>> levelUpActions;
+
+    private static void initLevelUpActionMap () {
+        levelUpActions = new HashMap<>();
+        ArrayList<LevelUpCategory> list = new ArrayList<>();
+        list.add(NEW_SPELL);
+        list.add(NEW_SKILL);
+        list.add(INC_STATS);
+        levelUpActions.put(1, list);
     }
 
 
@@ -125,7 +218,6 @@ public class Hero extends UserInterfaceClass {
         initActionMap();
         initItemActions();
         initViews();
-        initLevelUpMap();
         initPossibleSpellMap();
         initPickupListenerMap();
     }
@@ -185,6 +277,21 @@ public class Hero extends UserInterfaceClass {
     }
 
     private void initActionMap () {
+
+        heroVoidActions.put("smash", room -> {
+            textOut.println("Starting a smashing spree.");
+            room.getObstacles().stream()
+                    .filter(obs -> obs.getClass() == SmashableObstacle.class)
+                    .filter(obs -> !obs.isCleared())
+                    .forEach(obs -> {
+                        boolean success = obs.attempt("smash", room.getHero());
+                        if (success) {
+                            textOut.println("You smashed " + obs.getName() + ".");
+                        } else {
+                            textOut.println("Ouch! " + obs.getName() + " is hard.");
+                        }
+                    });
+        });
         heroVoidActions.put("loot", room -> room.lootRoom().forEach(item -> {
             if (item.hasPickupAction()) {
                 OnPickup action = listenerMap.get(item.getPickupAction());
@@ -193,13 +300,25 @@ public class Hero extends UserInterfaceClass {
             backpack.add(item);
         }));
         heroVoidActions.put("retreat", room -> room.getHero().retreat());
-        heroVoidActions.put("sneak", room -> textOut.println("You don't know how to sneak yet."));
-        heroVoidActions.put("cast", room -> textOut.println("You don't know any spells yet."));
+        heroVoidActions.put("sneak", room -> {
+            switch (sneak) {
+                case 0:
+                    textOut.println("You don't know how to sneak yet.");
+                    break;
+                case 1:
+                    isSneaking = random.nextBoolean();
+                    if (isSneaking) {
+                        textOut.println("You disappeared into the shadows.");
+                        textOut.debug("Sneaking does nothing right now.");
+                    } else {
+                        textOut.println("You failed to sneak.");
+                    }
+                    break;
+            }
+        });
         heroVoidActions.put("learn", room -> textOut.println("That function is not available at this time."));
 
-        heroVoidActions.put("fight", room -> {
-            textOut.getRunner().startCombat();
-        });
+        heroVoidActions.put("fight", room -> textOut.getRunner().startCombat());
 
         heroVoidActions.put("rescue", room -> textOut.println("No princes to rescue right now."));
 
@@ -224,6 +343,21 @@ public class Hero extends UserInterfaceClass {
                 }
                 backpack.add(item);
             });
+        });
+
+        heroParamActions.put("cast", (room, param) -> {
+            if (numSpellsAvailable < 1) {
+                textOut.println("Cannot cast anymore spells today.");
+            } else {
+                SpellAction action = spellMap.get(param);
+                if (action != null) {
+                    textOut.println("Casting " + param + " spell.");
+                    action.doAction(this);
+                    numSpellsAvailable--;
+                } else {
+                    textOut.println("You do not know a " + param + " spell.");
+                }
+            }
         });
 
         heroParamActions.put("use", (room, param) -> {
@@ -261,7 +395,7 @@ public class Hero extends UserInterfaceClass {
                     room.getObstacles().stream()
                             .filter(e -> e.getSolution().equals("jump")) //Filter out non-chasms
                             .forEach(e -> {
-                                boolean success = e.attempt("jump", this);
+                                e.attempt("jump", this);
                                 textOut.println("You made it across!");
                             });
                 }
@@ -269,37 +403,6 @@ public class Hero extends UserInterfaceClass {
                 textOut.println("Hmm... not much happened.");
             }
         });
-    }
-
-    private void levelUp () {
-        if (level >= 12) {
-            textOut.println("You are max level");
-            return;
-        }
-        textOut.println("What would you like to do?");
-        List<String> levelUpActionStrings = new ArrayList<>(levelUpActionMap.keySet());
-        int index = 1;
-        for (String action : levelUpActionStrings) {
-            textOut.println(index + ". " + action);
-            index++;
-        }
-        int response = 1;
-        if (response == 1) {
-            //todo fix
-            throw new AssertionError("fix");
-        }
-        LevelUpAction action = levelUpActionMap.get(levelUpActionStrings.get(response - 1));
-        action.doAction(this);
-        level++;
-        printStats();
-    }
-
-    private void initLevelUpMap () {
-        levelUpActionMap = new HashMap<>();
-        levelUpActionMap.put("Increase HP", hero -> hero.maxHealth += 5);
-        levelUpActionMap.put("Increase Might", hero -> hero.might++);
-        levelUpActionMap.put("Sneak", hero -> hero.sneak++);
-        levelUpActionMap.put("Learn Spell", Hero::learnNewSpell);
     }
 
     private void initPossibleSpellMap () {
@@ -376,38 +479,14 @@ public class Hero extends UserInterfaceClass {
         }
     }
 
-    private void learnNewSpell () {
-        maxSpellsPerDay++;
-        List<String> spellNames = possibleSpellMap.keySet().stream()
-                .filter(e -> e.length() > 0) //filter out spells we know. TODO write actual filter
-                .collect(Collectors.toList());
-        int index = 1;
-        textOut.println("Which spell to learn?");
-        for (String spell : spellNames) {
-           textOut.println(index + ". " + spell);
-            index++;
-        }
-        int response = 1;
-        if (response == 1) {
-            //Todo fix
-            throw new AssertionError("fix");
-        }
-        String actionString = spellNames.get(response - 1);
-        spellMap.put(actionString, possibleSpellMap.get(actionString));
-        textOut.println("You have learned " + actionString);
-    }
-
     public void rescuePrince () {
         throw new VictoryException("Rescued the handsome Prince Charming.");
     }
 
     public void removeItem (String itemName) {
-        BackpackItem toBeRemoved = backpack.stream()
+        backpack.stream()
                 .filter(e -> e.getName().equals(itemName))
-                .findFirst()
-                .get();
-
-        backpack.remove(toBeRemoved);
+                .findAny().ifPresent(item -> backpack.remove(item));
     }
 
     public void restoreHealth (int healthAmount) {
@@ -419,8 +498,8 @@ public class Hero extends UserInterfaceClass {
     }
 
     public void printStats () {
-        textOut.println("Health: " + health + "/" + maxHealth + "  (Might, Magic, Sneak) (" +
-                might + ", " + magic + ", " + sneak + ") Level: " + level + ", Exp: " + exp);
+        textOut.println("Health: " + health + "/" + maxHealth + "  (Might, Magic, Defence) (" +
+                might + ", " + magic + ", " + defence + ") Level: " + level + ", Exp: " + exp);
     }
 
     private void proceed (Direction direction) {
@@ -443,14 +522,15 @@ public class Hero extends UserInterfaceClass {
 
     public static final int[] LEVEL_AMTS = {250, 1000, 2500, 4500, 6500, 9000, 12000, 15000, 18500, 21500, 25000, 35000, 50000};
     //Max level 12
-    public void addExp (int exp) {
-        if (exp < 0) {
+    public void addExp (int expToAdd) {
+        if (expToAdd < 0) {
             throw new AssertionError();
         }
-        this.exp += exp;
-        textOut.println("Gained " + exp + " exp.");
+        this.exp += expToAdd;
+        textOut.println("Gained " + expToAdd + " exp.");
         if (LEVEL_AMTS[level] < exp) {
-            levelUp();
+            textOut.println("***Ding! Level up.");
+            textOut.request(this);
         }
     }
 
@@ -463,8 +543,16 @@ public class Hero extends UserInterfaceClass {
             textOut.println("You took " + damage + " damage.");
             if (health <= 0) {
                 health = 0;
-                throw new DefeatException("Died from damage. Or perhaps dafighter.");
+                throw new DefeatException("Died from damage. Or perhaps dafighter. Har har.");
             }
+        }
+    }
+
+    public void takeNonMitigatedDamage (int damage) {
+        health -= damage;
+        textOut.println("You took " + damage + " damage.");
+        if (health <= 0) {
+            throw new DefeatException("Died from non-combat damage.");
         }
     }
 
@@ -571,5 +659,9 @@ public class Hero extends UserInterfaceClass {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public TextInterface getTextOut() {
+        return textOut;
     }
 }

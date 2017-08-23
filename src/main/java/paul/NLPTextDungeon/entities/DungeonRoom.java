@@ -118,7 +118,7 @@ public class DungeonRoom extends UserInterfaceClass {
 
                 boolean oneCorrect = false;
                 for (RiddleObstacle riddle : riddles) {
-                    boolean response = riddle.attempt(message, null);
+                    boolean response = riddle.attempt(message, hero);
                     if (response) {
                         textOut.println("You got it right!");
                         oneCorrect = true;
@@ -257,8 +257,8 @@ public class DungeonRoom extends UserInterfaceClass {
                     }
                     break;
             }
-            textOut.print("There are passages leading ");
-            connectedRooms.keySet().forEach(e -> textOut.print(" " + e + " "));
+            textOut.println("There are passages leading:");
+            connectedRooms.keySet().forEach(e -> textOut.println(" " + e + " "));
             return InputType.NONE;
         }
     }

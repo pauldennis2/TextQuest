@@ -1,6 +1,7 @@
 package paul.NLPTextDungeon.parsing;
 
 
+import paul.NLPTextDungeon.doyoubelieveinmagic.MagicUniversity;
 import paul.NLPTextDungeon.entities.DungeonRoom;
 
 import java.io.File;
@@ -79,8 +80,22 @@ public class StatementAnalyzer {
                 }
             //This part is genuinely terrible. TODO please fix
             } else if (actionWord.equals("say") || actionWord.equals("whisper") || actionWord.equals("shout")) {
+                analysis.setActionable(true);
+                analysis.setActionWord(actionWord);
+            } else if (actionWord.equals("cast")) {
+                MagicUniversity magicUniversity = MagicUniversity.getInstance();
+                String[] tokens = analysis.getTokens();
+                List<String> matches = Arrays.stream(tokens)
+                        .map(magicUniversity::getSpellMatch)
+                        .filter(e -> e != null)
+                        .collect(Collectors.toList());
+                if (matches.size() > 0) {
                     analysis.setActionable(true);
-                    analysis.setActionWord(actionWord);
+                    analysis.setActionParam(matches.get(0));
+                    analysis.setActionWord("cast");
+                } else {
+                    analysis.addComment("Could not find a spell to cast");
+                }
             } else if (actionWord.equals("search")) {
                 Set<String> hiddenItemLocations = location.getHiddenItems().keySet();
                 String[] tokens = analysis.getTokens();

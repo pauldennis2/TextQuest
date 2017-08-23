@@ -14,20 +14,15 @@ import java.util.List;
 
 public class TextInterface extends UserInterfaceClass {
 
-    private PrintStream printStream;
     private List<String> buffer;
     private List<String> debug;
     private List<String> tutorial;
 
-    private String currentLine;
-
-    private boolean usingConsole;
-
     private DungeonRunner runner;
+
 
     @Override
     public void start (TextInterface textOut) {
-        children = Collections.singletonList(runner);
         children.forEach(child -> child.start(this));
     }
 
@@ -35,14 +30,36 @@ public class TextInterface extends UserInterfaceClass {
         buffer = new ArrayList<>();
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();
+        children = new ArrayList<>();
         runner = new DungeonRunner();
+        children.add(runner);
         defaultRequester = runner;
+    }
+
+    //"Please make me your child"
+    public void request (UserInterfaceClass newChild) {
+        children.add(newChild);
+        newChild.start(this);
+        requester = newChild;
+        newChild.show();
+    }
+
+    //"Please cast me adrift"
+    public void release (UserInterfaceClass orphan) {
+        boolean response = children.remove(orphan);
+        if (!response) { //If it wasn't a child, why is it asking to be released?
+            debug(orphan + " weird release request.");
+        }
+        requester = defaultRequester;
     }
 
 
     @Override
     public InputType show () {
-        return runner.show();
+        if (requester == null) {
+            requester = defaultRequester;
+        }
+        return requester.show();
     }
 
     public void debug (String s) {
@@ -54,60 +71,23 @@ public class TextInterface extends UserInterfaceClass {
     }
 
     public List<String> flushDebug () {
-        if (usingConsole) {
-            debug.forEach(e -> printStream.println("DEBUG: " + e));
-            debug = new ArrayList<>();
-            return null;
-        } else {
-            List<String> response = debug;
-            debug = new ArrayList<>();
-            return response;
-        }
+        List<String> response = debug;
+        debug = new ArrayList<>();
+        return response;
     }
 
     public void println (String s) {
-        if (currentLine != null) {
-            buffer.add(currentLine + s);
-            currentLine = null;
-        } else {
-            buffer.add(s);
-        }
+        buffer.add(s);
     }
 
     public void println (Object o) {
         println(o.toString());
     }
 
-    public void print (String s) {
-        if (currentLine != null) {
-            currentLine += s;
-        } else {
-            currentLine = s;
-        }
-    }
-
-    public void print (Object o) {
-        print(o.toString());
-    }
-
     public List<String> flush () {
-        if (usingConsole) {
-            buffer.forEach(e -> printStream.println(e));
-            buffer = new ArrayList<>();
-            if (currentLine != null) {
-                printStream.print(currentLine);
-                currentLine = null;
-            }
-            return null;
-        } else {
-            List<String> response = buffer;
-            buffer = new ArrayList<>();
-            if (currentLine != null) {
-                response.add(currentLine);
-                currentLine = null;
-            }
-            return response;
-        }
+        List<String> response = buffer;
+        buffer = new ArrayList<>();
+        return response;
     }
 
     public List<String> flushTutorial () {

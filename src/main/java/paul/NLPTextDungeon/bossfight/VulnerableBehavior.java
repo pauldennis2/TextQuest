@@ -92,6 +92,7 @@ public class VulnerableBehavior extends UserInterfaceClass {
             textOut.println("Boss takes " + BOSS_DAMAGE_TAKEN + " damage.");
             bossFight.setHealth(bossFight.getHealth() - BOSS_DAMAGE_TAKEN);
             if (bossFight.getHealth() <= 0) {
+                hero.addExp(bossFight.getExp());
                 return InputType.FINISHED;
             }
         } else {

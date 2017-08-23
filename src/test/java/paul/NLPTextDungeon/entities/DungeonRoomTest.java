@@ -47,7 +47,7 @@ public class DungeonRoomTest {
 
         assertFalse(room.isCleared());
 
-        chasm.attempt("jump", null);
+        chasm.attempt("jump", new Hero());
         assertTrue(chasm.isCleared());
         assertTrue(room.isCleared());
     }
