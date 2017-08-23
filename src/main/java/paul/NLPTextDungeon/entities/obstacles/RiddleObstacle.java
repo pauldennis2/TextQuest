@@ -23,13 +23,17 @@ public class RiddleObstacle extends Obstacle {
 
     @Override
     public boolean attempt(String solution, Hero hero) {
-        numAttempts++;
-        if (solution.equals(this.getSolution())) {
-            this.setCleared(true);
-            hero.addExp(DEFAULT_XP_AMT * RIDDLE_MULT);
+        if (!isCleared()) {
+            numAttempts++;
+            if (solution.equals(this.getSolution())) {
+                this.setCleared(true);
+                hero.addExp(DEFAULT_XP_AMT * RIDDLE_MULT);
+                return true;
+            }
+            return false;
+        } else {
             return true;
         }
-        return false;
     }
 
     public String getRiddle() {

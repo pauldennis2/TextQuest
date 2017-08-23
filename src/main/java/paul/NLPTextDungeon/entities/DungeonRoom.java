@@ -118,7 +118,7 @@ public class DungeonRoom extends UserInterfaceClass {
 
                 boolean oneCorrect = false;
                 for (RiddleObstacle riddle : riddles) {
-                    boolean response = riddle.attempt(message, null);
+                    boolean response = riddle.attempt(message, hero);
                     if (response) {
                         textOut.println("You got it right!");
                         oneCorrect = true;

@@ -20,6 +20,7 @@ public class BossFight extends UserInterfaceClass {
     private String name;
     private int health;
     private int maxAttacks;
+    private int exp;
     private String bossDescription;
     private String roomDescription;
     private List<AttackBehavior> attackBehaviors;
@@ -176,5 +177,13 @@ public class BossFight extends UserInterfaceClass {
 
     public boolean isConquered() {
         return conquered;
+    }
+
+    public int getExp() {
+        return exp;
+    }
+
+    public void setExp(int exp) {
+        this.exp = exp;
     }
 }

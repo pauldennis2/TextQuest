@@ -18,7 +18,7 @@ view - see, inspect, show
 use - utilize, wield, employ
 move - proceed, go
 learn - study
-cast - incant
+cast - incant, spell
 say - speak
 shout - yell
 whisper - murmur
@@ -51,8 +51,6 @@ boss - overlord
 prince - rescuee
 item - thing
 magic - wizardry, sorcery, arcana
-|$cast
-spell - incantation
 
 |Direction Words:
 |===
@@ -70,8 +68,3 @@ portal - teleport, gateway
 before - inadvanceof
 during - while
 after - afterwards
-|Speaking Words:
-|===
-|$Shades of Piercing Vision
-|magic Xray sunglasses!
-|examine - xray, piercevision
