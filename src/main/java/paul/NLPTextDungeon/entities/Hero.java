@@ -199,6 +199,7 @@ public class Hero extends UserInterfaceClass {
 
     private static Map<Integer, ArrayList<LevelUpCategory>> levelUpActions;
 
+    //Defines what we can do at each level (i.e. what new skills, stat increases, etc are possible)
     private static void initLevelUpActionMap () {
         levelUpActions = new HashMap<>();
         ArrayList<LevelUpCategory> list = new ArrayList<>();
@@ -256,9 +257,14 @@ public class Hero extends UserInterfaceClass {
     }
 
     private void initViews () {
-        views.put("status", room -> room.getHero().printStats());
+        views.put("status", room -> printStats());
         views.put("map", room -> textOut.println("Map not yet implemented."));
-        views.put("backpack", room -> textOut.println(room.getHero().backpack));
+        views.put("backpack", room -> textOut.println(backpack));
+        views.put("spellbook", room -> {
+            textOut.println("Spells: (Available/Max): (" + numSpellsAvailable + "/" + maxSpellsPerDay + ")");
+            textOut.println("Known Spells:");
+            spellMap.keySet().forEach(textOut::println);
+        });
     }
 
 

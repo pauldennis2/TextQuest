@@ -34,6 +34,8 @@ status - stats, character
 backpack - pack, inventory, items
 |$view
 map - sketch
+|$view
+spellbook - spells
 |$use
 torch - light
 |$use
