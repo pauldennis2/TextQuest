@@ -3,27 +3,26 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Game</title>
+    <link rel="stylesheet" imageString="text/css" href="../css/main.css"/>
 </head>
 <body>
 <h3 th:text="${location}"></h3>
 <br/>
-<div style="height: 400px; width: 800px">
-    <div style="width:600px">
+<div class="main-box-parent">
+    <div class="game-output-box">
         Game Output:
         <br/>
-        <ul style="list-style: none;">
-            <li th:each="line : ${outputText}" th:text="${line}" style="color:#04518A">
+        <ul class="game-output-list">
+            <li th:each="line : ${outputText}" th:text="${line}">
             </li>
         </ul>
     </div>
-    <div style="width:300px; float:left">
+    <div class="tutorial-output-box">
         Tutorial:
         <br/>
-        <span th:each="line : ${tutorial}" th:text="${line}" style="color:#5bcbff">
-        </span>
+        <span th:each="line : ${tutorial}" th:text="${line}" class="tutorial-color"></span>
     </div>
 </div>
-<hr/>
 <br/>
 <b>Enter Commands</b><br/>
 <form action="/submit-action" method="post">
@@ -35,9 +34,8 @@
 <div>
     <b>Debug</b>
     <br/>
-    <ul style="list-style: none;">
-        <li th:each="line : ${debugText}" th:text="${line}" style="color:#973621">
-        </li>
+    <ul class="debug-output-list">
+        <li th:each="line : ${debugText}" th:text="${line}"></li>
     </ul>
 </div>
 </body>

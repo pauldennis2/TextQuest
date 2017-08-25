@@ -1,0 +1,36 @@
+.tutorial-box {
+    width:800px;
+    float:left;
+    height:125px;
+    overflow:auto;
+    border:1px solid
+}
+
+.game-output-box {
+    width:800px;
+    height:350px;
+    overflow:auto;
+    border:1px solid
+}
+
+.debug-box {
+}
+
+.main-box-parent {
+    height: 450px;
+    width: 800px;
+}
+
+.game-output-list {
+list-style: none;
+color:#04518A
+}
+
+.debug-output-list {
+    list-style: none;
+    color:#973621;
+}
+
+.tutorial-color {
+    color:#5bcbff;
+}

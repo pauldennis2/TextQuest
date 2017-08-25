@@ -88,6 +88,7 @@ public class DungeonRunner extends UserInterfaceClass {
                     case SOLUTION_STRING:
                         textOut.println("Please enter your solution.");
                         textOut.tutorial("Try \"jump before\"!");
+                        break;
                 }
                 requester = currentRoom;
             }

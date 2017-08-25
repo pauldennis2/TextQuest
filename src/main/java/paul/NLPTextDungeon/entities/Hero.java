@@ -133,7 +133,8 @@ public class Hero extends UserInterfaceClass {
                     .map(LevelUpCategory::getPrettyName)
                     .forEach(e -> textOut.println(e));
             //Else if there are remaining level up actions to take
-            return show();
+            //return show();
+            return InputType.LEVEL_UP;
         } else if (levelUpTodo != null && levelUpTodo.size() > 0) {
             LevelUpCategory category = levelUpTodo.get(0);
             textOut.println("Right now you can: " + LevelUpCategory.getPrettyName(category));
@@ -162,10 +163,8 @@ public class Hero extends UserInterfaceClass {
                     textOut.println("Defence increased by 1 permanently");
                 } else {
                     textOut.println("Could not read a stat");
-                    return InputType.LEVEL_UP;
                 }
                 levelUpTodo.remove(0);
-                return show();
 
             case NEW_SKILL:
                 if (response.contains("sneak") || response.contains("stealth")) {
@@ -176,25 +175,21 @@ public class Hero extends UserInterfaceClass {
                     return InputType.LEVEL_UP;
                 }
                 levelUpTodo.remove(0);
-                return show();
 
             case NEW_SPELL:
                 MagicUniversity magicUniversity = MagicUniversity.getInstance();
                 String spellMatch = magicUniversity.getSpellMatch(response);
                 if (spellMatch != null) {
                     spellMap.put(spellMatch, possibleSpellMap.get(spellMatch));
+                    textOut.println("You've learned a " + spellMatch + " spell.");
                 } else {
                     textOut.println("Could not find the spell you want to learn.");
-                    return InputType.LEVEL_UP;
                 }
                 levelUpTodo.remove(0);
                 maxSpellsPerDay++;
                 numSpellsAvailable = maxSpellsPerDay;
-                return show();
-
-            default:
-                throw new AssertionError();
         }
+        return InputType.LEVEL_UP;
     }
 
     private static Map<Integer, ArrayList<LevelUpCategory>> levelUpActions;
