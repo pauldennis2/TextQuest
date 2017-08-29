@@ -27,4 +27,27 @@ public enum Direction {
         }
     }
 
+    @Override
+    public String toString () {
+        switch (this) {
+            case NORTH:
+                return "North";
+            case EAST:
+                return "East";
+            case SOUTH:
+                return "South";
+            case WEST:
+                return "West";
+            case UP:
+                return "Upstairs";
+            case DOWN:
+                return "Downstairs";
+                //And all through the house
+            case PORTAL:
+                return "Portal";
+            default:
+                return null;
+        }
+    }
+
 }

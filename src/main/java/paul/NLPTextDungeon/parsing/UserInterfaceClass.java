@@ -32,10 +32,4 @@ public abstract class UserInterfaceClass {
     protected InputType handleResponse (String response) {
         throw new AssertionError("This class doesn't handle responses. Method called in error");
     }
-
-    @Deprecated
-    public final void setTextOut (TextInterface textOut) {
-        this.textOut = textOut;
-        children.forEach(e -> e.setTextOut(textOut));
-    }
 }

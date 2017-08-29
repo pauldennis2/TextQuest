@@ -4,7 +4,7 @@
 rescue : untie, release
 fight : attack, melee, combat
 sneak : hide, conceal, evade, creep
-loot : gather, take, grab, pickup
+loot : gather, take, grab, pickup, acquire
 retreat : skedaddle, vamoose, runaway, back
 plunder : lootchest
 jump : leap, vault, vaultingboots

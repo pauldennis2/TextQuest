@@ -29,6 +29,7 @@ public class DungeonRoom extends UserInterfaceClass {
     private List<Monster> monsters;
     private List<BackpackItem> items;
     private List<Obstacle> obstacles;
+    private Map<String, String> specialRoomActions;
     private Chest chest;
     private String bossFightFileLocation;
 
@@ -57,6 +58,7 @@ public class DungeonRoom extends UserInterfaceClass {
         obstacles = new ArrayList<>();
         hiddenItems = new HashMap<>();
         speechListeners = new ArrayList<>();
+        specialRoomActions = new HashMap<>();
         initUniversalSpeechListeners();
     }
 
@@ -71,6 +73,7 @@ public class DungeonRoom extends UserInterfaceClass {
         obstacles = new ArrayList<>();
         hiddenItems = new HashMap<>();
         speechListeners = new ArrayList<>();
+        specialRoomActions = new HashMap<>();
         initUniversalSpeechListeners();
     }
 
@@ -201,17 +204,23 @@ public class DungeonRoom extends UserInterfaceClass {
             }
             return bossFight.show();
         } else {
-            textOut.println("\n\n\n\nYou are in the " + name + " (" + id + ").");
+            textOut.println("You are in the " + name + ".");
             LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
             textOut.println(description);
-
+            List<Obstacle> obstaclesForDisplay = obstacles.stream()
+                    .filter(obstacle -> {
+                        if (obstacle.isCleared()) {
+                            return obstacle.isDisplayIfCleared();
+                        }
+                        return true;
+                    })
+                    .collect(Collectors.toList());
             if (obstacles.size() > 0) {
                 textOut.println("The room has the following obstacles:");
                 obstacles.forEach(e -> textOut.println(e));
             }
 
             //Print riddles
-
             obstacles.stream()
                     .filter(e -> e.getClass() == RiddleObstacle.class)
                     .filter(e -> !e.isCleared())
@@ -219,18 +228,15 @@ public class DungeonRoom extends UserInterfaceClass {
 
             switch (lightingLevel) {
                 case WELL_LIT:
-                    textOut.println("The room is well lit. You can clearly see:");
-                    monsters.forEach(monster -> textOut.println(monster));
-                    items.forEach(item -> textOut.println(item));
                     if (chest != null) {
                         textOut.println(chest);
                     }
-                    if (monsters.size() + items.size() == 0) {
-                        textOut.println("(There is nothing in the room.)");
-                    }
-                    if (hasPrince) {
-                        textOut.println("You see a handsome prince tied to a chair. " +
-                                "He looks like he'd really like to be rescued.");
+                    if (monsters.size() + items.size() > 0) {
+                        textOut.println("The room is well lit. You can clearly see:");
+                        monsters.forEach(monster -> textOut.println(monster));
+                        items.forEach(item -> textOut.println(item));
+                    } else {
+                        textOut.println("The room is well lit but otherwise empty.");
                     }
                     break;
 
@@ -242,23 +248,26 @@ public class DungeonRoom extends UserInterfaceClass {
                     if (monsters.size() + items.size() > 0) {
                         textOut.println("The room is not well lit. You can only make out a few shapes.");
                         textOut.tutorial("You might want to try \"use torch\".");
-                        if (monsters.size() > 0) {
-                            textOut.println("You can see " + monsters.size() + " figures moving in the darkness.");
+                        if (monsters.size() > 1) {
+                            textOut.println("You can see " + monsters.size() + " figures moving around.");
+                        } else if (monsters.size() == 1) {
+                            textOut.println("You can see one figure moving around.");
                         }
                         if (items.size() > 0) {
-                            textOut.println("You think you can see the following items:");
-                            items.stream()
+
+                            List<BackpackItem> itemsToPrint = items.stream()
                                     .filter(e -> Math.random() < lighting * 2)
-                                    .forEach(item -> textOut.println(item));
+                                    .collect(Collectors.toList());
+                            if (itemsToPrint.size() > 0) {
+                                textOut.println("You think you can see the following items:");
+                                itemsToPrint.forEach(textOut::println);
+                            }
                         }
-                    }
-                    if (hasPrince) {
-                        textOut.println("You think you see a handsome prince but it's hard to tell.");
                     }
                     break;
             }
             textOut.println("There are passages leading:");
-            connectedRooms.keySet().forEach(e -> textOut.println(" " + e + " "));
+            connectedRooms.keySet().forEach(e -> textOut.println(e));
             return InputType.NONE;
         }
     }
@@ -429,5 +438,13 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setTutorial(String tutorial) {
         this.tutorial = tutorial;
+    }
+
+    public Map<String, String> getSpecialRoomActions() {
+        return specialRoomActions;
+    }
+
+    public void setSpecialRoomActions(Map<String, String> specialRoomActions) {
+        this.specialRoomActions = specialRoomActions;
     }
 }

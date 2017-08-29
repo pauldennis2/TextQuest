@@ -65,7 +65,10 @@ public class NormalCombat extends UserInterfaceClass {
             if (chance > roll) {
                 int taken = monster.takeDamage(damageRoll);
                 textOut.println("You hit " + monster.getName() + " for " + taken + " damage.");
-                room.updateMonsters();
+                if (monster.getHealth() <= 0) {
+                    textOut.println("You killed " + monster.getName());
+                    room.updateMonsters();
+                }
             } else {
                 textOut.println("You missed " + monster.getName() + ".");
             }

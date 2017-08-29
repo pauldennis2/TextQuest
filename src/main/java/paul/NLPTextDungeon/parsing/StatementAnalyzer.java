@@ -1,7 +1,6 @@
 package paul.NLPTextDungeon.parsing;
 
 
-import paul.NLPTextDungeon.doyoubelieveinmagic.MagicUniversity;
 import paul.NLPTextDungeon.entities.DungeonRoom;
 
 import java.io.File;
@@ -57,6 +56,10 @@ public class StatementAnalyzer {
     private StatementAnalysis finalAnalysis (StatementAnalysis analysis) {
         List<String> voidActionWords = analysis.getTokenMatchMap().get(WordType.VOID_ACTION);
         List<String> paramActionWords = analysis.getTokenMatchMap().get(WordType.PARAM_ACTION);
+
+        List<String> specialRoomActionWords = new ArrayList<>(location.getSpecialRoomActions().keySet());
+
+
 
         if (voidActionWords.size() > 0) {
             analysis.setAnalysis(voidActionWords.get(0), null, true);
@@ -150,6 +153,23 @@ public class StatementAnalyzer {
                     " JUST THE AND BIT", analysis.getSecondTokens());
             andAnalysis = finalAnalysis(findTokenMatches(andAnalysis));
             analysis.setSecondAnalysis(andAnalysis.getActionWord(), andAnalysis.getActionParam(), true);
+        }
+        if (specialRoomActionWords.size() > 0) {
+            if (analysis.hasAnd()) {
+                throw new AssertionError("Not supported");
+            }
+            String[] tokens = analysis.getTokens();
+            List<String> matches = Arrays.stream(tokens)
+                    .filter(specialRoomActionWords::contains)
+                    .collect(Collectors.toList());
+            if (matches.size() > 0) {
+                if (analysis.isActionable()) {
+                    analysis.addComment("Already had actionable analysis. Overriding with special room action");
+                    analysis.addComment(analysis.getActionWord() + " overridden.");
+                }
+                analysis.setActionWord(matches.get(0));
+                analysis.setActionable(true);
+            }
         }
         return analysis;
     }

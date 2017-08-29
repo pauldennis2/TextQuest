@@ -1,8 +1,6 @@
 package paul.NLPTextDungeon.entities;
 
-import paul.NLPTextDungeon.DungeonRunner;
-import paul.NLPTextDungeon.doyoubelieveinmagic.MagicUniversity;
-import paul.NLPTextDungeon.entities.obstacles.Obstacle;
+import paul.NLPTextDungeon.parsing.MagicUniversity;
 import paul.NLPTextDungeon.entities.obstacles.SmashableObstacle;
 import paul.NLPTextDungeon.enums.LevelUpCategory;
 import paul.NLPTextDungeon.interfaces.*;
@@ -16,7 +14,6 @@ import paul.NLPTextDungeon.enums.SpeakingVolume;
 import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static paul.NLPTextDungeon.enums.LevelUpCategory.INC_STATS;
 import static paul.NLPTextDungeon.enums.LevelUpCategory.NEW_SKILL;
@@ -223,8 +220,21 @@ public class Hero extends UserInterfaceClass {
         if (voidAction != null) {
             voidAction.doAction(location);
         } else {
-            textOut.debug("Action not in map.");
-            throw new AssertionError();
+            if (location.getSpecialRoomActions().get(action) != null) {
+                String roomAction = location.getSpecialRoomActions().get(action);
+                String[] splits = roomAction.split(" ");
+                switch (splits[0]) {
+                    case "heal":
+                        int amt = Integer.parseInt(splits[1]);
+                        this.restoreHealth(amt);
+                        break;
+                    default:
+                        throw new AssertionError("No other ops supported.");
+                }
+            } else {
+                textOut.debug("Action not in map.");
+                throw new AssertionError();
+            }
         }
     }
 
