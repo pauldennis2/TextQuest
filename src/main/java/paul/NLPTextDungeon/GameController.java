@@ -50,6 +50,7 @@ public class GameController {
         model.addAttribute("debugText", debug);
         model.addAttribute("outputText", output);
         model.addAttribute("location", textOut.getRunner().getDungeon().getDungeonName());
+        model.addAttribute("roomName", "  " + textOut.getRunner().getHero().getLocation().getName());
         return "game";
     }
 

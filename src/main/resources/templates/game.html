@@ -11,7 +11,7 @@
 <br/>
 <div class="main-box-parent">
     <div class="game-output-box">
-        Game Output:
+        <h4 th:text="${roomName}"></h4>
         <br/>
         <ul class="game-output-list">
             <li th:each="line : ${outputText}" th:text="${line}">

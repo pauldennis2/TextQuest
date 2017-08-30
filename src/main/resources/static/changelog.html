@@ -7,7 +7,7 @@
 <body>
 Welcome to the change log for the NLPTextDungeon project.
 
-<h4>V 0.0.3 (current)</h4>
+<h4>V 0.0.3 (current) - 8/30/17</h4>
 A lot of changes and additions to make the game more playable:<br/>
 -Added spells and leveling up <br/>
 -Boss fight should work better now <br/>
@@ -15,9 +15,24 @@ A lot of changes and additions to make the game more playable:<br/>
 -Started versioning<br/>
 -HTML overhaul<br/>
 -Lots more!
-<h4>V 0.0.2</h4>
+<h4>V 0.0.2 - 8/21/17</h4>
 First version of the app put together as a web app. A lot of work done to convert to Spring.
 <h4>V 0.0.1</h4>
-This was the discovery phase. Originally a CLI-based app, a lot of work to convert to a Spring App.
+This was the discovery phase. Originally a CLI-based app, a lot of work to convert to a Spring App.<br/>
+
+<h3>Coming Soon in V 0.0.4</h3>
+<b>Game Features:</b><br/>
+-Add locked doors<br/>
+-Saving your hero<br/>
+-Properly exit from boss fight<br/>
+-Travel between dungeons and other locations<br/>
+-Add ability to read notes<br/>
+-Add action inference (so if we receive "stats" we will infer "view stats")<br/>
+-Add travel to room ("Go back to guardroom")<br/>
+<b>Programming/"Internal" Features</b><br/>
+-Converting from Thymeleaf to Mustache (gave Thymeleaf a try and I'm not a fan)<br/>
+-Improve error handling to display errors<br/>
+-Make various "action listeners" be able to pull from the same pool of actions and accept arguments.
+For example, onSmash can be "giveExp" but onPickup can only be "crackFloor".<br/>
 </body>
 </html>

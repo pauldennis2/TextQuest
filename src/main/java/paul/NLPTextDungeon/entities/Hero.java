@@ -152,26 +152,32 @@ public class Hero extends UserInterfaceClass {
                 if (response.equals("might") || response.equals("strength")) {
                     might++;
                     textOut.println("Might permanently increased by 1");
+                    levelUpTodo.remove(0);
                 } else if (response.equals("health") || response.equals("hp") || response.equals("hitpoints")) {
                     maxHealth += 5;
+                    health = maxHealth;
                     textOut.println("Max HP increased by 5");
+                    levelUpTodo.remove(0);
                 } else if (response.startsWith("def")){
                     defence++;
                     textOut.println("Defence increased by 1 permanently");
+                    levelUpTodo.remove(0);
                 } else {
                     textOut.println("Could not read a stat");
                 }
-                levelUpTodo.remove(0);
+                break;
 
             case NEW_SKILL:
                 if (response.contains("sneak") || response.contains("stealth")) {
                     sneak++;
                     textOut.println("You've learned basic sneaking.");
+                    levelUpTodo.remove(0);
                 } else {
                     textOut.println("Could not find a skill (only one available is sneak - try that).");
                     return InputType.LEVEL_UP;
                 }
-                levelUpTodo.remove(0);
+                break;
+
 
             case NEW_SPELL:
                 MagicUniversity magicUniversity = MagicUniversity.getInstance();
@@ -179,12 +185,17 @@ public class Hero extends UserInterfaceClass {
                 if (spellMatch != null) {
                     spellMap.put(spellMatch, possibleSpellMap.get(spellMatch));
                     textOut.println("You've learned a " + spellMatch + " spell.");
+                    levelUpTodo.remove(0);
+                    maxSpellsPerDay++;
+                    numSpellsAvailable = maxSpellsPerDay;
                 } else {
                     textOut.println("Could not find the spell you want to learn.");
                 }
-                levelUpTodo.remove(0);
-                maxSpellsPerDay++;
-                numSpellsAvailable = maxSpellsPerDay;
+                break;
+
+        }
+        if (levelUpTodo.size() == 0) {
+            return InputType.FINISHED;
         }
         return InputType.LEVEL_UP;
     }
@@ -266,9 +277,13 @@ public class Hero extends UserInterfaceClass {
         views.put("map", room -> textOut.println("Map not yet implemented."));
         views.put("backpack", room -> textOut.println(backpack));
         views.put("spellbook", room -> {
-            textOut.println("Spells: (Available/Max): (" + numSpellsAvailable + "/" + maxSpellsPerDay + ")");
-            textOut.println("Known Spells:");
-            spellMap.keySet().forEach(textOut::println);
+            if (spellMap.keySet().size() == 0) {
+                textOut.println("You don't know any spells yet.");
+            } else {
+                textOut.println("Spells: (Available/Max): (" + numSpellsAvailable + "/" + maxSpellsPerDay + ")");
+                textOut.println("Known Spells:");
+                spellMap.keySet().forEach(textOut::println);
+            }
         });
     }
 
@@ -288,6 +303,8 @@ public class Hero extends UserInterfaceClass {
     }
 
     private void initActionMap () {
+
+        heroVoidActions.put("describe", DungeonRoom::describe);
 
         heroVoidActions.put("smash", room -> {
             textOut.println("Starting a smashing spree.");

@@ -46,6 +46,7 @@ public class DungeonRoom extends UserInterfaceClass {
     private transient Map<Direction, DungeonRoom> connectedRooms;
     private transient BossFight bossFight;
     private transient Hero hero;
+    private transient boolean described;
 
     private String tutorial;
 
@@ -204,9 +205,12 @@ public class DungeonRoom extends UserInterfaceClass {
             }
             return bossFight.show();
         } else {
-            textOut.println("You are in the " + name + ".");
             LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
-            textOut.println(description);
+            if (!described) {
+                textOut.println(description);
+                describe();
+                described = true;
+            }
             List<Obstacle> obstaclesForDisplay = obstacles.stream()
                     .filter(obstacle -> {
                         if (obstacle.isCleared()) {
@@ -215,9 +219,9 @@ public class DungeonRoom extends UserInterfaceClass {
                         return true;
                     })
                     .collect(Collectors.toList());
-            if (obstacles.size() > 0) {
+            if (obstaclesForDisplay.size() > 0) {
                 textOut.println("The room has the following obstacles:");
-                obstacles.forEach(e -> textOut.println(e));
+                obstaclesForDisplay.forEach(e -> textOut.println(e));
             }
 
             //Print riddles
@@ -232,7 +236,6 @@ public class DungeonRoom extends UserInterfaceClass {
                         textOut.println(chest);
                     }
                     if (monsters.size() + items.size() > 0) {
-                        textOut.println("The room is well lit. You can clearly see:");
                         monsters.forEach(monster -> textOut.println(monster));
                         items.forEach(item -> textOut.println(item));
                     } else {
@@ -270,6 +273,10 @@ public class DungeonRoom extends UserInterfaceClass {
             connectedRooms.keySet().forEach(e -> textOut.println(e));
             return InputType.NONE;
         }
+    }
+
+    public void describe () {
+
     }
 
     public List<BackpackItem> lootRoom () {

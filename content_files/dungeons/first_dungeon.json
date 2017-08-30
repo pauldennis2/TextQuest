@@ -9,14 +9,6 @@
       "description":"This is the entryway.",
       "tutorial":"To navigate the dungeon, you can say \"move\", \"go\", or \"proceed\". You will need to pair this command with a direction. Since the only available direction is East, try typing \"go east\" (without the quotes).",
       "lighting": 1.0,
-      "obstacles":
-      [
-        {
-          "@class": "paul.NLPTextDungeon.entities.obstacles.SmashableObstacle",
-          "name": "Barrel",
-          "onSmash": "giveExp"
-        }
-      ],
       "connectedRoomIds":
       {
         "EAST":2
