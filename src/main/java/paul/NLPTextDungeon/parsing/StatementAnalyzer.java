@@ -1,7 +1,6 @@
 package paul.NLPTextDungeon.parsing;
 
 
-import paul.NLPTextDungeon.doyoubelieveinmagic.MagicUniversity;
 import paul.NLPTextDungeon.entities.DungeonRoom;
 
 import java.io.File;
@@ -57,6 +56,14 @@ public class StatementAnalyzer {
     private StatementAnalysis finalAnalysis (StatementAnalysis analysis) {
         List<String> voidActionWords = analysis.getTokenMatchMap().get(WordType.VOID_ACTION);
         List<String> paramActionWords = analysis.getTokenMatchMap().get(WordType.PARAM_ACTION);
+        List<String> specialRoomActionWords;
+        if (location != null) {
+            specialRoomActionWords = new ArrayList<>(location.getSpecialRoomActions().keySet());
+        } else {
+            specialRoomActionWords = new ArrayList<>();
+        }
+
+
 
         if (voidActionWords.size() > 0) {
             analysis.setAnalysis(voidActionWords.get(0), null, true);
@@ -150,6 +157,23 @@ public class StatementAnalyzer {
                     " JUST THE AND BIT", analysis.getSecondTokens());
             andAnalysis = finalAnalysis(findTokenMatches(andAnalysis));
             analysis.setSecondAnalysis(andAnalysis.getActionWord(), andAnalysis.getActionParam(), true);
+        }
+        if (specialRoomActionWords.size() > 0) {
+            if (analysis.hasAnd()) {
+                throw new AssertionError("Not supported");
+            }
+            String[] tokens = analysis.getTokens();
+            List<String> matches = Arrays.stream(tokens)
+                    .filter(specialRoomActionWords::contains)
+                    .collect(Collectors.toList());
+            if (matches.size() > 0) {
+                if (analysis.isActionable()) {
+                    analysis.addComment("Already had actionable analysis. Overriding with special room action");
+                    analysis.addComment(analysis.getActionWord() + " overridden.");
+                }
+                analysis.setActionWord(matches.get(0));
+                analysis.setActionable(true);
+            }
         }
         return analysis;
     }
@@ -290,15 +314,19 @@ public class StatementAnalyzer {
                     currentType = WordType.getTypeFromFileAnnotation(token);
                     continue;
                 }
-                String primaryWord = token.split("-")[0].trim();
-                String[] associatedWords = token.split("-")[1].split(",");
+                if (token.startsWith("$")) {
+                    System.out.println("Inference = " + token);
+                    continue;
+                }
+                String primaryWord = token.split(":")[0].trim();
+                String[] associatedWords = token.split(":")[1].split(",");
                 int index = 0;
                 for (String s : associatedWords) {
                     associatedWords[index] = s.trim().toLowerCase();
                     index++;
                 }
                 Set<String> wordSet = new HashSet<>();
-                Arrays.stream(associatedWords).forEach(wordSet::add);
+                wordSet.addAll(Arrays.asList(associatedWords));
                 WordGroup wg = new WordGroup(primaryWord, wordSet, currentType);
                 wordGroups.add(wg);
             }

@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.riddles;
+package paul.NLPTextDungeon.misc_unused;
 
 
 

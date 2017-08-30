@@ -62,11 +62,10 @@ public abstract class Obstacle extends DungeonRoomEntity {
 
     @Override
     public String toString () {
-        String response = name + " , Cleared: ";
+        String response = name;
+
         if (isCleared) {
-            response += "yes";
-        } else {
-            response += "no";
+            response += " (cleared)";
         }
         return response;
     }
@@ -77,5 +76,13 @@ public abstract class Obstacle extends DungeonRoomEntity {
 
     public void setExpAmount(int expAmount) {
         this.expAmount = expAmount;
+    }
+
+    public boolean isDisplayIfCleared() {
+        return displayIfCleared;
+    }
+
+    public void setDisplayIfCleared(boolean displayIfCleared) {
+        this.displayIfCleared = displayIfCleared;
     }
 }

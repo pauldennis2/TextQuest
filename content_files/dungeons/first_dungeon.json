@@ -9,34 +9,6 @@
       "description":"This is the entryway.",
       "tutorial":"To navigate the dungeon, you can say \"move\", \"go\", or \"proceed\". You will need to pair this command with a direction. Since the only available direction is East, try typing \"go east\" (without the quotes).",
       "lighting": 1.0,
-      "obstacles":
-      [
-        {
-          "@class" : "paul.NLPTextDungeon.entities.obstacles.SmashableObstacle",
-          "name": "Barrel",
-          "onSmash":"giveExp",
-          "contents":
-          [
-            {
-              "name":"Potion"
-            },
-            {
-              "name":"Fluffy"
-            }
-          ]
-        }
-      ],
-      "hiddenItems":
-      {
-        "floor":
-        [
-          {
-            "type":"note",
-            "name":"Note: Dad Joke",
-            "text":"Why are frogs so *hoppy*? They eat whatever bugs them!"
-          }
-        ]
-      },
       "connectedRoomIds":
       {
         "EAST":2
@@ -166,6 +138,7 @@
           "@class" : "paul.NLPTextDungeon.entities.obstacles.RiddleObstacle",
           "name": "Sphinx Riddle",
           "solution": "boots",
+          "displayIfCleared":true,
           "riddle": "Two brothers we are, great burdens we bear. All day we are bitterly pressed. Yet this we will say, we are full all the day, and empty when we go to rest."
         }
       ],
@@ -204,7 +177,7 @@
       "id":9,
       "description":"This room has a healing fountain. How nice.",
       "lighting":1.0,
-      "tutorial":"This might be a good time to try *search* out. Maybe search around the room's only feature?",
+      "tutorial":"This might be a good time to try *search* out. Maybe search around the room's only feature? You can also take a *drink* from the fountain.",
       "hiddenItems":
       {
         "fountain":
@@ -213,6 +186,10 @@
             "name":"Pihop-pi's Chest Key"
           }
         ]
+      },
+      "specialRoomActions":
+      {
+        "drink":"heal 10"
       },
       "connectedRoomIds":
       {
@@ -225,7 +202,7 @@
       "id":10,
       "description":"The lair of Pihop-pi. It kinda stinks in here.",
       "lighting":1.0,
-      "tutorial":"This is where the boss fight would be if it were fully implemented. Thanks for playing!",
+      "tutorial":"This is the lair of the dungeon boss. Not yet 100% perfectly implemented. Thanks for playing!",
       "bossFightFileLocation":"first_boss.json",
       "chest":
       {

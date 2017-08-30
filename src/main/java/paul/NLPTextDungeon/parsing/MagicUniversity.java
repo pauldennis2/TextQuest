@@ -1,8 +1,4 @@
-package paul.NLPTextDungeon.doyoubelieveinmagic;
-
-import paul.NLPTextDungeon.parsing.SpellType;
-import paul.NLPTextDungeon.parsing.WordGroup;
-import paul.NLPTextDungeon.parsing.WordType;
+package paul.NLPTextDungeon.parsing;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -20,6 +16,9 @@ public class MagicUniversity {
     private List<WordGroup> wordGroups;
     private Map<String, WordGroup> wordMap;
     private List<String> words;
+
+
+    //Current primary use is for parsing
 
     private MagicUniversity () {
         scanner = new Scanner(System.in);

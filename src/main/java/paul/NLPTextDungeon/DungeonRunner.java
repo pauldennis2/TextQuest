@@ -47,7 +47,6 @@ public class DungeonRunner extends UserInterfaceClass {
         this.textOut = textOut;
         currentRoom = dungeon.getEntrance();
         textOut.println("Welcome to the " + dungeon.getDungeonName());
-        textOut.println("Your goal:");
 
         children = new ArrayList<>(dungeon.getRooms());
         children.add(hero);
@@ -88,6 +87,7 @@ public class DungeonRunner extends UserInterfaceClass {
                     case SOLUTION_STRING:
                         textOut.println("Please enter your solution.");
                         textOut.tutorial("Try \"jump before\"!");
+                        break;
                 }
                 requester = currentRoom;
             }
@@ -130,9 +130,13 @@ public class DungeonRunner extends UserInterfaceClass {
             }
             currentRoom = hero.getLocation();
         } else {
-            textOut.println("Could not analyze to an actionable statement.");
-            textOut.debug("Comments:");
-            analysis.getComments().forEach(textOut::debug);
+            if (!analysis.getOriginalStatement().equals("")) {
+                textOut.println("Could not analyze to an actionable statement.");
+                textOut.debug("Comments:");
+                analysis.getComments().forEach(textOut::debug);
+            } else {
+                textOut.debug("Input was empty (no action taken)");
+            }
         }
     }
 
