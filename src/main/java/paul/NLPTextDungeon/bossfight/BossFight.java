@@ -126,6 +126,7 @@ public class BossFight extends UserInterfaceClass {
         this.health = health;
         if (health <= 0) {
             textOut.println("Game Over! You win.");
+            conquered = true;
             throw new VictoryException("You beat the boss!");
         }
     }

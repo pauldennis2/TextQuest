@@ -56,8 +56,12 @@ public class StatementAnalyzer {
     private StatementAnalysis finalAnalysis (StatementAnalysis analysis) {
         List<String> voidActionWords = analysis.getTokenMatchMap().get(WordType.VOID_ACTION);
         List<String> paramActionWords = analysis.getTokenMatchMap().get(WordType.PARAM_ACTION);
-
-        List<String> specialRoomActionWords = new ArrayList<>(location.getSpecialRoomActions().keySet());
+        List<String> specialRoomActionWords;
+        if (location != null) {
+            specialRoomActionWords = new ArrayList<>(location.getSpecialRoomActions().keySet());
+        } else {
+            specialRoomActionWords = new ArrayList<>();
+        }
 
 
 

@@ -205,78 +205,77 @@ public class DungeonRoom extends UserInterfaceClass {
             }
             return bossFight.show();
         } else {
-            LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
-            if (!described) {
-                textOut.println(description);
-                describe();
-                described = true;
-            }
-            List<Obstacle> obstaclesForDisplay = obstacles.stream()
-                    .filter(obstacle -> {
-                        if (obstacle.isCleared()) {
-                            return obstacle.isDisplayIfCleared();
-                        }
-                        return true;
-                    })
-                    .collect(Collectors.toList());
-            if (obstaclesForDisplay.size() > 0) {
-                textOut.println("The room has the following obstacles:");
-                obstaclesForDisplay.forEach(e -> textOut.println(e));
-            }
-
-            //Print riddles
-            obstacles.stream()
-                    .filter(e -> e.getClass() == RiddleObstacle.class)
-                    .filter(e -> !e.isCleared())
-                    .forEach(e -> textOut.println(((RiddleObstacle) e).getRiddle()));
-
-            switch (lightingLevel) {
-                case WELL_LIT:
-                    if (chest != null) {
-                        textOut.println(chest);
-                    }
-                    if (monsters.size() + items.size() > 0) {
-                        monsters.forEach(monster -> textOut.println(monster));
-                        items.forEach(item -> textOut.println(item));
-                    } else {
-                        textOut.println("The room is well lit but otherwise empty.");
-                    }
-                    break;
-
-                case PITCH_BLACK:
-                    textOut.println("The room is pitch black. You cannot see anything.");
-                    break;
-
-                case DIM:
-                    if (monsters.size() + items.size() > 0) {
-                        textOut.println("The room is not well lit. You can only make out a few shapes.");
-                        textOut.tutorial("You might want to try \"use torch\".");
-                        if (monsters.size() > 1) {
-                            textOut.println("You can see " + monsters.size() + " figures moving around.");
-                        } else if (monsters.size() == 1) {
-                            textOut.println("You can see one figure moving around.");
-                        }
-                        if (items.size() > 0) {
-
-                            List<BackpackItem> itemsToPrint = items.stream()
-                                    .filter(e -> Math.random() < lighting * 2)
-                                    .collect(Collectors.toList());
-                            if (itemsToPrint.size() > 0) {
-                                textOut.println("You think you can see the following items:");
-                                itemsToPrint.forEach(textOut::println);
-                            }
-                        }
-                    }
-                    break;
-            }
-            textOut.println("There are passages leading:");
-            connectedRooms.keySet().forEach(e -> textOut.println(e));
-            return InputType.NONE;
+            describe();
         }
+        return InputType.NONE;
     }
 
     public void describe () {
+        LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
+        if (!described) {
+            textOut.println(description);
+            described = true;
+        }
+        List<Obstacle> obstaclesForDisplay = obstacles.stream()
+                .filter(obstacle -> {
+                    if (obstacle.isCleared()) {
+                        return obstacle.isDisplayIfCleared();
+                    }
+                    return true;
+                })
+                .collect(Collectors.toList());
+        if (obstaclesForDisplay.size() > 0) {
+            textOut.println("The room has the following obstacles:");
+            obstaclesForDisplay.forEach(e -> textOut.println(e));
+        }
 
+        //Print riddles
+        obstacles.stream()
+                .filter(e -> e.getClass() == RiddleObstacle.class)
+                .filter(e -> !e.isCleared())
+                .forEach(e -> textOut.println(((RiddleObstacle) e).getRiddle()));
+
+        switch (lightingLevel) {
+            case WELL_LIT:
+                if (chest != null) {
+                    textOut.println(chest);
+                }
+                if (monsters.size() + items.size() > 0) {
+                    monsters.forEach(monster -> textOut.println(monster));
+                    items.forEach(item -> textOut.println(item));
+                } else {
+                    textOut.println("The room is well lit but otherwise empty.");
+                }
+                break;
+
+            case PITCH_BLACK:
+                textOut.println("The room is pitch black. You cannot see anything.");
+                break;
+
+            case DIM:
+                if (monsters.size() + items.size() > 0) {
+                    textOut.println("The room is not well lit. You can only make out a few shapes.");
+                    textOut.tutorial("You might want to try \"use torch\".");
+                    if (monsters.size() > 1) {
+                        textOut.println("You can see " + monsters.size() + " figures moving around.");
+                    } else if (monsters.size() == 1) {
+                        textOut.println("You can see one figure moving around.");
+                    }
+                    if (items.size() > 0) {
+
+                        List<BackpackItem> itemsToPrint = items.stream()
+                                .filter(e -> Math.random() < lighting * 2)
+                                .collect(Collectors.toList());
+                        if (itemsToPrint.size() > 0) {
+                            textOut.println("You think you can see the following items:");
+                            itemsToPrint.forEach(textOut::println);
+                        }
+                    }
+                }
+                break;
+        }
+        textOut.println("There are passages leading:");
+        connectedRooms.keySet().forEach(e -> textOut.println(e));
     }
 
     public List<BackpackItem> lootRoom () {
