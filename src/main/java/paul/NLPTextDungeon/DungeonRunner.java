@@ -70,7 +70,6 @@ public class DungeonRunner extends UserInterfaceClass {
         }
         return InputType.NONE;
     }
-    //mustache
 
     @Override
     public InputType show () {
