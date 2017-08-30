@@ -1,0 +1,30 @@
+"obstacles":
+      [
+        {
+          "@class" : "paul.NLPTextDungeon.entities.obstacles.SmashableObstacle",
+          "name": "Barrel",
+          "onSmash":"giveExp",
+          "contents":
+          [
+            {
+              "name":"Potion"
+            },
+            {
+              "name":"Fluffy"
+            }
+          ]
+        }
+      ],
+
+
+      "hiddenItems":
+            {
+              "floor":
+              [
+                {
+                  "type":"note",
+                  "name":"Note: Dad Joke",
+                  "text":"Why are frogs so *hoppy*? They eat whatever bugs them!"
+                }
+              ]
+            },

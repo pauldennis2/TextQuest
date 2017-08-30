@@ -1,8 +1,4 @@
-package paul.NLPTextDungeon.doyoubelieveinmagic;
-
-import paul.NLPTextDungeon.parsing.SpellType;
-import paul.NLPTextDungeon.parsing.WordGroup;
-import paul.NLPTextDungeon.parsing.WordType;
+package paul.NLPTextDungeon.parsing;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -21,9 +17,29 @@ public class MagicUniversity {
     private Map<String, WordGroup> wordMap;
     private List<String> words;
 
-    public MagicUniversity () {
+
+    //Current primary use is for parsing
+
+    private MagicUniversity () {
         scanner = new Scanner(System.in);
         initSpellWordGroups();
+    }
+
+    private static MagicUniversity instance;
+
+    public static MagicUniversity getInstance () {
+        if (instance == null) {
+            instance = new MagicUniversity();
+        }
+        return instance;
+    }
+
+    public String getSpellMatch (String userInput) {
+        if (wordMap.get(userInput) != null) {
+            return wordMap.get(userInput).getCoreWord();
+        } else {
+            return getRegexMatch(userInput);
+        }
     }
 
 
@@ -34,9 +50,7 @@ public class MagicUniversity {
 
             String response = scanner.nextLine().toLowerCase().trim();
 
-            System.out.println("Regex match was: " + getRegexMatch(response));
-
-            System.out.println("Normal match was: " + wordMap.get(response));
+            System.out.println("Match was: " + getSpellMatch(response));
         }
     }
 
@@ -55,10 +69,12 @@ public class MagicUniversity {
         if (regexMatches.size() > 1) {
             throw new AssertionError("Only should be finding one match");
         } else if (regexMatches.size() == 1) {
-            return regexMatches.get(0);
+            String match = regexMatches.get(0);
+            return wordMap.get(match + "-").getCoreWord();
         } else {
             return null;
         }
+
     }
 
     private void initSpellWordGroups () {
@@ -96,8 +112,7 @@ public class MagicUniversity {
 
         wordMap = new HashMap<>();
 
-        wordGroups.stream()
-                .forEach(wordGroup -> {
+        wordGroups.forEach(wordGroup -> {
                     List<String> words = new ArrayList<>(wordGroup.getRelatedWords());
                     words.add(wordGroup.getCoreWord());
                     words.forEach(word -> wordMap.put(word, wordGroup));

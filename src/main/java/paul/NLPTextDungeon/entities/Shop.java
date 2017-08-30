@@ -1,6 +1,6 @@
 package paul.NLPTextDungeon.entities;
 
-import paul.NLPTextDungeon.utils.TextInterface;
+import paul.NLPTextDungeon.parsing.TextInterface;
 import paul.NLPTextDungeon.utils.SafeNumScanner;
 
 import java.util.ArrayList;

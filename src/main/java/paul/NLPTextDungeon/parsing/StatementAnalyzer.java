@@ -13,25 +13,31 @@ import java.util.stream.Collectors;
  */
 public class StatementAnalyzer {
 
-    //private Map<String, WordGroup> wordMap;
     private WordGroupMap wordMap;
 
     private List<WordGroup> wordGroups;
 
     private DungeonRoom location;
 
+    private static StatementAnalyzer instance;
 
-    public StatementAnalyzer () {
+    private StatementAnalyzer () {
         initializeWordGroups();
         initializeWordMap();
     }
 
+    public static StatementAnalyzer getInstance () {
+        if (instance == null) {
+            instance = new StatementAnalyzer();
+        }
+        return instance;
+    }
+
     private String cleanStatement (String statement) {
-        String response = statement.toLowerCase().trim()
+        return statement.toLowerCase().trim()
                 .replaceAll("[^a-z ]", "") //Removes everything but letters and spaces
                 .replaceAll(" {2,}", " ") //Removes extra spaces (leaves one space between words)
                 .trim(); //Just for the heck of it.
-        return response;
     }
 
     private StatementAnalysis parseStatement (String statement) {
@@ -50,6 +56,14 @@ public class StatementAnalyzer {
     private StatementAnalysis finalAnalysis (StatementAnalysis analysis) {
         List<String> voidActionWords = analysis.getTokenMatchMap().get(WordType.VOID_ACTION);
         List<String> paramActionWords = analysis.getTokenMatchMap().get(WordType.PARAM_ACTION);
+        List<String> specialRoomActionWords;
+        if (location != null) {
+            specialRoomActionWords = new ArrayList<>(location.getSpecialRoomActions().keySet());
+        } else {
+            specialRoomActionWords = new ArrayList<>();
+        }
+
+
 
         if (voidActionWords.size() > 0) {
             analysis.setAnalysis(voidActionWords.get(0), null, true);
@@ -73,8 +87,22 @@ public class StatementAnalyzer {
                 }
             //This part is genuinely terrible. TODO please fix
             } else if (actionWord.equals("say") || actionWord.equals("whisper") || actionWord.equals("shout")) {
+                analysis.setActionable(true);
+                analysis.setActionWord(actionWord);
+            } else if (actionWord.equals("cast")) {
+                MagicUniversity magicUniversity = MagicUniversity.getInstance();
+                String[] tokens = analysis.getTokens();
+                List<String> matches = Arrays.stream(tokens)
+                        .map(magicUniversity::getSpellMatch)
+                        .filter(e -> e != null)
+                        .collect(Collectors.toList());
+                if (matches.size() > 0) {
                     analysis.setActionable(true);
-                    analysis.setActionWord(actionWord);
+                    analysis.setActionParam(matches.get(0));
+                    analysis.setActionWord("cast");
+                } else {
+                    analysis.addComment("Could not find a spell to cast");
+                }
             } else if (actionWord.equals("search")) {
                 Set<String> hiddenItemLocations = location.getHiddenItems().keySet();
                 String[] tokens = analysis.getTokens();
@@ -125,13 +153,27 @@ public class StatementAnalyzer {
             analysis.addComment("No action words.");
         }
         if (analysis.hasAnd()) {
-            System.out.println("Detected and. analyzing");
             StatementAnalysis andAnalysis = new StatementAnalysis(analysis.getOriginalStatement() +
                     " JUST THE AND BIT", analysis.getSecondTokens());
             andAnalysis = finalAnalysis(findTokenMatches(andAnalysis));
-            System.out.println(andAnalysis);
             analysis.setSecondAnalysis(andAnalysis.getActionWord(), andAnalysis.getActionParam(), true);
-            System.out.println(analysis);
+        }
+        if (specialRoomActionWords.size() > 0) {
+            if (analysis.hasAnd()) {
+                throw new AssertionError("Not supported");
+            }
+            String[] tokens = analysis.getTokens();
+            List<String> matches = Arrays.stream(tokens)
+                    .filter(specialRoomActionWords::contains)
+                    .collect(Collectors.toList());
+            if (matches.size() > 0) {
+                if (analysis.isActionable()) {
+                    analysis.addComment("Already had actionable analysis. Overriding with special room action");
+                    analysis.addComment(analysis.getActionWord() + " overridden.");
+                }
+                analysis.setActionWord(matches.get(0));
+                analysis.setActionable(true);
+            }
         }
         return analysis;
     }
@@ -272,15 +314,19 @@ public class StatementAnalyzer {
                     currentType = WordType.getTypeFromFileAnnotation(token);
                     continue;
                 }
-                String primaryWord = token.split("-")[0].trim();
-                String[] associatedWords = token.split("-")[1].split(",");
+                if (token.startsWith("$")) {
+                    System.out.println("Inference = " + token);
+                    continue;
+                }
+                String primaryWord = token.split(":")[0].trim();
+                String[] associatedWords = token.split(":")[1].split(",");
                 int index = 0;
                 for (String s : associatedWords) {
                     associatedWords[index] = s.trim().toLowerCase();
                     index++;
                 }
                 Set<String> wordSet = new HashSet<>();
-                Arrays.stream(associatedWords).forEach(wordSet::add);
+                wordSet.addAll(Arrays.asList(associatedWords));
                 WordGroup wg = new WordGroup(primaryWord, wordSet, currentType);
                 wordGroups.add(wg);
             }

@@ -73,6 +73,6 @@ public class BackpackItem extends DungeonRoomEntity {
 
     @Override
     public String toString () {
-        return name + " (" + value + ")";
+        return name;
     }
 }

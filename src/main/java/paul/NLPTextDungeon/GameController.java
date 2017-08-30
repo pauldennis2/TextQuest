@@ -2,14 +2,17 @@ package paul.NLPTextDungeon;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import paul.NLPTextDungeon.utils.DefeatException;
-import paul.NLPTextDungeon.utils.InputType;
-import paul.NLPTextDungeon.utils.TextInterface;
+import paul.NLPTextDungeon.parsing.InputType;
+import paul.NLPTextDungeon.parsing.TextInterface;
 import paul.NLPTextDungeon.utils.VictoryException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 import java.util.List;
@@ -35,7 +38,6 @@ public class GameController {
             textOut.start(null);
             session.setAttribute("textInterface", textOut);
         }
-        System.out.println("Break");
         requestedInputType = textOut.show();//Important
 
         List<String> output = textOut.flush();
@@ -48,26 +50,24 @@ public class GameController {
         model.addAttribute("debugText", debug);
         model.addAttribute("outputText", output);
         model.addAttribute("location", textOut.getRunner().getDungeon().getDungeonName());
+        model.addAttribute("roomName", "  " + textOut.getRunner().getHero().getLocation().getName());
         return "game";
     }
-    //Changes
+
     @RequestMapping(path = "/submit-action", method = RequestMethod.POST)
     public String submitAction (@RequestParam String userInput, Model model, HttpSession session) {
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
 
-        switch (requestedInputType) {
-            case STD:
-                break;
-            case NUMBER: //Number means integer for now
-                try {
-                    int value = Integer.parseInt(userInput);
-                } catch (NumberFormatException ex) {
-                    textOut.println("You were supposed to enter a whole number. Please try again.");
-                    textOut.debug("You broke it by not entering a number.");
-                }
+        if (requestedInputType == InputType.NUMBER) {
+            try {
+                Integer.parseInt(userInput);
+            } catch (NumberFormatException ex) {
+                textOut.debug("You broke it by not entering a number. Thanks");
+            }
         }
-        textOut.println("You entered:");
-        textOut.println(userInput);
+        if (!userInput.equals("")) {
+            textOut.println("You entered: \"" + userInput + "\"");
+        }
         try {
             textOut.processResponse(userInput);
         } catch (DefeatException ex) {

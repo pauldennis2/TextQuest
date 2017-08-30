@@ -1,8 +1,8 @@
 package paul.NLPTextDungeon.bossfight;
 
-import paul.NLPTextDungeon.interfaces.UserInterfaceClass;
-import paul.NLPTextDungeon.utils.InputType;
-import paul.NLPTextDungeon.utils.TextInterface;
+import paul.NLPTextDungeon.parsing.UserInterfaceClass;
+import paul.NLPTextDungeon.parsing.InputType;
+import paul.NLPTextDungeon.parsing.TextInterface;
 import paul.NLPTextDungeon.entities.Hero;
 import paul.NLPTextDungeon.enums.NumberActionType;
 import paul.NLPTextDungeon.enums.NumberRuleType;
@@ -92,6 +92,7 @@ public class VulnerableBehavior extends UserInterfaceClass {
             textOut.println("Boss takes " + BOSS_DAMAGE_TAKEN + " damage.");
             bossFight.setHealth(bossFight.getHealth() - BOSS_DAMAGE_TAKEN);
             if (bossFight.getHealth() <= 0) {
+                hero.addExp(bossFight.getExp());
                 return InputType.FINISHED;
             }
         } else {

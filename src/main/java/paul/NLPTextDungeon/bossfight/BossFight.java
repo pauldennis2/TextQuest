@@ -1,9 +1,9 @@
 package paul.NLPTextDungeon.bossfight;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import paul.NLPTextDungeon.interfaces.UserInterfaceClass;
-import paul.NLPTextDungeon.utils.InputType;
-import paul.NLPTextDungeon.utils.TextInterface;
+import paul.NLPTextDungeon.parsing.UserInterfaceClass;
+import paul.NLPTextDungeon.parsing.InputType;
+import paul.NLPTextDungeon.parsing.TextInterface;
 import paul.NLPTextDungeon.entities.Hero;
 import paul.NLPTextDungeon.utils.VictoryException;
 
@@ -11,7 +11,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by Paul Dennis on 8/13/2017.
@@ -21,6 +20,7 @@ public class BossFight extends UserInterfaceClass {
     private String name;
     private int health;
     private int maxAttacks;
+    private int exp;
     private String bossDescription;
     private String roomDescription;
     private List<AttackBehavior> attackBehaviors;
@@ -38,12 +38,6 @@ public class BossFight extends UserInterfaceClass {
         random = new Random();
         conquered = false;
         numTimesAttackedWithoutVuln = 0;
-    }
-
-    @Override
-    public InputType handleResponse (String response) {
-        //This class is unable to receive a response. there's an error somewhere
-        throw new AssertionError("Can't handle. This method was called in error.");
     }
 
     @Override
@@ -132,6 +126,7 @@ public class BossFight extends UserInterfaceClass {
         this.health = health;
         if (health <= 0) {
             textOut.println("Game Over! You win.");
+            conquered = true;
             throw new VictoryException("You beat the boss!");
         }
     }
@@ -183,5 +178,13 @@ public class BossFight extends UserInterfaceClass {
 
     public boolean isConquered() {
         return conquered;
+    }
+
+    public int getExp() {
+        return exp;
+    }
+
+    public void setExp(int exp) {
+        this.exp = exp;
     }
 }

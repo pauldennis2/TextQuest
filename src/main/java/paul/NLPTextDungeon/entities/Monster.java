@@ -29,7 +29,13 @@ public class Monster extends DungeonRoomEntity {
     }
 
     public boolean isDisabled () {
-        return disabledForRounds == 0;
+        return disabledForRounds > 0;
+    }
+
+    public void nextRound () {
+        if (disabledForRounds > 0) {
+            disabledForRounds--;
+        }
     }
 
     public int takeDamage (int damageAmt) {
@@ -43,18 +49,7 @@ public class Monster extends DungeonRoomEntity {
 
     @Override
     public String toString () {
-        String response = name;
-        if (might < 2) {
-            response += ", weak of claw";
-        } else {
-            response += ", strong of claw";
-        }
-        if (health < 5) {
-            response += ", weak of shell";
-        } else {
-            response += ", strong of shell";
-        }
-        return response;
+        return name;
     }
 
     public int getHealth() {
@@ -92,4 +87,5 @@ public class Monster extends DungeonRoomEntity {
     public void setDefence(int defence) {
         this.defence = defence;
     }
+
 }

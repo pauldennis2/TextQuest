@@ -1,12 +1,12 @@
 package paul.NLPTextDungeon.bossfight;
 
 import paul.NLPTextDungeon.enums.ActionResponseTiming;
-import paul.NLPTextDungeon.interfaces.UserInterfaceClass;
+import paul.NLPTextDungeon.parsing.UserInterfaceClass;
 import paul.NLPTextDungeon.parsing.StatementAnalysis;
 import paul.NLPTextDungeon.parsing.StatementAnalyzer;
 import paul.NLPTextDungeon.parsing.WordType;
-import paul.NLPTextDungeon.utils.InputType;
-import paul.NLPTextDungeon.utils.TextInterface;
+import paul.NLPTextDungeon.parsing.InputType;
+import paul.NLPTextDungeon.parsing.TextInterface;
 import paul.NLPTextDungeon.entities.Hero;
 
 import java.util.ArrayList;
@@ -86,7 +86,7 @@ public class AttackBehavior extends UserInterfaceClass {
     @Override
     public InputType handleResponse (String solution) {
 
-        StatementAnalyzer statementAnalyzer = new StatementAnalyzer();
+        StatementAnalyzer statementAnalyzer = StatementAnalyzer.getInstance();
         StatementAnalysis analysis = statementAnalyzer.analyzeStatement(solution);
         List<String> timingWords = analysis.getTokenMatchMap().get(WordType.TIMING);
         List<String> actionWords = analysis.getTokenMatchMap().get(WordType.VOID_ACTION);

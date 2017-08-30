@@ -1,7 +1,4 @@
-package paul.NLPTextDungeon.interfaces;
-
-import paul.NLPTextDungeon.utils.InputType;
-import paul.NLPTextDungeon.utils.TextInterface;
+package paul.NLPTextDungeon.parsing;
 
 import java.util.List;
 
@@ -26,9 +23,7 @@ public abstract class UserInterfaceClass {
             requester = defaultRequester;
         }
         if (requester != null) {
-            InputType type = requester.processResponse(response);
-            requester = null;
-            return type;
+            return requester.processResponse(response);
         } else {
             return handleResponse(response);
         }
@@ -36,11 +31,5 @@ public abstract class UserInterfaceClass {
 
     protected InputType handleResponse (String response) {
         throw new AssertionError("This class doesn't handle responses. Method called in error");
-    }
-
-    @Deprecated
-    public final void setTextOut (TextInterface textOut) {
-        this.textOut = textOut;
-        children.forEach(e -> e.setTextOut(textOut));
     }
 }
