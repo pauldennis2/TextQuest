@@ -46,6 +46,9 @@ public class GameController {
             debug.add("There was no content in the buffer");
         }
         List<String> tutorial = textOut.flushTutorial();
+        if (tutorial.size() > 0 && tutorial.get(0) == null) {
+            tutorial = null;
+        }
         model.addAttribute("tutorial", tutorial);
         model.addAttribute("debugText", debug);
         model.addAttribute("outputText", output);
@@ -78,5 +81,14 @@ public class GameController {
             textOut.println("You won! Awesome!");
         }
         return "redirect:/game";
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ModelAndView handleError(HttpServletRequest req, Exception ex) {
+        ModelAndView mav = new ModelAndView();
+        mav.addObject("exception", ex);
+        mav.addObject("stackTrace", ex.getStackTrace());
+        mav.setViewName("error");
+        return mav; //Queen of Air and Darkness
     }
 }
