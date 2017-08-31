@@ -4,7 +4,9 @@ package paul.NLPTextDungeon.enums;
  * Created by Paul Dennis on 8/8/2017.
  */
 public enum Direction {
-    NORTH, EAST, SOUTH, WEST, UP, DOWN, PORTAL;
+    NORTH, EAST, SOUTH, WEST, UP, DOWN, PORTAL,
+    ALL, //Represents ALL directions (i.e. an obstacle that blocks travel in all directions)
+    NONE;//Represents no direction (i.e. an obstacle that blocks travel in no direction)
 
     public Direction getOpposite () {
         switch (this) {
@@ -45,6 +47,10 @@ public enum Direction {
                 //And all through the house
             case PORTAL:
                 return "Portal";
+            case ALL:
+                return "All";
+            case NONE:
+                return "None";
             default:
                 return null;
         }

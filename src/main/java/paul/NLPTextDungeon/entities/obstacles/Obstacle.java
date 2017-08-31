@@ -3,6 +3,10 @@ package paul.NLPTextDungeon.entities.obstacles;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import paul.NLPTextDungeon.entities.DungeonRoomEntity;
 import paul.NLPTextDungeon.entities.Hero;
+import paul.NLPTextDungeon.enums.Direction;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Paul Dennis on 8/13/2017.
@@ -20,18 +24,22 @@ public abstract class Obstacle extends DungeonRoomEntity {
     //Up to the implementing class to decide how it works (whether cleared is permanent, etc)
     private boolean isCleared;
 
-    //TODO Implement
     //Represents whether this is a "major obstacle" puzzle or just a smashed barrel or something
     private boolean displayIfCleared;
 
-    public Obstacle () {
+    private List<Direction> blockedDirections;
 
+    public Obstacle () {
+        blockedDirections = new ArrayList<>();
+        blockedDirections.add(Direction.NONE);
     }
 
     public Obstacle(String name, String solution, boolean isCleared) {
         this.name = name;
         this.solution = solution;
         this.isCleared = isCleared;
+        blockedDirections = new ArrayList<>();
+        blockedDirections.add(Direction.NONE);
     }
 
     public abstract boolean attempt (String solution, Hero hero);
@@ -84,5 +92,20 @@ public abstract class Obstacle extends DungeonRoomEntity {
 
     public void setDisplayIfCleared(boolean displayIfCleared) {
         this.displayIfCleared = displayIfCleared;
+    }
+
+    public List<Direction> getBlockedDirections() {
+        return blockedDirections;
+    }
+
+    public void setBlockedDirections(List<Direction> blockedDirections) {
+        this.blockedDirections = blockedDirections;
+    }
+
+    public void addBlockedDirection(Direction direction) {
+        if (blockedDirections.get(0) == Direction.NONE) {
+            blockedDirections.remove(0);
+        }
+        blockedDirections.add(direction);
     }
 }

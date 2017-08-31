@@ -305,12 +305,7 @@ public class DungeonRoom extends UserInterfaceClass {
     }
 
     public boolean isCleared () {
-        boolean noMonsters = monsters.size() == 0;
-        boolean obstaclesCleared = obstacles.stream()
-                .filter(e -> !e.isCleared())
-                .collect(Collectors.toList())
-                .size() == 0;
-        return noMonsters && obstaclesCleared;
+        return monsters.size() == 0;
     }
 
     public String getName() {
