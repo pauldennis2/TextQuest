@@ -20,7 +20,6 @@ public class BackpackItem extends DungeonRoomEntity {
     private boolean isQuestItem;
     private int value;
     private String pickupAction;
-    private boolean darklight; //Item can only be seen in the dark
 
     public BackpackItem () {
 
@@ -75,21 +74,5 @@ public class BackpackItem extends DungeonRoomEntity {
     @Override
     public String toString () {
         return name;
-    }
-
-    public static final double DEFAULT_VISIBILITY_THRESHHOLD = 0.6;
-    public boolean isVisible (double lighting) {
-        if (darklight) {
-            return lighting == 0.0;
-        }
-        return lighting >= DEFAULT_VISIBILITY_THRESHHOLD;
-    }
-
-    public boolean isDarklight() {
-        return darklight;
-    }
-
-    public void setDarklight(boolean darklight) {
-        this.darklight = darklight;
     }
 }

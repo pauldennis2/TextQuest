@@ -9,7 +9,7 @@ public enum LevelUpCategory {
     public static String getPrettyName (LevelUpCategory category) {
         switch (category) {
             case INC_STATS:
-                return "Increase one of your stats (might, defense, or health)";
+                return "Increase one of your stats (might, defence, or health)";
             case NEW_SKILL:
                 return "Learn a new skill (only sneak available right now)";
             case NEW_SPELL:

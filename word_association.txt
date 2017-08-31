@@ -10,7 +10,6 @@ plunder : lootchest
 jump : leap, vault, vaultingboots
 smash : crush, bash
 describe : report
-douse : snuff
 |
 |Param Action Words: (i.e. "travel where?" "use what?", "cast what spell?")
 |===

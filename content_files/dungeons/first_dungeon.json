@@ -31,7 +31,7 @@
         {
           "name":"Red BlobGoblin",
           "health": 9,
-          "might": 3
+          "might": 4
         }
       ],
       "connectedRoomIds":
@@ -91,11 +91,7 @@
         {
           "@class" : "paul.NLPTextDungeon.entities.obstacles.Chasm",
           "name": "Chasm",
-          "solution": "jump",
-          "blockedDirections":
-          [
-            "SOUTH"
-          ]
+          "solution": "jump"
         }
       ],
       "connectedRoomIds":
@@ -143,11 +139,7 @@
           "name": "Sphinx Riddle",
           "solution": "boots",
           "displayIfCleared":true,
-          "riddle": "Two brothers we are, great burdens we bear. All day we are bitterly pressed. Yet this we will say, we are full all the day, and empty when we go to rest.",
-          "blockedDirections":
-          [
-            "SOUTH"
-          ]
+          "riddle": "Two brothers we are, great burdens we bear. All day we are bitterly pressed. Yet this we will say, we are full all the day, and empty when we go to rest."
         }
       ],
       "connectedRoomIds":

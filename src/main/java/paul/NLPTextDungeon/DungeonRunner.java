@@ -32,8 +32,7 @@ public class DungeonRunner extends UserInterfaceClass {
 
     private static final List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue", "search");
 
-    //public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
-    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "new_dungeon.json";
+    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
 
     public DungeonRunner () throws IOException {
         hero = new Hero("default");
@@ -41,7 +40,8 @@ public class DungeonRunner extends UserInterfaceClass {
 
         dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
     }
-
+    //Ch-ch-ch-changes
+    //hope and ch-ch-change
     @Override
     public void start (TextInterface textOut) {
         this.textOut = textOut;
@@ -111,7 +111,11 @@ public class DungeonRunner extends UserInterfaceClass {
                 analysis.printFinalAnalysis();
                 String actionWord = analysis.getActionWord();
                 if (CLEAR_REQUIRED_FOR_ACTION.contains(actionWord) && !currentRoom.isCleared()) {
-                    textOut.println("You have to clear the room of monsters first.");
+                    if (currentRoom.getMonsters().size() > 0) {
+                        textOut.println("You have to clear the room of monsters first.");
+                    } else {
+                        textOut.println("You have to clear the room of obstacles first.");
+                    }
                 } else {
                     if (analysis.getActionParam() != null) {
                         hero.takeAction(actionWord, analysis.getActionParam());

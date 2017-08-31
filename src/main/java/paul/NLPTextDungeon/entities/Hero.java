@@ -1,7 +1,5 @@
 package paul.NLPTextDungeon.entities;
 
-import paul.NLPTextDungeon.entities.obstacles.Obstacle;
-import paul.NLPTextDungeon.enums.LightingLevel;
 import paul.NLPTextDungeon.parsing.MagicUniversity;
 import paul.NLPTextDungeon.entities.obstacles.SmashableObstacle;
 import paul.NLPTextDungeon.enums.LevelUpCategory;
@@ -16,7 +14,6 @@ import paul.NLPTextDungeon.enums.SpeakingVolume;
 import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static paul.NLPTextDungeon.enums.LevelUpCategory.INC_STATS;
 import static paul.NLPTextDungeon.enums.LevelUpCategory.NEW_SKILL;
@@ -35,7 +32,7 @@ public class Hero extends UserInterfaceClass {
     private int might;
     private int magic;
     private int sneak;
-    private int defense;
+    private int defence;
     private int maxSpellsPerDay;
 
     //Base chance to be hit is 50%
@@ -66,7 +63,7 @@ public class Hero extends UserInterfaceClass {
     private transient int mightMod;
     private transient int magicMod;
     private transient int sneakMod;
-    private transient int defenseMod;
+    private transient int defenceMod;
     private transient int numSpellsAvailable;
 
     private transient DungeonRoom location;
@@ -162,8 +159,8 @@ public class Hero extends UserInterfaceClass {
                     textOut.println("Max HP increased by 5");
                     levelUpTodo.remove(0);
                 } else if (response.startsWith("def")){
-                    defense++;
-                    textOut.println("Defense increased by 1 permanently");
+                    defence++;
+                    textOut.println("Defence increased by 1 permanently");
                     levelUpTodo.remove(0);
                 } else {
                     textOut.println("Could not read a stat");
@@ -299,8 +296,6 @@ public class Hero extends UserInterfaceClass {
         });
         listenerMap.put("crackFloor", () -> {
             textOut.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
-            Chasm chasm = new Chasm();
-            chasm.addBlockedDirection(Direction.ALL);
             getLocation().addObstacle(new Chasm());
             textOut.tutorial("Try using your new Boots of Vaulting to JUMP across the chasm.");
             previousLocation = null; //Prevent retreating
@@ -310,8 +305,6 @@ public class Hero extends UserInterfaceClass {
     private void initActionMap () {
 
         heroVoidActions.put("describe", DungeonRoom::describe);
-
-        heroVoidActions.put("douse", room -> room.setLighting(0.0));
 
         heroVoidActions.put("smash", room -> {
             textOut.println("Starting a smashing spree.");
@@ -327,16 +320,12 @@ public class Hero extends UserInterfaceClass {
                         }
                     });
         });
-        heroVoidActions.put("loot", room -> room.lootRoom()
-            .stream()
-            .filter(item -> item.isVisible(location.getLighting()))
-            .forEach(item -> {
-                if (item.hasPickupAction()) {
-                    OnPickup action = listenerMap.get(item.getPickupAction());
-                    action.doAction();
-                }
-                backpack.add(item);
-                textOut.println("Picked up " + item.getName());
+        heroVoidActions.put("loot", room -> room.lootRoom().forEach(item -> {
+            if (item.hasPickupAction()) {
+                OnPickup action = listenerMap.get(item.getPickupAction());
+                action.doAction();
+            }
+            backpack.add(item);
         }));
         heroVoidActions.put("retreat", room -> room.getHero().retreat());
         heroVoidActions.put("sneak", room -> {
@@ -489,7 +478,7 @@ public class Hero extends UserInterfaceClass {
             hero.getLocation().setLighting(TORCH_LIGHT);
         });
         possibleSpellMap.put("aegis", hero -> {
-            hero.defenseMod = 5;
+            hero.defenceMod = 5;
             textOut.debug("Aegis lasts forever.");
             textOut.println("A magic shield surrounds you.");
         });
@@ -537,35 +526,18 @@ public class Hero extends UserInterfaceClass {
     }
 
     public void printStats () {
-        textOut.println("Health: " + health + "/" + maxHealth + "  (Might, Magic, Defense) (" +
-                might + ", " + magic + ", " + defense + ") Level: " + level + ", Exp: " + exp);
+        textOut.println("Health: " + health + "/" + maxHealth + "  (Might, Magic, Defence) (" +
+                might + ", " + magic + ", " + defence + ") Level: " + level + ", Exp: " + exp);
     }
 
     private void proceed (Direction direction) {
-        List<Obstacle> obstacles = location.getObstacles().stream()
-                .filter(e -> !e.isCleared())
-                .filter(e -> {
-                    List<Direction> blockedDirections = e.getBlockedDirections();
-                    if (blockedDirections.get(0) == Direction.ALL) {
-                        return true;
-                    }
-                    if (blockedDirections.contains(direction)) {
-                        return true;
-                    }
-                    return false;
-                })
-                .collect(Collectors.toList());
-        if (obstacles.size() > 0) {
-            textOut.println("Travel is blocked in that direction (" + direction + ")");
-        } else {
-            DungeonRoom nextRoom = location.getConnectedRooms().get(direction);
-            if (nextRoom == null) {
-                textOut.println("Cannot go that way (no connected room).");
-                return;
-            }
-            location.removeHero();
-            setLocation(nextRoom);
+        DungeonRoom nextRoom = location.getConnectedRooms().get(direction);
+        if (nextRoom == null) {
+            textOut.println("Cannot go that way (no connected room).");
+            return;
         }
+        location.removeHero();
+        setLocation(nextRoom);
     }
 
     private void retreat () {
@@ -591,7 +563,7 @@ public class Hero extends UserInterfaceClass {
     }
 
     public void takeDamage (int damage) {
-        damage -= (defense / 5) * 2;
+        damage -= (defence / 5) * 2;
         if (damage <= 0) {
             textOut.println("Damage completely mitigated.");
         } else {
@@ -681,12 +653,12 @@ public class Hero extends UserInterfaceClass {
         this.sneak = sneak;
     }
 
-    public int getDefense() {
-        return defense;
+    public int getDefence() {
+        return defence;
     }
 
-    public void setDefense(int defense) {
-        this.defense = defense;
+    public void setDefence(int defence) {
+        this.defence = defence;
     }
 
     public int getMaxSpellsPerDay() {

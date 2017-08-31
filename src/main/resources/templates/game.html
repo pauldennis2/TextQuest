@@ -1,39 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
 <head>
     <meta charset="UTF-8"/>
     <title>Game</title>
-    <link rel="icon" href="/assets/sword_in_speech.png" type="img/png">
-    <link rel="stylesheet" imageString="text/css" href="css/main.css" type="text/css">
+    <link rel="stylesheet" imageString="text/css" href="../static/css/main.css" th:href="@{/css/main.css}"/>
 </head>
 <body>
-<h3>{{location}}</h3>
-<h5>Version 0.0.4</h5>
+<h3 th:text="${location}"></h3>
+<h5>Version 0.0.3</h5>
 <br/>
 <div class="main-box-parent">
     <div class="game-output-box">
-        <h4>{{roomName}}</h4>
+        <h4 th:text="${roomName}"></h4>
         <br/>
         <ul class="game-output-list">
-            {{#outputText}}
-            <li>
-                {{.}}
+            <li th:each="line : ${outputText}" th:text="${line}">
             </li>
-            {{/outputText}}
         </ul>
     </div>
     <div class="tutorial-output-box">
         Tutorial:
         <br/>
-        {{#tutorial}}
-        <span class="tutorial-color">{{.}}</span>
-        {{/tutorial}}
+        <span th:each="line : ${tutorial}" th:text="${line}" class="tutorial-color"></span>
     </div>
 </div>
 <br/>
 <b>Enter Commands</b><br/>
 <form action="/submit-action" method="post">
-    <input name="userInput" autofocus=/>
+    <input name="userInput" autofocus="true"/>
     <input type="submit" value="Enter"/>
 </form>
 <a href="/interface_help.html">Help</a>
@@ -42,9 +36,7 @@
     <b>Debug</b>
     <br/>
     <ul class="debug-output-list">
-        {{#debugText}}
-        <li>{{.}}</li>
-        {{/debugText}}
+        <li th:each="line : ${debugText}" th:text="${line}"></li>
     </ul>
 </div>
 </body>
