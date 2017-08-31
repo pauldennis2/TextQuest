@@ -237,51 +237,36 @@ public class DungeonRoom extends UserInterfaceClass {
 
         switch (lightingLevel) {
             case WELL_LIT:
-                if (chest != null) {
-                    textOut.println(chest);
-                }
-                if (monsters.size() + items.size() > 0) {
-                    monsters.forEach(monster -> textOut.println(monster));
-                    items.forEach(item -> textOut.println(item));
-                } else {
-                    textOut.println("The room is well lit but otherwise empty.");
-                }
+                textOut.println("The room is well-lit.");
+                monsters.forEach(textOut::println);
                 break;
-
-            case PITCH_BLACK:
-                textOut.println("The room is pitch black. You cannot see anything.");
-                break;
-
             case DIM:
-                if (monsters.size() + items.size() > 0) {
-                    textOut.println("The room is not well lit. You can only make out a few shapes.");
-                    textOut.tutorial("You might want to try \"use torch\".");
-                    if (monsters.size() > 1) {
-                        textOut.println("You can see " + monsters.size() + " figures moving around.");
-                    } else if (monsters.size() == 1) {
-                        textOut.println("You can see one figure moving around.");
-                    }
-                    if (items.size() > 0) {
-
-                        List<BackpackItem> itemsToPrint = items.stream()
-                                .filter(e -> Math.random() < lighting * 2)
-                                .collect(Collectors.toList());
-                        if (itemsToPrint.size() > 0) {
-                            textOut.println("You think you can see the following items:");
-                            itemsToPrint.forEach(textOut::println);
-                        }
-                    }
+                textOut.println("The room is dimly lit.");
+                if (monsters.size() > 1) {
+                    textOut.println("You can see " + monsters.size() + " figures moving around.");
+                } else if (monsters.size() == 1) {
+                    textOut.println("You can see one figure moving around.");
                 }
+                break;
+            case PITCH_BLACK:
+                textOut.println("The room is pitch black.");
                 break;
         }
+
+        items.stream()
+                .filter(item -> item.isVisible(lighting))
+                .forEach(textOut::println);
+
         textOut.println("There are passages leading:");
         connectedRooms.keySet().forEach(e -> textOut.println(e));
     }
 
     public List<BackpackItem> lootRoom () {
-        List<BackpackItem> lootedItems = items;
-        items = new ArrayList<>();
-        return lootedItems;
+        List<BackpackItem> visibleItems = items.stream()
+                .filter(item -> item.isVisible(lighting))
+                .collect(Collectors.toList());
+        items.removeAll(visibleItems);
+        return visibleItems;
     }
 
     public void updateMonsters () {
@@ -305,12 +290,7 @@ public class DungeonRoom extends UserInterfaceClass {
     }
 
     public boolean isCleared () {
-        boolean noMonsters = monsters.size() == 0;
-        boolean obstaclesCleared = obstacles.stream()
-                .filter(e -> !e.isCleared())
-                .collect(Collectors.toList())
-                .size() == 0;
-        return noMonsters && obstaclesCleared;
+        return monsters.size() == 0;
     }
 
     public String getName() {
