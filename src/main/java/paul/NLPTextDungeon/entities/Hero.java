@@ -32,7 +32,7 @@ public class Hero extends UserInterfaceClass {
     private int might;
     private int magic;
     private int sneak;
-    private int defence;
+    private int defense;
     private int maxSpellsPerDay;
 
     //Base chance to be hit is 50%
@@ -63,7 +63,7 @@ public class Hero extends UserInterfaceClass {
     private transient int mightMod;
     private transient int magicMod;
     private transient int sneakMod;
-    private transient int defenceMod;
+    private transient int defenseMod;
     private transient int numSpellsAvailable;
 
     private transient DungeonRoom location;
@@ -159,8 +159,8 @@ public class Hero extends UserInterfaceClass {
                     textOut.println("Max HP increased by 5");
                     levelUpTodo.remove(0);
                 } else if (response.startsWith("def")){
-                    defence++;
-                    textOut.println("Defence increased by 1 permanently");
+                    defense++;
+                    textOut.println("Defense increased by 1 permanently");
                     levelUpTodo.remove(0);
                 } else {
                     textOut.println("Could not read a stat");
@@ -478,7 +478,7 @@ public class Hero extends UserInterfaceClass {
             hero.getLocation().setLighting(TORCH_LIGHT);
         });
         possibleSpellMap.put("aegis", hero -> {
-            hero.defenceMod = 5;
+            hero.defenseMod = 5;
             textOut.debug("Aegis lasts forever.");
             textOut.println("A magic shield surrounds you.");
         });
@@ -526,8 +526,8 @@ public class Hero extends UserInterfaceClass {
     }
 
     public void printStats () {
-        textOut.println("Health: " + health + "/" + maxHealth + "  (Might, Magic, Defence) (" +
-                might + ", " + magic + ", " + defence + ") Level: " + level + ", Exp: " + exp);
+        textOut.println("Health: " + health + "/" + maxHealth + "  (Might, Magic, Defense) (" +
+                might + ", " + magic + ", " + defense + ") Level: " + level + ", Exp: " + exp);
     }
 
     private void proceed (Direction direction) {
@@ -563,7 +563,7 @@ public class Hero extends UserInterfaceClass {
     }
 
     public void takeDamage (int damage) {
-        damage -= (defence / 5) * 2;
+        damage -= (defense / 5) * 2;
         if (damage <= 0) {
             textOut.println("Damage completely mitigated.");
         } else {
@@ -653,12 +653,12 @@ public class Hero extends UserInterfaceClass {
         this.sneak = sneak;
     }
 
-    public int getDefence() {
-        return defence;
+    public int getDefense() {
+        return defense;
     }
 
-    public void setDefence(int defence) {
-        this.defence = defence;
+    public void setDefense(int defense) {
+        this.defense = defense;
     }
 
     public int getMaxSpellsPerDay() {

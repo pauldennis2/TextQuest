@@ -85,7 +85,7 @@ public class NormalCombat extends UserInterfaceClass {
                 } else {
                     int monsterMight = m.getMight();
                     int monsterDamageRoll = random.nextInt(monsterMight + 1) + monsterMight;
-                    double mChance = calcAccuracy(monsterMight, hero.getDefence());
+                    double mChance = calcAccuracy(monsterMight, hero.getDefense());
                     double mRoll = Math.random();
                     if (mChance > mRoll) {
                         hero.takeDamage(monsterDamageRoll);
