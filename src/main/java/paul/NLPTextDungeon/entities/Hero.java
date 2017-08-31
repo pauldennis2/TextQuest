@@ -327,12 +327,16 @@ public class Hero extends UserInterfaceClass {
                         }
                     });
         });
-        heroVoidActions.put("loot", room -> room.lootRoom().forEach(item -> {
-            if (item.hasPickupAction()) {
-                OnPickup action = listenerMap.get(item.getPickupAction());
-                action.doAction();
-            }
-            backpack.add(item);
+        heroVoidActions.put("loot", room -> room.lootRoom()
+            .stream()
+            .filter(item -> item.isVisible(location.getLighting()))
+            .forEach(item -> {
+                if (item.hasPickupAction()) {
+                    OnPickup action = listenerMap.get(item.getPickupAction());
+                    action.doAction();
+                }
+                backpack.add(item);
+                textOut.println("Picked up " + item.getName());
         }));
         heroVoidActions.put("retreat", room -> room.getHero().retreat());
         heroVoidActions.put("sneak", room -> {

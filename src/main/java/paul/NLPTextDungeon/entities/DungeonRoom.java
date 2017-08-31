@@ -262,9 +262,11 @@ public class DungeonRoom extends UserInterfaceClass {
     }
 
     public List<BackpackItem> lootRoom () {
-        List<BackpackItem> lootedItems = items;
-        items = new ArrayList<>();
-        return lootedItems;
+        List<BackpackItem> visibleItems = items.stream()
+                .filter(item -> item.isVisible(lighting))
+                .collect(Collectors.toList());
+        items.removeAll(visibleItems);
+        return visibleItems;
     }
 
     public void updateMonsters () {
