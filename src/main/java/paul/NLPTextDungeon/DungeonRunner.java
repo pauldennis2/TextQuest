@@ -32,7 +32,8 @@ public class DungeonRunner extends UserInterfaceClass {
 
     private static final List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue", "search");
 
-    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
+    //public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
+    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "new_dungeon.json";
 
     public DungeonRunner () throws IOException {
         hero = new Hero("default");
@@ -40,8 +41,7 @@ public class DungeonRunner extends UserInterfaceClass {
 
         dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
     }
-    //Ch-ch-ch-changes
-    //hope and ch-ch-change
+
     @Override
     public void start (TextInterface textOut) {
         this.textOut = textOut;

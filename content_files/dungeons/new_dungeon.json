@@ -1,5 +1,5 @@
 {
-  "dungeonName":"Test Dungeon",
+  "dungeonName":"Darklight Dungeon",
   "description":"A dungeon for testing new features.",
   "rooms":
   [
@@ -35,7 +35,14 @@
       "connectedRoomIds":
       {
         "WEST":1
-      }
+      },
+      "items":
+      [
+        {
+          "name":"Mirror Shield",
+          "darklight":true
+        }
+      ]
     }
   ]
 }
