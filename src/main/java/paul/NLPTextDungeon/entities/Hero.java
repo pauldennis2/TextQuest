@@ -1,5 +1,6 @@
 package paul.NLPTextDungeon.entities;
 
+import paul.NLPTextDungeon.entities.obstacles.Obstacle;
 import paul.NLPTextDungeon.parsing.MagicUniversity;
 import paul.NLPTextDungeon.entities.obstacles.SmashableObstacle;
 import paul.NLPTextDungeon.enums.LevelUpCategory;
@@ -14,6 +15,7 @@ import paul.NLPTextDungeon.enums.SpeakingVolume;
 import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static paul.NLPTextDungeon.enums.LevelUpCategory.INC_STATS;
 import static paul.NLPTextDungeon.enums.LevelUpCategory.NEW_SKILL;
@@ -296,6 +298,8 @@ public class Hero extends UserInterfaceClass {
         });
         listenerMap.put("crackFloor", () -> {
             textOut.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
+            Chasm chasm = new Chasm();
+            chasm.addBlockedDirection(Direction.ALL);
             getLocation().addObstacle(new Chasm());
             textOut.tutorial("Try using your new Boots of Vaulting to JUMP across the chasm.");
             previousLocation = null; //Prevent retreating
@@ -531,13 +535,30 @@ public class Hero extends UserInterfaceClass {
     }
 
     private void proceed (Direction direction) {
-        DungeonRoom nextRoom = location.getConnectedRooms().get(direction);
-        if (nextRoom == null) {
-            textOut.println("Cannot go that way (no connected room).");
-            return;
+        List<Obstacle> obstacles = location.getObstacles().stream()
+                .filter(e -> !e.isCleared())
+                .filter(e -> {
+                    List<Direction> blockedDirections = e.getBlockedDirections();
+                    if (blockedDirections.get(0) == Direction.ALL) {
+                        return true;
+                    }
+                    if (blockedDirections.contains(direction)) {
+                        return true;
+                    }
+                    return false;
+                })
+                .collect(Collectors.toList());
+        if (obstacles.size() > 0) {
+            textOut.println("Travel is blocked in that direction (" + direction + ")");
+        } else {
+            DungeonRoom nextRoom = location.getConnectedRooms().get(direction);
+            if (nextRoom == null) {
+                textOut.println("Cannot go that way (no connected room).");
+                return;
+            }
+            location.removeHero();
+            setLocation(nextRoom);
         }
-        location.removeHero();
-        setLocation(nextRoom);
     }
 
     private void retreat () {

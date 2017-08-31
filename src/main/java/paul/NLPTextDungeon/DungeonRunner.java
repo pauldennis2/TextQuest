@@ -111,11 +111,7 @@ public class DungeonRunner extends UserInterfaceClass {
                 analysis.printFinalAnalysis();
                 String actionWord = analysis.getActionWord();
                 if (CLEAR_REQUIRED_FOR_ACTION.contains(actionWord) && !currentRoom.isCleared()) {
-                    if (currentRoom.getMonsters().size() > 0) {
-                        textOut.println("You have to clear the room of monsters first.");
-                    } else {
-                        textOut.println("You have to clear the room of obstacles first.");
-                    }
+                    textOut.println("You have to clear the room of monsters first.");
                 } else {
                     if (analysis.getActionParam() != null) {
                         hero.takeAction(actionWord, analysis.getActionParam());
