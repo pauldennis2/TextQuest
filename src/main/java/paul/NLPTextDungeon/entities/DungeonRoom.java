@@ -1,5 +1,6 @@
 package paul.NLPTextDungeon.entities;
 
+import paul.NLPTextDungeon.LeavingRoomAction;
 import paul.NLPTextDungeon.parsing.UserInterfaceClass;
 import paul.NLPTextDungeon.parsing.InputType;
 import paul.NLPTextDungeon.parsing.TextInterface;
@@ -32,6 +33,8 @@ public class DungeonRoom extends UserInterfaceClass {
     private Map<String, String> specialRoomActions;
     private Chest chest;
     private String bossFightFileLocation;
+    private LightingChangeAction onLightingChange;
+    private LeavingRoomAction onHeroLeave;
 
     //Temporary variables for JSONification
     private Map<Direction, Integer> connectedRoomIds;
@@ -432,5 +435,21 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setSpecialRoomActions(Map<String, String> specialRoomActions) {
         this.specialRoomActions = specialRoomActions;
+    }
+
+    public LightingChangeAction getOnLightingChange() {
+        return onLightingChange;
+    }
+
+    public void setOnLightingChange(LightingChangeAction onLightingChange) {
+        this.onLightingChange = onLightingChange;
+    }
+
+    public LeavingRoomAction getOnHeroLeave() {
+        return onHeroLeave;
+    }
+
+    public void setOnHeroLeave(LeavingRoomAction onHeroLeave) {
+        this.onHeroLeave = onHeroLeave;
     }
 }

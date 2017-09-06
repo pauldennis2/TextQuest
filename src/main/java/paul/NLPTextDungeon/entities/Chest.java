@@ -12,6 +12,7 @@ public class Chest {
     private String name;
 
     private List<BackpackItem> contents;
+    private boolean darklight;
 
     public Chest() {
         contents = new ArrayList<>();
@@ -83,5 +84,13 @@ public class Chest {
 
     public void setContents(List<BackpackItem> contents) {
         this.contents = contents;
+    }
+
+    public boolean isDarklight() {
+        return darklight;
+    }
+
+    public void setDarklight(boolean darklight) {
+        this.darklight = darklight;
     }
 }
