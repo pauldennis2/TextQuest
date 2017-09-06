@@ -1,5 +1,6 @@
 package paul.NLPTextDungeon.entities;
 
+import paul.NLPTextDungeon.LeavingRoomAction;
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
 import paul.NLPTextDungeon.parsing.MagicUniversity;
 import paul.NLPTextDungeon.entities.obstacles.SmashableObstacle;
@@ -557,6 +558,12 @@ public class Hero extends UserInterfaceClass {
         if (obstacles.size() > 0) {
             textOut.println("Travel is blocked in that direction (" + direction + ")");
         } else {
+            Map<Direction, LeavingRoomAction> map = location.getOnHeroLeave();
+            if (map != null && map.get(direction) != null) {
+                LeavingRoomAction lra = map.get(direction);
+                String action = lra.getAction();
+                boolean stops = lra.isStops();
+            }
             DungeonRoom nextRoom = location.getConnectedRooms().get(direction);
             if (nextRoom == null) {
                 textOut.println("Cannot go that way (no connected room).");
@@ -718,5 +725,13 @@ public class Hero extends UserInterfaceClass {
 
     public TextInterface getTextOut() {
         return textOut;
+    }
+
+    public DungeonRoom getPreviousLocation() {
+        return previousLocation;
+    }
+
+    public void setPreviousLocation(DungeonRoom previousLocation) {
+        this.previousLocation = previousLocation;
     }
 }

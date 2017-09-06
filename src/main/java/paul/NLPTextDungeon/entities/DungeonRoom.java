@@ -1,6 +1,9 @@
 package paul.NLPTextDungeon.entities;
 
 import paul.NLPTextDungeon.LeavingRoomAction;
+import paul.NLPTextDungeon.entities.obstacles.Chasm;
+import paul.NLPTextDungeon.interfaces.ParamAction;
+import paul.NLPTextDungeon.interfaces.VoidAction;
 import paul.NLPTextDungeon.parsing.UserInterfaceClass;
 import paul.NLPTextDungeon.parsing.InputType;
 import paul.NLPTextDungeon.parsing.TextInterface;
@@ -11,6 +14,7 @@ import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.enums.LightingLevel;
 import paul.NLPTextDungeon.enums.SpeakingVolume;
 import paul.NLPTextDungeon.interfaces.listeners.SpeechListener;
+import paul.NLPTextDungeon.utils.VictoryException;
 
 import java.io.IOException;
 import java.util.*;
@@ -24,34 +28,34 @@ public class DungeonRoom extends UserInterfaceClass {
     private String name;
     private String description;
     private int id;
+    private String tutorial;
 
-    private boolean hasPrince;
     private double lighting;
     private List<Monster> monsters;
     private List<BackpackItem> items;
+    //The "Key" for hidden items is a word location in the room. By convention the word should appear in the description
+    //Of the room. For example if the description references a "fountain" than an item would be hidden by "fountain"
+    private Map<String, List<BackpackItem>> hiddenItems;
     private List<Obstacle> obstacles;
-    private Map<String, String> specialRoomActions;
     private Chest chest;
     private String bossFightFileLocation;
+    private List<Feature> features;
+
+    private Map<String, String> specialRoomActions;
     private LightingChangeAction onLightingChange;
-    private LeavingRoomAction onHeroLeave;
+    private Map<Direction, LeavingRoomAction> onHeroLeave;
 
     //Temporary variables for JSONification
     private Map<Direction, Integer> connectedRoomIds;
 
     private transient List<SpeechListener> speechListeners;
+    private transient TextInterface textOut;
 
-
-    //The "Key" for hidden items is a word location in the room. By convention the word should appear in the description
-    //Of the room. For example if the description references a "fountain" than an item would be hidden by "fountain"
-    private Map<String, List<BackpackItem>> hiddenItems;
 
     private transient Map<Direction, DungeonRoom> connectedRooms;
     private transient BossFight bossFight;
     private transient Hero hero;
     private transient boolean described;
-
-    private String tutorial;
 
     public DungeonRoom () {
         hiddenItems = new HashMap<>();
@@ -64,6 +68,62 @@ public class DungeonRoom extends UserInterfaceClass {
         speechListeners = new ArrayList<>();
         specialRoomActions = new HashMap<>();
         initUniversalSpeechListeners();
+    }
+
+    private static Map<String, VoidAction> voidActionMap;
+    private static Map<String, ParamAction> paramActionMap;
+
+    private static void initActionMaps () {
+        voidActionMap = new HashMap<>();
+        paramActionMap = new HashMap<>();
+
+        paramActionMap.put("createMonster", (room, param) -> {
+            if (param.equals("Skeleton")) {
+                room.addMonster(new Monster(2, 1, "Skeleton"));
+            } else {
+                room.getHero().getTextOut().debug("Only type supported is skeleton. Param was = " + param);
+            }
+        });
+        paramActionMap.put("explode", (room, param) -> {
+            int damageAmt = Integer.parseInt(param);
+            room.getHero().getTextOut().println("BOOM!! Explosions!");
+            room.getHero().takeNonMitigatedDamage(damageAmt);
+        });
+        paramActionMap.put("giveExp", (room, param) -> room.getHero().addExp(Integer.parseInt(param)));
+        voidActionMap.put("douse", room -> room.setLighting(0.0));
+        voidActionMap.put("light", room -> room.setLighting(1.0));
+        voidActionMap.put("makeMinibossWeak", room -> {
+            room.getMonsters().stream()
+                .filter(Monster::isMiniboss)
+                .forEach(miniboss -> {
+                    miniboss.setMight(2);
+                    miniboss.setDefense(1);
+                    miniboss.disable(1);
+                });
+        });
+        voidActionMap.put("makeMinibossStrong", room -> {
+            room.getMonsters().stream()
+                .filter(Monster::isMiniboss)
+                .forEach(miniboss -> {
+                    miniboss.setMight(5);
+                    miniboss.setDefense(12);
+                });
+        });
+        voidActionMap.put("startFight", room -> room.getHero().takeAction("fight"));
+        voidActionMap.put("victory", room -> {
+            throw new VictoryException("You win!");
+        });
+        voidActionMap.put("crackFloor", room -> {
+            room.textOut.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
+            Chasm chasm = new Chasm();
+            chasm.addBlockedDirection(Direction.ALL);
+            room.addObstacle(new Chasm());
+            room.hero.setPreviousLocation(null); //Prevent retreating
+        });
+        paramActionMap.put("heal", (room, param) -> {
+            int amt = Integer.parseInt(param);
+            room.getHero().restoreHealth(amt);
+        });
     }
 
     public DungeonRoom (String name, String description) {
@@ -159,9 +219,6 @@ public class DungeonRoom extends UserInterfaceClass {
         return removed;
     }
 
-    public void setHasPrince(boolean hasPrince) {
-        this.hasPrince = hasPrince;
-    }
 
     public void addMonster (Monster monster) {
         monsters.add(monster);
@@ -283,12 +340,29 @@ public class DungeonRoom extends UserInterfaceClass {
     }
 
     public void setLighting (double lighting) {
+        if (lighting != this.lighting) {
+            if (onLightingChange != null) {
+                String action = onLightingChange.getActionMap().get(LightingLevel.getLightingLevel(lighting));
+                if (action != null) {
+                    doAction(action);
+                }
+            }
+        }
         if (lighting > 1.0) {
             this.lighting = 1.0;
         } else if (lighting < 0.0) {
             this.lighting = 0.0;
         } else {
             this.lighting = lighting;
+        }
+    }
+
+    private void doAction (String action) {
+        if (action.contains(" ")) {
+            String[] tokens = action.split(" ");
+            paramActionMap.get(tokens[0]).doAction(this, tokens[1]);
+        } else {
+            voidActionMap.get(action).doAction(this);
         }
     }
 
@@ -318,10 +392,6 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setId(int id) {
         this.id = id;
-    }
-
-    public boolean isHasPrince() {
-        return hasPrince;
     }
 
     public List<Monster> getMonsters() {
@@ -445,11 +515,19 @@ public class DungeonRoom extends UserInterfaceClass {
         this.onLightingChange = onLightingChange;
     }
 
-    public LeavingRoomAction getOnHeroLeave() {
+    public Map<Direction, LeavingRoomAction> getOnHeroLeave() {
         return onHeroLeave;
     }
 
-    public void setOnHeroLeave(LeavingRoomAction onHeroLeave) {
+    public void setOnHeroLeave(Map<Direction, LeavingRoomAction> onHeroLeave) {
         this.onHeroLeave = onHeroLeave;
+    }
+
+    public List<Feature> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(List<Feature> features) {
+        this.features = features;
     }
 }

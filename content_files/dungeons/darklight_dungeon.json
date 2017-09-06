@@ -214,8 +214,8 @@
       "lighting":0.0,
       "onLightingChange":
       {
-        "requiredLevel":1.0,
-        "action":"makeMinibossVuln"
+        "WELL_LIT":"makeMinibossStrong",
+        "PITCH_BLACK":"makeMinibossVuln"
       },
       "monsters":
       [
@@ -224,17 +224,18 @@
           "health": 25,
           "might": 5,
           "defense":12,
+          "isMiniboss":true,
           "abilities":
           {
-            "douse":
+            "light":
             {
-              "action":"douse",
+              "action":"light",
               "before":true
             }
           },
           "behavior":
           {
-            "EVERY_OTHER_ROUND":"douse"
+            "EVERY_OTHER_ROUND":"light"
           }
         }
       ],
@@ -278,9 +279,21 @@
       "id":23,
       "lighting":1.0,
       "description":"Hmm... not sure.",
+      "features":
+      [
+        {
+          "name":"fountain",
+          "description":"Darklight Healing Fountain",
+          "darklight":true
+        }
+      ],
       "onHeroLeave":
       {
-        "action":"bump"
+        "EAST":
+        {
+          "action":"bump fountain",
+          "stops":true
+        }
       },
       "connectedRoomIds":
       {

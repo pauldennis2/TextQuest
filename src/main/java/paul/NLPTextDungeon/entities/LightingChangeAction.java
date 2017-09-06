@@ -1,30 +1,25 @@
 package paul.NLPTextDungeon.entities;
 
+import paul.NLPTextDungeon.enums.LightingLevel;
+
+import java.util.Map;
+
 /**
  * Created by Paul Dennis on 9/5/2017.
  */
 public class LightingChangeAction {
 
-    private double requiredLevel;
-    private String action;
+    private Map<LightingLevel, String> actionMap;
 
     public LightingChangeAction () {
 
     }
 
-    public double getRequiredLevel() {
-        return requiredLevel;
+    public Map<LightingLevel, String> getActionMap() {
+        return actionMap;
     }
 
-    public void setRequiredLevel(double requiredLevel) {
-        this.requiredLevel = requiredLevel;
-    }
-
-    public String getAction() {
-        return action;
-    }
-
-    public void setAction(String action) {
-        this.action = action;
+    public void setActionMap(Map<LightingLevel, String> actionMap) {
+        this.actionMap = actionMap;
     }
 }
