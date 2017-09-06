@@ -187,7 +187,7 @@ public class DungeonRoom extends UserInterfaceClass {
             }
         }
         if (other == null) {
-            throw new AssertionError("Cannot connect to a null room.");
+            throw new AssertionError("Cannot connect to a null room. This = " + this.getName());
         }
 
         connectedRooms.put(direction, other);

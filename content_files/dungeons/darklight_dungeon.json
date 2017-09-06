@@ -257,7 +257,7 @@
       "description":"It's very bright up here.",
       "connectedRoomIds":
       {
-        "DOWN":14,
+        "DOWN":4,
         "NORTH":25,
         "SOUTH":22
       }

@@ -89,6 +89,7 @@ public class GameController {
         mav.addObject("exception", ex);
         mav.addObject("stackTrace", ex.getStackTrace());
         mav.setViewName("error");
+        ex.printStackTrace();
         return mav; //Queen of Air and Darkness
     }
 }
