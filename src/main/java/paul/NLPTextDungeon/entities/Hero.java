@@ -1,7 +1,6 @@
 package paul.NLPTextDungeon.entities;
 
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
-import paul.NLPTextDungeon.enums.LightingLevel;
 import paul.NLPTextDungeon.parsing.MagicUniversity;
 import paul.NLPTextDungeon.entities.obstacles.SmashableObstacle;
 import paul.NLPTextDungeon.enums.LevelUpCategory;
@@ -332,7 +331,7 @@ public class Hero extends UserInterfaceClass {
             .filter(item -> item.isVisible(location.getLighting()))
             .forEach(item -> {
                 if (item.hasPickupAction()) {
-                    OnPickup action = listenerMap.get(item.getPickupAction());
+                    OnPickup action = listenerMap.get(item.getOnPickup());
                     action.doAction();
                 }
                 backpack.add(item);
@@ -377,7 +376,7 @@ public class Hero extends UserInterfaceClass {
             List<BackpackItem> chestContents = chest.removeContents();
             chestContents.forEach(item -> {
                 if (item.hasPickupAction()) {
-                    OnPickup action = listenerMap.get(item.getPickupAction());
+                    OnPickup action = listenerMap.get(item.getOnPickup());
                     action.doAction();
                 }
                 backpack.add(item);

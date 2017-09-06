@@ -3,7 +3,7 @@ package paul.NLPTextDungeon.entities;
 /**
  * Created by Paul Dennis on 9/5/2017.
  */
-public abstract class CombatBehavior {
+public class CombatBehavior {
 
     private boolean before;
     private String action;
