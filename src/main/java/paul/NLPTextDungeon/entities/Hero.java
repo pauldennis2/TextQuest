@@ -559,18 +559,26 @@ public class Hero extends UserInterfaceClass {
             textOut.println("Travel is blocked in that direction (" + direction + ")");
         } else {
             Map<Direction, LeavingRoomAction> map = location.getOnHeroLeave();
+            boolean proceed = true;
             if (map != null && map.get(direction) != null) {
                 LeavingRoomAction lra = map.get(direction);
                 String action = lra.getAction();
-                boolean stops = lra.isStops();
+                location.doAction(action);
+                proceed = lra.isStops();
+                if (lra.isDoOnce()) {
+                    map.remove(direction);
+                }
+                Fix this
             }
-            DungeonRoom nextRoom = location.getConnectedRooms().get(direction);
-            if (nextRoom == null) {
-                textOut.println("Cannot go that way (no connected room).");
-                return;
+            if (proceed) {
+                DungeonRoom nextRoom = location.getConnectedRooms().get(direction);
+                if (nextRoom == null) {
+                    textOut.println("Cannot go that way (no connected room).");
+                    return;
+                }
+                location.removeHero();
+                setLocation(nextRoom);
             }
-            location.removeHero();
-            setLocation(nextRoom);
         }
     }
 

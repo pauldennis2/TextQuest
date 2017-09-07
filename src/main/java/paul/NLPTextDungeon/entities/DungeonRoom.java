@@ -357,7 +357,7 @@ public class DungeonRoom extends UserInterfaceClass {
         }
     }
 
-    private void doAction (String action) {
+    public void doAction (String action) {
         if (action.contains(" ")) {
             String[] tokens = action.split(" ");
             paramActionMap.get(tokens[0]).doAction(this, tokens[1]);
