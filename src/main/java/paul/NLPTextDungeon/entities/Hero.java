@@ -110,6 +110,9 @@ public class Hero extends UserInterfaceClass {
         backpack.add(new BackpackItem("Torch"));
         backpack.add(new BackpackItem("Sword"));
         backpack.add(new BackpackItem("Bow"));
+
+        //For debug. Todo; remove
+        backpack.add(new BackpackItem("Boots of Vaulting"));
         initMaps();
     }
 
@@ -226,7 +229,6 @@ public class Hero extends UserInterfaceClass {
         initItemActions();
         initViews();
         initPossibleSpellMap();
-        initPickupListenerMap();
     }
 
     public void takeAction (String action) {
@@ -291,22 +293,6 @@ public class Hero extends UserInterfaceClass {
     }
 
 
-    private Map<String, OnPickup> listenerMap;
-    private void initPickupListenerMap () {
-        listenerMap = new HashMap<>();
-        listenerMap.put("victory", () -> {
-            throw new VictoryException("You win!");
-        });
-        listenerMap.put("crackFloor", () -> {
-            textOut.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
-            Chasm chasm = new Chasm();
-            chasm.addBlockedDirection(Direction.ALL);
-            getLocation().addObstacle(new Chasm());
-            textOut.tutorial("Try using your new Boots of Vaulting to JUMP across the chasm.");
-            previousLocation = null; //Prevent retreating
-        });
-    }
-
     private void initActionMap () {
 
         heroVoidActions.put("describe", DungeonRoom::describe);
@@ -332,8 +318,7 @@ public class Hero extends UserInterfaceClass {
             .filter(item -> item.isVisible(location.getLighting()))
             .forEach(item -> {
                 if (item.hasPickupAction()) {
-                    OnPickup action = listenerMap.get(item.getOnPickup());
-                    action.doAction();
+                    room.doAction(item.getOnPickup());
                 }
                 backpack.add(item);
                 textOut.println("Picked up " + item.getName());
@@ -377,9 +362,9 @@ public class Hero extends UserInterfaceClass {
             List<BackpackItem> chestContents = chest.removeContents();
             chestContents.forEach(item -> {
                 if (item.hasPickupAction()) {
-                    OnPickup action = listenerMap.get(item.getOnPickup());
-                    action.doAction();
+                    room.doAction(item.getOnPickup());
                 }
+                textOut.println("Looted " + item.getName() + " from chest.");
                 backpack.add(item);
             });
         });
@@ -568,7 +553,6 @@ public class Hero extends UserInterfaceClass {
                 if (lra.isDoOnce()) {
                     map.remove(direction);
                 }
-                Fix this
             }
             if (proceed) {
                 DungeonRoom nextRoom = location.getConnectedRooms().get(direction);

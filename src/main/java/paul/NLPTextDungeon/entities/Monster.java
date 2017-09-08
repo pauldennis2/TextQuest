@@ -117,7 +117,7 @@ public class Monster extends DungeonRoomEntity {
         return isMiniboss;
     }
 
-    public void setMiniboss(boolean miniboss) {
+    public void setIsMiniboss(boolean miniboss) {
         isMiniboss = miniboss;
     }
 }

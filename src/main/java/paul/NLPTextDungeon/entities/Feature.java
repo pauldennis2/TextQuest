@@ -5,6 +5,7 @@ package paul.NLPTextDungeon.entities;
  */
 public class Feature {
 
+    private String name;
     private boolean darklight;
     private String description;
 
@@ -36,6 +37,14 @@ public class Feature {
             return lighting == 0.0;
         }
         return lighting >= DEFAULT_VISIBILITY_THRESHHOLD;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public boolean isBumped() {

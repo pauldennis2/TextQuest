@@ -42,7 +42,7 @@ public class DungeonRoom extends UserInterfaceClass {
     private List<Feature> features;
 
     private Map<String, String> specialRoomActions;
-    private LightingChangeAction onLightingChange;
+    private Map<LightingLevel, String> onLightingChange;
     private Map<Direction, LeavingRoomAction> onHeroLeave;
 
     //Temporary variables for JSONification
@@ -99,6 +99,7 @@ public class DungeonRoom extends UserInterfaceClass {
                     miniboss.setMight(2);
                     miniboss.setDefense(1);
                     miniboss.disable(1);
+                    room.getHero().getTextOut().println("Made " + miniboss.getName() + " weak.");
                 });
         });
         voidActionMap.put("makeMinibossStrong", room -> {
@@ -107,6 +108,7 @@ public class DungeonRoom extends UserInterfaceClass {
                 .forEach(miniboss -> {
                     miniboss.setMight(5);
                     miniboss.setDefense(12);
+                    room.getHero().getTextOut().println("Made " + miniboss.getName() + " strong.");
                 });
         });
         voidActionMap.put("startFight", room -> room.getHero().takeAction("fight"));
@@ -124,6 +126,9 @@ public class DungeonRoom extends UserInterfaceClass {
             int amt = Integer.parseInt(param);
             room.getHero().restoreHealth(amt);
         });
+        paramActionMap.put("bump", (room, param) -> room.textOut.println("Ouch! You bumped into something."));
+        voidActionMap.put("addShinePuzzle", room ->
+                room.getHero().getTextOut().println("Shine puzzle added. (not really)"));
     }
 
     public DungeonRoom (String name, String description) {
@@ -342,7 +347,7 @@ public class DungeonRoom extends UserInterfaceClass {
     public void setLighting (double lighting) {
         if (lighting != this.lighting) {
             if (onLightingChange != null) {
-                String action = onLightingChange.getActionMap().get(LightingLevel.getLightingLevel(lighting));
+                String action = onLightingChange.get(LightingLevel.getLightingLevel(lighting));
                 if (action != null) {
                     doAction(action);
                 }
@@ -358,6 +363,9 @@ public class DungeonRoom extends UserInterfaceClass {
     }
 
     public void doAction (String action) {
+        if (voidActionMap == null || paramActionMap == null) {
+            initActionMaps();
+        }
         if (action.contains(" ")) {
             String[] tokens = action.split(" ");
             paramActionMap.get(tokens[0]).doAction(this, tokens[1]);
@@ -438,11 +446,13 @@ public class DungeonRoom extends UserInterfaceClass {
         }
         this.hero = hero;
         numVisits++;
-        if (numVisits == 1) {
-            textOut.tutorial(tutorial);
-        } else if (numVisits == 2) {
-            textOut.tutorial("Repeating tutorial just in case.");
-            textOut.tutorial(tutorial);
+        if (tutorial != null) {
+            if (numVisits == 1) {
+                textOut.tutorial(tutorial);
+            } else if (numVisits == 2) {
+                textOut.tutorial("Repeating tutorial just in case.");
+                textOut.tutorial(tutorial);
+            }
         }
         if (bossFight != null) {
             bossFight.setHero(hero);
@@ -507,11 +517,11 @@ public class DungeonRoom extends UserInterfaceClass {
         this.specialRoomActions = specialRoomActions;
     }
 
-    public LightingChangeAction getOnLightingChange() {
+    public Map<LightingLevel, String> getOnLightingChange() {
         return onLightingChange;
     }
 
-    public void setOnLightingChange(LightingChangeAction onLightingChange) {
+    public void setOnLightingChange(Map<LightingLevel, String> onLightingChange) {
         this.onLightingChange = onLightingChange;
     }
 

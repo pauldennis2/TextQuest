@@ -49,9 +49,17 @@ public class GameController {
         if (tutorial.size() > 0 && tutorial.get(0) == null) {
             tutorial = null;
         }
-        model.addAttribute("tutorial", tutorial);
-        model.addAttribute("debugText", debug);
+
         model.addAttribute("outputText", output);
+
+        if (tutorial != null && tutorial.size() > 0) {
+            System.out.println("tutorial added with size " + tutorial.size());
+            model.addAttribute("tutorial", tutorial);
+        }
+
+        if (debug != null && debug.size() > 0) {
+            model.addAttribute("debugText", debug);
+        }
         model.addAttribute("location", textOut.getRunner().getDungeon().getDungeonName());
         model.addAttribute("roomName", "  " + textOut.getRunner().getHero().getLocation().getName());
         return "game";
