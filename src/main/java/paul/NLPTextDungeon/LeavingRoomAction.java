@@ -2,24 +2,19 @@ package paul.NLPTextDungeon;
 
 import paul.NLPTextDungeon.enums.Direction;
 
+import java.util.Map;
+
 /**
  * Created by Paul Dennis on 9/5/2017.
  */
 public class LeavingRoomAction {
 
-    private Direction direction;//not required
     private String action;
+    private boolean stops; //Stops the hero from leaving the room
+    private boolean doOnce; //Perform the action only once. default = true
 
     public LeavingRoomAction () {
-
-    }
-
-    public Direction getDirection() {
-        return direction;
-    }
-
-    public void setDirection(Direction direction) {
-        this.direction = direction;
+        doOnce = true;
     }
 
     public String getAction() {
@@ -28,5 +23,21 @@ public class LeavingRoomAction {
 
     public void setAction(String action) {
         this.action = action;
+    }
+
+    public boolean isStops() {
+        return stops;
+    }
+
+    public void setStops(boolean stops) {
+        this.stops = stops;
+    }
+
+    public boolean isDoOnce() {
+        return doOnce;
+    }
+
+    public void setDoOnce(boolean doOnce) {
+        this.doOnce = doOnce;
     }
 }

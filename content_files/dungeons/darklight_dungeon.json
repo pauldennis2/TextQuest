@@ -4,8 +4,8 @@
   "levels":
   {
     "Ground":0,
-    "Basement":1,
-    "Second Floor":2
+    "Second Floor":1,
+    "Basement":2
   },
   "rooms":
   [
@@ -19,9 +19,27 @@
         {
           "@class" : "paul.NLPTextDungeon.entities.obstacles.Chasm",
           "name": "Chasm",
-          "solution": "jump"
+          "solution": "jump",
+          "blockedDirections":
+          [
+            "EAST"
+          ]
+        },
+        {
+          "@class" : "paul.NLPTextDungeon.entities.obstacles.SmashableObstacle",
+          "name": "Barrel",
+          "solution": "smash",
+          "onSmash":"createMonster Skeleton"
         }
       ],
+      "onHeroLeave":
+      {
+        "EAST":
+        {
+          "action":"giveExp 100",
+          "stops":true
+        }
+      },
       "connectedRoomIds":
       {
         "EAST":2
@@ -75,7 +93,7 @@
       }
     },
     {
-      "name":"Room 14",
+      "name":"Room 4",
       "id":4,
       "description":"Mainly a passage.",
       "lighting":0.5,
@@ -180,9 +198,9 @@
       }
     },
     {
-      "name":"Stair Down",
+      "name":"Stair Up",
       "id":9,
-      "description":"Stairs lead down into the blackness.",
+      "description":"Stairs lead up into light.",
       "lighting":0.5,
       "items":
       [
@@ -193,48 +211,49 @@
       "connectedRoomIds":
       {
         "SOUTH":2,
-        "DOWN":11
+        "UP":11
       }
     },
     {
-      "name":"Basement Landing",
+      "name":"2nd Floor Landing",
       "id":11,
-      "description":"It's dark down here.",
-      "lighting":0.0,
+      "description":"It's bright up here",
+      "lighting":1.0,
       "connectedRoomIds":
       {
-        "UP":9,
+        "DOWN":9,
         "EAST":12
       }
     },
     {
       "name":"Light Lieutenant's Office",
       "id":12,
-      "description":"It's pitch black in here. You'll need to use your torch to see anything.",
-      "lighting":0.0,
+      "description":"A shining figure stands in the middle of the room.",
+      "lighting":1.0,
       "onLightingChange":
       {
-        "requiredLevel":1.0,
-        "action":"makeMinibossVuln"
+        "WELL_LIT":"makeMinibossStrong",
+        "PITCH_BLACK":"makeMinibossWeak"
       },
       "monsters":
       [
         {
           "name":"Light Lieutenant",
           "health": 25,
-          "might": 5,
-          "defense":12,
+          "might": 2,
+          "defense":1,
+          "isMiniboss":true,
           "abilities":
           {
-            "douse":
+            "light":
             {
-              "action":"douse",
+              "action":"light",
               "before":true
             }
           },
           "behavior":
           {
-            "EVERY_OTHER_ROUND":"douse"
+            "EVERY_OTHER_ROUND":"light"
           }
         }
       ],
@@ -251,13 +270,13 @@
       }
     },
     {
-      "name":"Upstairs Landing",
+      "name":"Basement Landing",
       "id":21,
-      "lighting":1.0,
-      "description":"It's very bright up here.",
+      "lighting":0.0,
+      "description":"It's very dark down here.",
       "connectedRoomIds":
       {
-        "DOWN":4,
+        "UP":4,
         "NORTH":25,
         "SOUTH":22
       }
@@ -265,7 +284,7 @@
     {
       "name":"Shine Puzzle 6",
       "id":22,
-      "lighting":1.0,
+      "lighting":0.0,
       "description":"There's a puzzle here? Eventually.",
       "connectedRoomIds":
       {
@@ -276,11 +295,23 @@
     {
       "name":"Darklight Fountain Room",
       "id":23,
-      "lighting":1.0,
-      "description":"Hmm... not sure.",
+      "lighting":0.1,
+      "description":"It's not quite pitch black in here.",
+      "features":
+      [
+        {
+          "name":"fountain",
+          "description":"Darklight Healing Fountain",
+          "darklight":true
+        }
+      ],
       "onHeroLeave":
       {
-        "action":"bump"
+        "EAST":
+        {
+          "action":"bump fountain",
+          "stops":true
+        }
       },
       "connectedRoomIds":
       {
@@ -291,7 +322,7 @@
     {
       "name":"Shadow Captain's Lair",
       "id":24,
-      "lighting":1.0,
+      "lighting":0.0,
       "description":"Lair of the boss",
       "bossFightFileLocation":"shadow_captain.json",
       "connectedRoomIds":
@@ -302,7 +333,7 @@
     {
       "name":"Room 25",
       "id":25,
-      "lighting":1.0,
+      "lighting":0.0,
       "description":"???",
       "connectedRoomIds":
       {
@@ -313,7 +344,7 @@
     {
       "name":"Room 26",
       "id":26,
-      "lighting":1.0,
+      "lighting":0.0,
       "description":"Even more ??",
       "connectedRoomIds":
       {

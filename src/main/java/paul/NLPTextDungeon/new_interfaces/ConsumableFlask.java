@@ -6,7 +6,7 @@ import paul.NLPTextDungeon.entities.Hero;
 /**
  * Created by Paul Dennis on 9/5/2017.
  */
-public class ConsumableFlash extends BackpackItem {
+public class ConsumableFlask extends BackpackItem {
 
     String onConsume;
 

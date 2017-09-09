@@ -21,6 +21,7 @@ public class Monster extends DungeonRoomEntity {
 
     private Map<String, CombatBehavior> abilities;
     private Map<BehaviorTiming, String> behavior;
+    private boolean isMiniboss;
 
     public Monster () {
         name = "Biff the Understudy";
@@ -110,5 +111,13 @@ public class Monster extends DungeonRoomEntity {
 
     public void setAbilities(Map<String, CombatBehavior> abilities) {
         this.abilities = abilities;
+    }
+
+    public boolean isMiniboss() {
+        return isMiniboss;
+    }
+
+    public void setIsMiniboss(boolean miniboss) {
+        isMiniboss = miniboss;
     }
 }
