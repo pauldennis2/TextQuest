@@ -24,8 +24,22 @@
           [
             "EAST"
           ]
+        },
+        {
+          "@class" : "paul.NLPTextDungeon.entities.obstacles.SmashableObstacle",
+          "name": "Barrel",
+          "solution": "smash",
+          "onSmash":"createMonster Skeleton"
         }
       ],
+      "onHeroLeave":
+      {
+        "EAST":
+        {
+          "action":"giveExp 100",
+          "stops":true
+        }
+      },
       "connectedRoomIds":
       {
         "EAST":2

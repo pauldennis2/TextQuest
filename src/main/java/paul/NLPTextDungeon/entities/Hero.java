@@ -352,8 +352,8 @@ public class Hero extends UserInterfaceClass {
                 textOut.println("Nothing to plunder here.");
             }
             room.getHero().backpack.stream()
-                    .filter(item -> item.getName().contains("Key"))
-                    .forEach(chest::unlock);
+                .filter(item -> item.getName().contains("Key"))
+                .forEach(chest::unlock);
             if (chest.isLocked()) {
                 textOut.println("You don't have the key");
             } else {
