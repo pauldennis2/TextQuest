@@ -1,0 +1,355 @@
+{
+  "dungeonName":"Darklight Dungeon",
+  "description":"This shadowy dungeon has lots of shadows.",
+  "levels":
+  {
+    "Ground":0,
+    "Second Floor":1,
+    "Basement":2
+  },
+  "rooms":
+  [
+    {
+      "name":"Entryway",
+      "id":1,
+      "description":"Another boring entryway. But there's a chasm! Better jump.",
+      "lighting":1.0,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.NLPTextDungeon.entities.obstacles.Chasm",
+          "name": "Chasm",
+          "solution": "jump",
+          "blockedDirections":
+          [
+            "EAST"
+          ]
+        },
+        {
+          "@class" : "paul.NLPTextDungeon.entities.obstacles.SmashableObstacle",
+          "name": "Barrel",
+          "solution": "smash",
+          "onSmash":"createMonster Skeleton"
+        }
+      ],
+      "onHeroLeave":
+      {
+        "EAST":
+        {
+          "action":"giveExp 100",
+          "stops":true
+        }
+      },
+      "connectedRoomIds":
+      {
+        "EAST":2
+      }
+    },
+    {
+      "name":"First Room",
+      "id":2,
+      "description":"Something.",
+      "lighting":0.5,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.NLPTextDungeon.entities.obstacles.ShinePuzzle",
+          "name": "Shine Puzzle",
+          "solution": "shine"
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "WEST":1,
+        "EAST":3,
+        "NORTH":9,
+        "SOUTH":5
+      }
+    },
+    {
+      "name":"Treasure Room",
+      "id":3,
+      "description":"Has some treasure.",
+      "lighting":0.5,
+      "chest":
+      {
+        "name":"Treasure Chest",
+        "locked":false,
+        "contents":
+        [
+          {
+            "name":"Treasure",
+            "value":50
+          },
+          {
+            "name":"Potion"
+          }
+        ]
+      },
+      "connectedRoomIds":
+      {
+        "WEST":2,
+        "EAST":4
+      }
+    },
+    {
+      "name":"Room 4",
+      "id":4,
+      "description":"Mainly a passage.",
+      "lighting":0.5,
+      "connectedRoomIds":
+      {
+        "WEST":3,
+        "SOUTH":7,
+        "DOWN":21
+      }
+    },
+    {
+      "name":"Monster Room",
+      "id":5,
+      "description":"There be monsters.",
+      "lighting":0.5,
+      "monsters":
+      [
+        {
+          "name":"Red BlobGoblin",
+          "health": 5,
+          "might": 2
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "NORTH":2,
+        "EAST":6
+      }
+    },
+    {
+      "name":"Darklight Key Room",
+      "id":6,
+      "description":"Probably a key around here somewhere.",
+      "lighting":0.5,
+      "items":
+      [
+        {
+          "name":"Darklight Key",
+          "darklight":true
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "WEST":5
+      }
+    },
+    {
+      "name":"Shadows Riddle Room",
+      "id":7,
+      "description":"Duh.",
+      "lighting":0.5,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.NLPTextDungeon.entities.obstacles.RiddleObstacle",
+          "name": "Sphinx Riddle",
+          "solution": "shadows",
+          "displayIfCleared":true,
+          "riddle": "We flee from the light.",
+          "blockedDirections":
+          [
+            "EAST"
+          ]
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "NORTH":4,
+        "EAST":8
+      }
+    },
+    {
+      "name":"Double Treasure Room",
+      "id":8,
+      "description":"There be treasure.",
+      "lighting":0.5,
+      "chest":
+      {
+        "name":"Darklight Chest",
+        "locked":true,
+        "key":"Darklight Key",
+        "darklight":true,
+        "contents":
+        [
+          {
+            "name":"Helm of Darkvision"
+          }
+        ]
+      },
+      "hiddenItems":
+      {
+        "floor":
+        [
+          {
+            "name":"50 Gold"
+          }
+        ]
+      },
+      "connectedRoomIds":
+      {
+        "WEST":7
+      }
+    },
+    {
+      "name":"Stair Up",
+      "id":9,
+      "description":"Stairs lead up into light.",
+      "lighting":0.5,
+      "items":
+      [
+        {
+          "name":"Potion"
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "SOUTH":2,
+        "UP":11
+      }
+    },
+    {
+      "name":"2nd Floor Landing",
+      "id":11,
+      "description":"It's bright up here",
+      "lighting":1.0,
+      "connectedRoomIds":
+      {
+        "DOWN":9,
+        "EAST":12
+      }
+    },
+    {
+      "name":"Light Lieutenant's Office",
+      "id":12,
+      "description":"A shining figure stands in the middle of the room.",
+      "lighting":1.0,
+      "onLightingChange":
+      {
+        "WELL_LIT":"makeMinibossStrong",
+        "PITCH_BLACK":"makeMinibossWeak"
+      },
+      "monsters":
+      [
+        {
+          "name":"Light Lieutenant",
+          "health": 25,
+          "might": 2,
+          "defense":1,
+          "isMiniboss":true,
+          "abilities":
+          {
+            "light":
+            {
+              "action":"light",
+              "before":true
+            }
+          },
+          "behavior":
+          {
+            "EVERY_OTHER_ROUND":"light"
+          }
+        }
+      ],
+      "items":
+      [
+        {
+          "name":"Mirror Shield",
+          "onPickup":"addShinePuzzle"
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "WEST":11
+      }
+    },
+    {
+      "name":"Basement Landing",
+      "id":21,
+      "lighting":0.0,
+      "description":"It's very dark down here.",
+      "connectedRoomIds":
+      {
+        "UP":4,
+        "NORTH":25,
+        "SOUTH":22
+      }
+    },
+    {
+      "name":"Shine Puzzle 6",
+      "id":22,
+      "lighting":0.0,
+      "description":"There's a puzzle here? Eventually.",
+      "connectedRoomIds":
+      {
+        "NORTH":21,
+        "EAST":23
+      }
+    },
+    {
+      "name":"Darklight Fountain Room",
+      "id":23,
+      "lighting":0.1,
+      "description":"It's not quite pitch black in here.",
+      "features":
+      [
+        {
+          "name":"fountain",
+          "description":"Darklight Healing Fountain",
+          "darklight":true
+        }
+      ],
+      "onHeroLeave":
+      {
+        "EAST":
+        {
+          "action":"bump fountain",
+          "stops":true
+        }
+      },
+      "connectedRoomIds":
+      {
+        "WEST":22,
+        "EAST":24
+      }
+    },
+    {
+      "name":"Shadow Captain's Lair",
+      "id":24,
+      "lighting":0.0,
+      "description":"Lair of the boss",
+      "bossFightFileLocation":"shadow_captain.json",
+      "connectedRoomIds":
+      {
+        "WEST":23
+      }
+    },
+    {
+      "name":"Room 25",
+      "id":25,
+      "lighting":0.0,
+      "description":"???",
+      "connectedRoomIds":
+      {
+        "SOUTH":21,
+        "EAST":26
+      }
+    },
+    {
+      "name":"Room 26",
+      "id":26,
+      "lighting":0.0,
+      "description":"Even more ??",
+      "connectedRoomIds":
+      {
+        "WEST":25
+      }
+    }
+  ]
+}

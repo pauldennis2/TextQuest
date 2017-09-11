@@ -1,6 +1,9 @@
 package paul.NLPTextDungeon.entities;
 
-import java.util.Random;
+import paul.NLPTextDungeon.enums.BehaviorTiming;
+import paul.NLPTextDungeon.interfaces.VoidAction;
+
+import java.util.Map;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
@@ -9,10 +12,16 @@ public class Monster extends DungeonRoomEntity {
 
     private int health;
     private int might;
-    private int defence;
+    private int defense;
     private String name;
 
     private transient int disabledForRounds = 0;
+
+    private static Map<String, VoidAction> actionMap;
+
+    private Map<String, CombatBehavior> abilities;
+    private Map<BehaviorTiming, String> behavior;
+    private boolean isMiniboss;
 
     public Monster () {
         name = "Biff the Understudy";
@@ -39,7 +48,7 @@ public class Monster extends DungeonRoomEntity {
     }
 
     public int takeDamage (int damageAmt) {
-        damageAmt -= (defence / 5) * 2;
+        damageAmt -= (defense / 5) * 2;
         health -= damageAmt;
         if (health < 0) {
             health = 0;
@@ -80,12 +89,35 @@ public class Monster extends DungeonRoomEntity {
         this.name = name;
     }
 
-    public int getDefence() {
-        return defence;
+    public int getDefense() {
+        return defense;
     }
 
-    public void setDefence(int defence) {
-        this.defence = defence;
+    public void setDefense(int defense) {
+        this.defense = defense;
     }
 
+    public Map<BehaviorTiming, String> getBehavior() {
+        return behavior;
+    }
+
+    public void setBehavior(Map<BehaviorTiming, String> behavior) {
+        this.behavior = behavior;
+    }
+
+    public Map<String, CombatBehavior> getAbilities() {
+        return abilities;
+    }
+
+    public void setAbilities(Map<String, CombatBehavior> abilities) {
+        this.abilities = abilities;
+    }
+
+    public boolean isMiniboss() {
+        return isMiniboss;
+    }
+
+    public void setIsMiniboss(boolean miniboss) {
+        isMiniboss = miniboss;
+    }
 }
