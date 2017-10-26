@@ -7,8 +7,8 @@
 }
 
 .game-output-box {
-    width:800px;
-    height:350px;
+    width:1000px;
+    height:400px;
     overflow:auto;
     border:1px solid
 }
@@ -22,8 +22,8 @@
 }
 
 .game-output-list {
-list-style: none;
-color:#04518A
+    list-style: none;
+    color:#04518A
 }
 
 .debug-output-list {
@@ -33,5 +33,11 @@ color:#04518A
 
 .tutorial-color {
     color:#2362c6;
+}
 
+div {
+    font-size: 1.1em;
+    font-family: Verdana, Sans-serif;
+    padding: 5px;
+    margin: 5px;
 }
