@@ -1,5 +1,7 @@
 package paul.NLPTextDungeon.entities;
 
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import paul.NLPTextDungeon.LeavingRoomAction;
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
 import paul.NLPTextDungeon.parsing.MagicUniversity;
@@ -15,6 +17,7 @@ import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.enums.SpeakingVolume;
 import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -216,6 +219,18 @@ public class Hero extends UserInterfaceClass {
         list.add(NEW_SKILL);
         list.add(INC_STATS);
         levelUpActions.put(1, list);
+    }
+
+    private static Hero jsonRestore(String heroJson) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(heroJson, Hero.class);
+    }
+
+    public String jsonSave(Hero heroToSave) {
+        JsonSerializer jsonSerializer = new JsonSerializer().deep(true);
+        String jsonString = jsonSerializer.serialize(heroToSave);
+
+        return jsonString;
     }
 
 

@@ -68,7 +68,7 @@ public class GameController {
     @RequestMapping(path = "/submit-action", method = RequestMethod.POST)
     public String submitAction (@RequestParam String userInput, Model model, HttpSession session) {
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
-
+        session.setAttribute("user", "paul"); //TODO remove this temporary hack
         if (requestedInputType == InputType.NUMBER) {
             try {
                 Integer.parseInt(userInput);
@@ -87,6 +87,9 @@ public class GameController {
         } catch (VictoryException ex) {
             textOut.println(ex.getMessage());
             textOut.println("You won! Awesome!");
+            String user = (String) session.getAttribute("user");
+            textOut.println("Saving hero data for user " + user);
+
         }
         return "redirect:/game";
     }
