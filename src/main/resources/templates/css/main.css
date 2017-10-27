@@ -48,13 +48,51 @@ main.site > * {
 main.site header {
   margin-bottom: 0.5em;
 }
-.main-box-parent {
-  border: 1px solid gray;
+.main-box-parent, .input, .debug {
   max-width: 700px;
   width: 100%;
 }
-.main-box-parent > * {
+.main-box-parent > *, .input > *, .debug > * {
   margin: 0.5em;
+}
+.game-output-box, .tutorial-output-box, .input, .debug {
+  border: 1px solid gray;
+}
+/*** Game input ***/
+.input div {
+  align-items: center;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+.input form {
+  display: flex;
+  flex-flow: row nowrap;
+}
+.input form > * {
+  border: 1px solid lightgray;
+  font-family: 'Lora', serif;
+  font-size: 1em;
+  padding: 0.5em;
+}
+.input input {
+  border-right: none;
+  flex: 1 50%;
+}
+.input button {
+  background: lightgray;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 0.5em 1em;
+}
+.input button:hover {
+  background: gray;
+  border-color: gray;
+  color: white;
+}
+/*** Game input ***/
+li {
+  display: block;
 }
 /**************************************
     Footer
