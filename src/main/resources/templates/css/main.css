@@ -17,6 +17,16 @@ h1 {
 .gold {
   color: gold;
 }
+li {
+  display: block;
+}
+/*** Links ***/
+a {
+  color: darkgray;
+}
+a:hover {
+  color: dimgray;
+}
 /**************************************
     Header
 **************************************/
@@ -55,9 +65,6 @@ main.site header {
 .main-box-parent > *, .input > *, .debug > * {
   margin: 0.5em;
 }
-.game-output-box, .tutorial-output-box, .input, .debug {
-  border: 1px solid gray;
-}
 /*** Game input ***/
 .input div {
   align-items: center;
@@ -89,10 +96,6 @@ main.site header {
   background: gray;
   border-color: gray;
   color: white;
-}
-/*** Game input ***/
-li {
-  display: block;
 }
 /**************************************
     Footer
