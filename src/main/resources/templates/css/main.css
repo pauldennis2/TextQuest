@@ -1,0 +1,122 @@
+/**************************************
+    Global
+**************************************/
+body {
+  font-family: 'Lora', Times, serif;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-weight: bold;
+}
+h2 { font-size: 1.5em; }
+h3 { font-size: 1.25em; }
+h4 { font-size: 1em; }
+
+h1 {
+  font-family: 'UnifrakturCook', serif;
+}
+.gold {
+  color: gold;
+}
+li {
+  display: block;
+}
+/*** Links ***/
+a {
+  color: darkgray;
+}
+a:hover {
+  color: dimgray;
+}
+/**************************************
+    Header
+**************************************/
+header.site {
+  background: black;
+  color: white;
+  padding: 0.5em;
+  text-align: center;
+  width: 100%;
+}
+header.site h1 {
+  font-size: 2em;
+  padding-bottom: 0.125em;
+}
+/**************************************
+    Main
+**************************************/
+main.site {
+  align-items: center;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  padding: 0.5em 0;
+  width: 100%;
+}
+main.site > * {
+  margin: 0.5em;
+}
+main.site header {
+  margin-bottom: 0.5em;
+}
+.main-box-parent, .input, .debug {
+  max-width: 700px;
+  width: 100%;
+}
+.main-box-parent > *, .input > *, .debug > * {
+  margin: 0.5em;
+}
+/*** Game input ***/
+.input div {
+  align-items: center;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+}
+.input form {
+  display: flex;
+  flex-flow: row nowrap;
+}
+.input form > * {
+  border: 1px solid lightgray;
+  font-family: 'Lora', serif;
+  font-size: 1em;
+  padding: 0.5em;
+}
+.input input {
+  border-right: none;
+  flex: 1 50%;
+}
+.input button {
+  background: lightgray;
+  cursor: pointer;
+  font-weight: bold;
+  padding: 0.5em 1em;
+}
+.input button:hover {
+  background: gray;
+  border-color: gray;
+  color: white;
+}
+/**************************************
+    Footer
+**************************************/
+footer.site {
+  align-items: center;
+  background: black;
+  bottom: 0;
+  color: gray;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: space-between;
+  position: fixed;
+  width: 100%;
+}
+footer.site > * {
+  margin: 0.5em;
+}
+footer.site a {
+  color: gray;
+}
+footer.site a:hover {
+  color: white;
+}
