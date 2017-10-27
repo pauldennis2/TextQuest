@@ -1,60 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8"/>
-    <title>TextQuest - {{location}}</title>
-    <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i|UnifrakturCook:700" rel="stylesheet">
-    <link rel="icon" href="/assets/sword_in_speech.png" type="img/png">
-    <link rel="stylesheet" imageString="text/css" href="css/main.css" type="text/css">
-</head>
-<body>
-  <header class="site">
-    <h1>TextQuest</h1>
-    <p class="tagline">A text-based dungeon adventure game</p>
-  </header>
-  <main class="site">
-    <header>
-      <h2>{{location}}</h2>
-      <p>Version 0.0.4</p>
-    </header>
-    <div class="main-box-parent" align="left" style="padding:5px; margin:5px;">
-      <div class="game-output-box" style="padding:10px;">
-        <h3>{{roomName}}</h3>
-        <br/>
-        <ul class="game-output-list">
-          {{#outputText}}
-          <li>
-            {{.}}
-          </li>
-          {{/outputText}}
-        </ul>
-      </div>
-      <div class="tutorial-output-box">
-        <h4>Tutorial:</h4>
-        {{#tutorial}}
-        <span class="tutorial-color">{{.}}</span>
-        {{/tutorial}}
-      </div>
-    </div>
-    <section>
-      <h2>Enter Commands</h2>
-      <form action="/submit-action" method="post">
-          <input name="userInput" autofocus=/>
-          <input type="submit" value="Enter"/>
-      </form>
-      <a href="/interface_help.html">Help</a>
-    </section>
-    <section>
-      <h4>Debug</h4>
-      <ul class="debug-output-list">
-        {{#debugText}}
-        <li>{{.}}</li>
-        {{/debugText}}
-      </ul>
-    </section>
-  </main>
-  <footer class="site">
-    <p>Developed by <a href="https://github.com/pauldennis2">Paul Dennis</a></p>
-  </footer>
-</body>
+    <head>
+        <meta charset="UTF-8"/>
+        <title>TextQuest - {{location}}</title>
+        <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i|UnifrakturCook:700" rel="stylesheet">
+        <link rel="icon" href="/assets/sword_in_speech.png" type="img/png">
+        <link rel="stylesheet" imageString="text/css" href="css/reset.css" type="text/css">
+        <link rel="stylesheet" imageString="text/css" href="css/main.css" type="text/css">
+    </head>
+    <body>
+        <header class="site">
+          <h1>Text<span class="gold">Quest</span></h1>
+          <p class="tagline">A text-based dungeon adventure game</p>
+        </header>
+        <main class="site">
+            <header>
+                <h2>{{location}}</h2>
+            </header>
+            <div class="main-box-parent">
+                <div class="game-output-box">
+                    <h3>{{roomName}}</h3>
+                    <ul class="game-output-list">
+                      {{#outputText}}
+                      <li>
+                        {{.}}
+                      </li>
+                      {{/outputText}}
+                    </ul>
+                </div>
+                <div class="tutorial-output-box">
+                    <h4>Tutorial:</h4>
+                    {{#tutorial}}
+                    <span class="tutorial-color">{{.}}</span>
+                    {{/tutorial}}
+                </div>
+            </div>
+            <section class="input">
+                <h2>Enter Commands</h2>
+                <form action="/submit-action" method="post">
+                    <input name="userInput" autofocus=/>
+                    <input type="submit" value="Enter"/>
+                </form>
+                <a href="/interface_help.html">Help</a>
+            </section>
+            <section class="debug">
+                <h4>Debug</h4>
+                <ul class="debug-output-list">
+                    {{#debugText}}
+                    <li>{{.}}</li>
+                    {{/debugText}}
+                </ul>
+            </section>
+        </main>
+        <footer class="site">
+            <p>TextQuest - version 0.0.4</p>
+            <p>Developed by <a href="https://github.com/pauldennis2">Paul Dennis</a></p>
+        </footer>
+    </body>
 </html>
