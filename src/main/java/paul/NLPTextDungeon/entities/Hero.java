@@ -1,7 +1,9 @@
 package paul.NLPTextDungeon.entities;
 
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import paul.NLPTextDungeon.LeavingRoomAction;
 import paul.NLPTextDungeon.entities.obstacles.Obstacle;
-import paul.NLPTextDungeon.enums.LightingLevel;
 import paul.NLPTextDungeon.parsing.MagicUniversity;
 import paul.NLPTextDungeon.entities.obstacles.SmashableObstacle;
 import paul.NLPTextDungeon.enums.LevelUpCategory;
@@ -15,6 +17,7 @@ import paul.NLPTextDungeon.enums.Direction;
 import paul.NLPTextDungeon.enums.SpeakingVolume;
 import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -110,6 +113,9 @@ public class Hero extends UserInterfaceClass {
         backpack.add(new BackpackItem("Torch"));
         backpack.add(new BackpackItem("Sword"));
         backpack.add(new BackpackItem("Bow"));
+
+        //For debug. Todo; remove
+        backpack.add(new BackpackItem("Boots of Vaulting"));
         initMaps();
     }
 
@@ -215,6 +221,18 @@ public class Hero extends UserInterfaceClass {
         levelUpActions.put(1, list);
     }
 
+    private static Hero jsonRestore(String heroJson) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        return mapper.readValue(heroJson, Hero.class);
+    }
+
+    public String jsonSave(Hero heroToSave) {
+        JsonSerializer jsonSerializer = new JsonSerializer().deep(true);
+        String jsonString = jsonSerializer.serialize(heroToSave);
+
+        return jsonString;
+    }
+
 
     private void initMaps () {
         heroVoidActions = new HashMap<>();
@@ -226,7 +244,6 @@ public class Hero extends UserInterfaceClass {
         initItemActions();
         initViews();
         initPossibleSpellMap();
-        initPickupListenerMap();
     }
 
     public void takeAction (String action) {
@@ -291,22 +308,6 @@ public class Hero extends UserInterfaceClass {
     }
 
 
-    private Map<String, OnPickup> listenerMap;
-    private void initPickupListenerMap () {
-        listenerMap = new HashMap<>();
-        listenerMap.put("victory", () -> {
-            throw new VictoryException("You win!");
-        });
-        listenerMap.put("crackFloor", () -> {
-            textOut.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
-            Chasm chasm = new Chasm();
-            chasm.addBlockedDirection(Direction.ALL);
-            getLocation().addObstacle(new Chasm());
-            textOut.tutorial("Try using your new Boots of Vaulting to JUMP across the chasm.");
-            previousLocation = null; //Prevent retreating
-        });
-    }
-
     private void initActionMap () {
 
         heroVoidActions.put("describe", DungeonRoom::describe);
@@ -332,8 +333,7 @@ public class Hero extends UserInterfaceClass {
             .filter(item -> item.isVisible(location.getLighting()))
             .forEach(item -> {
                 if (item.hasPickupAction()) {
-                    OnPickup action = listenerMap.get(item.getPickupAction());
-                    action.doAction();
+                    room.doAction(item.getOnPickup());
                 }
                 backpack.add(item);
                 textOut.println("Picked up " + item.getName());
@@ -367,8 +367,8 @@ public class Hero extends UserInterfaceClass {
                 textOut.println("Nothing to plunder here.");
             }
             room.getHero().backpack.stream()
-                    .filter(item -> item.getName().contains("Key"))
-                    .forEach(chest::unlock);
+                .filter(item -> item.getName().contains("Key"))
+                .forEach(chest::unlock);
             if (chest.isLocked()) {
                 textOut.println("You don't have the key");
             } else {
@@ -377,9 +377,9 @@ public class Hero extends UserInterfaceClass {
             List<BackpackItem> chestContents = chest.removeContents();
             chestContents.forEach(item -> {
                 if (item.hasPickupAction()) {
-                    OnPickup action = listenerMap.get(item.getPickupAction());
-                    action.doAction();
+                    room.doAction(item.getOnPickup());
                 }
+                textOut.println("Looted " + item.getName() + " from chest.");
                 backpack.add(item);
             });
         });
@@ -558,13 +558,26 @@ public class Hero extends UserInterfaceClass {
         if (obstacles.size() > 0) {
             textOut.println("Travel is blocked in that direction (" + direction + ")");
         } else {
-            DungeonRoom nextRoom = location.getConnectedRooms().get(direction);
-            if (nextRoom == null) {
-                textOut.println("Cannot go that way (no connected room).");
-                return;
+            Map<Direction, LeavingRoomAction> map = location.getOnHeroLeave();
+            boolean proceed = true;
+            if (map != null && map.get(direction) != null) {
+                LeavingRoomAction lra = map.get(direction);
+                String action = lra.getAction();
+                location.doAction(action);
+                proceed = lra.isStops();
+                if (lra.isDoOnce()) {
+                    map.remove(direction);
+                }
             }
-            location.removeHero();
-            setLocation(nextRoom);
+            if (proceed) {
+                DungeonRoom nextRoom = location.getConnectedRooms().get(direction);
+                if (nextRoom == null) {
+                    textOut.println("Cannot go that way (no connected room).");
+                    return;
+                }
+                location.removeHero();
+                setLocation(nextRoom);
+            }
         }
     }
 
@@ -719,5 +732,13 @@ public class Hero extends UserInterfaceClass {
 
     public TextInterface getTextOut() {
         return textOut;
+    }
+
+    public DungeonRoom getPreviousLocation() {
+        return previousLocation;
+    }
+
+    public void setPreviousLocation(DungeonRoom previousLocation) {
+        this.previousLocation = previousLocation;
     }
 }

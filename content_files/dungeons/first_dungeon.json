@@ -72,7 +72,7 @@
       [
         {
           "name": "Boots of Vaulting",
-          "pickupAction": "crackFloor"
+          "onPickup": "crackFloor"
         }
       ],
       "connectedRoomIds":

@@ -20,6 +20,7 @@ public class Dungeon extends MetaLocation {
     private String dungeonName;
 
     private transient DungeonRoom entrance;
+    private Map<String, Integer> levels;
 
     public Dungeon () {
         rooms = new ArrayList<>();
@@ -107,4 +108,11 @@ public class Dungeon extends MetaLocation {
         this.entrance = entrance;
     }
 
+    public Map<String, Integer> getLevels() {
+        return levels;
+    }
+
+    public void setLevels(Map<String, Integer> levels) {
+        this.levels = levels;
+    }
 }

@@ -34,7 +34,7 @@ public class SmashableObstacle extends Obstacle {
         if (hero.getMight() >= requiredMight) {
             this.setCleared(true);
             if (onSmash != null) {
-                doAction(onSmash, hero);
+                room.doAction(onSmash);
             }
             if (contents != null && contents.size() > 0) {
                 contents.forEach(room::addItem);
@@ -48,29 +48,6 @@ public class SmashableObstacle extends Obstacle {
     }
 
     private static Map<String, VoidAction> smashActionMap;
-
-    private void doAction (String action, Hero hero) {
-        if (smashActionMap == null) {
-            initSmashActionMap();
-        }
-        VoidAction smashAction = smashActionMap.get(action);
-        if (smashAction != null) {
-            smashAction.doAction(hero.getLocation());
-        } else {
-            hero.getTextOut().debug("Action *" + action + "* was not in the map.");
-        }
-    }
-
-    private static void initSmashActionMap () {
-        smashActionMap = new HashMap<>();
-        smashActionMap.put("createSkelly", room -> room.addMonster(new Monster(2, 1, "Skeleton")));
-        smashActionMap.put("explode", room -> {
-            room.getHero().getTextOut().println("BOOM!! Barrel exploded.");
-            room.getHero().takeNonMitigatedDamage(5);
-            //This            ^^ is a good reason for this functionality to be somewhere else
-        });
-        smashActionMap.put("giveExp", room -> room.getHero().addExp(500));
-    }
 
     public int getRequiredMight() {
         return requiredMight;

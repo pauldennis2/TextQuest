@@ -19,7 +19,7 @@ public class BackpackItem extends DungeonRoomEntity {
     private String name;
     private boolean isQuestItem;
     private int value;
-    private String pickupAction;
+    private String onPickup;
     private boolean darklight; //Item can only be seen in the dark
 
     public BackpackItem () {
@@ -60,16 +60,16 @@ public class BackpackItem extends DungeonRoomEntity {
         this.value = value;
     }
 
-    public String getPickupAction() {
-        return pickupAction;
+    public String getOnPickup() {
+        return onPickup;
     }
 
-    public void setPickupAction(String pickupAction) {
-        this.pickupAction = pickupAction;
+    public void setOnPickup(String onPickup) {
+        this.onPickup = onPickup;
     }
 
     public boolean hasPickupAction () {
-        return pickupAction != null;
+        return onPickup != null;
     }
 
     @Override

@@ -49,9 +49,17 @@ public class GameController {
         if (tutorial.size() > 0 && tutorial.get(0) == null) {
             tutorial = null;
         }
-        model.addAttribute("tutorial", tutorial);
-        model.addAttribute("debugText", debug);
+
         model.addAttribute("outputText", output);
+
+        if (tutorial != null && tutorial.size() > 0) {
+            System.out.println("tutorial added with size " + tutorial.size());
+            model.addAttribute("tutorial", tutorial);
+        }
+
+        if (debug != null && debug.size() > 0) {
+            model.addAttribute("debugText", debug);
+        }
         model.addAttribute("location", textOut.getRunner().getDungeon().getDungeonName());
         model.addAttribute("roomName", "  " + textOut.getRunner().getHero().getLocation().getName());
         return "game";
@@ -60,7 +68,7 @@ public class GameController {
     @RequestMapping(path = "/submit-action", method = RequestMethod.POST)
     public String submitAction (@RequestParam String userInput, Model model, HttpSession session) {
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
-
+        session.setAttribute("user", "paul"); //TODO remove this temporary hack
         if (requestedInputType == InputType.NUMBER) {
             try {
                 Integer.parseInt(userInput);
@@ -79,6 +87,9 @@ public class GameController {
         } catch (VictoryException ex) {
             textOut.println(ex.getMessage());
             textOut.println("You won! Awesome!");
+            String user = (String) session.getAttribute("user");
+            textOut.println("Saving hero data for user " + user);
+
         }
         return "redirect:/game";
     }
@@ -89,6 +100,7 @@ public class GameController {
         mav.addObject("exception", ex);
         mav.addObject("stackTrace", ex.getStackTrace());
         mav.setViewName("error");
+        ex.printStackTrace();
         return mav; //Queen of Air and Darkness
     }
 }
