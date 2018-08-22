@@ -4,23 +4,19 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import paul.TextQuest.LeavingRoomAction;
-import paul.TextQuest.entities.obstacles.Chasm;
 import paul.TextQuest.entities.obstacles.Obstacle;
 import paul.TextQuest.entities.obstacles.SmashableObstacle;
 import paul.TextQuest.enums.Direction;
 import paul.TextQuest.enums.LevelUpCategory;
 import paul.TextQuest.enums.SpeakingVolume;
 import paul.TextQuest.interfaces.*;
-import paul.TextQuest.interfaces.listeners.OnPickup;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.MagicUniversity;
 import paul.TextQuest.parsing.TextInterface;
 import paul.TextQuest.parsing.UserInterfaceClass;
 import paul.TextQuest.utils.*;
 
-import static paul.TextQuest.enums.LevelUpCategory.INC_STATS;
-import static paul.TextQuest.enums.LevelUpCategory.NEW_SKILL;
-import static paul.TextQuest.enums.LevelUpCategory.NEW_SPELL;
+import static paul.TextQuest.enums.LevelUpCategory.*;
 
 import java.io.IOException;
 import java.util.*;

@@ -1,7 +1,6 @@
 package paul.TextQuest.entities;
 
 import paul.TextQuest.enums.BehaviorTiming;
-import paul.TextQuest.interfaces.VoidAction;
 
 import java.util.Map;
 
@@ -17,7 +16,8 @@ public class Monster extends DungeonRoomEntity {
 
     private transient int disabledForRounds = 0;
 
-    private static Map<String, VoidAction> actionMap;
+    //Not sure what this is for/what it was intended for
+    //private static Map<String, VoidAction> actionMap;
 
     private Map<String, CombatBehavior> abilities;
     private Map<BehaviorTiming, String> behavior;

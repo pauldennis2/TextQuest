@@ -32,9 +32,10 @@ public class CommandAnalyzer {
             if (command.equals("")) {
                 break;
             }
-            CommandAnalyzer analyzer = new CommandAnalyzer(command);
+            //TODO fix/continue to impl
+            //CommandAnalyzer analyzer = new CommandAnalyzer(command);
             System.out.println("Analyzing " + command);
         }
-
+        scanner.close();
     }
 }

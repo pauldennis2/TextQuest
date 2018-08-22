@@ -103,7 +103,7 @@ public class VulnerableBehavior extends UserInterfaceClass {
         return InputType.NONE;
     }
 
-    private boolean checkRule (int firstInput, int secondInput, int solution) {
+    public boolean checkRule (int firstInput, int secondInput, int solution) {
         return getSolution(firstInput, secondInput) == solution;
     }
 

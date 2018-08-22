@@ -53,20 +53,19 @@ public class Shop extends Location {
     }
 
     public int sellSomeItems (List<BackpackItem> items) {
-        Scanner scanner = new Scanner(System.in);
-
-        List<BackpackItem> itemsToSell = items.stream()
-                .filter (e -> {
-                    textOut.println("Do you want to sell " + e + "?");
-                    String response = scanner.nextLine().toLowerCase();
-                    if (response.contains("y")) {
-                        return true;
-                    }
-                    return false;
-                })
-                .collect(Collectors.toList());
-
-        return sellItems(itemsToSell);
+        try (Scanner scanner = new Scanner(System.in)) {
+	        List<BackpackItem> itemsToSell = items.stream()
+	                .filter (e -> {
+	                    textOut.println("Do you want to sell " + e + "?");
+	                    String response = scanner.nextLine().toLowerCase();
+	                    if (response.contains("y")) {
+	                        return true;
+	                    }
+	                    return false;
+	                })
+	                .collect(Collectors.toList());
+	        return sellItems(itemsToSell);
+        }
     }
 
     public void browseItems () {
@@ -104,5 +103,9 @@ public class Shop extends Location {
 
     public void setTextOut (TextInterface textOut) {
         this.textOut = textOut;
+    }
+    
+    public String getName () {
+    	return name;
     }
 }

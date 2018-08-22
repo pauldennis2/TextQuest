@@ -104,36 +104,37 @@ public class RiverCrossingGame {
     }
 
     public static BoatThings chooseThing (Set<BoatThings> choices) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Which thing do you want to load? Available:");
-        choices.stream()
-                .map(e -> e.toString().toCharArray()[0])
-                .forEach(e -> System.out.print("|" + e + "|"));
-        String response = scanner.nextLine().toLowerCase();
-        if (response.contains("g")) {
-            if (choices.contains(GOAT)) {
-                return GOAT;
-            } else {
-                System.out.println("Goat not available");
-                return chooseThing(choices);
-            }
-        } else if (response.contains("w")) {
-            if (choices.contains(WOLF)) {
-                return WOLF;
-            } else {
-                System.out.println("Wolf not available");
-                return chooseThing(choices);
-            }
-        } else if (response.contains("l")) {
-            if (choices.contains(LETTUCE)) {
-                return LETTUCE;
-            } else {
-                System.out.println("Lettuce not available");
-                return chooseThing(choices);
-            }
-        } else {
-            System.out.println("Response must contain G, W, or L. Try again");
-            return chooseThing(choices);
+        try (Scanner scanner = new Scanner(System.in)) {
+	        System.out.print("Which thing do you want to load? Available:");
+	        choices.stream()
+	                .map(e -> e.toString().toCharArray()[0])
+	                .forEach(e -> System.out.print("|" + e + "|"));
+	        String response = scanner.nextLine().toLowerCase();
+	        if (response.contains("g")) {
+	            if (choices.contains(GOAT)) {
+	                return GOAT;
+	            } else {
+	                System.out.println("Goat not available");
+	                return chooseThing(choices);
+	            }
+	        } else if (response.contains("w")) {
+	            if (choices.contains(WOLF)) {
+	                return WOLF;
+	            } else {
+	                System.out.println("Wolf not available");
+	                return chooseThing(choices);
+	            }
+	        } else if (response.contains("l")) {
+	            if (choices.contains(LETTUCE)) {
+	                return LETTUCE;
+	            } else {
+	                System.out.println("Lettuce not available");
+	                return chooseThing(choices);
+	            }
+	        } else {
+	            System.out.println("Response must contain G, W, or L. Try again");
+	            return chooseThing(choices);
+	        }
         }
     }
 

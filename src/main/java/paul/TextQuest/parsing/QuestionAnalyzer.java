@@ -28,8 +28,10 @@ public class QuestionAnalyzer {
             if (question.equals("")) {
                 break;
             }
-            QuestionAnalyzer analyzer = new QuestionAnalyzer(question);
+            //TODO fix/continue impl
+            //QuestionAnalyzer analyzer = new QuestionAnalyzer(question);
             System.out.println("analyzing " + question + "...");
         }
+        scanner.close();
     }
 }

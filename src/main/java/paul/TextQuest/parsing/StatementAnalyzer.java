@@ -227,7 +227,7 @@ public class StatementAnalyzer {
         words.forEach(e -> wordMap.put(e, changedGroup));
     }
 
-    private void learnNewAssociation () {
+    public void learnNewAssociation () {
         Scanner scanner = new Scanner(System.in);
         System.out.println("No hits. Would you like to teach me an association? (y/n");
         String yesNoResponse = scanner.nextLine().toLowerCase();
@@ -290,6 +290,7 @@ public class StatementAnalyzer {
         } else {
             System.out.println("Response did not contain a yes or no. (Defaulted to no)");
         }
+        scanner.close();
     }
 
     private void initializeWordMap () {
