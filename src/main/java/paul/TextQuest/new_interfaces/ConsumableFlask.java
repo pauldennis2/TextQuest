@@ -1,7 +1,7 @@
-package paul.NLPTextDungeon.new_interfaces;
+package paul.TextQuest.new_interfaces;
 
-import paul.NLPTextDungeon.entities.BackpackItem;
-import paul.NLPTextDungeon.entities.Hero;
+import paul.TextQuest.entities.BackpackItem;
+import paul.TextQuest.entities.Hero;
 
 /**
  * Created by Paul Dennis on 9/5/2017.

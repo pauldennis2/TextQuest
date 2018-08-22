@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon;
+package paul.TextQuest;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -7,10 +7,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import paul.NLPTextDungeon.utils.DefeatException;
-import paul.NLPTextDungeon.parsing.InputType;
-import paul.NLPTextDungeon.parsing.TextInterface;
-import paul.NLPTextDungeon.utils.VictoryException;
+
+import paul.TextQuest.parsing.InputType;
+import paul.TextQuest.parsing.TextInterface;
+import paul.TextQuest.utils.DefeatException;
+import paul.TextQuest.utils.VictoryException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;

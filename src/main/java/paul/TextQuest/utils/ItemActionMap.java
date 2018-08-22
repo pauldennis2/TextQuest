@@ -1,9 +1,9 @@
-package paul.NLPTextDungeon.utils;
-
-import paul.NLPTextDungeon.interfaces.VoidAction;
+package paul.TextQuest.utils;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import paul.TextQuest.interfaces.VoidAction;
 
 /**
  * Created by Paul Dennis on 8/10/2017.

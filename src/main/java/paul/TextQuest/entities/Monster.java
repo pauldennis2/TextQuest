@@ -1,7 +1,7 @@
-package paul.NLPTextDungeon.entities;
+package paul.TextQuest.entities;
 
-import paul.NLPTextDungeon.enums.BehaviorTiming;
-import paul.NLPTextDungeon.interfaces.VoidAction;
+import paul.TextQuest.enums.BehaviorTiming;
+import paul.TextQuest.interfaces.VoidAction;
 
 import java.util.Map;
 

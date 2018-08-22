@@ -1,7 +1,8 @@
-package paul.NLPTextDungeon.entities;
+package paul.TextQuest.entities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import paul.NLPTextDungeon.enums.Direction;
+
+import paul.TextQuest.enums.Direction;
 
 import java.io.File;
 import java.io.FileNotFoundException;

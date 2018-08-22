@@ -1,15 +1,15 @@
-package paul.NLPTextDungeon.misc_unused;
+package paul.TextQuest.misc_unused;
 
 
 
-import paul.NLPTextDungeon.enums.BoatThings;
-import paul.NLPTextDungeon.utils.SafeNumScanner;
+import paul.TextQuest.enums.BoatThings;
+import paul.TextQuest.utils.SafeNumScanner;
+
+import static paul.TextQuest.enums.BoatThings.*;
 
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
-
-import static paul.NLPTextDungeon.enums.BoatThings.*;
 
 /**
  * Created by Paul Dennis on 8/9/2017.

@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.entities;
+package paul.TextQuest.entities;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

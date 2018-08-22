@@ -1,7 +1,7 @@
-package paul.NLPTextDungeon.interfaces;
+package paul.TextQuest.interfaces;
 
 
-import paul.NLPTextDungeon.entities.Hero;
+import paul.TextQuest.entities.Hero;
 
 /**
  * Created by Paul Dennis on 8/8/2017.

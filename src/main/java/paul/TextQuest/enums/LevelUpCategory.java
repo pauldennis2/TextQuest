@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.enums;
+package paul.TextQuest.enums;
 
 /**
  * Created by pauldennis on 8/22/17.

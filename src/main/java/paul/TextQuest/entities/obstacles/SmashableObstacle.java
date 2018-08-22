@@ -1,10 +1,10 @@
-package paul.NLPTextDungeon.entities.obstacles;
+package paul.TextQuest.entities.obstacles;
 
-import paul.NLPTextDungeon.entities.BackpackItem;
-import paul.NLPTextDungeon.entities.DungeonRoom;
-import paul.NLPTextDungeon.entities.Hero;
-import paul.NLPTextDungeon.entities.Monster;
-import paul.NLPTextDungeon.interfaces.VoidAction;
+import paul.TextQuest.entities.BackpackItem;
+import paul.TextQuest.entities.DungeonRoom;
+import paul.TextQuest.entities.Hero;
+import paul.TextQuest.entities.Monster;
+import paul.TextQuest.interfaces.VoidAction;
 
 import java.util.ArrayList;
 import java.util.HashMap;

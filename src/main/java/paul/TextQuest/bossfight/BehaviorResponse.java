@@ -1,6 +1,6 @@
-package paul.NLPTextDungeon.bossfight;
+package paul.TextQuest.bossfight;
 
-import paul.NLPTextDungeon.enums.ActionResponseTiming;
+import paul.TextQuest.enums.ActionResponseTiming;
 
 /**
  * Created by Paul Dennis on 8/14/2017.

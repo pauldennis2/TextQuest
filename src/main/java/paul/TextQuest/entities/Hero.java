@@ -1,29 +1,30 @@
-package paul.NLPTextDungeon.entities;
+package paul.TextQuest.entities;
 
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import paul.NLPTextDungeon.LeavingRoomAction;
-import paul.NLPTextDungeon.entities.obstacles.Obstacle;
-import paul.NLPTextDungeon.parsing.MagicUniversity;
-import paul.NLPTextDungeon.entities.obstacles.SmashableObstacle;
-import paul.NLPTextDungeon.enums.LevelUpCategory;
-import paul.NLPTextDungeon.interfaces.*;
-import paul.NLPTextDungeon.parsing.InputType;
-import paul.NLPTextDungeon.parsing.TextInterface;
-import paul.NLPTextDungeon.parsing.UserInterfaceClass;
-import paul.NLPTextDungeon.utils.*;
-import paul.NLPTextDungeon.entities.obstacles.Chasm;
-import paul.NLPTextDungeon.enums.Direction;
-import paul.NLPTextDungeon.enums.SpeakingVolume;
-import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
+
+import paul.TextQuest.LeavingRoomAction;
+import paul.TextQuest.entities.obstacles.Chasm;
+import paul.TextQuest.entities.obstacles.Obstacle;
+import paul.TextQuest.entities.obstacles.SmashableObstacle;
+import paul.TextQuest.enums.Direction;
+import paul.TextQuest.enums.LevelUpCategory;
+import paul.TextQuest.enums.SpeakingVolume;
+import paul.TextQuest.interfaces.*;
+import paul.TextQuest.interfaces.listeners.OnPickup;
+import paul.TextQuest.parsing.InputType;
+import paul.TextQuest.parsing.MagicUniversity;
+import paul.TextQuest.parsing.TextInterface;
+import paul.TextQuest.parsing.UserInterfaceClass;
+import paul.TextQuest.utils.*;
+
+import static paul.TextQuest.enums.LevelUpCategory.INC_STATS;
+import static paul.TextQuest.enums.LevelUpCategory.NEW_SKILL;
+import static paul.TextQuest.enums.LevelUpCategory.NEW_SPELL;
 
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static paul.NLPTextDungeon.enums.LevelUpCategory.INC_STATS;
-import static paul.NLPTextDungeon.enums.LevelUpCategory.NEW_SKILL;
-import static paul.NLPTextDungeon.enums.LevelUpCategory.NEW_SPELL;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
@@ -227,10 +228,11 @@ public class Hero extends UserInterfaceClass {
     }
 
     public String jsonSave(Hero heroToSave) {
-        JsonSerializer jsonSerializer = new JsonSerializer().deep(true);
-        String jsonString = jsonSerializer.serialize(heroToSave);
+        //JsonSerializer jsonSerializer = new JsonSerializer().deep(true);
+        //String jsonString = jsonSerializer.serialize(heroToSave);
 
-        return jsonString;
+        //return jsonString;
+    	throw new AssertionError("Fix this method");
     }
 
 

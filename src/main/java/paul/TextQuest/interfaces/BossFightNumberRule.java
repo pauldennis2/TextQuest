@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.interfaces;
+package paul.TextQuest.interfaces;
 
 import java.util.List;
 

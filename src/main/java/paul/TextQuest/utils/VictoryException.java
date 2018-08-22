@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.utils;
+package paul.TextQuest.utils;
 
 /**
  * Created by Paul Dennis on 8/8/2017.

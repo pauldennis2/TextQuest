@@ -1,7 +1,7 @@
-package paul.NLPTextDungeon.entities;
+package paul.TextQuest.entities;
 
-import paul.NLPTextDungeon.parsing.TextInterface;
-import paul.NLPTextDungeon.utils.SafeNumScanner;
+import paul.TextQuest.parsing.TextInterface;
+import paul.TextQuest.utils.SafeNumScanner;
 
 import java.util.ArrayList;
 import java.util.List;

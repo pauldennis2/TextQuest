@@ -1,11 +1,12 @@
-package paul.NLPTextDungeon.bossfight;
+package paul.TextQuest.bossfight;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import paul.NLPTextDungeon.parsing.UserInterfaceClass;
-import paul.NLPTextDungeon.parsing.InputType;
-import paul.NLPTextDungeon.parsing.TextInterface;
-import paul.NLPTextDungeon.entities.Hero;
-import paul.NLPTextDungeon.utils.VictoryException;
+
+import paul.TextQuest.entities.Hero;
+import paul.TextQuest.parsing.InputType;
+import paul.TextQuest.parsing.TextInterface;
+import paul.TextQuest.parsing.UserInterfaceClass;
+import paul.TextQuest.utils.VictoryException;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -1,7 +1,7 @@
-package paul.NLPTextDungeon.entities;
+package paul.TextQuest.entities;
 
-import paul.NLPTextDungeon.interfaces.listeners.OnPickup;
-import paul.NLPTextDungeon.utils.VictoryException;
+import paul.TextQuest.interfaces.listeners.OnPickup;
+import paul.TextQuest.utils.VictoryException;
 
 import java.util.ArrayList;
 import java.util.HashMap;

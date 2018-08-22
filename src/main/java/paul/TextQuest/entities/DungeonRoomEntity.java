@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.entities;
+package paul.TextQuest.entities;
 
 /**
  * Created by pauldennis on 8/21/17.

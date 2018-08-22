@@ -1,11 +1,11 @@
-package paul.NLPTextDungeon.bossfight;
+package paul.TextQuest.bossfight;
 
-import paul.NLPTextDungeon.parsing.UserInterfaceClass;
-import paul.NLPTextDungeon.parsing.InputType;
-import paul.NLPTextDungeon.parsing.TextInterface;
-import paul.NLPTextDungeon.entities.Hero;
-import paul.NLPTextDungeon.enums.NumberActionType;
-import paul.NLPTextDungeon.enums.NumberRuleType;
+import paul.TextQuest.entities.Hero;
+import paul.TextQuest.enums.NumberActionType;
+import paul.TextQuest.enums.NumberRuleType;
+import paul.TextQuest.parsing.InputType;
+import paul.TextQuest.parsing.TextInterface;
+import paul.TextQuest.parsing.UserInterfaceClass;
 
 import java.util.*;
 

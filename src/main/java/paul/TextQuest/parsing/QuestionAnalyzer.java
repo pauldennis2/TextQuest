@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.parsing;
+package paul.TextQuest.parsing;
 
 import java.util.Scanner;
 

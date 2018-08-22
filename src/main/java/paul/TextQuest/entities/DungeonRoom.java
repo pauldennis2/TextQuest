@@ -1,20 +1,20 @@
-package paul.NLPTextDungeon.entities;
+package paul.TextQuest.entities;
 
-import paul.NLPTextDungeon.LeavingRoomAction;
-import paul.NLPTextDungeon.entities.obstacles.Chasm;
-import paul.NLPTextDungeon.interfaces.ParamAction;
-import paul.NLPTextDungeon.interfaces.VoidAction;
-import paul.NLPTextDungeon.parsing.UserInterfaceClass;
-import paul.NLPTextDungeon.parsing.InputType;
-import paul.NLPTextDungeon.parsing.TextInterface;
-import paul.NLPTextDungeon.bossfight.BossFight;
-import paul.NLPTextDungeon.entities.obstacles.Obstacle;
-import paul.NLPTextDungeon.entities.obstacles.RiddleObstacle;
-import paul.NLPTextDungeon.enums.Direction;
-import paul.NLPTextDungeon.enums.LightingLevel;
-import paul.NLPTextDungeon.enums.SpeakingVolume;
-import paul.NLPTextDungeon.interfaces.listeners.SpeechListener;
-import paul.NLPTextDungeon.utils.VictoryException;
+import paul.TextQuest.LeavingRoomAction;
+import paul.TextQuest.bossfight.BossFight;
+import paul.TextQuest.entities.obstacles.Chasm;
+import paul.TextQuest.entities.obstacles.Obstacle;
+import paul.TextQuest.entities.obstacles.RiddleObstacle;
+import paul.TextQuest.enums.Direction;
+import paul.TextQuest.enums.LightingLevel;
+import paul.TextQuest.enums.SpeakingVolume;
+import paul.TextQuest.interfaces.ParamAction;
+import paul.TextQuest.interfaces.VoidAction;
+import paul.TextQuest.interfaces.listeners.SpeechListener;
+import paul.TextQuest.parsing.InputType;
+import paul.TextQuest.parsing.TextInterface;
+import paul.TextQuest.parsing.UserInterfaceClass;
+import paul.TextQuest.utils.VictoryException;
 
 import java.io.IOException;
 import java.util.*;

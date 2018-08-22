@@ -1,13 +1,13 @@
-package paul.NLPTextDungeon.bossfight;
+package paul.TextQuest.bossfight;
 
-import paul.NLPTextDungeon.enums.ActionResponseTiming;
-import paul.NLPTextDungeon.parsing.UserInterfaceClass;
-import paul.NLPTextDungeon.parsing.StatementAnalysis;
-import paul.NLPTextDungeon.parsing.StatementAnalyzer;
-import paul.NLPTextDungeon.parsing.WordType;
-import paul.NLPTextDungeon.parsing.InputType;
-import paul.NLPTextDungeon.parsing.TextInterface;
-import paul.NLPTextDungeon.entities.Hero;
+import paul.TextQuest.entities.Hero;
+import paul.TextQuest.enums.ActionResponseTiming;
+import paul.TextQuest.parsing.InputType;
+import paul.TextQuest.parsing.StatementAnalysis;
+import paul.TextQuest.parsing.StatementAnalyzer;
+import paul.TextQuest.parsing.TextInterface;
+import paul.TextQuest.parsing.UserInterfaceClass;
+import paul.TextQuest.parsing.WordType;
 
 import java.util.ArrayList;
 import java.util.List;

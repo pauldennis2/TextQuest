@@ -1,12 +1,12 @@
-package paul.NLPTextDungeon.parsing;
-
-import paul.NLPTextDungeon.DungeonRunner;
+package paul.TextQuest.parsing;
 
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import paul.TextQuest.DungeonRunner;
 
 /**
  * Created by Paul Dennis on 8/16/2017.

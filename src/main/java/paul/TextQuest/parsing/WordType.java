@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.parsing;
+package paul.TextQuest.parsing;
 
 /**
  * Created by Paul Dennis on 8/10/2017.

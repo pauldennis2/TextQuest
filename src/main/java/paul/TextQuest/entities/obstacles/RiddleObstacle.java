@@ -1,6 +1,6 @@
-package paul.NLPTextDungeon.entities.obstacles;
+package paul.TextQuest.entities.obstacles;
 
-import paul.NLPTextDungeon.entities.Hero;
+import paul.TextQuest.entities.Hero;
 
 /**
  * Created by Paul Dennis on 8/13/2017.

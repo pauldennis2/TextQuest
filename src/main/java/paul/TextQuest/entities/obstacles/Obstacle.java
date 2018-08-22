@@ -1,9 +1,10 @@
-package paul.NLPTextDungeon.entities.obstacles;
+package paul.TextQuest.entities.obstacles;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import paul.NLPTextDungeon.entities.DungeonRoomEntity;
-import paul.NLPTextDungeon.entities.Hero;
-import paul.NLPTextDungeon.enums.Direction;
+
+import paul.TextQuest.entities.DungeonRoomEntity;
+import paul.TextQuest.entities.Hero;
+import paul.TextQuest.enums.Direction;
 
 import java.util.ArrayList;
 import java.util.List;

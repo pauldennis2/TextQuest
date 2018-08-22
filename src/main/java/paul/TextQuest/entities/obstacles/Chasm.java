@@ -1,8 +1,8 @@
-package paul.NLPTextDungeon.entities.obstacles;
-
-import paul.NLPTextDungeon.entities.Hero;
+package paul.TextQuest.entities.obstacles;
 
 import java.util.Arrays;
+
+import paul.TextQuest.entities.Hero;
 
 /**
  * Created by Paul Dennis on 8/13/2017.

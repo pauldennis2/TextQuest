@@ -1,9 +1,9 @@
-package paul.NLPTextDungeon.entities;
-
-import paul.NLPTextDungeon.parsing.*;
+package paul.TextQuest.entities;
 
 import java.util.List;
 import java.util.Random;
+
+import paul.TextQuest.parsing.*;
 
 /**
  * Created by pauldennis on 8/21/17.

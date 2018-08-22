@@ -1,8 +1,8 @@
-package paul.NLPTextDungeon.entities;
-
-import paul.NLPTextDungeon.enums.LightingLevel;
+package paul.TextQuest.entities;
 
 import java.util.Map;
+
+import paul.TextQuest.enums.LightingLevel;
 
 /**
  * Created by Paul Dennis on 9/5/2017.

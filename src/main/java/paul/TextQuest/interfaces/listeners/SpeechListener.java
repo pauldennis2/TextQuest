@@ -1,6 +1,6 @@
-package paul.NLPTextDungeon.interfaces.listeners;
+package paul.TextQuest.interfaces.listeners;
 
-import paul.NLPTextDungeon.enums.SpeakingVolume;
+import paul.TextQuest.enums.SpeakingVolume;
 
 /**
  * Created by Paul Dennis on 8/14/2017.

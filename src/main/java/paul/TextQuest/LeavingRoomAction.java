@@ -1,8 +1,8 @@
-package paul.NLPTextDungeon;
-
-import paul.NLPTextDungeon.enums.Direction;
+package paul.TextQuest;
 
 import java.util.Map;
+
+import paul.TextQuest.enums.Direction;
 
 /**
  * Created by Paul Dennis on 9/5/2017.

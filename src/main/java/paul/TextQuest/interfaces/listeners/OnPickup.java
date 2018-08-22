@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.interfaces.listeners;
+package paul.TextQuest.interfaces.listeners;
 
 /**
  * Created by Paul Dennis on 8/10/2017.

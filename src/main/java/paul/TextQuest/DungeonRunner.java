@@ -1,15 +1,15 @@
-package paul.NLPTextDungeon;
+package paul.TextQuest;
 
-import paul.NLPTextDungeon.entities.NormalCombat;
-import paul.NLPTextDungeon.parsing.UserInterfaceClass;
-import paul.NLPTextDungeon.parsing.InputType;
-import paul.NLPTextDungeon.parsing.TextInterface;
-import paul.NLPTextDungeon.entities.Dungeon;
-import paul.NLPTextDungeon.entities.DungeonRoom;
-import paul.NLPTextDungeon.entities.Hero;
-import paul.NLPTextDungeon.parsing.StatementAnalysis;
-import paul.NLPTextDungeon.parsing.StatementAnalyzer;
-import paul.NLPTextDungeon.utils.VictoryException;
+import paul.TextQuest.entities.Dungeon;
+import paul.TextQuest.entities.DungeonRoom;
+import paul.TextQuest.entities.Hero;
+import paul.TextQuest.entities.NormalCombat;
+import paul.TextQuest.parsing.InputType;
+import paul.TextQuest.parsing.StatementAnalysis;
+import paul.TextQuest.parsing.StatementAnalyzer;
+import paul.TextQuest.parsing.TextInterface;
+import paul.TextQuest.parsing.UserInterfaceClass;
+import paul.TextQuest.utils.VictoryException;
 
 import java.io.IOException;
 import java.util.ArrayList;

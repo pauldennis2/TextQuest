@@ -1,4 +1,4 @@
-package paul.NLPTextDungeon.entities;
+package paul.TextQuest.entities;
 
 import java.util.*;
 

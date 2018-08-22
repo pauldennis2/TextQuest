@@ -4,12 +4,11 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>paul</groupId>
-	<artifactId>NLPTextDungeon</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<artifactId>TextQuest</artifactId>
+	<version>0.0.5b-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
-	<name>NLPTextDungeon</name>
-	<description>Demo project for Spring Boot</description>
+	<name>TextQuest</name>
 
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -51,4 +50,6 @@
 	</build>
 
 
+	<url>https://text-quest.herokuapp.com</url>
+	<description>A webapp game played entirely through text. See the readme.</description>
 </project>

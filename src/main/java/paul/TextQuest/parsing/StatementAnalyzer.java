@@ -1,12 +1,12 @@
-package paul.NLPTextDungeon.parsing;
+package paul.TextQuest.parsing;
 
-
-import paul.NLPTextDungeon.entities.DungeonRoom;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import paul.TextQuest.entities.DungeonRoom;
 
 /**
  * Created by Paul Dennis on 8/10/2017.
