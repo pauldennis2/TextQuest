@@ -41,4 +41,12 @@ public class Backpack extends Location {
                 .collect(Collectors.toList())
                 .contains(itemName.toLowerCase());
     }
+    
+    public List<BackpackItem> getItems () {
+    	return items;
+    }
+    
+    public void setItems (List<BackpackItem> items) {
+    	this.items = items;
+    }
 }

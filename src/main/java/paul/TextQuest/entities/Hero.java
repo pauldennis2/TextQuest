@@ -1,7 +1,9 @@
 package paul.TextQuest.entities;
 
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import paul.TextQuest.LeavingRoomAction;
 import paul.TextQuest.entities.obstacles.Obstacle;
@@ -19,6 +21,7 @@ import paul.TextQuest.utils.*;
 import static paul.TextQuest.enums.LevelUpCategory.*;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -26,7 +29,7 @@ import java.util.stream.Collectors;
  * Created by Paul Dennis on 8/8/2017.
  */
 
-public class Hero extends UserInterfaceClass {
+public class Hero extends UserInterfaceClass implements Serializable {
 
     private String name;
 
@@ -95,7 +98,8 @@ public class Hero extends UserInterfaceClass {
         initMaps();
     }
 
-    public Hero (String standard) {
+    public Hero (String name) {
+    	this.name = name;
         random = new Random();
         health = 50;
         maxHealth = 50;
@@ -222,13 +226,23 @@ public class Hero extends UserInterfaceClass {
         return mapper.readValue(heroJson, Hero.class);
     }
 
-    public String jsonSave(Hero heroToSave) {
-        //JsonSerializer jsonSerializer = new JsonSerializer().deep(true);
-        //String jsonString = jsonSerializer.serialize(heroToSave);
-
-        //return jsonString;
-    	throw new AssertionError("Fix this method");
+    public String jsonSave() {
+    	ObjectMapper objectMapper = new ObjectMapper();
+    	
+    	objectMapper.configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);    	
+    	
+    	try {
+    		return objectMapper.writeValueAsString(this);
+    	} catch (JsonProcessingException ex) {
+    		ex.printStackTrace();
+    		throw new AssertionError("Error");
+    	}
     }
+    
+    public static void main(String[] args) {
+		Hero hero = new Hero("Hero the Hero");
+		System.out.println(hero.jsonSave());
+	}
 
 
     private void initMaps () {
@@ -737,5 +751,13 @@ public class Hero extends UserInterfaceClass {
 
     public void setPreviousLocation(DungeonRoom previousLocation) {
         this.previousLocation = previousLocation;
+    }
+    
+    public void setMightMod (int mightMod) {
+    	this.mightMod = mightMod;
+    }
+    
+    public int getMightMod () {
+    	return mightMod;
     }
 }
