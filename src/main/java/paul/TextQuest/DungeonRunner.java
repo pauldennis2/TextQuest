@@ -88,6 +88,9 @@ public class DungeonRunner extends UserInterfaceClass {
                         textOut.println("Please enter your solution.");
                         textOut.tutorial("Try \"jump before\"!");
                         break;
+                    default:
+                    	textOut.debug("Encountered a problem. Unexpected input type: " + type);
+                    	break;
                 }
                 requester = currentRoom;
             }

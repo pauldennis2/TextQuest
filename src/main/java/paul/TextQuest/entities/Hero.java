@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
+
 public class Hero extends UserInterfaceClass {
 
     private String name;
@@ -111,8 +112,6 @@ public class Hero extends UserInterfaceClass {
         backpack.add(new BackpackItem("Sword"));
         backpack.add(new BackpackItem("Bow"));
 
-        //For debug. Todo; remove
-        backpack.add(new BackpackItem("Boots of Vaulting"));
         initMaps();
     }
 

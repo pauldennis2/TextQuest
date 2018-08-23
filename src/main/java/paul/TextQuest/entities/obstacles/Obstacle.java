@@ -27,6 +27,7 @@ public abstract class Obstacle extends DungeonRoomEntity {
 
     //Represents whether this is a "major obstacle" puzzle or just a smashed barrel or something
     private boolean displayIfCleared;
+    private boolean blocksLooting;
 
     private List<Direction> blockedDirections;
 
@@ -108,5 +109,13 @@ public abstract class Obstacle extends DungeonRoomEntity {
             blockedDirections.remove(0);
         }
         blockedDirections.add(direction);
+    }
+    
+    public void setBlocksLooting (boolean blocksLooting) {
+    	this.blocksLooting = blocksLooting;
+    }
+    
+    public boolean blocksLooting () {
+    	return blocksLooting;
     }
 }
