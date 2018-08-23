@@ -118,4 +118,10 @@ public abstract class Obstacle extends DungeonRoomEntity {
     public boolean blocksLooting () {
     	return blocksLooting;
     }
+
+	public String toLongString() {
+		return "Obstacle [name=" + name + ", solution=" + solution + ", isCleared=" + isCleared + ", blocksLooting="
+				+ blocksLooting + ", blockedDirections=" + blockedDirections + "]";
+	}
+    
 }

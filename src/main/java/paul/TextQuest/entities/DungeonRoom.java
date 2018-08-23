@@ -119,7 +119,8 @@ public class DungeonRoom extends UserInterfaceClass {
             room.textOut.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
             Chasm chasm = new Chasm();
             chasm.addBlockedDirection(Direction.ALL);
-            room.addObstacle(new Chasm());
+            room.textOut.debug(chasm.toLongString());
+            room.addObstacle(chasm);
             room.hero.setPreviousLocation(null); //Prevent retreating
         });
         paramActionMap.put("heal", (room, param) -> {

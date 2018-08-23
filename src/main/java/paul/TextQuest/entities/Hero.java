@@ -540,15 +540,16 @@ public class Hero extends UserInterfaceClass {
 
     private void proceed (Direction direction) {
         List<Obstacle> obstacles = location.getObstacles().stream()
-                .filter(e -> !e.isCleared())
-                .filter(e -> {
-                    List<Direction> blockedDirections = e.getBlockedDirections();
+                .filter(obs -> !obs.isCleared())
+                .filter(obs -> {
+                    List<Direction> blockedDirections = obs.getBlockedDirections();
                     if (blockedDirections.get(0) == Direction.ALL) {
                         return true;
                     }
                     if (blockedDirections.contains(direction)) {
                         return true;
                     }
+                    textOut.debug("blockedDirections = " + blockedDirections);
                     return false;
                 })
                 .collect(Collectors.toList());

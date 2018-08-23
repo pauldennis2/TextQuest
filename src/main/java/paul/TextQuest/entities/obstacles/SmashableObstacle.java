@@ -3,11 +3,9 @@ package paul.TextQuest.entities.obstacles;
 import paul.TextQuest.entities.BackpackItem;
 import paul.TextQuest.entities.DungeonRoom;
 import paul.TextQuest.entities.Hero;
-import paul.TextQuest.entities.Monster;
 import paul.TextQuest.interfaces.VoidAction;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +45,7 @@ public class SmashableObstacle extends Obstacle {
         }
     }
 
-    private static Map<String, VoidAction> smashActionMap;
+    public static Map<String, VoidAction> smashActionMap;
 
     public int getRequiredMight() {
         return requiredMight;
