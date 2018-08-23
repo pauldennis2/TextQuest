@@ -549,7 +549,6 @@ public class Hero extends UserInterfaceClass {
                     if (blockedDirections.contains(direction)) {
                         return true;
                     }
-                    textOut.debug("blockedDirections = " + blockedDirections);
                     return false;
                 })
                 .collect(Collectors.toList());
