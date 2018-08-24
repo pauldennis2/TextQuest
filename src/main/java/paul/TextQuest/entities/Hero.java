@@ -20,6 +20,9 @@ import paul.TextQuest.utils.*;
 
 import static paul.TextQuest.enums.LevelUpCategory.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
@@ -90,6 +93,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
 
     public static final double TORCH_LIGHT = 1.0;
     public static final int POTION_VALUE = 9;
+    
+    public static final String SAVE_PATH = "save_data/";
 
 
     public Hero () {
@@ -99,6 +104,9 @@ public class Hero extends UserInterfaceClass implements Serializable {
     }
 
     public Hero (String name) {
+    	if (name.contains(" ") || name.contains("/")) {
+    		throw new AssertionError("Hero names cannot contain spaces or slashes. Name was: " + name);
+    	}
     	this.name = name;
         random = new Random();
         health = 50;
@@ -241,15 +249,47 @@ public class Hero extends UserInterfaceClass implements Serializable {
     }
     
     public static void main(String[] args) throws Exception {
-		Hero hero = new Hero("Hero the Hero");
+		Hero hero = new Hero("Gimli");
 		String json = hero.createJsonString();
 		System.out.println(json);
-		
+		saveHeroToFile("paul", hero);
 		System.out.println("=====");
 		
-		Hero restored = jsonRestore(json);
-		System.out.println(restored);
+		Hero fromFile = loadHeroFromFile("paul", "Gimli");
+		System.out.println(fromFile);
+		System.out.println("=====");
+		
+		System.out.println(getHeroListForUser("paul"));
 	}
+    
+    public static void saveHeroToFile (String username, Hero hero) {
+    	String fileName = SAVE_PATH + username + "/" + hero.getName() + ".json";
+    	new File(SAVE_PATH + username).mkdirs();
+    	try (FileWriter fileWriter = new FileWriter(new File(fileName))){
+    		fileWriter.write(hero.createJsonString());
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+    	}
+    }
+    
+    public static Hero loadHeroFromFile (String username, String heroName) {
+    	String fileName = SAVE_PATH + username + "/" + heroName + ".json";
+    	try (Scanner fileScanner = new Scanner(new File(fileName))) {
+    		String json = fileScanner.nextLine();
+    		return jsonRestore(json);
+    	} catch (FileNotFoundException ex) {
+    		throw new AssertionError("Hero file could not be found at " + fileName);
+    	} catch (IOException ex) {
+    		throw new AssertionError(ex);
+    	}
+    }
+    
+    public static List<String> getHeroListForUser (String username) {
+    	File folder = new File(SAVE_PATH + username);
+    	return Arrays.stream(folder.listFiles())
+    			.map(file -> file.getName().split("\\.")[0])
+    			.collect(Collectors.toList());
+    }
 
 
     private void initMaps () {
