@@ -78,7 +78,7 @@ public class GameController {
             textOut.start(null);
             session.setAttribute("textInterface", textOut);
         }
-        requestedInputType = textOut.show();//Important
+        requestedInputType = textOut.show();//Important //<--Useful //<--Sarcastic
 
         List<String> output = textOut.flush();
         List<String> debug = textOut.flushDebug();

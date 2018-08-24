@@ -368,7 +368,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
             } else {
                 textOut.println("Spells: (Available/Max): (" + numSpellsAvailable + "/" + maxSpellsPerDay + ")");
                 textOut.println("Known Spells:");
-                spellMap.keySet().forEach(textOut::println);
+                spellbook.forEach(textOut::println);
             }
         });
     }
@@ -603,7 +603,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
     }
 
     public void printStats () {
-        textOut.println("Health: " + health + "/" + maxHealth + "  (Might, Magic, Defense) (" +
+        textOut.println("Hero: " + name + "\nHealth: " + health + "/" + maxHealth + "  (Might, Magic, Defense) (" +
                 might + ", " + magic + ", " + defense + ") Level: " + level + ", Exp: " + exp);
     }
 
