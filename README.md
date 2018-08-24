@@ -16,6 +16,8 @@ load. NOTE: the app is currently in a broken state as I've come back to it after
 I would be **very** interested in collaborating with another developer on this, particularly a front-end/graphic
 designer (I am not a front-end guy as you can see). For more information, please see the heroku app.
 
+Update: thanks to [Sean](https://github.com/SeanMcP) there have been substantial improvements to the front-end look and feel. Thanks Sean! Proving that in a few hours someone who knows what they're doing can make something that doesn't look like it's from the '90s. I am still open to further collaboration, if anyone wants to get involved. 
+
 ### Returning
 
 I'm now (as of August 2018) returning to at least clean this project up and hopefully push a Version 0.1.0. Brushing the dust off!

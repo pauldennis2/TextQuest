@@ -119,7 +119,8 @@ public class DungeonRoom extends UserInterfaceClass {
             room.textOut.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
             Chasm chasm = new Chasm();
             chasm.addBlockedDirection(Direction.ALL);
-            room.addObstacle(new Chasm());
+            room.textOut.debug(chasm.toLongString());
+            room.addObstacle(chasm);
             room.hero.setPreviousLocation(null); //Prevent retreating
         });
         paramActionMap.put("heal", (room, param) -> {
@@ -327,11 +328,18 @@ public class DungeonRoom extends UserInterfaceClass {
     }
 
     public List<BackpackItem> lootRoom () {
-        List<BackpackItem> visibleItems = items.stream()
-                .filter(item -> item.isVisible(lighting))
-                .collect(Collectors.toList());
-        items.removeAll(visibleItems);
-        return visibleItems;
+    	boolean blocked = obstacles.stream().anyMatch(obs -> obs.blocksLooting() && !obs.isCleared());
+    	List<BackpackItem> visibleItems;
+    	if (!blocked) {
+	        visibleItems = items.stream()
+	                .filter(item -> item.isVisible(lighting))
+	                .collect(Collectors.toList());
+	        items.removeAll(visibleItems);
+    	} else {
+    		visibleItems = new ArrayList<>();
+    		textOut.println("There's an obstacle blocking you from looting.");
+    	}
+    	return visibleItems;
     }
 
     public void updateMonsters () {

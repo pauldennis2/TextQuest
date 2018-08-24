@@ -115,7 +115,8 @@
         {
           "@class" : "paul.TextQuest.entities.obstacles.Chasm",
           "name": "Chasm",
-          "solution": "jump"
+          "solution": "jump",
+          "blocksLooting": true
         }
       ],
       "items":

@@ -1,7 +1,5 @@
 package paul.TextQuest.entities.obstacles;
 
-import java.util.Arrays;
-
 import paul.TextQuest.entities.Hero;
 
 /**

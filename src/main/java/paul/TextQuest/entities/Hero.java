@@ -1,6 +1,8 @@
 package paul.TextQuest.entities;
 
-import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import paul.TextQuest.LeavingRoomAction;
@@ -18,14 +20,19 @@ import paul.TextQuest.utils.*;
 
 import static paul.TextQuest.enums.LevelUpCategory.*;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class Hero extends UserInterfaceClass {
+
+public class Hero extends UserInterfaceClass implements Serializable {
 
     private String name;
 
@@ -86,6 +93,8 @@ public class Hero extends UserInterfaceClass {
 
     public static final double TORCH_LIGHT = 1.0;
     public static final int POTION_VALUE = 9;
+    
+    public static final String SAVE_PATH = "save_data/";
 
 
     public Hero () {
@@ -94,7 +103,11 @@ public class Hero extends UserInterfaceClass {
         initMaps();
     }
 
-    public Hero (String standard) {
+    public Hero (String name) {
+    	if (name.contains(" ") || name.contains("/")) {
+    		throw new AssertionError("Hero names cannot contain spaces or slashes. Name was: " + name);
+    	}
+    	this.name = name;
         random = new Random();
         health = 50;
         maxHealth = 50;
@@ -111,8 +124,6 @@ public class Hero extends UserInterfaceClass {
         backpack.add(new BackpackItem("Sword"));
         backpack.add(new BackpackItem("Bow"));
 
-        //For debug. Todo; remove
-        backpack.add(new BackpackItem("Boots of Vaulting"));
         initMaps();
     }
 
@@ -223,12 +234,61 @@ public class Hero extends UserInterfaceClass {
         return mapper.readValue(heroJson, Hero.class);
     }
 
-    public String jsonSave(Hero heroToSave) {
-        //JsonSerializer jsonSerializer = new JsonSerializer().deep(true);
-        //String jsonString = jsonSerializer.serialize(heroToSave);
-
-        //return jsonString;
-    	throw new AssertionError("Fix this method");
+    //Don't name this method like a getter or it causes SO Error
+    public String createJsonString() {
+    	ObjectMapper objectMapper = new ObjectMapper();
+    	
+    	objectMapper.configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);    	
+    	
+    	try {
+    		return objectMapper.writeValueAsString(this);
+    	} catch (JsonProcessingException ex) {
+    		ex.printStackTrace();
+    		throw new AssertionError("Error");
+    	}
+    }
+    
+    public static void main(String[] args) throws Exception {
+		Hero hero = new Hero("Gimli");
+		String json = hero.createJsonString();
+		System.out.println(json);
+		saveHeroToFile("paul", hero);
+		System.out.println("=====");
+		
+		Hero fromFile = loadHeroFromFile("paul", "Gimli");
+		System.out.println(fromFile);
+		System.out.println("=====");
+		
+		System.out.println(getHeroListForUser("paul"));
+	}
+    
+    public static void saveHeroToFile (String username, Hero hero) {
+    	String fileName = SAVE_PATH + username + "/" + hero.getName() + ".json";
+    	new File(SAVE_PATH + username).mkdirs();
+    	try (FileWriter fileWriter = new FileWriter(new File(fileName))){
+    		fileWriter.write(hero.createJsonString());
+    	} catch (IOException ex) {
+    		ex.printStackTrace();
+    	}
+    }
+    
+    public static Hero loadHeroFromFile (String username, String heroName) {
+    	String fileName = SAVE_PATH + username + "/" + heroName + ".json";
+    	try (Scanner fileScanner = new Scanner(new File(fileName))) {
+    		String json = fileScanner.nextLine();
+    		return jsonRestore(json);
+    	} catch (FileNotFoundException ex) {
+    		throw new AssertionError("Hero file could not be found at " + fileName);
+    	} catch (IOException ex) {
+    		throw new AssertionError(ex);
+    	}
+    }
+    
+    public static List<String> getHeroListForUser (String username) {
+    	File folder = new File(SAVE_PATH + username);
+    	return Arrays.stream(folder.listFiles())
+    			.map(file -> file.getName().split("\\.")[0])
+    			.collect(Collectors.toList());
     }
 
 
@@ -541,9 +601,9 @@ public class Hero extends UserInterfaceClass {
 
     private void proceed (Direction direction) {
         List<Obstacle> obstacles = location.getObstacles().stream()
-                .filter(e -> !e.isCleared())
-                .filter(e -> {
-                    List<Direction> blockedDirections = e.getBlockedDirections();
+                .filter(obs -> !obs.isCleared())
+                .filter(obs -> {
+                    List<Direction> blockedDirections = obs.getBlockedDirections();
                     if (blockedDirections.get(0) == Direction.ALL) {
                         return true;
                     }
@@ -622,8 +682,17 @@ public class Hero extends UserInterfaceClass {
             throw new DefeatException("Died from non-combat damage.");
         }
     }
+    
+    
 
-    public int getHealth() {
+    @Override
+	public String toString() {
+		return "Hero [name=" + name + ", health=" + health + ", maxHealth=" + maxHealth + ", might=" + might
+				+ ", magic=" + magic + ", sneak=" + sneak + ", defense=" + defense + ", maxSpellsPerDay="
+				+ maxSpellsPerDay + ", level=" + level + ", exp=" + exp + ", backpack=" + backpack + "]";
+	}
+
+	public int getHealth() {
         return health;
     }
 
@@ -631,6 +700,7 @@ public class Hero extends UserInterfaceClass {
         return maxHealth;
     }
 
+    @JsonIgnore
     public boolean isSneaking() {
         return isSneaking;
     }
@@ -738,5 +808,13 @@ public class Hero extends UserInterfaceClass {
 
     public void setPreviousLocation(DungeonRoom previousLocation) {
         this.previousLocation = previousLocation;
+    }
+    
+    public void setMightMod (int mightMod) {
+    	this.mightMod = mightMod;
+    }
+    
+    public int getMightMod () {
+    	return mightMod;
     }
 }
