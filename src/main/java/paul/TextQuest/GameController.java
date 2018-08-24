@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import paul.TextQuest.entities.Hero;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.TextInterface;
 import paul.TextQuest.utils.DefeatException;
@@ -15,8 +16,17 @@ import paul.TextQuest.utils.VictoryException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Scanner;
 
 /**
  * Created by Paul Dennis on 8/16/2017.
@@ -24,18 +34,47 @@ import java.util.List;
 @Controller
 public class GameController {
 
-    InputType requestedInputType = InputType.STD;
+    private InputType requestedInputType = InputType.STD;
+    
+    private Map<String, String> userMap;
+    
+    public static final String USERS_FILE = "save_data/users.txt";
 
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public String home () {
         return "index";
     }
+    
+    @RequestMapping(path = "/login", method = RequestMethod.GET)
+    public String loginScreen () {
+    	return "login";
+    }
+    
+    @RequestMapping(path = "/login", method = RequestMethod.POST)
+    public String login (HttpSession session, String username, String password) {
+    	if (userMap == null) {
+    		initUserMap();
+    	}
+    	if (userMap.containsKey(username)) { //User exists
+    		if (!userMap.get(username).equals(password)) { //Password incorrect
+    			return "badpw";
+    		}
+    	} else { //User does not exist
+    		addNewUser(username, password);
+    	}
+    	session.setAttribute("username", username);
+    	return "redirect:/load-hero";
+    }
 
     @RequestMapping(path = "/game", method = RequestMethod.GET)
     public String game (Model model, HttpSession session) throws IOException {
+    	if (session.getAttribute("username") == null) {
+    		return "login";
+    	}
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
         if (textOut == null) {
-            textOut = new TextInterface();
+        	Hero hero = (Hero) session.getAttribute("hero");
+            textOut = new TextInterface(hero);
             textOut.start(null);
             session.setAttribute("textInterface", textOut);
         }
@@ -52,6 +91,7 @@ public class GameController {
         }
 
         model.addAttribute("outputText", output);
+        model.addAttribute("username", session.getAttribute("username"));
 
         if (tutorial != null && tutorial.size() > 0) {
             System.out.println("tutorial added with size " + tutorial.size());
@@ -69,7 +109,7 @@ public class GameController {
     @RequestMapping(path = "/submit-action", method = RequestMethod.POST)
     public String submitAction (@RequestParam String userInput, Model model, HttpSession session) {
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
-        session.setAttribute("user", "paul"); //TODO remove this temporary hack
+        //session.setAttribute("user", "paul"); //TODO remove this temporary hack
         if (requestedInputType == InputType.NUMBER) {
             try {
                 Integer.parseInt(userInput);
@@ -94,6 +134,26 @@ public class GameController {
         }
         return "redirect:/game";
     }
+    
+    @RequestMapping(path = "/load-hero", method = RequestMethod.GET)
+    public String loadHeroView (HttpSession session, Model model) {
+    	String username = (String) session.getAttribute("username");
+    	List<String> heroList = Hero.getHeroListForUser(username);
+    	model.addAttribute("heroList", heroList);
+    	return null;
+    }
+    
+    @RequestMapping(path = "/load-hero", method = RequestMethod.POST)
+    public String receiveLoadHero (HttpSession session, Model model, String heroName) {
+    	System.out.println("Loading hero: " + heroName);
+    	String username = (String) session.getAttribute("username");
+    	Hero hero = Hero.loadHeroFromFile(username, heroName);
+    	if (hero == null) {
+    		hero = new Hero(heroName);
+    	}
+    	session.setAttribute("hero", hero);
+    	return "redirect:/game";
+    }
 
     @ExceptionHandler(Exception.class)
     public ModelAndView handleError(HttpServletRequest req, Exception ex) {
@@ -103,5 +163,31 @@ public class GameController {
         mav.setViewName("error");
         ex.printStackTrace();
         return mav; //Queen of Air and Darkness
+    }
+    
+    private void initUserMap () {
+    	userMap = new HashMap<>();
+    	try (Scanner fileScanner = new Scanner(new File(USERS_FILE))) {
+    		while (fileScanner.hasNextLine()) {
+    			String line = fileScanner.nextLine();
+    			String[] split = line.split(" ");
+    			userMap.put(split[0], split[1]);
+    		}
+    	} catch (FileNotFoundException ex) {
+    		throw new AssertionError("User data missing");
+    	} catch (IndexOutOfBoundsException ex) {
+    		throw new AssertionError("User data corrupt");
+    	}
+    }
+    
+    private void addNewUser (String username, String password) {
+    	userMap.put(username, password);
+    	try {
+    		Files.write(Paths.get(USERS_FILE), ("\n" + username + " " + password).getBytes(), StandardOpenOption.APPEND);
+    	} catch (FileNotFoundException ex) {
+    		throw new AssertionError("User data missing");
+    	} catch (IOException ex) {
+    		throw new AssertionError(ex);
+    	}
     }
 }

@@ -69,6 +69,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
     private int exp;
 
     private Backpack backpack;
+    
+    private List<String> spellbook;
 
     private transient int mightMod;
     private transient int magicMod;
@@ -85,8 +87,10 @@ public class Hero extends UserInterfaceClass implements Serializable {
     private transient ItemActionMap itemActions;
     private transient Map<String, VoidAction> views;
     private transient Map<String, LevelUpAction> levelUpActionMap;
-    private transient Map<String, SpellAction> possibleSpellMap;
+   
     private transient Map<String, SpellAction> spellMap;
+    
+    private static Map<String, SpellAction> possibleSpellMap;
 
     private transient Random random;
     private transient TextInterface textOut;
@@ -100,6 +104,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
     public Hero () {
         random = new Random();
         backpack = new Backpack();
+        spellbook = new ArrayList<>();
         initMaps();
     }
 
@@ -123,6 +128,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         backpack.add(new BackpackItem("Torch"));
         backpack.add(new BackpackItem("Sword"));
         backpack.add(new BackpackItem("Bow"));
+        spellbook = new ArrayList<>();
 
         initMaps();
     }
@@ -202,6 +208,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 if (spellMatch != null) {
                     spellMap.put(spellMatch, possibleSpellMap.get(spellMatch));
                     textOut.println("You've learned a " + spellMatch + " spell.");
+                    spellbook.add(spellMatch);
                     levelUpTodo.remove(0);
                     maxSpellsPerDay++;
                     numSpellsAvailable = maxSpellsPerDay;
@@ -278,7 +285,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
     		String json = fileScanner.nextLine();
     		return jsonRestore(json);
     	} catch (FileNotFoundException ex) {
-    		throw new AssertionError("Hero file could not be found at " + fileName);
+    		System.out.println("Could not find hero file at " + fileName);
+    		return null;
     	} catch (IOException ex) {
     		throw new AssertionError(ex);
     	}
@@ -502,54 +510,54 @@ public class Hero extends UserInterfaceClass implements Serializable {
         });
     }
 
-    private void initPossibleSpellMap () {
+    private static void initPossibleSpellMap () {
         possibleSpellMap = new HashMap<>();
         possibleSpellMap.put("heal", hero -> {
             hero.restoreHealth(15);
-            textOut.println("You are healed for 15 health.");
+            hero.textOut.println("You are healed for 15 health.");
         });
         possibleSpellMap.put("shadow", hero -> {
             hero.sneakMod = 5;
-            textOut.println("The shadows surround you.");
+            hero.textOut.println("The shadows surround you.");
         });
         possibleSpellMap.put("fire", hero -> {
             DungeonRoom room = hero.getLocation();
             room.getMonsters().forEach(e -> e.takeDamage(5));
             room.updateMonsters();
-            textOut.println("All monsters are hit by a small fireblast, and take 5 damage.");
+            hero.textOut.println("All monsters are hit by a small fireblast, and take 5 damage.");
         });
         possibleSpellMap.put("lightning", hero -> {
             DungeonRoom room = hero.getLocation();
             Monster target = getRandomTarget(room.getMonsters());
             if (target != null) {
-                textOut.println(target.getName() + " took 10 lightning damage.");
+            	hero.textOut.println(target.getName() + " took 10 lightning damage.");
                 target.takeDamage(10);
                 room.updateMonsters();
             } else {
-                textOut.println("There were no monsters to use lightning on. Spell wasted.");
+            	hero.textOut.println("There were no monsters to use lightning on. Spell wasted.");
             }
         });
         possibleSpellMap.put("ice", hero -> {
             DungeonRoom room = hero.getLocation();
             Monster target = getRandomTarget(room.getMonsters());
             if (target != null) {
-                textOut.println(target.getName() + " took 8 cold damage and is disabled 1 round.");
+            	hero.textOut.println(target.getName() + " took 8 cold damage and is disabled 1 round.");
                 target.takeDamage(8);
                 target.disable(1);
                 room.updateMonsters();
             } else {
-                textOut.println("No targets for ice spell. It was wasted.");
+            	hero.textOut.println("No targets for ice spell. It was wasted.");
             }
         });
         possibleSpellMap.put("light", hero -> {
-            textOut.debug("This spell doesn't really do what it should yet.");
-            textOut.println("The room brightens up.");
+        	hero.textOut.debug("This spell doesn't really do what it should yet.");
+        	hero.textOut.println("The room brightens up.");
             hero.getLocation().setLighting(TORCH_LIGHT);
         });
         possibleSpellMap.put("aegis", hero -> {
             hero.defenseMod = 5;
-            textOut.debug("Aegis lasts forever.");
-            textOut.println("A magic shield surrounds you.");
+            hero.textOut.debug("Aegis lasts forever.");
+            hero.textOut.println("A magic shield surrounds you.");
         });
         possibleSpellMap.put("push", hero -> {
             List<Monster> monsters = hero.getLocation().getMonsters();
@@ -557,12 +565,12 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 monster.takeDamage(2);
                 monster.disable(1);
             });
-            textOut.println("All monsters knocked down and damaged.");
+            hero.textOut.println("All monsters knocked down and damaged.");
         });
         possibleSpellMap.put("weaken", hero ->  {
             hero.getLocation().getMonsters()
                     .forEach(e -> e.setMight(e.getMight() - 1));
-            textOut.println("All enemies weakened.");
+            hero.textOut.println("All enemies weakened.");
         });
     }
 
@@ -816,5 +824,24 @@ public class Hero extends UserInterfaceClass implements Serializable {
     
     public int getMightMod () {
     	return mightMod;
+    }
+    
+    public List<String> getSpellbook () {
+    	return spellbook;
+    }
+    
+    /**
+     * Alert - this method does more than just a regular setter.
+     * It also attempts to rebuild a Map<String, SpellAction>
+     * @param spellbook
+     */
+    public void setSpellbook (List<String> spellbook) {
+    	this.spellbook = spellbook;
+    	//TODO - verify if this works
+    	//Goal is to rebuild the actual map of spells during deserialization
+    	spellMap = new HashMap<>();
+    	for(String spell : spellbook) {
+    		spellMap.put(spell, possibleSpellMap.get(spell));
+    	}
     }
 }

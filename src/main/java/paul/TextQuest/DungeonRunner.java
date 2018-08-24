@@ -35,8 +35,8 @@ public class DungeonRunner extends UserInterfaceClass {
     public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
 
 
-    public DungeonRunner () throws IOException {
-        hero = new Hero("default");
+    public DungeonRunner (Hero hero) throws IOException {
+        this.hero = hero;
         analyzer = StatementAnalyzer.getInstance();
 
         dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
