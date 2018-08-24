@@ -1,9 +1,9 @@
 package paul.TextQuest.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import paul.TextQuest.LeavingRoomAction;
 import paul.TextQuest.entities.obstacles.Obstacle;
@@ -226,7 +226,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
         return mapper.readValue(heroJson, Hero.class);
     }
 
-    public String jsonSave() {
+    //Don't name this method like a getter or it causes SO Error
+    public String createJsonString() {
     	ObjectMapper objectMapper = new ObjectMapper();
     	
     	objectMapper.configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);    	
@@ -239,9 +240,15 @@ public class Hero extends UserInterfaceClass implements Serializable {
     	}
     }
     
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 		Hero hero = new Hero("Hero the Hero");
-		System.out.println(hero.jsonSave());
+		String json = hero.createJsonString();
+		System.out.println(json);
+		
+		System.out.println("=====");
+		
+		Hero restored = jsonRestore(json);
+		System.out.println(restored);
 	}
 
 
@@ -635,8 +642,17 @@ public class Hero extends UserInterfaceClass implements Serializable {
             throw new DefeatException("Died from non-combat damage.");
         }
     }
+    
+    
 
-    public int getHealth() {
+    @Override
+	public String toString() {
+		return "Hero [name=" + name + ", health=" + health + ", maxHealth=" + maxHealth + ", might=" + might
+				+ ", magic=" + magic + ", sneak=" + sneak + ", defense=" + defense + ", maxSpellsPerDay="
+				+ maxSpellsPerDay + ", level=" + level + ", exp=" + exp + ", backpack=" + backpack + "]";
+	}
+
+	public int getHealth() {
         return health;
     }
 
@@ -644,6 +660,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         return maxHealth;
     }
 
+    @JsonIgnore
     public boolean isSneaking() {
         return isSneaking;
     }
