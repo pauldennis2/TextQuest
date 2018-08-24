@@ -1,7 +1,9 @@
 package paul.TextQuest.entities;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
@@ -14,11 +16,16 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Note.class, name = "note")
 })
+@JsonInclude(Include.NON_NULL)
+//@JsonInclude(Include.NON_DEFAULT)
 public class BackpackItem extends DungeonRoomEntity {
 
     private String name;
-    private boolean isQuestItem;
+    
+    
+    private Boolean isQuestItem;
     private int value;
+    
     private String onPickup;
     private boolean darklight; //Item can only be seen in the dark
 
@@ -44,11 +51,13 @@ public class BackpackItem extends DungeonRoomEntity {
         this.name = name;
     }
 
-    public boolean isQuestItem() {
+    
+    public Boolean isQuestItem() {
         return isQuestItem;
     }
 
-    public void setQuestItem(boolean questItem) {
+    @JsonInclude(Include.NON_DEFAULT)
+    public void setQuestItem(Boolean questItem) {
         isQuestItem = questItem;
     }
 
@@ -56,6 +65,7 @@ public class BackpackItem extends DungeonRoomEntity {
         return value;
     }
 
+    @JsonInclude(Include.NON_DEFAULT)
     public void setValue(int value) {
         this.value = value;
     }
@@ -89,6 +99,7 @@ public class BackpackItem extends DungeonRoomEntity {
         return darklight;
     }
 
+    @JsonInclude(Include.NON_DEFAULT)
     public void setDarklight(boolean darklight) {
         this.darklight = darklight;
     }
