@@ -1,5 +1,6 @@
 package paul.TextQuest;
 
+import paul.TextQuest.entities.BackpackItem;
 import paul.TextQuest.entities.Dungeon;
 import paul.TextQuest.entities.DungeonRoom;
 import paul.TextQuest.entities.Hero;
@@ -9,7 +10,6 @@ import paul.TextQuest.parsing.StatementAnalysis;
 import paul.TextQuest.parsing.StatementAnalyzer;
 import paul.TextQuest.parsing.TextInterface;
 import paul.TextQuest.parsing.UserInterfaceClass;
-import paul.TextQuest.utils.VictoryException;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -29,7 +29,6 @@ public class DungeonRunner extends UserInterfaceClass {
 
     private NormalCombat normalCombat;
 
-
     private static final List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue", "search");
 
     public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
@@ -38,7 +37,6 @@ public class DungeonRunner extends UserInterfaceClass {
     public DungeonRunner (Hero hero) throws IOException {
         this.hero = hero;
         analyzer = StatementAnalyzer.getInstance();
-
         dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
     }
 
@@ -53,6 +51,10 @@ public class DungeonRunner extends UserInterfaceClass {
         children.forEach(child -> child.start(textOut));
 
         hero.setLocation(currentRoom);
+        
+        //Temporary
+        hero.setLocation(dungeon.getRoomByName("Healing Fountain"));
+        hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
     }
 
     @Override
@@ -110,22 +112,16 @@ public class DungeonRunner extends UserInterfaceClass {
 
     public void doActionFromAnalysis (StatementAnalysis analysis) {
         if (analysis.isActionable()) {
-            try {
-                analysis.printFinalAnalysis();
-                String actionWord = analysis.getActionWord();
-                if (CLEAR_REQUIRED_FOR_ACTION.contains(actionWord) && !currentRoom.isCleared()) {
-                    textOut.println("You have to clear the room of monsters first.");
+            analysis.printFinalAnalysis();
+            String actionWord = analysis.getActionWord();
+            if (CLEAR_REQUIRED_FOR_ACTION.contains(actionWord) && !currentRoom.isCleared()) {
+                textOut.println("You have to clear the room of monsters first.");
+            } else {
+                if (analysis.getActionParam() != null) {
+                    hero.takeAction(actionWord, analysis.getActionParam());
                 } else {
-                    if (analysis.getActionParam() != null) {
-                        hero.takeAction(actionWord, analysis.getActionParam());
-                    } else {
-                        hero.takeAction(actionWord);
-                    }
+                    hero.takeAction(actionWord);
                 }
-            } catch (VictoryException ex) {
-                textOut.println("Victory!");
-                textOut.println(ex.getMessage());
-                textOut.println("The bards will sing of this day.");
             }
             currentRoom = hero.getLocation();
         } else {

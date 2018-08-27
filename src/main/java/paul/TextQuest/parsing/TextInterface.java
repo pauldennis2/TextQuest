@@ -19,7 +19,6 @@ public class TextInterface extends UserInterfaceClass {
 
     private DungeonRunner runner;
 
-
     @Override
     public void start (TextInterface textOut) {
         children.forEach(child -> child.start(this));
@@ -37,6 +36,7 @@ public class TextInterface extends UserInterfaceClass {
 
     //"Please make me your child"
     public void request (UserInterfaceClass newChild) {
+    	textOut.debug("New request from " + newChild + " to " + this + " (me)");
         children.add(newChild);
         newChild.start(this);
         requester = newChild;

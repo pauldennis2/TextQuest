@@ -33,6 +33,9 @@ public class BossFight extends UserInterfaceClass {
     private transient int numTimesAttackedWithoutVuln;
 
     private transient boolean introDone = false;
+    
+    static boolean beenInShow = false;
+    static boolean beenInStart = false;
 
     public BossFight () {
         attackBehaviors = new ArrayList<>();
@@ -43,6 +46,12 @@ public class BossFight extends UserInterfaceClass {
 
     @Override
     public InputType show () {
+    	if (!beenInShow) {
+    		System.out.println("In show() for first time");
+    		new AssertionError().printStackTrace();
+    		beenInShow = true;
+    	}
+    	
         if (!introDone) {
             textOut.println("Welcome to Boss Fight");
             textOut.println("Boss: " + name);
@@ -79,14 +88,19 @@ public class BossFight extends UserInterfaceClass {
 
     @Override
     public void start (TextInterface textOut) {
+    	if (!beenInStart) {
+    		System.out.println("In start first time");
+    		new AssertionError().printStackTrace();
+    		beenInStart = true;
+    	}
         this.textOut = textOut;
 
         children = new ArrayList<>(attackBehaviors);
         children.add(vulnerableBehavior);
         children.forEach(child -> child.start(textOut));
 
-
         vulnerableBehavior.setBossFight(this);
+        //throw new AssertionError("Stack trace from start() in bossfight");
     }
 
     public static final String ENCOUNTER_FILE_PATH = "content_files/encounters/";
@@ -127,6 +141,7 @@ public class BossFight extends UserInterfaceClass {
         this.health = health;
         if (health <= 0) {
             textOut.println("Game Over! You win.");
+            textOut.release(this);
             conquered = true;
             throw new VictoryException("You beat the boss!");
         }

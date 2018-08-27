@@ -67,7 +67,14 @@ public class DungeonRoom extends UserInterfaceClass {
         hiddenItems = new HashMap<>();
         speechListeners = new ArrayList<>();
         specialRoomActions = new HashMap<>();
+        children = new ArrayList<>();
         initUniversalSpeechListeners();
+    }
+    
+    public DungeonRoom (String name, String description) {
+    	this();
+        this.name = name;
+        this.description = description;
     }
 
     private static Map<String, VoidAction> voidActionMap;
@@ -132,21 +139,6 @@ public class DungeonRoom extends UserInterfaceClass {
                 room.getHero().getTextOut().println("Shine puzzle added. (not really)"));
     }
 
-    public DungeonRoom (String name, String description) {
-        this.name = name;
-        this.description = description;
-        hiddenItems = new HashMap<>();
-        monsters = new ArrayList<>();
-        items = new ArrayList<>();
-        connectedRoomIds = new HashMap<>();
-        connectedRooms = new HashMap<>();
-        obstacles = new ArrayList<>();
-        hiddenItems = new HashMap<>();
-        speechListeners = new ArrayList<>();
-        specialRoomActions = new HashMap<>();
-        initUniversalSpeechListeners();
-    }
-
     public List<BackpackItem> searchForHiddenItems (String location) {
         List<BackpackItem> hiddenItemList = hiddenItems.get(location);
         if (hiddenItemList != null) {
@@ -165,16 +157,7 @@ public class DungeonRoom extends UserInterfaceClass {
         }
     }
 
-    @Override
-    public void start (TextInterface textOut) {
-        this.textOut = textOut;
-        if (bossFight != null) {
-            children = Collections.singletonList(bossFight);
-            bossFight.start(textOut);
-        } else {
-            children = new ArrayList<>();
-        }
-    }
+    
 
     public void vocalize (String message, SpeakingVolume volume) {
         textOut.println("Player " + volume.toString().toLowerCase() + "s: " + message);
@@ -260,9 +243,21 @@ public class DungeonRoom extends UserInterfaceClass {
     public Set<Direction> getTravelDirections () {
         return connectedRooms.keySet();
     }
+    
+    @Override
+    public void start (TextInterface textOut) {
+        this.textOut = textOut;
+        if (bossFight != null) {
+        	children.add(bossFight);
+            bossFight.start(textOut);
+        } else {
+            children = new ArrayList<>();
+        }
+    }
 
     @Override
     public InputType show () {
+    	/*//Old impl
         if (bossFight != null && !bossFight.isConquered()) {
             InputType type = bossFight.show();
             if (type != InputType.NONE) {
@@ -273,7 +268,26 @@ public class DungeonRoom extends UserInterfaceClass {
         } else {
             describe();
         }
-        return InputType.NONE;
+        return InputType.NONE;*/
+        
+    	// new impl
+    	if (bossFight != null) {
+    		if (!bossFight.isConquered()) {
+	    		InputType type = bossFight.show();
+	            if (type != InputType.NONE) {
+	                requester = bossFight;
+	                return type;
+	            }
+	            return bossFight.show();
+    		} else {
+    			textOut.debug("Attempting to exit boss fight gracefully");
+    			return InputType.NONE;
+    		}
+    	} else {
+    		describe();
+    	}
+    	return InputType.NONE;
+    	
     }
 
     public void describe () {
@@ -503,6 +517,11 @@ public class DungeonRoom extends UserInterfaceClass {
         return bossFightFileLocation;
     }
 
+    /**
+     * Attempts to find the boss fight and build it.
+     * @param bossFightFileLocation
+     * @throws IOException
+     */
     public void setBossFightFileLocation(String bossFightFileLocation) throws IOException {
         this.bossFightFileLocation = bossFightFileLocation;
 
@@ -547,5 +566,18 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setFeatures(List<Feature> features) {
         this.features = features;
+    }
+    
+    /**
+     * Attempts to trace a dangerous reference path back to the dungeon.
+     * Should fail (return null) if hero is not in the room.
+     * @return
+     */
+    public Dungeon getDungeon () {
+    	try {
+    		return hero.getTextOut().getRunner().getDungeon();
+    	} catch (NullPointerException ex) {
+    		return null;
+    	}
     }
 }

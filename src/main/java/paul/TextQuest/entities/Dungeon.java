@@ -20,6 +20,7 @@ public class Dungeon extends MetaLocation {
     private String description;
     private String dungeonName;
 
+    private transient boolean cleared;
     private transient DungeonRoom entrance;
     private Map<String, Integer> levels;
 
@@ -115,5 +116,13 @@ public class Dungeon extends MetaLocation {
 
     public void setLevels(Map<String, Integer> levels) {
         this.levels = levels;
+    }
+    
+    public boolean isCleared () {
+    	return cleared;
+    }
+    
+    public void setCleared (boolean cleared) {
+    	this.cleared = cleared;
     }
 }

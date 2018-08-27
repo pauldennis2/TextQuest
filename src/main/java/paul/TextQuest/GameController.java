@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import paul.TextQuest.entities.Dungeon;
 import paul.TextQuest.entities.Hero;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.TextInterface;
@@ -68,7 +69,8 @@ public class GameController {
 
     @RequestMapping(path = "/game", method = RequestMethod.GET)
     public String game (Model model, HttpSession session) throws IOException {
-    	if (session.getAttribute("username") == null) {
+    	String username = (String) session.getAttribute("username");
+    	if (username == null) {
     		return "login";
     	}
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
@@ -109,7 +111,6 @@ public class GameController {
     @RequestMapping(path = "/submit-action", method = RequestMethod.POST)
     public String submitAction (@RequestParam String userInput, Model model, HttpSession session) {
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
-        //session.setAttribute("user", "paul"); //TODO remove this temporary hack
         if (requestedInputType == InputType.NUMBER) {
             try {
                 Integer.parseInt(userInput);
@@ -126,12 +127,19 @@ public class GameController {
             textOut.println(ex.getMessage());
             textOut.println("You died. GAME OVER.");
         } catch (VictoryException ex) {
-            textOut.println(ex.getMessage());
             textOut.println("You won! Awesome!");
-            String user = (String) session.getAttribute("user");
-            textOut.println("Saving hero data for user " + user);
-
+            String username = (String) session.getAttribute("username");
+            textOut.println("Saving hero data for user " + username);
+            textOut.println(ex.getMessage());
+            
+            Dungeon dungeon = textOut.getRunner().getDungeon();
+            Hero hero = textOut.getRunner().getHero();
+            dungeon.setCleared(true);
+            hero.addClearedDungeon(dungeon.getDungeonName());
+            Hero.saveHeroToFile(username, hero);
+            
         }
+         
         return "redirect:/game";
     }
     

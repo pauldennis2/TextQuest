@@ -71,6 +71,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
     private Backpack backpack;
     
     private List<String> spellbook;
+    
+    private List<String> clearedDungeons;
 
     private transient int mightMod;
     private transient int magicMod;
@@ -105,15 +107,16 @@ public class Hero extends UserInterfaceClass implements Serializable {
         random = new Random();
         backpack = new Backpack();
         spellbook = new ArrayList<>();
+        clearedDungeons = new ArrayList<>();
         initMaps();
     }
 
     public Hero (String name) {
+    	this();
     	if (name.contains(" ") || name.contains("/")) {
     		throw new AssertionError("Hero names cannot contain spaces or slashes. Name was: " + name);
     	}
     	this.name = name;
-        random = new Random();
         health = 50;
         maxHealth = 50;
         might = 4;
@@ -124,11 +127,10 @@ public class Hero extends UserInterfaceClass implements Serializable {
         exp = 0;
         maxSpellsPerDay = 1;
 
-        backpack = new Backpack();
         backpack.add(new BackpackItem("Torch"));
         backpack.add(new BackpackItem("Sword"));
         backpack.add(new BackpackItem("Bow"));
-        spellbook = new ArrayList<>();
+        
 
         initMaps();
     }
@@ -448,6 +450,19 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 textOut.println("Looted " + item.getName() + " from chest.");
                 backpack.add(item);
             });
+        });
+        
+        heroVoidActions.put("leave", room -> {
+        	boolean cleared = room.getDungeon().isCleared();
+        	if (cleared) {
+        		textOut.println("OK, you want to leave the dungeon, and it is cleared. No problem.");
+        		textOut.println("No problem, we'll implement that soon.");
+        	} else {
+        		textOut.println("You are trying to leave the dungeon but it isn't cleared.");
+        		textOut.println("If you leave you'll lose all progress on this dungeon.");
+        		textOut.debug("Leaving isn't supported right now. You can check out any time you like but you can never leave.");
+        		textOut.debug("(OK seriously, to leave just close the browser.)");
+        	}
         });
 
         heroParamActions.put("cast", (room, param) -> {
@@ -843,5 +858,17 @@ public class Hero extends UserInterfaceClass implements Serializable {
     	for(String spell : spellbook) {
     		spellMap.put(spell, possibleSpellMap.get(spell));
     	}
+    }
+    
+    public List<String> getClearedDungeons () {
+    	return clearedDungeons;
+    }
+    
+    public void setClearedDungeons (List<String> clearedDungeons) {
+    	this.clearedDungeons = clearedDungeons;
+    }
+    
+    public void addClearedDungeon (String clearedDungeonName) {
+    	clearedDungeons.add(clearedDungeonName);
     }
 }
