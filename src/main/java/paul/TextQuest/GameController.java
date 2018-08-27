@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,8 @@ public class GameController {
     private Map<String, String> userMap;
     
     public static final String USERS_FILE = "save_data/users.txt";
+    
+    public static final List<String> DUNGEON_NAMES = Arrays.asList("Lair of Pihop-pi", "Darklight Dungeon", "The Third Dungeon");
 
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public String home () {
@@ -106,6 +109,16 @@ public class GameController {
         model.addAttribute("location", textOut.getRunner().getDungeon().getDungeonName());
         model.addAttribute("roomName", "  " + textOut.getRunner().getHero().getLocation().getName());
         return "game";
+    }
+    
+    @RequestMapping(path = "/airship", method = RequestMethod.GET)
+    public String airship (Model model, HttpSession session) {
+    	TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
+    	String username = (String) session.getAttribute("username");
+    	Hero hero = textOut.getRunner().getHero();
+    	model.addAttribute("username", username);
+    	model.addAttribute("hero", hero);
+    	return "airship";
     }
 
     @RequestMapping(path = "/submit-action", method = RequestMethod.POST)
