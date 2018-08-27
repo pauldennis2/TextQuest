@@ -673,6 +673,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
     public static final int[] LEVEL_AMTS = {250, 1000, 2500, 4500, 6500, 9000, 12000, 15000, 18500, 21500, 25000, 35000, 50000};
     //Max level 12
     public void addExp (int expToAdd) {
+    	new AssertionError().printStackTrace();
         if (expToAdd < 0) {
             throw new AssertionError();
         }
@@ -869,6 +870,10 @@ public class Hero extends UserInterfaceClass implements Serializable {
     }
     
     public void addClearedDungeon (String clearedDungeonName) {
+    	if (clearedDungeons == null) {
+    		textOut.debug("clearedDungeons was null for some reason...");
+    		clearedDungeons = new ArrayList<>();
+    	}
     	clearedDungeons.add(clearedDungeonName);
     }
 }

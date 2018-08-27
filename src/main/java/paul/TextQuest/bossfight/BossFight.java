@@ -33,9 +33,6 @@ public class BossFight extends UserInterfaceClass {
     private transient int numTimesAttackedWithoutVuln;
 
     private transient boolean introDone = false;
-    
-    static boolean beenInShow = false;
-    static boolean beenInStart = false;
 
     public BossFight () {
         attackBehaviors = new ArrayList<>();
@@ -46,10 +43,11 @@ public class BossFight extends UserInterfaceClass {
 
     @Override
     public InputType show () {
-    	if (!beenInShow) {
-    		System.out.println("In show() for first time");
-    		new AssertionError().printStackTrace();
-    		beenInShow = true;
+    	if (conquered) {
+    		textOut.println("Boss is beat");
+    		textOut.debug("Attempt 2 to leave nicely");
+    		//TODO remove when things work; we're not getting here
+    		return InputType.NONE;
     	}
     	
         if (!introDone) {
@@ -88,11 +86,6 @@ public class BossFight extends UserInterfaceClass {
 
     @Override
     public void start (TextInterface textOut) {
-    	if (!beenInStart) {
-    		System.out.println("In start first time");
-    		new AssertionError().printStackTrace();
-    		beenInStart = true;
-    	}
         this.textOut = textOut;
 
         children = new ArrayList<>(attackBehaviors);
@@ -141,9 +134,8 @@ public class BossFight extends UserInterfaceClass {
         this.health = health;
         if (health <= 0) {
             textOut.println("Game Over! You win.");
-            textOut.release(this);
             conquered = true;
-            throw new VictoryException("You beat the boss!");
+            //throw new VictoryException("You beat the boss!");
         }
     }
 

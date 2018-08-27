@@ -281,6 +281,7 @@ public class DungeonRoom extends UserInterfaceClass {
 	            return bossFight.show();
     		} else {
     			textOut.debug("Attempting to exit boss fight gracefully");
+    			System.err.println("Attempting to exit boss fight gracefully");
     			return InputType.NONE;
     		}
     	} else {

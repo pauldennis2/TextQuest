@@ -137,7 +137,7 @@ public class GameController {
             dungeon.setCleared(true);
             hero.addClearedDungeon(dungeon.getDungeonName());
             Hero.saveHeroToFile(username, hero);
-            
+            requestedInputType = InputType.NONE;
         }
          
         return "redirect:/game";

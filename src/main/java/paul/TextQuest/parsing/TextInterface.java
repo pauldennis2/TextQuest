@@ -36,7 +36,7 @@ public class TextInterface extends UserInterfaceClass {
 
     //"Please make me your child"
     public void request (UserInterfaceClass newChild) {
-    	textOut.debug("New request from " + newChild + " to " + this + " (me)");
+    	//textOut.debug("New request from " + newChild + " to " + this + " (me)");
         children.add(newChild);
         newChild.start(this);
         requester = newChild;
