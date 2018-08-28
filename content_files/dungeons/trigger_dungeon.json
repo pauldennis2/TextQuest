@@ -36,6 +36,10 @@
       	"any": "print \"Some spell was cast.\"",
       	"ice": "teleportHero \"Healing Fountain\""
       },
+      "onItemUse":
+      {
+      	"Bow": "print \"You shot the target! 10 points.\""
+      },
       "items":
       [
       	{
@@ -60,11 +64,21 @@
         	"onDrop": "explode 10"
         }
       ],
+      "onHeroEnter":
+      {
+      	"action":"print \"Welcome to the nitro making room\"",
+      	"doOnce":true
+      },
       "onSpellCast":
       {
       	"any":"modStat numAvailableSpells 2",
       	"fire": "createItem Nitro",
       	"ice": "teachSpell fire"
+      },
+      "onItemUse":
+      {
+      	"any":"print \"I see you using an item.\"",
+      	"potion":"print \"Ahah you drank a potion.\""
       },
       "monsters":
       [

@@ -28,6 +28,16 @@ A dungeon has a "dungeonName" property and a List of "rooms".
 
 The dungeon is organized into "rooms". Each room can theoretically be as large and complex as you want it to be. Rooms are connected to each other by directions (North, East, South, West, Up, and Down). Most rooms will be connected to only only a few other rooms.
 
+#### Dungeon Properties
+
+* dungeonName - The display name for the dungeon. **Required**
+* rooms - The core data describing the dungeon. **Required**
+* itemLibrary - a Map that allows you to create custom items and reference them later. Optional
+* monsterLibrary - a Map that allows you to create custom monsters and reference them later. Optional
+
+
+The "library" properties really just provide shortcuts for items and monsters that you want to use in multiple places. If you just want a monster to be used once, you should just put it in the room's list of monsters (see below). They are also useful for defining "interesting" objects and monsters that are created by triggered events.
+
 #### Room Properties
 
 * name - The "display name" for a room. **Required**
@@ -49,7 +59,10 @@ Triggers (all Optional)
 * specialRoomActions - you can define special action words unique to this room. For example, if there's a fountain you could allow the player to "drink" from it. It's up to you to decide what happens when they take that action
 * onFightStart - triggered when combat starts
 * onFightEnd - triggered at the end of combat (if the hero survives!)
+* onSearch - when a Hero searches a specific location
 * onSpellCast - triggered when a spell of a particular type is cast. Like lighting change, this is a map and requires specifying the spell type. Multiple types can be specified (Player casts ice spell -> event A, Player casts fire spell -> event B). You can use "any" for a wildcard.
+* onHeroEnter - triggered when the Hero enters the room. Optional flag to doOnce.
+* onItemUse - triggered when the hero uses a specific item. Use "any" for a wildcard.
 
 ### Other Things With Properties
 
@@ -105,6 +118,25 @@ These events need an extra bit of information, often a number. For example if yo
 * bump (object) - Used to momentarily delay the hero from leaving the room.
 * heal (healing amount) - heals the player
 
+New 8/28:
+* teachSpell (spell name) - teaches the Hero the given spell if they don't already know it
+* teleportHero (room name) - moves the Hero to the given room (if it exists). Use with caution I guess
+* createItem (item name) - creates the given item and places it in the room. You will need to refer to an item in your itemLibrary for anything other than a blank item.
+
+
+Not fully implemented
+* changeRoomDescription - modify the description of the room
+
+#### MultiParam Events
+
+These events require multiple parameters.
+
+* modStat - modifies the stats of the Hero. Currently WIP. First param is the stat to modify. Second is the way in which it's modified AND the amount. Modification can be absolute (i.e. set the stat to a given value) or relative (add or subtract a certain amount). 
+* createHiddenItem - adds a hidden object to this room. First param is the item name (you will need to refer to your itemLibrary if you want the item to do anything interesting), second param the location where it is hidden.
+
+Not fully implemented:
+* castSpell
+* changeRoomDescription
 
 #### Void Events
 
@@ -125,8 +157,6 @@ Here are some triggers that I hope to add to the game soon:
 
 Room:
 * speechTriggers - similar to Riddles, triggered when a hero speaks a given phrase
-* onSearch - when a Hero searches (a specific location)
-* onEnter - when a Hero enters the room
 
 Items:
 * onDrop - when an item is dropped by the player

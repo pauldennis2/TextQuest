@@ -1,5 +1,6 @@
 package paul.TextQuest.entities;
 
+import paul.TextQuest.EnteringRoomAction;
 import paul.TextQuest.LeavingRoomAction;
 import paul.TextQuest.bossfight.BossFight;
 import paul.TextQuest.entities.obstacles.Chasm;
@@ -45,12 +46,15 @@ public class DungeonRoom extends UserInterfaceClass {
     private Map<String, String> specialRoomActions;
     private Map<LightingLevel, String> onLightingChange;
     private Map<Direction, LeavingRoomAction> onHeroLeave;
+    private Map<String, String> onItemUse;
     
     private Map<String, String> onSpellCast;
     private Map<String, String> onSearch;
     
     private String onCombatStart;
     private String onCombatEnd;
+    
+    private EnteringRoomAction onHeroEnter;
 
     //Temporary variables for JSONification
     private Map<Direction, Integer> connectedRoomIds;
@@ -154,9 +158,6 @@ public class DungeonRoom extends UserInterfaceClass {
         paramActionMap.put("bump", (room, param) -> room.textOut.println("Ouch! You bumped into something."));
         
         //New 8/28
-        paramActionMap.put("castSpell", (room, param) -> {
-        	room.textOut.println("Not yet implemented. Param: " + param);
-        });
         
         paramActionMap.put("teachSpell", (room, param) -> {
         	boolean success = room.getHero().addSpell(param);
@@ -235,6 +236,9 @@ public class DungeonRoom extends UserInterfaceClass {
         	
         	room.addHiddenItem(location, item);
         	room.textOut.debug("Added hidden item " + itemName + " at " + location + ".");
+        });
+        multiParamActionMap.put("castSpell", (room, args) -> {
+        	room.textOut.println("Not yet implemented. Args: " + args);
         });
     }
 
@@ -595,6 +599,12 @@ public class DungeonRoom extends UserInterfaceClass {
                 textOut.tutorial(tutorial);
             }
         }
+        if (onHeroEnter != null) {
+        	if (onHeroEnter.wantsToTrigger()) {
+        		doAction(onHeroEnter.getAction());
+        		onHeroEnter.setDone(true);
+        	}
+        }
         if (bossFight != null) {
             bossFight.setHero(hero);
         }
@@ -731,4 +741,22 @@ public class DungeonRoom extends UserInterfaceClass {
     public void setOnSearch (Map<String, String> onSearch) {
     	this.onSearch = onSearch;
     }
+    
+    public Map<String, String> getOnItemUse () {
+    	return onItemUse;
+    }
+    
+    public void setOnItemUse (Map<String, String> onItemUse) {
+    	this.onItemUse = onItemUse;
+    }
+
+	public EnteringRoomAction getOnHeroEnter() {
+		return onHeroEnter;
+	}
+
+	public void setOnHeroEnter(EnteringRoomAction onHeroEnter) {
+		this.onHeroEnter = onHeroEnter;
+	}
+    
+    
 }

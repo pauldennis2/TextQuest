@@ -476,12 +476,10 @@ public class Hero extends UserInterfaceClass implements Serializable {
                     if (room.getOnSpellCast() != null) {
                     	Map<String, String> onSpellCast = room.getOnSpellCast();
                     	if (onSpellCast.containsKey("any")) {
-                    		String triggerAction = onSpellCast.get("any");
-                    		room.doAction(triggerAction);
+                    		room.doAction(onSpellCast.get("any"));
                     	}
                     	if (onSpellCast.containsKey(param)) {
-                    		String triggerAction = onSpellCast.get(param);
-                    		room.doAction(triggerAction);
+                    		room.doAction(onSpellCast.get(param));
                     	}
                     }
                     action.doAction(this);
@@ -495,6 +493,12 @@ public class Hero extends UserInterfaceClass implements Serializable {
         heroParamActions.put("use", (room, param) -> {
             if (room.getHero().getBackpack().contains(param)) {
                 itemActions.get(param).doAction(room);
+                if (room.getOnItemUse().containsKey("any")) {
+                	room.doAction(room.getOnItemUse().get("any"));
+                }
+                if (room.getOnItemUse().containsKey(param)) {
+                	room.doAction(room.getOnItemUse().get(param));
+                }
             } else {
                 textOut.println("You don't have a " + param + " to use.");
             }
