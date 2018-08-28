@@ -904,4 +904,22 @@ public class Hero extends UserInterfaceClass implements Serializable {
     	}
     	clearedDungeons.add(clearedDungeonName);
     }
+    
+    public boolean addSpell (String spell) {
+    	//If it's a legit spell that we don't already have
+    	if (possibleSpellMap.containsKey(spell) && !spellbook.contains(spell)) {
+    		spellbook.add(spell);
+    		spellMap.put(spell, possibleSpellMap.get(spell));
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public int getNumSpellsAvailable () {
+    	return numSpellsAvailable;
+    }
+    
+    public void setNumSpellsAvailable (int numSpellsAvailable) {
+    	this.numSpellsAvailable = numSpellsAvailable;
+    }
 }

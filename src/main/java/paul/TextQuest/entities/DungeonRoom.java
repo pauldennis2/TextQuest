@@ -8,6 +8,7 @@ import paul.TextQuest.entities.obstacles.RiddleObstacle;
 import paul.TextQuest.enums.Direction;
 import paul.TextQuest.enums.LightingLevel;
 import paul.TextQuest.enums.SpeakingVolume;
+import paul.TextQuest.interfaces.MultiParamAction;
 import paul.TextQuest.interfaces.ParamAction;
 import paul.TextQuest.interfaces.VoidAction;
 import paul.TextQuest.interfaces.listeners.SpeechListener;
@@ -84,24 +85,14 @@ public class DungeonRoom extends UserInterfaceClass {
 
     private static Map<String, VoidAction> voidActionMap;
     private static Map<String, ParamAction> paramActionMap;
+    private static Map<String, MultiParamAction> multiParamActionMap;
 
     private static void initActionMaps () {
         voidActionMap = new HashMap<>();
         paramActionMap = new HashMap<>();
+        multiParamActionMap = new HashMap<>();
 
-        paramActionMap.put("createMonster", (room, param) -> {
-            if (param.equals("Skeleton")) {
-                room.addMonster(new Monster(2, 1, "Skeleton"));
-            } else {
-                room.getHero().getTextOut().debug("Only type supported is skeleton. Param was = " + param);
-            }
-        });
-        paramActionMap.put("explode", (room, param) -> {
-            int damageAmt = Integer.parseInt(param);
-            room.getHero().getTextOut().println("BOOM!! Explosions!");
-            room.getHero().takeNonMitigatedDamage(damageAmt);
-        });
-        paramActionMap.put("giveExp", (room, param) -> room.getHero().addExp(Integer.parseInt(param)));
+        //Void Actions\\
         voidActionMap.put("douse", room -> room.setLighting(0.0));
         voidActionMap.put("light", room -> room.setLighting(1.0));
         voidActionMap.put("makeMinibossWeak", room -> {
@@ -135,14 +126,98 @@ public class DungeonRoom extends UserInterfaceClass {
             room.addObstacle(chasm);
             room.hero.setPreviousLocation(null); //Prevent retreating
         });
+        
+        voidActionMap.put("addShinePuzzle", room ->
+                room.getHero().getTextOut().println("Shine puzzle added. (not really)"));
+        
+        
+        //Param Actions\\
+        paramActionMap.put("createMonster", (room, param) -> {
+            if (param.equals("Skeleton")) {
+                room.addMonster(new Monster(2, 1, "Skeleton"));
+            } else {
+                room.getHero().getTextOut().debug("Only type supported is skeleton. Param was = " + param);
+            }
+        });
+        paramActionMap.put("explode", (room, param) -> {
+            int damageAmt = Integer.parseInt(param);
+            room.getHero().getTextOut().println("BOOM!! Explosions!");
+            room.getHero().takeNonMitigatedDamage(damageAmt);
+        });
+        paramActionMap.put("giveExp", (room, param) -> room.getHero().addExp(Integer.parseInt(param)));
         paramActionMap.put("heal", (room, param) -> {
             int amt = Integer.parseInt(param);
             room.getHero().restoreHealth(amt);
         });
         paramActionMap.put("print", (room, param) -> room.textOut.println(param));
         paramActionMap.put("bump", (room, param) -> room.textOut.println("Ouch! You bumped into something."));
-        voidActionMap.put("addShinePuzzle", room ->
-                room.getHero().getTextOut().println("Shine puzzle added. (not really)"));
+        
+        //New 8/28
+        paramActionMap.put("castSpell", (room, param) -> {
+        	room.textOut.println("Not yet implemented. Param: " + param);
+        });
+        
+        paramActionMap.put("teachSpell", (room, param) -> {
+        	boolean success = room.getHero().addSpell(param);
+        	if (success) {
+        		room.textOut.println("Hero learned a new spell: " + param);
+        	} else {
+        		room.textOut.debug("Attempted to teach spell: " + param);
+        	}
+        });
+        
+        paramActionMap.put("changeRoomDescription", (room, param) -> {
+        	room.setDescription(param);
+        	room.textOut.debug("Room description changed to " + param);
+        	room.textOut.debug("current doesn't matter since description only happens once");
+        });
+        
+        paramActionMap.put("teleportHero", (room, param) -> {
+        	DungeonRoom otherRoom = room.getDungeon().getRoomByName(param);
+        	if (otherRoom != null) {
+        		room.textOut.debug("Attempting to move hero to " + otherRoom.name);
+        		Hero hero = room.getHero();
+        		hero.setLocation(otherRoom);
+        		hero.setPreviousLocation(null);
+        		otherRoom.setHero(hero);
+        		room.removeHero();
+        	} else {
+        		room.textOut.debug("Could not find room: " + param);
+        	}
+        });
+        
+        paramActionMap.put("createItem", (room, param) -> {
+        	Map<String, BackpackItem> itemLibrary = room.getDungeon().getItemLibrary();
+        	if (itemLibrary.containsKey(param)) {
+        		BackpackItem fromLib = itemLibrary.get(param);
+        		room.addItem(fromLib);
+        	} else { //If it can't be found in the library just create a basic item
+        		BackpackItem basic = new BackpackItem(param);
+        		room.addItem(basic);
+        	}
+        	room.textOut.println("An object appeared in the room...");
+        });
+        
+        //MultiParam Actions\\
+        multiParamActionMap.put("modStat", (room, args) -> {
+        	/*
+        	room.textOut.debug("Not yet implemented");
+        	String statName = args[1];
+        	String action = args[2];
+        	
+        	if (action.startsWith("+")) { //Add the amount
+        		
+        	} else if (action.startsWith("-")) { //Subtract the amount
+        		
+        	} else if (action.startsWith(":")) { //Set to this amount
+        		
+        	} else if (action.startsWith("?")) { //Randomize from 50% to 150%
+        		
+        	}*/
+        	//TODO: fix/impl
+        	room.textOut.debug("Gave hero 2 spells to work with");
+        	room.getHero().setNumSpellsAvailable(2);
+        });
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {
@@ -392,14 +467,33 @@ public class DungeonRoom extends UserInterfaceClass {
     }
 
     public void doAction (String action) {
-        if (voidActionMap == null || paramActionMap == null) {
+        if (voidActionMap == null || paramActionMap == null || multiParamActionMap == null) {
             initActionMaps();
         }
-        if (action.contains(" ")) {
-            String[] tokens = action.split(" ");
-            paramActionMap.get(tokens[0]).doAction(this, tokens[1]);
+        
+        //If action contains a semi-colon it contains multiple sub-actions
+        if (action.contains(";")) {
+        	String[] statements = action.split(";");
+        	for (String statement : statements) {
+        		doAction(statement);
+        	}
         } else {
-            voidActionMap.get(action).doAction(this);
+	        if (action.contains(" ")) {
+	        	if (action.contains("\"")) {
+	        		String[] tokens = action.split(" ");
+	        		String[] message = action.split("\"");
+	        		paramActionMap.get(tokens[0]).doAction(this, message[1]);
+	        	} else {
+		            String[] tokens = action.split(" ");
+		            if (tokens.length == 2) {
+		            	paramActionMap.get(tokens[0]).doAction(this, tokens[1]);
+		            } else {
+		            	multiParamActionMap.get(tokens[0]).doAction(this, tokens);
+		            }
+	        	}
+	        } else {
+	            voidActionMap.get(action).doAction(this);
+	        }
         }
     }
 

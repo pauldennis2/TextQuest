@@ -61,6 +61,11 @@ Triggers (all Optional)
 * abilities Optional Together with the behavior property, can be used to define more interesting behaviors for a monster.
 * behavior Optional
 
+Triggers (all Optional)
+* onDeath - when a monster dies
+* onTakeDamage - when a monster takes damage (does trigger when monster dies from damage)
+* onDisable - triggered when a monster is disabled (i.e. stunned)
+
 #### Item Properties
  
 * name - Item's name. **Required**. Note that some item names have special meaning that does not need to be added. For example just naming an item "Potion" is enough to make a drinkable healing potion that will restore 9 health.
@@ -121,15 +126,14 @@ Here are some triggers that I hope to add to the game soon:
 Room:
 * speechTriggers - similar to Riddles, triggered when a hero speaks a given phrase
 * onSearch - when a Hero searches (a specific location)
+* onEnter - when a Hero enters the room
 
 Items:
 * onDrop - when an item is dropped by the player
 * onUse - when an item is used
 
 Monsters:
-* onDeath - when a monster dies
-* onDamage - when a monster takes damage
-* onHit - when a monster scores a hit
+* onDealDamage - triggered when the monster deals damage to the player
 
 Obstacles:
 * onAttempt - when someone attempts an obstacle

@@ -6,7 +6,7 @@
     {
       "name":"Spell Chamber - Ice",
       "id":1,
-      "description":"This is the entryway to the lair of the evil giant frog Pihop-pi.",
+      "description":"There's a tome of ice magic on the table.",
       "tutorial":"To navigate the dungeon, you can say \"move\", \"go\", or \"proceed\". You will need to pair this command with a direction. Since the only available direction is East, try typing \"go east\" (without the quotes).",
       "lighting": 1.0,
       "connectedRoomIds":
@@ -15,9 +15,16 @@
       },
       "onSpellCast":
       {
-      	"any": "print SOME_SPELL_CAST",
-      	"ice": "print AN_ICE_SPELL_CAST"
-      }
+      	"any": "print \"Some spell was cast.\"",
+      	"ice": "teleportHero \"Healing Fountain\""
+      },
+      "items":
+      [
+      	{
+      		"name":"Tome of Ice Magic",
+      		"onPickup": "teachSpell ice;modStat numAvailableSpells 2"
+      	}
+      ]
     },
     {
       "name":"Guard Room",
