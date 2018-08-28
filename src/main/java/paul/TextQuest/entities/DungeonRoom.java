@@ -163,8 +163,6 @@ public class DungeonRoom extends UserInterfaceClass {
         }
     }
 
-    
-
     public void vocalize (String message, SpeakingVolume volume) {
         textOut.println("Player " + volume.toString().toLowerCase() + "s: " + message);
         speechListeners.forEach(e -> e.notify(message, volume));
@@ -217,6 +215,7 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void addMonster (Monster monster) {
         monsters.add(monster);
+        monster.addRoomReference(this);
     }
 
     public void addMonsters (List<Monster> monsters) {
@@ -277,6 +276,7 @@ public class DungeonRoom extends UserInterfaceClass {
         return InputType.NONE;*/
         
     	// new impl
+    	monsters.forEach(monster -> monster.addRoomReference(this));
     	if (bossFight != null) {
     		if (!bossFight.isConquered()) {
 	    		InputType type = bossFight.show();

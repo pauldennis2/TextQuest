@@ -40,7 +40,10 @@
         {
           "name":"Red BlobGoblin",
           "health": 9,
-          "might": 3
+          "might": 3,
+          "onTakeDamage": "print TRIGGERED_BY_TAKING_DAMAGE",
+          "onDeath": "print TRIGGERED_BY_DEATH",
+          "onDisable": "print TRIGGERED_BY_DISABLE"
         }
       ],
       "onCombatEnd": "print IM_A_PRETTY_PRETTY_PRINCESS",

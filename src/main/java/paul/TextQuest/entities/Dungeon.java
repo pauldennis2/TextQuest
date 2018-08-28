@@ -19,6 +19,9 @@ public class Dungeon extends MetaLocation {
     private List<DungeonRoom> rooms;
     private String description;
     private String dungeonName;
+    
+    private Map<String, BackpackItem> itemLibrary;
+    private Map<String, Monster> monsterLibrary;
 
     private transient boolean cleared;
     private transient DungeonRoom entrance;
@@ -124,5 +127,21 @@ public class Dungeon extends MetaLocation {
     
     public void setCleared (boolean cleared) {
     	this.cleared = cleared;
+    }
+    
+    public void setItemLibrary (Map<String, BackpackItem> itemLibrary) {
+    	this.itemLibrary = itemLibrary;
+    }
+    
+    public Map<String, BackpackItem> getItemLibrary () {
+    	return itemLibrary;
+    }
+    
+    public void setMonsterLibrary (Map<String, Monster> monsterLibrary) {
+    	this.monsterLibrary = monsterLibrary;
+    }
+    
+    public Map<String, Monster> getMonsterLibrary () {
+    	return monsterLibrary;
     }
 }
