@@ -508,6 +508,10 @@ public class Hero extends UserInterfaceClass implements Serializable {
 
         heroParamActions.put("search", (room, param) -> {
             List<BackpackItem> hiddenItems = room.getHiddenItems().get(param);
+            if (room.getOnSearch().containsKey(param)) {
+            	textOut.println("From searching near " + param + " something happened.");
+            	room.doAction(room.getOnSearch().get(param));
+            }
             if (hiddenItems == null) {
                 textOut.println("You didn't find anything near " + param);
             } else {

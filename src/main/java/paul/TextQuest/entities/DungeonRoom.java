@@ -47,6 +47,7 @@ public class DungeonRoom extends UserInterfaceClass {
     private Map<Direction, LeavingRoomAction> onHeroLeave;
     
     private Map<String, String> onSpellCast;
+    private Map<String, String> onSearch;
     
     private String onCombatStart;
     private String onCombatEnd;
@@ -217,6 +218,23 @@ public class DungeonRoom extends UserInterfaceClass {
         	//TODO: fix/impl
         	room.textOut.debug("Gave hero 2 spells to work with");
         	room.getHero().setNumSpellsAvailable(2);
+        });
+        
+        multiParamActionMap.put("createHiddenItem", (room, args) -> {
+        	String itemName = args[1];
+        	String location = args[2];
+        	
+        	BackpackItem item;
+        	Map<String, BackpackItem> itemLibrary = room.getDungeon().getItemLibrary();
+        	if (itemLibrary.containsKey(itemName)) {
+        		item = itemLibrary.get(itemName);
+        		
+        	} else { //If it can't be found in the library just create a basic item
+        		item = new BackpackItem(itemName);
+        	}
+        	
+        	room.addHiddenItem(location, item);
+        	room.textOut.debug("Added hidden item " + itemName + " at " + location + ".");
         });
     }
 
@@ -704,5 +722,13 @@ public class DungeonRoom extends UserInterfaceClass {
     
     public void setOnSpellCast (Map<String, String> onSpellCast) {
     	this.onSpellCast = onSpellCast;
+    }
+    
+    public Map<String, String> getOnSearch () {
+    	return onSearch;
+    }
+    
+    public void setOnSearch (Map<String, String> onSearch) {
+    	this.onSearch = onSearch;
     }
 }

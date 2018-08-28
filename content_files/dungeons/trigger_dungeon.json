@@ -1,6 +1,24 @@
 {
   "dungeonName":"Trigger Dungeon",
   "description":"",
+  "itemLibrary":
+  {
+  	"Nitro":
+  	{
+  		"name":"Nitro",
+  		"onDrop":"explode 10"
+  	}
+  },
+  "monsterLibrary":
+  {
+  	"RedBlobgoblin":
+  	{
+  		"name":"Red Blobgoblin",
+  		"health":9,
+  		"might":2,
+  		"onDeath": "print Arggghhhh!!!"
+  	}
+  },
   "rooms":
   [
     {
@@ -27,7 +45,7 @@
       ]
     },
     {
-      "name":"Guard Room",
+      "name":"Nitro Making Room",
       "id":2,
       "description":"This is the guard room. It's hard to see but there are probably monsters!",
       "tutorial":"Uh-oh - there's a monster in this room. You can retreat, but you won't be able to proceed further until you've defeated him. Try typing: \"fight\" (no quotes).",
@@ -42,6 +60,12 @@
         	"onDrop": "explode 10"
         }
       ],
+      "onSpellCast":
+      {
+      	"any":"modStat numAvailableSpells 2",
+      	"fire": "createItem Nitro",
+      	"ice": "teachSpell fire"
+      },
       "monsters":
       [
         {
@@ -208,7 +232,7 @@
     {
       "name":"Healing Fountain",
       "id":9,
-      "description":"This room has a healing fountain. How nice.",
+      "description":"This room has a healing fountain and a pool of lava. How nice.",
       "lighting":1.0,
       "tutorial":"This might be a good time to try *search* out. Maybe search around the room's only feature? You can also take a *drink* from the fountain.",
       "hiddenItems":
@@ -216,13 +240,21 @@
         "fountain":
         [
           {
-            "name":"Pihop-pi's Chest Key"
+            "name":"Special Fireice Key"
           }
         ]
+      },
+      "onSpellCast":
+      {
+      	"any":"modStat numAvailableSpells 2"
       },
       "specialRoomActions":
       {
         "drink":"heal 10"
+      },
+      "onSearch":
+      {
+      	"lava":"explode 5;teachSpell fire"
       },
       "connectedRoomIds":
       {
