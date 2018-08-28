@@ -21,6 +21,8 @@ public class NormalCombat extends UserInterfaceClass {
     public static final int BASE_COMBAT_XP = 25;
 
     private boolean finished = false;
+    
+    private String onCombatEnd;
 
     public NormalCombat (DungeonRoom room) {
         this.room = room;
@@ -106,6 +108,9 @@ public class NormalCombat extends UserInterfaceClass {
         if (expCalc > 0) {
             room.getHero().addExp(expCalc + BASE_COMBAT_XP);
         }
+        if (onCombatEnd != null) {
+        	room.doAction(onCombatEnd);
+        }
         expCalc = 0;
         finished = true;
     }
@@ -117,5 +122,9 @@ public class NormalCombat extends UserInterfaceClass {
         //Every 4 pts of might = +0.05
 
         return BASE_ACCURACY + 0.05 * (might/4 - defense/2);
+    }
+    
+    public void setOnCombatEnd (String onCombatEnd) {
+    	this.onCombatEnd = onCombatEnd;
     }
 }

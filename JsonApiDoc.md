@@ -47,6 +47,9 @@ Triggers (all Optional)
 * onHeroLeave - a place to add triggers for when the Hero leaves a room. Mapped by direction.
 * onLightingChange - add triggers for when the lighting level changes. Requires specifying the lighting level
 * specialRoomActions - you can define special action words unique to this room. For example, if there's a fountain you could allow the player to "drink" from it. It's up to you to decide what happens when they take that action
+* onFightStart - triggered when combat starts
+* onFightEnd - triggered at the end of combat (if the hero survives!)
+* onSpellCast - triggered when a spell of a particular type is cast. Like lighting change, this is a map and requires specifying the spell type. Multiple types can be specified (Player casts ice spell -> event A, Player casts fire spell -> event B). You can use "any" for a wildcard.
 
 ### Other Things With Properties
 
@@ -116,11 +119,8 @@ Hopefully soon we'll add many more possible events, and even the ability to crea
 Here are some triggers that I hope to add to the game soon:
 
 Room:
-* onFightStart - triggered when combat starts
-* onFightEnd - triggered at the end of combat (if the hero survives!)
 * speechTriggers - similar to Riddles, triggered when a hero speaks a given phrase
 * onSearch - when a Hero searches (a specific location)
-* onSpellCast - triggered when a spell of a particular type is cast
 
 Items:
 * onDrop - when an item is dropped by the player

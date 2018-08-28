@@ -26,6 +26,7 @@ say : speak
 shout : yell
 whisper : murmur
 search : examine, look
+drop : drop
 |
 |Concept Words:
 |===

@@ -27,7 +27,9 @@ public class BackpackItem extends DungeonRoomEntity {
     private int value;
     
     private String onPickup;
+    private String onDrop;
     private boolean darklight; //Item can only be seen in the dark
+    private boolean undroppable;
 
     public BackpackItem () {
 
@@ -95,12 +97,28 @@ public class BackpackItem extends DungeonRoomEntity {
         return lighting >= DEFAULT_VISIBILITY_THRESHHOLD;
     }
 
-    public boolean isDarklight() {
+    public boolean isDarklight () {
         return darklight;
     }
 
     @JsonInclude(Include.NON_DEFAULT)
-    public void setDarklight(boolean darklight) {
+    public void setDarklight (boolean darklight) {
         this.darklight = darklight;
+    }
+    
+    public boolean isUndroppable () {
+    	return undroppable;
+    }
+    
+    public void setUndroppable (boolean undroppable) {
+    	this.undroppable = undroppable;
+    }
+    
+    public String getOnDrop () {
+    	return onDrop;
+    }
+    
+    public void setOnDrop (String onDrop) {
+    	this.onDrop = onDrop;
     }
 }

@@ -126,9 +126,10 @@ public class Hero extends UserInterfaceClass implements Serializable {
         level = 0;
         exp = 0;
         maxSpellsPerDay = 1;
-
+        BackpackItem sword = new BackpackItem("Sword");
+        sword.setUndroppable(true);
         backpack.add(new BackpackItem("Torch"));
-        backpack.add(new BackpackItem("Sword"));
+        backpack.add(sword);
         backpack.add(new BackpackItem("Bow"));
         
 
@@ -472,6 +473,17 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 SpellAction action = spellMap.get(param);
                 if (action != null) {
                     textOut.println("Casting " + param + " spell.");
+                    if (room.getOnSpellCast() != null) {
+                    	Map<String, String> onSpellCast = room.getOnSpellCast();
+                    	if (onSpellCast.containsKey("any")) {
+                    		String triggerAction = onSpellCast.get("any");
+                    		room.doAction(triggerAction);
+                    	}
+                    	if (onSpellCast.containsKey(param)) {
+                    		String triggerAction = onSpellCast.get(param);
+                    		room.doAction(triggerAction);
+                    	}
+                    }
                     action.doAction(this);
                     numSpellsAvailable--;
                 } else {
@@ -505,6 +517,23 @@ public class Hero extends UserInterfaceClass implements Serializable {
                     backpack.add(item);
                 });
             }
+        });
+        
+        heroParamActions.put("drop", (room, param) -> {
+        	List<BackpackItem> herosItems = backpack.getItems();
+        	for (BackpackItem item : herosItems) {
+        		if (item.getName().equals(param)) {
+        			if (item.isUndroppable()) {
+        				textOut.println("Sorry honey, you can't drop that item.");
+        			} else {
+        				backpack.remove(item);
+        				room.addItem(item);
+        				if (item.getOnDrop() != null) {
+        					room.doAction(item.getOnDrop());
+        				}
+        			}
+        		}
+        	}
         });
 
         heroVoidActions.put("jump", room -> {
@@ -673,7 +702,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
     public static final int[] LEVEL_AMTS = {250, 1000, 2500, 4500, 6500, 9000, 12000, 15000, 18500, 21500, 25000, 35000, 50000};
     //Max level 12
     public void addExp (int expToAdd) {
-    	new AssertionError().printStackTrace();
         if (expToAdd < 0) {
             throw new AssertionError();
         }

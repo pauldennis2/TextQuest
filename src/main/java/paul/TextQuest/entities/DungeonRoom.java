@@ -44,6 +44,11 @@ public class DungeonRoom extends UserInterfaceClass {
     private Map<String, String> specialRoomActions;
     private Map<LightingLevel, String> onLightingChange;
     private Map<Direction, LeavingRoomAction> onHeroLeave;
+    
+    private Map<String, String> onSpellCast;
+    
+    private String onCombatStart;
+    private String onCombatEnd;
 
     //Temporary variables for JSONification
     private Map<Direction, Integer> connectedRoomIds;
@@ -134,6 +139,7 @@ public class DungeonRoom extends UserInterfaceClass {
             int amt = Integer.parseInt(param);
             room.getHero().restoreHealth(amt);
         });
+        paramActionMap.put("print", (room, param) -> room.textOut.println(param));
         paramActionMap.put("bump", (room, param) -> room.textOut.println("Ouch! You bumped into something."));
         voidActionMap.put("addShinePuzzle", room ->
                 room.getHero().getTextOut().println("Shine puzzle added. (not really)"));
@@ -580,5 +586,29 @@ public class DungeonRoom extends UserInterfaceClass {
     	} catch (NullPointerException ex) {
     		return null;
     	}
+    }
+    
+    public String getOnCombatStart () {
+    	return onCombatStart;
+    }
+    
+    public String getOnCombatEnd () {
+    	return onCombatEnd;
+    }
+    
+    public void setOnCombatStart (String onCombatStart) {
+    	this.onCombatStart = onCombatStart;
+    }
+    
+    public void setOnCombatEnd (String onCombatEnd) {
+    	this.onCombatEnd = onCombatEnd;
+    }
+    
+    public Map<String, String> getOnSpellCast () {
+    	return onSpellCast;
+    }
+    
+    public void setOnSpellCast (Map<String, String> onSpellCast) {
+    	this.onSpellCast = onSpellCast;
     }
 }
