@@ -265,7 +265,9 @@
       },
       "onSpellCast":
       {
-      	"any":"modStat numAvailableSpells 2"
+      	"any":"modStat numAvailableSpells 2",
+      	"ice":"removeTrigger specialRoomActions drink;print \"The Fountain freezes over.\"",
+      	"fire":"addTrigger specialRoomActions drink heal 10;print \"The fountain is unfrozen.\""
       },
       "specialRoomActions":
       {

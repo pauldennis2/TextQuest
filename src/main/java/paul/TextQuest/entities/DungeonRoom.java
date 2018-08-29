@@ -44,7 +44,7 @@ public class DungeonRoom extends UserInterfaceClass {
     private List<Feature> features;
 
     private Map<String, String> specialRoomActions;
-    private Map<LightingLevel, String> onLightingChange;
+    private Map<String, String> onLightingChange;
     private Map<Direction, LeavingRoomAction> onHeroLeave;
     private Map<String, String> onItemUse;
     
@@ -69,7 +69,11 @@ public class DungeonRoom extends UserInterfaceClass {
     private transient boolean described;
     
     //Used to find trigger maps from strings
-    private transient Map<String, Map> metaMap;
+    private transient Map<String, Map<String, String>> metaMap;
+    
+    private static Map<String, VoidAction> voidActionMap;
+    private static Map<String, ParamAction> paramActionMap;
+    private static Map<String, MultiParamAction> multiParamActionMap;
 
     public DungeonRoom () {
         hiddenItems = new HashMap<>();
@@ -83,14 +87,6 @@ public class DungeonRoom extends UserInterfaceClass {
         specialRoomActions = new HashMap<>();
         children = new ArrayList<>();
         initUniversalSpeechListeners();
-        
-        metaMap = new HashMap<>();
-        metaMap.put("specialRoomActions", specialRoomActions);
-        metaMap.put("onLightingChange", onLightingChange);
-        metaMap.put("onHeroLeave", onHeroLeave);
-        metaMap.put("onItemUse", onItemUse);
-        metaMap.put("onSpellCast", onSpellCast);
-        metaMap.put("onSearch", onSearch);
     }
     
     public DungeonRoom (String name, String description) {
@@ -98,10 +94,15 @@ public class DungeonRoom extends UserInterfaceClass {
         this.name = name;
         this.description = description;
     }
-
-    private static Map<String, VoidAction> voidActionMap;
-    private static Map<String, ParamAction> paramActionMap;
-    private static Map<String, MultiParamAction> multiParamActionMap;
+    
+    private void initMetaMap () {
+    	metaMap = new HashMap<>();
+        metaMap.put("specialRoomActions", specialRoomActions);
+        metaMap.put("onLightingChange", onLightingChange);
+        metaMap.put("onItemUse", onItemUse);
+        metaMap.put("onSpellCast", onSpellCast);
+        metaMap.put("onSearch", onSearch);
+    }
 
     private static void initActionMaps () {
         voidActionMap = new HashMap<>();
@@ -257,25 +258,38 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         
         multiParamActionMap.put("addTrigger", (room, args) -> {
+        	if (room.metaMap == null) {
+        		room.initMetaMap();
+        	}
         	String triggerGroup = args[1];
         	String triggerWord = args[2];
         	String eventWord = "";
         	for (int i = 3; i < args.length; i++) {
         		eventWord += args[i];
+        		if (i + 1 < args.length) {
+        			eventWord += " ";
+        		}
         	}
         	
-        	Map triggerMap = room.metaMap.get(triggerGroup);
+        	Map<String, String> triggerMap = room.metaMap.get(triggerGroup);
         	
         	triggerMap.put(triggerWord, eventWord);
+        	
+        	room.textOut.debug("Added trigger " + triggerWord + " to " + triggerGroup + " with event: " + eventWord);
         });
         
         multiParamActionMap.put("removeTrigger", (room, args) -> {
+        	if (room.metaMap == null) {
+        		room.initMetaMap();
+        	}
         	String triggerGroup = args[1];
         	String triggerWord = args[2];
         	
-        	Map triggerMap = room.metaMap.get(triggerGroup);
+        	Map<String, String> triggerMap = room.metaMap.get(triggerGroup);
         	
         	triggerMap.remove(triggerWord);
+        	
+        	room.textOut.debug("Removed trigger " + triggerWord + " from " + triggerGroup);
         });
     }
 
@@ -867,16 +881,16 @@ public class DungeonRoom extends UserInterfaceClass {
     public void setSpecialRoomActions(Map<String, String> specialRoomActions) {
         this.specialRoomActions = specialRoomActions;
     }
+    
+    public Map<String, String> getOnLightingChange() {
+		return onLightingChange;
+	}
 
-    public Map<LightingLevel, String> getOnLightingChange() {
-        return onLightingChange;
-    }
+	public void setOnLightingChange(Map<String, String> onLightingChange) {
+		this.onLightingChange = onLightingChange;
+	}
 
-    public void setOnLightingChange(Map<LightingLevel, String> onLightingChange) {
-        this.onLightingChange = onLightingChange;
-    }
-
-    public Map<Direction, LeavingRoomAction> getOnHeroLeave() {
+	public Map<Direction, LeavingRoomAction> getOnHeroLeave() {
         return onHeroLeave;
     }
 
