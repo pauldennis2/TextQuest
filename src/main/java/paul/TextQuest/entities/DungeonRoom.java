@@ -36,7 +36,7 @@ public class DungeonRoom extends UserInterfaceClass {
     private List<Monster> monsters;
     private List<BackpackItem> items;
     //The "Key" for hidden items is a word location in the room. By convention the word should appear in the description
-    //Of the room. For example if the description references a "fountain" than an item would be hidden by "fountain"
+    //Of the room. For example if the description references a "fountain" than an item could be hidden by "fountain"
     private Map<String, List<BackpackItem>> hiddenItems;
     private List<Obstacle> obstacles;
     private Chest chest;
@@ -961,6 +961,4 @@ public class DungeonRoom extends UserInterfaceClass {
 	public void setOnHeroEnter(EnteringRoomAction onHeroEnter) {
 		this.onHeroEnter = onHeroEnter;
 	}
-    
-    
 }

@@ -1,11 +1,9 @@
 package paul.TextQuest;
 
-import paul.TextQuest.entities.BackpackItem;
 import paul.TextQuest.entities.Dungeon;
 import paul.TextQuest.entities.DungeonRoom;
 import paul.TextQuest.entities.Hero;
 import paul.TextQuest.entities.NormalCombat;
-import paul.TextQuest.enums.LightingLevel;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.StatementAnalysis;
 import paul.TextQuest.parsing.StatementAnalyzer;

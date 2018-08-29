@@ -154,6 +154,18 @@ public class StatementAnalyzer {
             			analysis.addComment("Can only use one item at a time.");
             		}
             	}
+            } else if (actionWord.equals("drop")) {
+            	String[] tokens = analysis.getTokens();
+            	String itemName = "";
+            	for (int i = 1; i < tokens.length; i++) {
+            		itemName += tokens[i];
+            		if (i + 1 < tokens.length) {
+            			itemName += " ";
+            		}
+            	}
+            	analysis.setActionable(true);
+            	analysis.setActionWord("drop");
+            	analysis.setActionParam(itemName);
             } else {
                 List<String> conceptWords = analysis.getTokenMatchMap().get(WordType.CONCEPT);
                 if (conceptWords.size() > 0) {

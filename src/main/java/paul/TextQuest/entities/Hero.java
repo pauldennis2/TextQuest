@@ -529,18 +529,25 @@ public class Hero extends UserInterfaceClass implements Serializable {
         
         heroParamActions.put("drop", (room, param) -> {
         	List<BackpackItem> herosItems = backpack.getItems();
+        	boolean found = false;
         	for (BackpackItem item : herosItems) {
-        		if (item.getName().equals(param)) {
+        		if (item.getName().toLowerCase().equals(param)) {
         			if (item.isUndroppable()) {
         				textOut.println("Sorry honey, you can't drop that item.");
         			} else {
         				backpack.remove(item);
+        				textOut.println("Dropped " + item.getName());
         				room.addItem(item);
         				if (item.getOnDrop() != null) {
         					room.doAction(item.getOnDrop());
         				}
         			}
+        			found = true;
+        			break;
         		}
+        	}
+        	if (!found) {
+        		textOut.println("You don't have a " + param + " to drop.");
         	}
         });
 
