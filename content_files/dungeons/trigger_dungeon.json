@@ -19,6 +19,14 @@
   		"onDeath": "print Arggghhhh!!!"
   	}
   },
+  "template":
+  {
+  	"name":"Dungeon Template",
+  	"onSpellCast":
+  	{
+  		"any":"print SPELL_CAST"
+  	}
+  },
   "rooms":
   [
     {
@@ -111,10 +119,6 @@
         "WEST":2,
         "EAST":4,
         "SOUTH":6
-      },
-      "onSpellCast":
-      {
-      	"any": "print some spell was cast"
       }
     },
     {

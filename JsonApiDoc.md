@@ -108,7 +108,7 @@ Triggers (all Optional)
 
 All possible events must be hard coded into the game. That means you're limited to the (currently very small) set of events I've programmed into the game. Keep in mind that the events are just one side of it. In other words, these are just "some things that can happen". **How** and why they happen is determined by the trigger.
 
-**Remote Triggers**: It's now possible to have events be triggered in other rooms. To do this you add an "@id" to the beginning of the event message. Adding "@1" would try to trigger the event in the room with Id 1.
+**Remote Triggers**: It's now possible to have events be triggered in other rooms. To do this you add an "@id" to the beginning of the event message. Adding "@1" would try to trigger the event in the room with Id 1. Note: it doesn't always make sense to do this. Use with caution.
 
 **Multiple Events**: It's also possible to have one trigger activate multiple events. To do this you just separate the events with semi-colons: "<event a>;<event b>". Don't add any space after or before the semi-colon (in general don't add extra spaces).
 

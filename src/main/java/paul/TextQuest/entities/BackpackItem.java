@@ -44,6 +44,16 @@ public class BackpackItem extends DungeonRoomEntity {
         this.name = name;
         this.value = value;
     }
+    
+    public BackpackItem (BackpackItem other) {
+    	this.name = other.name;
+    	this.isQuestItem = other.isQuestItem;
+    	this.value = other.value;
+    	this.onPickup = other.onPickup;
+    	this.onDrop = other.onDrop;
+    	this.darklight = other.darklight;
+    	this.undroppable = other.undroppable;
+    }
 
     public String getName() {
         return name;

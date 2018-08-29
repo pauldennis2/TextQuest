@@ -26,6 +26,8 @@ public class Dungeon extends MetaLocation {
     private transient boolean cleared;
     private transient DungeonRoom entrance;
     private Map<String, Integer> levels;
+    
+    private DungeonRoom template;
 
     public Dungeon () {
         rooms = new ArrayList<>();
@@ -82,14 +84,17 @@ public class Dungeon extends MetaLocation {
 
         entrance = roomsById.get(1);
 
-        rooms.forEach(e -> {
-        	e.setDungeon(this);
-            Map<Direction, Integer> connectedRoomIds = e.getConnectedRoomIds();
+        rooms.forEach(room -> {
+        	room.setDungeon(this);
+            Map<Direction, Integer> connectedRoomIds = room.getConnectedRoomIds();
             connectedRoomIds.keySet().forEach(f -> {
                 Integer id = connectedRoomIds.get(f);
                 DungeonRoom otherRoom = roomsById.get(id);
-                e.connectTo(f, otherRoom);
+                room.connectTo(f, otherRoom);
             });
+            if (template != null) {
+            	room.applyTemplate(template);
+            }
         });
     }
 
@@ -159,4 +164,14 @@ public class Dungeon extends MetaLocation {
     	}
     	return monsterLibrary;
     }
+
+	public DungeonRoom getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(DungeonRoom template) {
+		this.template = template;
+	}
+    
+    
 }

@@ -67,6 +67,9 @@ public class DungeonRoom extends UserInterfaceClass {
     private transient BossFight bossFight;
     private transient Hero hero;
     private transient boolean described;
+    
+    //Used to find trigger maps from strings
+    private transient Map<String, Map> metaMap;
 
     public DungeonRoom () {
         hiddenItems = new HashMap<>();
@@ -80,6 +83,14 @@ public class DungeonRoom extends UserInterfaceClass {
         specialRoomActions = new HashMap<>();
         children = new ArrayList<>();
         initUniversalSpeechListeners();
+        
+        metaMap = new HashMap<>();
+        metaMap.put("specialRoomActions", specialRoomActions);
+        metaMap.put("onLightingChange", onLightingChange);
+        metaMap.put("onHeroLeave", onHeroLeave);
+        metaMap.put("onItemUse", onItemUse);
+        metaMap.put("onSpellCast", onSpellCast);
+        metaMap.put("onSearch", onSearch);
     }
     
     public DungeonRoom (String name, String description) {
@@ -244,6 +255,28 @@ public class DungeonRoom extends UserInterfaceClass {
         multiParamActionMap.put("castSpell", (room, args) -> {
         	room.textOut.println("Not yet implemented. Args: " + args);
         });
+        
+        multiParamActionMap.put("addTrigger", (room, args) -> {
+        	String triggerGroup = args[1];
+        	String triggerWord = args[2];
+        	String eventWord = "";
+        	for (int i = 3; i < args.length; i++) {
+        		eventWord += args[i];
+        	}
+        	
+        	Map triggerMap = room.metaMap.get(triggerGroup);
+        	
+        	triggerMap.put(triggerWord, eventWord);
+        });
+        
+        multiParamActionMap.put("removeTrigger", (room, args) -> {
+        	String triggerGroup = args[1];
+        	String triggerWord = args[2];
+        	
+        	Map triggerMap = room.metaMap.get(triggerGroup);
+        	
+        	triggerMap.remove(triggerWord);
+        });
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {
@@ -261,7 +294,15 @@ public class DungeonRoom extends UserInterfaceClass {
             List<BackpackItem> singleItemList = new ArrayList<>();
             singleItemList.add(item);
             hiddenItems.put(locationName, singleItemList);
+        } else {
+        	List<BackpackItem> existingHiddenItems = hiddenItems.get(locationName);
+        	existingHiddenItems.add(item);
+        	hiddenItems.put(locationName, existingHiddenItems); //Probably not needed
         }
+    }
+    
+    public void addHiddenItems (String locationName, List<BackpackItem> items) {
+    	items.forEach(item -> addHiddenItem(locationName, item));
     }
 
     public void vocalize (String message, SpeakingVolume volume) {
@@ -363,6 +404,7 @@ public class DungeonRoom extends UserInterfaceClass {
 
     @Override
     public InputType show () {
+    	//TODO fix
     	/*//Old impl
         if (bossFight != null && !bossFight.isConquered()) {
             InputType type = bossFight.show();
@@ -546,6 +588,130 @@ public class DungeonRoom extends UserInterfaceClass {
 	            voidActionMap.get(action).doAction(this);
 	        }
         }
+    }
+    
+    /**
+     * Attempts to take a "template" DungeonRoom and apply any fields present
+     * that we are missing. We want to keep our own fields if they exist.
+     * For example if we don't have an onCombatStart property but the template does
+     * then we will use the template property. But if we already have that property
+     * we'll keep it.
+     * 
+     * Fields skipped:
+     * id - shouldn't be filled by templates.
+     * bossFight - same
+     * connectedRoomIds - same
+     * lighting - problem with simple/complex types
+     * (all transient fields)
+     * @param template
+     */
+    public void applyTemplate (DungeonRoom template) {
+    	if (name == null) {
+    		name = template.name;
+    	}
+    	if (description == null) {
+    		description = template.description;
+    	}
+    	if (tutorial == null) {
+    		tutorial = template.tutorial;
+    	}
+    	/*
+    	if (lighting == null) {
+    		lighting = template.lighting;
+    	}
+    	*/
+    	if (template.monsters != null) {
+    		template.monsters.forEach(monster -> addMonster(new Monster(monster)));
+    	}
+    	if (template.items != null) {
+    		template.items.forEach(item -> addItem(new BackpackItem(item)));
+    	}
+    	if (template.features != null) {
+    		throw new AssertionError("Dunno what this is (see Feature class)");
+    	}
+    	if (template.hiddenItems != null) {
+    		template.hiddenItems.keySet().forEach(locationName -> {
+    			addHiddenItems(locationName, template.hiddenItems.get(locationName));
+    		});
+    	}
+    	if (template.obstacles != null) {
+    		if (template.obstacles.size() > 0) {
+    			throw new AssertionError("Template obstacles not supported at this time.");
+    		}
+    	}
+    	if (chest == null) {
+    		chest = template.chest;
+    	}
+    	
+    	//TODO: fix this very duplicative code
+    	//Triggers
+    	if (template.specialRoomActions != null) {
+    		if (specialRoomActions == null) {
+    			specialRoomActions = new HashMap<>();
+    			specialRoomActions.putAll(template.specialRoomActions);
+    		}
+    		template.specialRoomActions.keySet().forEach(special -> {
+    			specialRoomActions.putIfAbsent(special, template.specialRoomActions.get(special));
+    		});
+    	}
+    	if (template.onLightingChange != null) {
+    		if (onLightingChange == null) {
+    			onLightingChange = new HashMap<>();
+    			onLightingChange.putAll(template.onLightingChange);
+    		}
+    		template.onLightingChange.keySet().forEach(lighting -> {
+    			onLightingChange.putIfAbsent(lighting, template.onLightingChange.get(lighting));
+    		});
+    	}
+    	if (template.onHeroLeave != null) {
+    		if (onHeroLeave == null) {
+    			onHeroLeave = new HashMap<>();
+    			onHeroLeave.putAll(template.onHeroLeave);
+    		}
+    		template.onHeroLeave.keySet().forEach(direction -> {
+    			onHeroLeave.putIfAbsent(direction, template.onHeroLeave.get(direction));
+    		});
+    	}
+    	if (template.onItemUse != null) {
+    		if (onItemUse == null) {
+    			onItemUse = new HashMap<>();
+    			onItemUse.putAll(template.onItemUse);
+    		} else {
+	    		template.onItemUse.keySet().forEach(itemName -> {
+	    			onItemUse.putIfAbsent(itemName, template.onItemUse.get(itemName));
+	    		});
+    		}
+    	}
+    	if (template.onSpellCast != null) {
+    		if (onSpellCast == null) {
+				onSpellCast = new HashMap<>();
+				onSpellCast.putAll(template.onSpellCast);
+			} else {
+	    		template.onSpellCast.keySet().forEach(spell -> {
+	    			onSpellCast.putIfAbsent(spell, template.onSpellCast.get(spell));
+	    		});
+			}
+    	}
+    	if (template.onSearch != null) {
+    		if (onSearch == null) {
+    			onSearch = new HashMap<>();
+    			onSearch.putAll(template.onSearch);
+    		} else {
+	    		template.onSearch.keySet().forEach(search -> {
+	    			onSearch.putIfAbsent(search, template.onSearch.get(search));
+	    		});
+    		}
+    	}
+    	
+    	if (onCombatStart == null) {
+    		onCombatStart = template.onCombatStart;
+    	}
+    	if (onCombatEnd == null) {
+    		onCombatEnd = template.onCombatEnd;
+    	}
+    	if (onHeroEnter == null) {
+    		onHeroEnter = template.onHeroEnter;
+    	}
     }
 
     public boolean isCleared () {

@@ -3,6 +3,7 @@ package paul.TextQuest.entities;
 /**
  * Created by Paul Dennis on 9/6/2017.
  */
+//TODO - what is this class for?
 public class Feature {
 
     private String name;
