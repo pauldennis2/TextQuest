@@ -41,6 +41,17 @@ public class Dungeon extends MetaLocation {
         }
         return matches.get(0);
     }
+    
+    public DungeonRoom getRoomById (int id) {
+    	List<DungeonRoom> matches = rooms.stream()
+    			.filter(room -> room.getId() == id)
+    			.collect(Collectors.toList());
+    	
+    	if (matches.size() == 0) {
+    		return null;
+    	}
+    	return matches.get(0);
+    }
 
     public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
         Dungeon restored = jsonRestore(readDungeonFromFile(fileName));
@@ -72,6 +83,7 @@ public class Dungeon extends MetaLocation {
         entrance = roomsById.get(1);
 
         rooms.forEach(e -> {
+        	e.setDungeon(this);
             Map<Direction, Integer> connectedRoomIds = e.getConnectedRoomIds();
             connectedRoomIds.keySet().forEach(f -> {
                 Integer id = connectedRoomIds.get(f);
@@ -142,6 +154,9 @@ public class Dungeon extends MetaLocation {
     }
     
     public Map<String, Monster> getMonsterLibrary () {
+    	if (monsterLibrary == null) {
+    		monsterLibrary = new HashMap<>();
+    	}
     	return monsterLibrary;
     }
 }

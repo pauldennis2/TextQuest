@@ -74,6 +74,10 @@ public class TextInterface extends UserInterfaceClass {
         debug = new ArrayList<>();
         return response;
     }
+    
+    public void printDebug () {
+    	debug.forEach(System.out::println);
+    }
 
     public void println (String s) {
         buffer.add(s);

@@ -54,6 +54,11 @@ public class Monster extends DungeonRoomEntity {
     	this.abilities = monsterTemplate.abilities;
     	this.behavior = monsterTemplate.behavior;
     	
+    	this.onTakeDamage = monsterTemplate.onTakeDamage;
+    	this.onDealDamage = monsterTemplate.onDealDamage;
+    	this.onDeath = monsterTemplate.onDeath;
+    	this.onDisable = monsterTemplate.onDisable;
+    	
     	might = getModdedStat(might, 0);
     	health = getModdedStat(health, 1);
     	defense = getModdedStat(defense, 0);
@@ -211,7 +216,6 @@ public class Monster extends DungeonRoomEntity {
 	}
     
     public void addRoomReference (DungeonRoom room) {
-    	System.err.println("Adding back ref for monster " + name);
     	this.location = room;
     }
 }

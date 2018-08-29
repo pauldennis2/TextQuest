@@ -62,7 +62,7 @@ public class DungeonRoom extends UserInterfaceClass {
     private transient List<SpeechListener> speechListeners;
     private transient TextInterface textOut;
 
-
+    private transient Dungeon dungeon;
     private transient Map<Direction, DungeonRoom> connectedRooms;
     private transient BossFight bossFight;
     private transient Hero hero;
@@ -140,8 +140,12 @@ public class DungeonRoom extends UserInterfaceClass {
         paramActionMap.put("createMonster", (room, param) -> {
             if (param.equals("Skeleton")) {
                 room.addMonster(new Monster(2, 1, "Skeleton"));
+            }
+            Monster monster = room.getDungeon().getMonsterLibrary().get(param);
+            if (monster != null) {
+            	room.addMonster(new Monster(monster));
             } else {
-                room.getHero().getTextOut().debug("Only type supported is skeleton. Param was = " + param);
+            	room.textOut.debug("Cannot create monster - can't be found in library. Name was " + param);
             }
         });
         paramActionMap.put("explode", (room, param) -> {
@@ -493,6 +497,31 @@ public class DungeonRoom extends UserInterfaceClass {
             initActionMaps();
         }
         
+        if (action.startsWith("@")) {
+        	String[] tokens = action.split(" ");
+        	String roomTargetString = tokens[0].replaceAll("@", "");
+        	try {
+        		int roomId = Integer.parseInt(roomTargetString);
+        		DungeonRoom target = getDungeon().getRoomById(roomId);
+        		if (target != null) {
+        			textOut.debug("Attempting to send instruction to " + target.getName());
+        			String actionString = action.substring(action.indexOf(" ") + 1);
+        			textOut.debug("Sending message: " + actionString);
+        			try {
+        				target.doAction(actionString);
+        			} catch (Throwable t) {
+        				t.printStackTrace();
+        			}
+        		} else {
+        			textOut.debug("Could not find room with id " + roomId + ". Whole action message was " + action);
+        		}
+        	} catch (NumberFormatException ex) {
+        		textOut.debug("NumberFormatException parsing @id. Message was: " + action);
+        	}
+        	textOut.printDebug();
+        	return;
+        }
+        
         //If action contains a semi-colon it contains multiple sub-actions
         if (action.contains(";")) {
         	String[] statements = action.split(";");
@@ -697,17 +726,12 @@ public class DungeonRoom extends UserInterfaceClass {
         this.features = features;
     }
     
-    /**
-     * Attempts to trace a dangerous reference path back to the dungeon.
-     * Should fail (return null) if hero is not in the room.
-     * @return
-     */
     public Dungeon getDungeon () {
-    	try {
-    		return hero.getTextOut().getRunner().getDungeon();
-    	} catch (NullPointerException ex) {
-    		return null;
-    	}
+    	return dungeon;
+    }
+    
+    public void setDungeon (Dungeon dungeon) {
+    	this.dungeon = dungeon;
     }
     
     public String getOnCombatStart () {

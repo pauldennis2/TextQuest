@@ -13,8 +13,8 @@
   {
   	"RedBlobgoblin":
   	{
-  		"name":"Red Blobgoblin",
-  		"health":9,
+  		"name":"Green Blobgoblin",
+  		"health":5,
   		"might":2,
   		"onDeath": "print Arggghhhh!!!"
   	}
@@ -38,6 +38,7 @@
       },
       "onItemUse":
       {
+      	"any": "@2 createMonster RedBlobgoblin",
       	"Bow": "print \"You shot the target! 10 points.\""
       },
       "items":
