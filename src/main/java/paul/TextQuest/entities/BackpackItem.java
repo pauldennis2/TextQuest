@@ -22,7 +22,6 @@ public class BackpackItem extends DungeonRoomEntity {
 
     private String name;
     
-    
     private Boolean isQuestItem;
     private int value;
     
@@ -120,6 +119,7 @@ public class BackpackItem extends DungeonRoomEntity {
     	return undroppable;
     }
     
+    @JsonInclude(Include.NON_DEFAULT)
     public void setUndroppable (boolean undroppable) {
     	this.undroppable = undroppable;
     }

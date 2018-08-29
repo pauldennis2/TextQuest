@@ -88,8 +88,9 @@ public class Hero extends UserInterfaceClass implements Serializable {
     private transient Map<String, ParamAction> heroParamActions;
     private transient ItemActionMap itemActions;
     private transient Map<String, VoidAction> views;
-    private transient Map<String, LevelUpAction> levelUpActionMap;
-   
+    
+    //private transient Map<String, LevelUpAction> levelUpActionMap;
+    //TODO what was this ^^about 
     private transient Map<String, SpellAction> spellMap;
     
     private static Map<String, SpellAction> possibleSpellMap;
@@ -131,7 +132,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
         backpack.add(new BackpackItem("Torch"));
         backpack.add(sword);
         backpack.add(new BackpackItem("Bow"));
-        
 
         initMaps();
     }
@@ -465,6 +465,23 @@ public class Hero extends UserInterfaceClass implements Serializable {
         		textOut.debug("(OK seriously, to leave just close the browser.)");
         	}
         });
+        
+        heroVoidActions.put("jump", room -> {
+            if (backpack.contains("Boots of Vaulting")) {
+                if (room.getObstacles().size() == 0) {
+                    textOut.println("Nothing to jump.");
+                } else {
+                    room.getObstacles().stream()
+                            .filter(e -> e.getSolution().equals("jump")) //Filter out non-chasms
+                            .forEach(e -> {
+                                e.attempt("jump", this);
+                                textOut.println("You made it across!");
+                            });
+                }
+            } else {
+                textOut.println("Hmm... not much happened.");
+            }
+        });
 
         heroParamActions.put("cast", (room, param) -> {
             if (numSpellsAvailable < 1) {
@@ -551,22 +568,11 @@ public class Hero extends UserInterfaceClass implements Serializable {
         	}
         });
 
-        heroVoidActions.put("jump", room -> {
-            if (backpack.contains("Boots of Vaulting")) {
-                if (room.getObstacles().size() == 0) {
-                    textOut.println("Nothing to jump.");
-                } else {
-                    room.getObstacles().stream()
-                            .filter(e -> e.getSolution().equals("jump")) //Filter out non-chasms
-                            .forEach(e -> {
-                                e.attempt("jump", this);
-                                textOut.println("You made it across!");
-                            });
-                }
-            } else {
-                textOut.println("Hmm... not much happened.");
-            }
+        heroParamActions.put("equip", (room, param) -> {
+        	
         });
+        
+        
     }
 
     private static void initPossibleSpellMap () {
@@ -773,15 +779,23 @@ public class Hero extends UserInterfaceClass implements Serializable {
     }
 
     public int getMight() {
-        return might;
+        return might + mightMod;
     }
 
     public int getMagic() {
-        return magic;
+        return magic + magicMod;
     }
 
     public int getSneak() {
-        return sneak;
+        return sneak + sneakMod;
+    }
+    
+    public int getDefense() {
+        return defense + defenseMod;
+    }
+
+    public void setDefense(int defense) {
+        this.defense = defense;
     }
 
     public int getLevel() {
@@ -829,13 +843,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         this.sneak = sneak;
     }
 
-    public int getDefense() {
-        return defense;
-    }
-
-    public void setDefense(int defense) {
-        this.defense = defense;
-    }
+    
 
     public int getMaxSpellsPerDay() {
         return maxSpellsPerDay;
@@ -881,8 +889,16 @@ public class Hero extends UserInterfaceClass implements Serializable {
     	this.mightMod = mightMod;
     }
     
-    public int getMightMod () {
-    	return mightMod;
+    public void setDefenseMod (int defenseMod) {
+    	this.defenseMod = defenseMod;
+    }
+    
+    public void setSneakMod (int sneakMod) {
+    	this.sneakMod = sneakMod;
+    }
+    
+    public void setMagicMod (int magicMod) {
+    	this.magicMod = magicMod;
     }
     
     public List<String> getSpellbook () {
@@ -937,4 +953,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
     public void setNumSpellsAvailable (int numSpellsAvailable) {
     	this.numSpellsAvailable = numSpellsAvailable;
     }
+    
+
 }

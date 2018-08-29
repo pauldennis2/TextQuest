@@ -14,7 +14,4 @@ public class EquipableItem extends BackpackItem {
     public void equip (Hero hero) {
 
     }
-    public void onEquip (Hero hero) {
-
-    }
 }
