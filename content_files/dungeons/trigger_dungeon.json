@@ -1,0 +1,311 @@
+{
+  "dungeonName":"Trigger Dungeon",
+  "description":"",
+  "itemLibrary":
+  {
+  	"Nitro":
+  	{
+  		"name":"Nitro",
+  		"onDrop":"explode 10"
+  	}
+  },
+  "monsterLibrary":
+  {
+  	"RedBlobgoblin":
+  	{
+  		"name":"Green Blobgoblin",
+  		"health":5,
+  		"might":2,
+  		"onDeath": "print Arggghhhh!!!"
+  	}
+  },
+  "template":
+  {
+  	"name":"Dungeon Template",
+  	"onSpellCast":
+  	{
+  		"any":"print SPELL_CAST"
+  	}
+  },
+  "rooms":
+  [
+    {
+      "name":"Spell Chamber - Ice",
+      "id":1,
+      "description":"There's a tome of ice magic on the table.",
+      "tutorial":"To navigate the dungeon, you can say \"move\", \"go\", or \"proceed\". You will need to pair this command with a direction. Since the only available direction is East, try typing \"go east\" (without the quotes).",
+      "lighting": 1.0,
+      "connectedRoomIds":
+      {
+        "EAST":2
+      },
+      "onSpellCast":
+      {
+      	"any": "print \"Some spell was cast.\"",
+      	"ice": "teleportHero \"Healing Fountain\""
+      },
+      "onItemUse":
+      {
+      	"any": "@2 createMonster RedBlobgoblin",
+      	"Bow": "print \"You shot the target! 10 points.\""
+      },
+      "items":
+      [
+      	{
+      		"name":"Tome of Ice Magic",
+      		"onPickup": "teachSpell ice;modStat numAvailableSpells 2"
+      	}
+      ]
+    },
+    {
+      "name":"Nitro Making Room",
+      "id":2,
+      "description":"This is the guard room. It's hard to see but there are probably monsters!",
+      "tutorial":"Uh-oh - there's a monster in this room. You can retreat, but you won't be able to proceed further until you've defeated him. Try typing: \"fight\" (no quotes).",
+      "lighting": 0.4,
+      "items":
+      [
+        {
+          "name":"Potion"
+        },
+        {
+        	"name":"Nitro",
+        	"onDrop": "explode 10"
+        }
+      ],
+      "onHeroEnter":
+      {
+      	"action":"print \"Welcome to the nitro making room\"",
+      	"doOnce":true
+      },
+      "onSpellCast":
+      {
+      	"any":"modStat numAvailableSpells 2",
+      	"fire": "createItem Nitro",
+      	"ice": "teachSpell fire"
+      },
+      "onItemUse":
+      {
+      	"any":"print \"I see you using an item.\"",
+      	"potion":"print \"Ahah you drank a potion.\""
+      },
+      "monsters":
+      [
+        {
+          "name":"Red BlobGoblin",
+          "health": 9,
+          "might": 3,
+          "onTakeDamage": "print TRIGGERED_BY_TAKING_DAMAGE",
+          "onDeath": "print TRIGGERED_BY_DEATH",
+          "onDisable": "print TRIGGERED_BY_DISABLE"
+        }
+      ],
+      "onCombatEnd": "print IM_A_PRETTY_PRETTY_PRINCESS",
+      "connectedRoomIds":
+      {
+        "WEST":1,
+        "EAST":3,
+        "SOUTH":5
+      }
+    },
+    {
+      "name":"Spell Chamber - Any",
+      "id":3,
+      "description":"A passageway.",
+      "tutorial":"There's not much going on with this room. It's just a 3-way connector.",
+      "lighting": 0.9,
+      "connectedRoomIds":
+      {
+        "WEST":2,
+        "EAST":4,
+        "SOUTH":6
+      }
+    },
+    {
+      "name":"Miniboss Room",
+      "id":4,
+      "description":"A skeletal figure guards a pedastal with some very fancy boots.",
+      "tutorial":"This room has a very important item that you'll want to *loot*. First, you'll need to fight the mini-boss. Then \"loot\" to get the boots.",
+      "lighting": 1.0,
+      "monsters":
+      [
+        {
+          "name":"I am Jack's First Miniboss",
+          "health": 15,
+          "might": 2
+        }
+      ],
+      "items":
+      [
+        {
+          "name": "Boots of Vaulting",
+          "onPickup": "crackFloor"
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "WEST":3
+      }
+    },
+    {
+      "name":"Chasm Room",
+      "id":5,
+      "description":"There is a huge chasm in the room.",
+      "tutorial":"If you can't figure out how to deal with the chasm you might need to go *back* or *retreat*.",
+      "lighting": 1.0,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.TextQuest.entities.obstacles.Chasm",
+          "name": "Chasm",
+          "solution": "jump",
+          "blockedDirections":
+          [
+            "SOUTH"
+          ]
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "NORTH":2,
+        "SOUTH":7
+      }
+    },
+    {
+      "name":"Chasm Treasure Room",
+      "id":6,
+      "description":"There's some treasure across the chasm.",
+      "tutorial":"If you can't figure out how to deal with the chasm you might need to go *back* or *retreat*.",
+      "lighting": 1.0,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.TextQuest.entities.obstacles.Chasm",
+          "name": "Chasm",
+          "solution": "jump",
+          "blocksLooting": true
+        }
+      ],
+      "items":
+      [
+        {
+          "name":"Massive Ruby",
+          "value":100
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "NORTH":3
+      }
+    },
+    {
+      "name":"Riddle Room",
+      "id":7,
+      "description":"You must answer the riddle before you can pass.",
+      "tutorial":"To answer a riddle you will need to *say* the answer. To speak you can type: \"say \"riddle answer\" \" (don't include the outer quotes but do include quotes around what you want to say). As for solving the riddle... think about that great new item you just got.",
+      "lighting":1.0,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.TextQuest.entities.obstacles.RiddleObstacle",
+          "name": "Sphinx Riddle",
+          "solution": "boots",
+          "displayIfCleared":true,
+          "riddle": "Two brothers we are, great burdens we bear. All day we are bitterly pressed. Yet this we will say, we are full all the day, and empty when we go to rest.",
+          "blockedDirections":
+          [
+            "SOUTH"
+          ]
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "NORTH":5,
+        "SOUTH":8
+      }
+    },
+    {
+      "name":"Monsters After Riddle Room",
+      "id":8,
+      "description":"The monsters are angry you got past the riddle.",
+      "lighting":1.0,
+      "monsters":
+      [
+        {
+          "name":"Orange BlobGoblin",
+          "health":5,
+          "might":3
+        },
+        {
+          "name":"Red BlobGoblin",
+          "health": 5,
+          "might": 2
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "NORTH":7,
+        "SOUTH":9
+      }
+    },
+    {
+      "name":"Healing Fountain",
+      "id":9,
+      "description":"This room has a healing fountain and a pool of lava. How nice.",
+      "lighting":1.0,
+      "tutorial":"This might be a good time to try *search* out. Maybe search around the room's only feature? You can also take a *drink* from the fountain.",
+      "hiddenItems":
+      {
+        "fountain":
+        [
+          {
+            "name":"Special Fireice Key"
+          }
+        ]
+      },
+      "onSpellCast":
+      {
+      	"any":"modStat numAvailableSpells 2",
+      	"ice":"removeTrigger specialRoomActions drink;print \"The Fountain freezes over.\"",
+      	"fire":"addTrigger specialRoomActions drink heal 10;print \"The fountain is unfrozen.\""
+      },
+      "specialRoomActions":
+      {
+        "drink":"heal 10"
+      },
+      "onSearch":
+      {
+      	"lava":"explode 5;teachSpell fire"
+      },
+      "connectedRoomIds":
+      {
+        "NORTH":8,
+        "EAST":10
+      }
+    },
+    {
+      "name":"Boss Room",
+      "id":10,
+      "description":"The lair of Pihop-pi. It kinda stinks in here.",
+      "lighting":1.0,
+      "tutorial":"This is the lair of the dungeon boss. Not yet 100% perfectly implemented. Thanks for playing!",
+      "bossFightFileLocation":"first_boss.json",
+      "chest":
+      {
+        "name":"Pihop-pi's Chest",
+        "locked":true,
+        "key":"Pihop-pi's Chest Key",
+        "contents":
+        [
+          {
+            "name":"Longsword + 1"
+          }
+        ]
+      },
+      "connectedRoomIds":
+      {
+        "WEST":9
+      }
+    }
+  ]
+}

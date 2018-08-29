@@ -1,7 +1,12 @@
 package paul.NLPTextDungeon.entities;
 
 import org.junit.Test;
-import paul.NLPTextDungeon.entities.obstacles.Chasm;
+
+import paul.TextQuest.entities.BackpackItem;
+import paul.TextQuest.entities.DungeonRoom;
+import paul.TextQuest.entities.Hero;
+import paul.TextQuest.entities.Monster;
+import paul.TextQuest.entities.obstacles.Chasm;
 
 import java.util.List;
 

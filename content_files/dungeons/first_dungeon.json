@@ -89,7 +89,7 @@
       "obstacles":
       [
         {
-          "@class" : "paul.NLPTextDungeon.entities.obstacles.Chasm",
+          "@class" : "paul.TextQuest.entities.obstacles.Chasm",
           "name": "Chasm",
           "solution": "jump",
           "blockedDirections":
@@ -113,9 +113,10 @@
       "obstacles":
       [
         {
-          "@class" : "paul.NLPTextDungeon.entities.obstacles.Chasm",
+          "@class" : "paul.TextQuest.entities.obstacles.Chasm",
           "name": "Chasm",
-          "solution": "jump"
+          "solution": "jump",
+          "blocksLooting": true
         }
       ],
       "items":
@@ -139,7 +140,7 @@
       "obstacles":
       [
         {
-          "@class" : "paul.NLPTextDungeon.entities.obstacles.RiddleObstacle",
+          "@class" : "paul.TextQuest.entities.obstacles.RiddleObstacle",
           "name": "Sphinx Riddle",
           "solution": "boots",
           "displayIfCleared":true,

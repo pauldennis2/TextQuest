@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Load Hero</title>
+</head>
+<body>
+This is the hero loading page.
+<br>
+Here is a list of your heroes:
+<br>
+
+<ul style="list-style: none">
+	{{#heroList}}
+	<li>
+		{{.}}
+	</li>
+	{{/heroList}}
+</ul>
+
+Which hero do you want to load? Enter one of the names above to load, or type a new name for a new game.
+<form action="/load-hero" method="post">
+	<input type="text" name="heroName" required>
+	<button type="submit">Load/Create</button> 
+</form>
+
+</body>
+</html>

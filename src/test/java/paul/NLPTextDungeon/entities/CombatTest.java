@@ -2,6 +2,8 @@ package paul.NLPTextDungeon.entities;
 
 import org.junit.Test;
 
+import paul.TextQuest.entities.NormalCombat;
+
 import static org.junit.Assert.*;
 
 /**

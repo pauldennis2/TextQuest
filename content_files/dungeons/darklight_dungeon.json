@@ -17,7 +17,7 @@
       "obstacles":
       [
         {
-          "@class" : "paul.NLPTextDungeon.entities.obstacles.Chasm",
+          "@class" : "paul.TextQuest.entities.obstacles.Chasm",
           "name": "Chasm",
           "solution": "jump",
           "blockedDirections":
@@ -26,7 +26,7 @@
           ]
         },
         {
-          "@class" : "paul.NLPTextDungeon.entities.obstacles.SmashableObstacle",
+          "@class" : "paul.TextQuest.entities.obstacles.SmashableObstacle",
           "name": "Barrel",
           "solution": "smash",
           "onSmash":"createMonster Skeleton"
@@ -53,7 +53,7 @@
       "obstacles":
       [
         {
-          "@class" : "paul.NLPTextDungeon.entities.obstacles.ShinePuzzle",
+          "@class" : "paul.TextQuest.entities.obstacles.ShinePuzzle",
           "name": "Shine Puzzle",
           "solution": "shine"
         }
@@ -148,7 +148,7 @@
       "obstacles":
       [
         {
-          "@class" : "paul.NLPTextDungeon.entities.obstacles.RiddleObstacle",
+          "@class" : "paul.TextQuest.entities.obstacles.RiddleObstacle",
           "name": "Sphinx Riddle",
           "solution": "shadows",
           "displayIfCleared":true,

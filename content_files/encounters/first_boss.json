@@ -2,8 +2,8 @@
   "name":"Pihop-pi",
   "bossDescription":"A giant frog with a very full bladder.",
   "roomDescription":"There are 10 platforms in the room, numbered 0 through 9",
-  "exp": 250,
-  "health":30,
+  "exp": 100,
+  "health":10,
   "maxAttacks":2,
   "attackBehaviors":
   [
