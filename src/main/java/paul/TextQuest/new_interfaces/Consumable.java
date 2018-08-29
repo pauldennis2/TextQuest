@@ -1,12 +1,18 @@
 package paul.TextQuest.new_interfaces;
 
+import paul.TextQuest.entities.BackpackItem;
 import paul.TextQuest.entities.Hero;
 
 /**
  * Created by Paul Dennis on 9/5/2017.
  */
-public interface Consumable {
+public class Consumable extends BackpackItem {
 
-    public void consume (Hero hero);
-    public void onConsume (Hero hero);
+    String onConsume;
+    int uses; //number of uses remaining
+
+    public void consume (Hero hero) {
+        hero.removeItem(this.getName());
+
+    }
 }

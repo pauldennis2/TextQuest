@@ -148,6 +148,12 @@ public class DungeonRoom extends UserInterfaceClass {
                 room.getHero().getTextOut().println("Shine puzzle added. (not really)"));
         
         
+        voidActionMap.put("removeChest", room -> {
+        	room.chest = null;
+        	room.textOut.println("The chest vanished.");
+        });
+        
+        
         //Param Actions\\
         paramActionMap.put("createMonster", (room, param) -> {
             if (param.equals("Skeleton")) {
@@ -215,6 +221,39 @@ public class DungeonRoom extends UserInterfaceClass {
         	}
         	room.textOut.println("An object appeared in the room...");
         });
+        
+        paramActionMap.put("swapChest", (room, param) -> {
+        	int id = Integer.parseInt(param);
+        	DungeonRoom other = room.getDungeon().getRoomById(id);
+        	if (other.getChest() == null && room.getChest() == null) {
+        		room.textOut.debug("Both chests are null");
+        		return;
+        	}
+        	Chest otherChest = other.getChest();
+        	other.setChest(room.getChest());
+        	room.setChest(otherChest);
+        	room.textOut.println("A pop of displaced air.");
+        });
+        
+        paramActionMap.put("removeItem", (room, param) -> {
+        	List<BackpackItem> items = room.getItems();
+        	BackpackItem toBeRemoved = null;
+        	for (BackpackItem item : items) {
+        		if (item.getName().toLowerCase().equals(param.toLowerCase())) {
+        			toBeRemoved = item;
+        			break;
+        		}
+        	}
+        	items.remove(toBeRemoved);
+        	room.textOut.debug("Attempted to remove " + param + " from room.");
+        });
+        
+        paramActionMap.put("removeItemFromHero", (room, param) -> {
+        	room.getHero().removeItem(param);
+        	room.textOut.debug("Attempted to remove " + param + " from hero.");
+        });
+        
+        paramActionMap.put("changeRoomName", (room, param) -> room.setName(param));
         
         //MultiParam Actions\\
         multiParamActionMap.put("modStat", (room, args) -> {
@@ -290,6 +329,10 @@ public class DungeonRoom extends UserInterfaceClass {
         	triggerMap.remove(triggerWord);
         	
         	room.textOut.debug("Removed trigger " + triggerWord + " from " + triggerGroup);
+        });
+        
+        multiParamActionMap.put("modMonsterStats", (room, args) -> {
+        	throw new AssertionError("not yet implemented");
         });
     }
 

@@ -6,7 +6,6 @@ import paul.TextQuest.entities.Hero;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.TextInterface;
 import paul.TextQuest.parsing.UserInterfaceClass;
-import paul.TextQuest.utils.VictoryException;
 
 import java.io.File;
 import java.io.FileNotFoundException;

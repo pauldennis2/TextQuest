@@ -34,9 +34,18 @@ The dungeon is organized into "rooms". Each room can theoretically be as large a
 * rooms - The core data describing the dungeon. **Required**
 * itemLibrary - a Map that allows you to create custom items and reference them later. Optional
 * monsterLibrary - a Map that allows you to create custom monsters and reference them later. Optional
+* template - see the next section
 
 
 The "library" properties really just provide shortcuts for items and monsters that you want to use in multiple places. If you just want a monster to be used once, you should just put it in the room's list of monsters (see below). They are also useful for defining "interesting" objects and monsters that are created by triggered events.
+
+#### Dungeon Template
+
+The Dungeon Template is a convenience feature that allows you to declare properties that will be applied to all rooms in the dungeon (this includes triggers). This means you don't have to manually declare those properties for every room. Templated properties won't overwrite manual properties. So for example, let's say that for the whole dungeon you want the hero to be healed when combat ends. You could add `"onCombatEnd": "heal 10"` to the template to create this effect. But if in a given room you added a different `onCombatEnd` event, that room's event would take precedence and the hero wouldn't be healed. All properties can be added to the template except:
+* id - shouldn't be filled by templates.
+* bossFight - same
+* connectedRoomIds - same
+* lighting - problem with simple/complex types
 
 #### Room Properties
 
@@ -87,6 +96,7 @@ Triggers (all Optional)
 
 Triggers (all Optional)
 * onPickup - a trigger for an event to happen when the item is picked up (looted) by the player.
+* onDrop - a trigger to happen when the item is dropped by the player
 
 There's not a lot you can currently do with items. We'll work on this!
 
@@ -128,6 +138,10 @@ New 8/28:
 * teachSpell (spell name) - teaches the Hero the given spell if they don't already know it
 * teleportHero (room name) - moves the Hero to the given room (if it exists). Use with caution I guess
 * createItem (item name) - creates the given item and places it in the room. You will need to refer to an item in your itemLibrary for anything other than a blank item.
+* swapChest (id of other room) - attempts to swap the chest from this room with the chest from the other room. If one of the rooms doesn't have a chest (it's null) the effect is just to move the existing chest around.
+* removeItem (item name) - attempts to remove the given item from the room's list of items (won't find items in chest, hidden items, etc)
+* removeItemFromHero (item name) - attempts to remove the given item from the Hero's backpack. Use with caution - you could remove essential quest items.
+* changeRoomName (new name) - changes the display name of the room. Use with caution.
 
 
 Not fully implemented
@@ -139,10 +153,12 @@ These events require multiple parameters.
 
 * modStat - modifies the stats of the Hero. Currently WIP. First param is the stat to modify. Second is the way in which it's modified AND the amount. Modification can be absolute (i.e. set the stat to a given value) or relative (add or subtract a certain amount). 
 * createHiddenItem - adds a hidden object to this room. First param is the item name (you will need to refer to your itemLibrary if you want the item to do anything interesting), second param the location where it is hidden.
+* addTrigger - allows you to add a triggered event to this room. The first param is the trigger group (specialRoomActions, onLightingChange, onItemUse, onSpellCast, or onSearch - these are the only trigger groups that can be changed right now). The second param is the event that should be triggered, along with any parameters for that event.
+* removeTrigger - allows you to remove a triggered event from the room. The first param is the trigger group (see addTrigger). The second param is the event to be removed.
+
 
 Not fully implemented:
 * castSpell
-* changeRoomDescription
 
 #### Void Events
 
@@ -154,6 +170,7 @@ These events just happen, and they don't need any extra information.
 * startFight - starts combat with any monsters in the room
 * victory - Ends the game. Use with caution, I guess.
 * crackFloor - creates a Chasm obstacle and prevents retreating. The hero will be stuck unless they have Boots of Vaulting
+* removeChest - removes the chest from the current room (if applicable)
 
 Hopefully soon we'll add many more possible events, and even the ability to create custom events.
 
@@ -165,7 +182,6 @@ Room:
 * speechTriggers - similar to Riddles, triggered when a hero speaks a given phrase
 
 Items:
-* onDrop - when an item is dropped by the player
 * onUse - when an item is used
 
 Monsters:
@@ -175,3 +191,6 @@ Obstacles:
 * onAttempt - when someone attempts an obstacle
 * onClear - when an obstacle is cleared
 
+### Future Events
+
+* modMonsterStats

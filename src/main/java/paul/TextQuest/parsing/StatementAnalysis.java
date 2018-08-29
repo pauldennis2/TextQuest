@@ -125,11 +125,11 @@ public class StatementAnalysis {
         this.secondActionable = secondActionable;
     }
 
-    public void addTokenMatch (String match, Enum type) {
+    public void addTokenMatch (String match, Enum<?> type) {
         tokenMatchMap.get(type).add(match);
     }
 
-    public void addSecondTokenMatch (String match, Enum type) {
+    public void addSecondTokenMatch (String match, Enum<?> type) {
         secondTokenMatchMap.get(type).add(match);
     }
 
