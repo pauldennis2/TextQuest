@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>TextQuest Login/Signup</title>
+</head>
+<body>
+Hello, welcome to the login/sign-up page.
+<br>
+For now, this is a VERY simplified login. If you're signed up already just enter your username and password. 
+If you haven't registered yet just enter your desired username and password. If you get a message about a
+bad password, it means someone already is using that username.
+<br>
+<b>Important Note on Passwords:</b> Passwords are stored unhashed in a simple text file that's very vulnerable
+to attack. I highly recommend using a simple password like "123456" that you don't use elsewhere.
+<br><br>
+<form action="/login" method="post">
+        <input type="text"  placeholder="username" name="username" required><br><br>
+        <input type="text" placeholder="password" name="password" required><br><br>
+        <button type="submit"><h3>Login</h3></button>
+</form>
+</body>
+</html>

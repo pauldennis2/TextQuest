@@ -10,7 +10,7 @@ public abstract class UserInterfaceClass {
     protected List<UserInterfaceClass> children;
     protected UserInterfaceClass requester;
     protected UserInterfaceClass defaultRequester;
-    //Using a default requester means the class forgoes the option to handle inputs itself
+    //Using a default requester means the class foregoes the option to handle inputs itself
 
     protected TextInterface textOut;
 

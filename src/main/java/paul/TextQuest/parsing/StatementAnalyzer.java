@@ -137,6 +137,35 @@ public class StatementAnalyzer {
                         }
                     }
                 }
+            } else if (actionWord.equals("use")) {
+            	String[] tokens = analysis.getTokens();
+            	List<String> itemNames = location.getHero().getBackpack().getItems().stream()
+            			.map(item -> item.getName().toLowerCase())
+            			.collect(Collectors.toList());
+            	List<String> matches = Arrays.stream(tokens)
+            			.filter(token -> itemNames.contains(token))
+            			.collect(Collectors.toList());
+            	if (matches.size() > 0) {
+            		String param = matches.get(0);
+            		analysis.setActionable(true);
+            		analysis.setActionParam(param);
+            		analysis.setActionWord("use");
+            		if (matches.size() > 1) {
+            			analysis.addComment("Can only use one item at a time.");
+            		}
+            	}
+            } else if (actionWord.equals("drop")) {
+            	String[] tokens = analysis.getTokens();
+            	String itemName = "";
+            	for (int i = 1; i < tokens.length; i++) {
+            		itemName += tokens[i];
+            		if (i + 1 < tokens.length) {
+            			itemName += " ";
+            		}
+            	}
+            	analysis.setActionable(true);
+            	analysis.setActionWord("drop");
+            	analysis.setActionParam(itemName);
             } else {
                 List<String> conceptWords = analysis.getTokenMatchMap().get(WordType.CONCEPT);
                 if (conceptWords.size() > 0) {

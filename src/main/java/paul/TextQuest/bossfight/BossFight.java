@@ -43,6 +43,13 @@ public class BossFight extends UserInterfaceClass {
 
     @Override
     public InputType show () {
+    	if (conquered) {
+    		textOut.println("Boss is beat");
+    		textOut.debug("Attempt 2 to leave nicely");
+    		//TODO remove when things work; we're not getting here
+    		return InputType.NONE;
+    	}
+    	
         if (!introDone) {
             textOut.println("Welcome to Boss Fight");
             textOut.println("Boss: " + name);
@@ -85,8 +92,8 @@ public class BossFight extends UserInterfaceClass {
         children.add(vulnerableBehavior);
         children.forEach(child -> child.start(textOut));
 
-
         vulnerableBehavior.setBossFight(this);
+        //throw new AssertionError("Stack trace from start() in bossfight");
     }
 
     public static final String ENCOUNTER_FILE_PATH = "content_files/encounters/";
@@ -128,7 +135,7 @@ public class BossFight extends UserInterfaceClass {
         if (health <= 0) {
             textOut.println("Game Over! You win.");
             conquered = true;
-            throw new VictoryException("You beat the boss!");
+            //throw new VictoryException("You beat the boss!");
         }
     }
 

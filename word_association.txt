@@ -11,6 +11,7 @@ jump : leap, vault, vaultingboots
 smash : crush, bash
 describe : report
 douse : snuff
+leave : leave, exit
 |
 |Param Action Words: (i.e. "travel where?" "use what?", "cast what spell?")
 |===
@@ -25,6 +26,7 @@ say : speak
 shout : yell
 whisper : murmur
 search : examine, look
+drop : drop
 |
 |Concept Words:
 |===

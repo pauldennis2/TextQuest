@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import paul.TextQuest.DungeonRunner;
+import paul.TextQuest.entities.Hero;
 
 /**
  * Created by Paul Dennis on 8/16/2017.
@@ -18,24 +19,24 @@ public class TextInterface extends UserInterfaceClass {
 
     private DungeonRunner runner;
 
-
     @Override
     public void start (TextInterface textOut) {
         children.forEach(child -> child.start(this));
     }
 
-    public TextInterface() throws IOException {
+    public TextInterface(Hero hero) throws IOException {
         buffer = new ArrayList<>();
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();
         children = new ArrayList<>();
-        runner = new DungeonRunner();
+        runner = new DungeonRunner(hero);
         children.add(runner);
         defaultRequester = runner;
     }
 
     //"Please make me your child"
     public void request (UserInterfaceClass newChild) {
+    	//textOut.debug("New request from " + newChild + " to " + this + " (me)");
         children.add(newChild);
         newChild.start(this);
         requester = newChild;
@@ -72,6 +73,10 @@ public class TextInterface extends UserInterfaceClass {
         List<String> response = debug;
         debug = new ArrayList<>();
         return response;
+    }
+    
+    public void printDebug () {
+    	debug.forEach(System.out::println);
     }
 
     public void println (String s) {

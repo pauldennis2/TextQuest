@@ -6,6 +6,7 @@ import paul.TextQuest.enums.NumberRuleType;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.TextInterface;
 import paul.TextQuest.parsing.UserInterfaceClass;
+import paul.TextQuest.utils.VictoryException;
 
 import java.util.*;
 
@@ -78,9 +79,15 @@ public class VulnerableBehavior extends UserInterfaceClass {
         return InputType.NUMBER;
     }
 
+    int count = 0;
     @Override
     public InputType handleResponse (String guess) {
         int solution;
+        if (bossFight.getHealth() <= 0) {
+            hero.addExp(bossFight.getExp());
+            //return InputType.FINISHED;
+            throw new VictoryException("Attempt 5 to exit");
+        }
         try {
             solution = Integer.parseInt(guess);
         } catch (NumberFormatException ex) {
@@ -92,8 +99,11 @@ public class VulnerableBehavior extends UserInterfaceClass {
             textOut.println("Boss takes " + BOSS_DAMAGE_TAKEN + " damage.");
             bossFight.setHealth(bossFight.getHealth() - BOSS_DAMAGE_TAKEN);
             if (bossFight.getHealth() <= 0) {
+            	textOut.release(this);
+            	textOut.println("Here for the " + ++count + " time");
                 hero.addExp(bossFight.getExp());
-                return InputType.FINISHED;
+                //return InputType.FINISHED;
+                throw new VictoryException("Attempt 4 to exit");
             }
         } else {
             textOut.println(wrongChoiceMessage);
