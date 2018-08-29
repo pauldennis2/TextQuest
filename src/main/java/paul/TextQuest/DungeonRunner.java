@@ -1,6 +1,5 @@
 package paul.TextQuest;
 
-import paul.TextQuest.entities.BackpackItem;
 import paul.TextQuest.entities.Dungeon;
 import paul.TextQuest.entities.DungeonRoom;
 import paul.TextQuest.entities.Hero;
@@ -31,7 +30,7 @@ public class DungeonRunner extends UserInterfaceClass {
 
     private static final List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue", "search");
 
-    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "first_dungeon.json";
+    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "trigger_dungeon.json";//"first_dungeon.json";
 
 
     public DungeonRunner (Hero hero) throws IOException {
@@ -53,8 +52,8 @@ public class DungeonRunner extends UserInterfaceClass {
         hero.setLocation(currentRoom);
         
         //Temporary
-        hero.setLocation(dungeon.getRoomByName("Healing Fountain"));
-        hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
+        //hero.setLocation(dungeon.getRoomByName("Healing Fountain"));
+        //hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
     }
 
     @Override
@@ -149,6 +148,13 @@ public class DungeonRunner extends UserInterfaceClass {
 
     public void startCombat () {
         normalCombat = new NormalCombat(currentRoom);
+        if (currentRoom.getOnCombatStart() != null) {
+        	String action = currentRoom.getOnCombatStart();
+        	currentRoom.doAction(action);
+        }
+        if (currentRoom.getOnCombatEnd() != null) {
+        	normalCombat.setOnCombatEnd(currentRoom.getOnCombatEnd());
+        }
         normalCombat.start(textOut);
     }
 

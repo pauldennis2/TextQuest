@@ -126,9 +126,10 @@ public class Hero extends UserInterfaceClass implements Serializable {
         level = 0;
         exp = 0;
         maxSpellsPerDay = 1;
-
+        BackpackItem sword = new BackpackItem("Sword");
+        sword.setUndroppable(true);
         backpack.add(new BackpackItem("Torch"));
-        backpack.add(new BackpackItem("Sword"));
+        backpack.add(sword);
         backpack.add(new BackpackItem("Bow"));
         
 
@@ -472,6 +473,15 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 SpellAction action = spellMap.get(param);
                 if (action != null) {
                     textOut.println("Casting " + param + " spell.");
+                    if (room.getOnSpellCast() != null) {
+                    	Map<String, String> onSpellCast = room.getOnSpellCast();
+                    	if (onSpellCast.containsKey("any")) {
+                    		room.doAction(onSpellCast.get("any"));
+                    	}
+                    	if (onSpellCast.containsKey(param)) {
+                    		room.doAction(onSpellCast.get(param));
+                    	}
+                    }
                     action.doAction(this);
                     numSpellsAvailable--;
                 } else {
@@ -483,6 +493,12 @@ public class Hero extends UserInterfaceClass implements Serializable {
         heroParamActions.put("use", (room, param) -> {
             if (room.getHero().getBackpack().contains(param)) {
                 itemActions.get(param).doAction(room);
+                if (room.getOnItemUse().containsKey("any")) {
+                	room.doAction(room.getOnItemUse().get("any"));
+                }
+                if (room.getOnItemUse().containsKey(param)) {
+                	room.doAction(room.getOnItemUse().get(param));
+                }
             } else {
                 textOut.println("You don't have a " + param + " to use.");
             }
@@ -496,6 +512,10 @@ public class Hero extends UserInterfaceClass implements Serializable {
 
         heroParamActions.put("search", (room, param) -> {
             List<BackpackItem> hiddenItems = room.getHiddenItems().get(param);
+            if (room.getOnSearch().containsKey(param)) {
+            	textOut.println("From searching near " + param + " something happened.");
+            	room.doAction(room.getOnSearch().get(param));
+            }
             if (hiddenItems == null) {
                 textOut.println("You didn't find anything near " + param);
             } else {
@@ -505,6 +525,30 @@ public class Hero extends UserInterfaceClass implements Serializable {
                     backpack.add(item);
                 });
             }
+        });
+        
+        heroParamActions.put("drop", (room, param) -> {
+        	List<BackpackItem> herosItems = backpack.getItems();
+        	boolean found = false;
+        	for (BackpackItem item : herosItems) {
+        		if (item.getName().toLowerCase().equals(param)) {
+        			if (item.isUndroppable()) {
+        				textOut.println("Sorry honey, you can't drop that item.");
+        			} else {
+        				backpack.remove(item);
+        				textOut.println("Dropped " + item.getName());
+        				room.addItem(item);
+        				if (item.getOnDrop() != null) {
+        					room.doAction(item.getOnDrop());
+        				}
+        			}
+        			found = true;
+        			break;
+        		}
+        	}
+        	if (!found) {
+        		textOut.println("You don't have a " + param + " to drop.");
+        	}
         });
 
         heroVoidActions.put("jump", room -> {
@@ -673,7 +717,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
     public static final int[] LEVEL_AMTS = {250, 1000, 2500, 4500, 6500, 9000, 12000, 15000, 18500, 21500, 25000, 35000, 50000};
     //Max level 12
     public void addExp (int expToAdd) {
-    	new AssertionError().printStackTrace();
         if (expToAdd < 0) {
             throw new AssertionError();
         }
@@ -875,5 +918,23 @@ public class Hero extends UserInterfaceClass implements Serializable {
     		clearedDungeons = new ArrayList<>();
     	}
     	clearedDungeons.add(clearedDungeonName);
+    }
+    
+    public boolean addSpell (String spell) {
+    	//If it's a legit spell that we don't already have
+    	if (possibleSpellMap.containsKey(spell) && !spellbook.contains(spell)) {
+    		spellbook.add(spell);
+    		spellMap.put(spell, possibleSpellMap.get(spell));
+    		return true;
+    	}
+    	return false;
+    }
+    
+    public int getNumSpellsAvailable () {
+    	return numSpellsAvailable;
+    }
+    
+    public void setNumSpellsAvailable (int numSpellsAvailable) {
+    	this.numSpellsAvailable = numSpellsAvailable;
     }
 }

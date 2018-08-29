@@ -50,8 +50,12 @@ public class GameController {
     }
     
     @RequestMapping(path = "/login", method = RequestMethod.GET)
-    public String loginScreen () {
-    	return "login";
+    public String loginScreen (HttpSession session) {
+    	//TODO: remove temp hack
+    	//return "login";
+    	
+    	session.setAttribute("username", "paul");
+    	return "redirect:/load-hero";
     }
     
     @RequestMapping(path = "/login", method = RequestMethod.POST)
@@ -74,7 +78,7 @@ public class GameController {
     public String game (Model model, HttpSession session) throws IOException {
     	String username = (String) session.getAttribute("username");
     	if (username == null) {
-    		return "login";
+    		return "redirect:/login";
     	}
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
         if (textOut == null) {

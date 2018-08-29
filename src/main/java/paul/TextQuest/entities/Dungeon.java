@@ -19,10 +19,15 @@ public class Dungeon extends MetaLocation {
     private List<DungeonRoom> rooms;
     private String description;
     private String dungeonName;
+    
+    private Map<String, BackpackItem> itemLibrary;
+    private Map<String, Monster> monsterLibrary;
 
     private transient boolean cleared;
     private transient DungeonRoom entrance;
     private Map<String, Integer> levels;
+    
+    private DungeonRoom template;
 
     public Dungeon () {
         rooms = new ArrayList<>();
@@ -37,6 +42,17 @@ public class Dungeon extends MetaLocation {
             return null;
         }
         return matches.get(0);
+    }
+    
+    public DungeonRoom getRoomById (int id) {
+    	List<DungeonRoom> matches = rooms.stream()
+    			.filter(room -> room.getId() == id)
+    			.collect(Collectors.toList());
+    	
+    	if (matches.size() == 0) {
+    		return null;
+    	}
+    	return matches.get(0);
     }
 
     public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
@@ -68,13 +84,17 @@ public class Dungeon extends MetaLocation {
 
         entrance = roomsById.get(1);
 
-        rooms.forEach(e -> {
-            Map<Direction, Integer> connectedRoomIds = e.getConnectedRoomIds();
+        rooms.forEach(room -> {
+        	room.setDungeon(this);
+            Map<Direction, Integer> connectedRoomIds = room.getConnectedRoomIds();
             connectedRoomIds.keySet().forEach(f -> {
                 Integer id = connectedRoomIds.get(f);
                 DungeonRoom otherRoom = roomsById.get(id);
-                e.connectTo(f, otherRoom);
+                room.connectTo(f, otherRoom);
             });
+            if (template != null) {
+            	room.applyTemplate(template);
+            }
         });
     }
 
@@ -125,4 +145,33 @@ public class Dungeon extends MetaLocation {
     public void setCleared (boolean cleared) {
     	this.cleared = cleared;
     }
+    
+    public void setItemLibrary (Map<String, BackpackItem> itemLibrary) {
+    	this.itemLibrary = itemLibrary;
+    }
+    
+    public Map<String, BackpackItem> getItemLibrary () {
+    	return itemLibrary;
+    }
+    
+    public void setMonsterLibrary (Map<String, Monster> monsterLibrary) {
+    	this.monsterLibrary = monsterLibrary;
+    }
+    
+    public Map<String, Monster> getMonsterLibrary () {
+    	if (monsterLibrary == null) {
+    		monsterLibrary = new HashMap<>();
+    	}
+    	return monsterLibrary;
+    }
+
+	public DungeonRoom getTemplate() {
+		return template;
+	}
+
+	public void setTemplate(DungeonRoom template) {
+		this.template = template;
+	}
+    
+    
 }
