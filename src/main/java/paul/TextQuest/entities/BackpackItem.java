@@ -13,17 +13,15 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
  * Created by Paul Dennis on 8/8/2017.
  */
 
-
-
 @JsonTypeInfo(
 		defaultImpl = BackpackItem.class,
         use = JsonTypeInfo.Id.NAME, 
         include = JsonTypeInfo.As.PROPERTY,
-        property = "_type",
-        visible = true)
+        property = "type")//,
+        //visible = true)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = Note.class, name = "note"),
-        @JsonSubTypes.Type(value = EquipableItem.class, name = EquipableItem._TYPE)
+        //@JsonSubTypes.Type(value = EquipableItem.class, name = EquipableItem._TYPE)
 })
 @JsonInclude(Include.NON_NULL)
 public class BackpackItem extends DungeonRoomEntity {
