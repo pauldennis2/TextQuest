@@ -555,6 +555,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
             if (room.getOnSearch().containsKey(param)) {
             	textOut.println("From searching near " + param + " something happened.");
             	room.doAction(room.getOnSearch().get(param));
+            	//onSearch triggers don't persist
+            	room.getOnSearch().remove(param);
             }
             if (hiddenItems == null) {
                 textOut.println("You didn't find anything near " + param);

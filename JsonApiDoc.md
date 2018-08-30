@@ -6,19 +6,37 @@ Hello and welcome! One of the features of TextQuest is that it allows anyone fam
 
 JSON (JavaScript Object Notation) is basically just a way to store data - in our case, all the data associated with a dungeon. If you're unfamiliar with JSON, you can read about it [here](https://www.w3schools.com/js/js_json_intro.asp). Rest assured, even if you're not a programmer it is fairly easy to pick up.
 
-### Triggers and Mapping
+### Triggers, Events and Mapping
 
-A core concept of designing a dungeon is the concept of **triggers**. As the dungeon designer you want to be able to have events trigger (or cause) other events. For example, the hero enters a room, tries to open the chest, and all the doors lock and monsters show up and attack. Or maybe the hero decides to smash a barrel, but it was filled with explosives so when they do they'll take damage. The (theoretical) possibilities of triggers are endless, and they're essential to create dynamic dungeons that "react" to actions of the player.
+A core concept of designing a dungeon is the concept of **triggers**. As the dungeon designer you want to be able to have circumstances trigger (or cause) **events**. For example, the hero enters a room, tries to open the chest, and all the doors lock and monsters show up and attack. Or maybe the hero decides to smash a barrel, but it was filled with explosives so when they do they'll take damage. The trigger is the circumstance that causes the event. The event is what actually happens. The (theoretical) possibilities of triggers are endless, and they're essential to create dynamic dungeons that "react" to actions of the player. It's up to the dungeon designer to create triggers and events that "make sense" within the context of the dungeon. So in the case of this barrel smashing hero, the trigger would be `onSmash`, and the event would be `explode 10` to deal 10 damage to the hero.
 
 So how as a dungeon designer do you access these wonderful triggers? That brings us to the concept of a **map**. A map is a core concept in computer science, but we don't need to dive into deep details. A mapping is basically just a connection between data. A common example is a dictionary, which you can think of as a map from Words to Definitions. If you look up the Word "banana" you would get a Definition like "a yellow tropical fruit". 
 
 In TextQuest, triggers are mapped by character strings. One simple example is "giveExp", which allows us to directly give experience points to the hero. We provide as a **paramater** the amount of experience we wish to give. All triggers use `lowerCamelCase`, so the words are all squashed together with the first letter of each word except the first capitalized. We'll talk about how to use triggers more specifically later on.
+
+Triggers persist by default (unless otherwise noted). That means that if there's a trigger in a room when a hero uses a particular spell, it'll keep triggering every time the hero casts the spell (it doesn't go away after the first time).
+
+### Adding and Removing Triggers
+
+An important feature of triggers/events is the ability to **dynamically** add and remove triggers from the dungeon. For example, let's say you've defined a room with a healing fountain. You've defined a `specialRoomAction` so that when the hero drinks from the fountain they are healed. But let's say you want this fountain set up so that if the hero casts an ice spell, it will freeze over and be un-usable. Casting a fire spell unfreezes the fountain.
+```
+"onSpellCast":
+      {
+      	"any":"modStat numAvailableSpells 2",
+      	"ice":"removeTrigger specialRoomActions drink;print \"The Fountain freezes over.\"",
+      	"fire":"addTrigger specialRoomActions drink heal 10;print \"The fountain is unfrozen.\""
+      }
+```
+
+The possibilities here are endless, but it's worth specifically noting that you can use this capability to override the default persistence of triggers. So if you have a trigger that you want to only happen once you could add `;removeTrigger <info>`. You can also think of this as enabling/disabling triggers (there is no alternative way to enable/disable triggers).
 
 ### Optional vs Required Properties
 
 The last and easiest concept to understand is that many properties are optional (not required). This means that you do not have to include that property for things to work. One example of an optional property is the "tutorial" property. This is a message displayed in the "tutorial" text area when the hero enters a given room. If you don't include this property, no message will be displayed.
 
 I highly recommend leaving optional properties out unless you need them. This will keep your JSON cleaner and easier to read. I'll do my best to indicate which properties are required, as well as indicating defaults in cases where it makes sense.
+
+When I say a property is required, it means that leaving it off (except in special circumstances) will cause problems.
 
 ## Creating A Dungeon
 
@@ -68,7 +86,7 @@ Triggers (all Optional)
 * specialRoomActions - you can define special action words unique to this room. For example, if there's a fountain you could allow the player to "drink" from it. It's up to you to decide what happens when they take that action
 * onFightStart - triggered when combat starts
 * onFightEnd - triggered at the end of combat (if the hero survives!)
-* onSearch - when a Hero searches a specific location
+* onSearch - when a Hero searches a specific location. **Not persistent** - by default this trigger goes away after it's triggered.
 * onSpellCast - triggered when a spell of a particular type is cast. Like lighting change, this is a map and requires specifying the spell type. Multiple types can be specified (Player casts ice spell -> event A, Player casts fire spell -> event B). You can use "any" for a wildcard.
 * onHeroEnter - triggered when the Hero enters the room. Optional flag to doOnce.
 * onItemUse - triggered when the hero uses a specific item. Use "any" for a wildcard.

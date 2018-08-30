@@ -461,21 +461,6 @@ public class DungeonRoom extends UserInterfaceClass {
 
     @Override
     public InputType show () {
-    	//TODO fix
-    	/*//Old impl
-        if (bossFight != null && !bossFight.isConquered()) {
-            InputType type = bossFight.show();
-            if (type != InputType.NONE) {
-                requester = bossFight;
-                return type;
-            }
-            return bossFight.show();
-        } else {
-            describe();
-        }
-        return InputType.NONE;*/
-        
-    	// new impl
     	monsters.forEach(monster -> monster.addRoomReference(this));
     	if (bossFight != null) {
     		if (!bossFight.isConquered()) {
