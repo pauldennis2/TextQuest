@@ -3,6 +3,10 @@ package paul.TextQuest.entities;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
+
+import paul.TextQuest.new_interfaces.EquipableItem;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
@@ -11,13 +15,17 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 
 
-@JsonTypeInfo(defaultImpl=BackpackItem.class,
-        use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(
+		defaultImpl = BackpackItem.class,
+        use = JsonTypeInfo.Id.NAME, 
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "_type",
+        visible = true)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Note.class, name = "note")
+        @JsonSubTypes.Type(value = Note.class, name = "note"),
+        @JsonSubTypes.Type(value = EquipableItem.class, name = EquipableItem._TYPE)
 })
 @JsonInclude(Include.NON_NULL)
-//@JsonInclude(Include.NON_DEFAULT)
 public class BackpackItem extends DungeonRoomEntity {
 
     private String name;
