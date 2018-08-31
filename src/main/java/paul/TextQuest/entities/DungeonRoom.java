@@ -12,7 +12,7 @@ import paul.TextQuest.enums.SpeakingVolume;
 import paul.TextQuest.interfaces.MultiParamAction;
 import paul.TextQuest.interfaces.ParamAction;
 import paul.TextQuest.interfaces.VoidAction;
-import paul.TextQuest.interfaces.listeners.SpeechListener;
+import paul.TextQuest.interfaces.SpeechListener;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.TextInterface;
 import paul.TextQuest.parsing.UserInterfaceClass;
@@ -466,7 +466,6 @@ public class DungeonRoom extends UserInterfaceClass {
         }
 
         connectedRooms.put(direction, other);
-        //other.connectedRooms.put(direction.getOpposite(), this);
     }
 
     public Set<Direction> getTravelDirections () {
@@ -571,6 +570,10 @@ public class DungeonRoom extends UserInterfaceClass {
     		textOut.println("There's an obstacle blocking you from looting.");
     	}
     	return visibleItems;
+    }
+    
+    public boolean isDirectlyConnectedTo (DungeonRoom otherRoom) {
+    	return connectedRooms.containsValue(otherRoom);
     }
 
     public void updateMonsters () {
@@ -1013,5 +1016,12 @@ public class DungeonRoom extends UserInterfaceClass {
 
 	public void setOnHeroEnter(EnteringRoomAction onHeroEnter) {
 		this.onHeroEnter = onHeroEnter;
+	}
+	
+	public Map<String, Map<String, String>> getMetaMap () {
+		if (metaMap == null) {
+			initMetaMap();
+		}
+		return metaMap;
 	}
 }

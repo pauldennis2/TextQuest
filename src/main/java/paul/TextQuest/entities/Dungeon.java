@@ -92,6 +92,60 @@ public class Dungeon extends MetaLocation {
             }
         });
     }
+    
+    public static void main(String[] args) throws Exception {
+		System.out.println("Testing dungeon evaluater.");
+		Dungeon test = buildDungeonFromFile("content_files/dungeons/evaluate_dungeon_test.json");
+		test.evaluateDungeon();
+	}
+    
+    public void evaluateDungeon () {
+    	List<String> oneWayWarnings = new ArrayList<>();
+    	List<String> triggerWarnings = new ArrayList<>();
+    	List<String> miscWarnings = new ArrayList<>();
+    	for (DungeonRoom room : rooms) {
+    		//Check connections
+    		Map<Direction, DungeonRoom> connectedRooms = room.getConnectedRooms();
+    		for (Direction direction : connectedRooms.keySet()) {
+    			DungeonRoom other = connectedRooms.get(direction);
+    			if (!other.getConnectedRooms().containsValue(room)) {
+    				oneWayWarnings.add("Warning: " + room.getName() + " has a one-way connection to " + other.getName() + ".");
+    			}
+    		}
+    		
+    		//Check triggers
+    		Map<String, Map<String, String>> metaMap = room.getMetaMap();
+    		
+    		for (String mapName : metaMap.keySet()) {
+    			Map<String, String> triggers = metaMap.get(mapName);
+    			if (triggers == null) {
+    				continue;
+    			}
+    			for (String trigger : triggers.keySet()) {
+    				try {
+    					room.doAction(triggers.get(trigger));
+    				} catch (Throwable t) {
+    					triggerWarnings.add("Warning: exception on trigger " + trigger + " in " + mapName + ". Exception: " + t.getMessage());
+    				}
+    			}
+    		}
+    		
+    		//Check misc stuff
+    		if (room.getName().trim().equals("")) {
+    			miscWarnings.add("Warning: Name is blank for room with id " + room.getId());
+    		}
+    	}
+    	System.out.println("Completed evaluation of dungeon:" + dungeonName + " with " + rooms.size() + " rooms.");
+    	
+    	System.out.println("One way warnings (" + oneWayWarnings.size() + "):");
+    	oneWayWarnings.forEach(System.err::println);
+    	
+    	System.out.println("Trigger warnings (" + triggerWarnings.size() + "): (no, not that kind)");
+    	triggerWarnings.forEach(System.err::println);
+    	
+    	System.out.println("Miscellaneous warnings (" + miscWarnings.size() + ")");
+    	miscWarnings.forEach(System.err::println);
+    }
 
     public List<DungeonRoom> getRooms() {
         return rooms;

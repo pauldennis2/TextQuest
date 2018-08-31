@@ -38,6 +38,13 @@ I highly recommend leaving optional properties out unless you need them. This wi
 
 When I say a property is required, it means that leaving it off (except in special circumstances) will cause problems.
 
+### Room IDs
+
+As we'll discuss below your dungeon is made up of "rooms". Each room must have a unique identification/ID number. You can use whatever numbering scheme you want. One easy suggestion for small dungeons is to assign each floor a block of 10 IDs (So all the rooms on the first floor are 1-9, second floor 10-19, etc). This helps keep things organized. Alternatively for bigger dungeons you could do 101, 102, 103, 201, 202, 203, etc. Whatever works for you. A couple important notes:
+
+* Each id must be unique. You can't have two rooms with id 50.
+* By default (and this is currently not configurable) the dungeon entrance (where the player starts) will be the room with ID 1.
+
 ## Creating A Dungeon
 
 A dungeon has a "dungeonName" property and a List of "rooms".

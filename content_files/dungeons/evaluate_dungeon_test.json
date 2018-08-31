@@ -65,8 +65,8 @@
       }
     },
     {
-      "name":"Ice Path Start",
-      "id":2,
+      "name":"",
+      "id":26,
       "description":"This is the start of the ice path",
       "lighting": 1.0,
       "items":
@@ -180,7 +180,6 @@
       ],
       "connectedRoomIds":
       {
-      	"WEST":7,
         "EAST":10,
         "SOUTH":9
       }
@@ -283,8 +282,8 @@
     	},
     	"connectedRoomIds":
     	{
-    		"EAST":26,
     		"WEST":22,
+    		"EAST":26,
     		"SOUTH":25
     	}
     },

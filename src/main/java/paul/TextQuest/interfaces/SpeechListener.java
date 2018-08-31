@@ -1,4 +1,4 @@
-package paul.TextQuest.interfaces.listeners;
+package paul.TextQuest.interfaces;
 
 import paul.TextQuest.enums.SpeakingVolume;
 
