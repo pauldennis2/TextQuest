@@ -255,6 +255,14 @@ public class DungeonRoom extends UserInterfaceClass {
         
         paramActionMap.put("changeRoomName", (room, param) -> room.setName(param));
         
+        paramActionMap.put("removePassage", (room, param) -> {
+        	Direction direction = Direction.getDirectionFromString(param);
+        	Map<Direction, DungeonRoom> connectedRooms = room.getConnectedRooms();
+        	connectedRooms.remove(direction);
+        	room.setConnectedRooms(connectedRooms);
+        	room.textOut.debug("A passage to the " + param + " closes.");
+        });
+        
         //MultiParam Actions\\
         multiParamActionMap.put("modStat", (room, args) -> {
         	/*
@@ -334,6 +342,23 @@ public class DungeonRoom extends UserInterfaceClass {
         multiParamActionMap.put("modMonsterStats", (room, args) -> {
         	throw new AssertionError("not yet implemented");
         });
+        
+        multiParamActionMap.put("createPassage", (room, args) -> {
+        	System.err.println("Creating passage.");
+        	Direction direction = Direction.getDirectionFromString(args[1]);
+        	int id = Integer.parseInt(args[2]);
+        	
+        	Map<Direction, DungeonRoom> connectedRooms = room.getConnectedRooms();
+        	if (connectedRooms.containsKey(direction)) {
+        		room.textOut.debug("There was already a connection in the direction " + direction + ".");
+        		room.textOut.debug("It was to " + connectedRooms.get(direction).getName() + ".");
+        	}
+        	DungeonRoom otherRoom = room.getDungeon().getRoomById(id);
+        	connectedRooms.put(direction, otherRoom);
+        	room.setConnectedRooms(connectedRooms);
+        	room.textOut.debug("A passage opens to the " + direction + ".");
+        });
+        
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {
@@ -441,7 +466,7 @@ public class DungeonRoom extends UserInterfaceClass {
         }
 
         connectedRooms.put(direction, other);
-        other.connectedRooms.put(direction.getOpposite(), this);
+        //other.connectedRooms.put(direction.getOpposite(), this);
     }
 
     public Set<Direction> getTravelDirections () {

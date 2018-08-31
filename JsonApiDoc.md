@@ -151,8 +151,6 @@ These events need an extra bit of information, often a number. For example if yo
 * giveExp (exp amount) - the hero gets experience
 * bump (object) - Used to momentarily delay the hero from leaving the room.
 * heal (healing amount) - heals the player
-
-New 8/28:
 * teachSpell (spell name) - teaches the Hero the given spell if they don't already know it
 * teleportHero (room name) - moves the Hero to the given room (if it exists). Use with caution I guess
 * createItem (item name) - creates the given item and places it in the room. You will need to refer to an item in your itemLibrary for anything other than a blank item.
@@ -160,6 +158,7 @@ New 8/28:
 * removeItem (item name) - attempts to remove the given item from the room's list of items (won't find items in chest, hidden items, etc)
 * removeItemFromHero (item name) - attempts to remove the given item from the Hero's backpack. Use with caution - you could remove essential quest items.
 * changeRoomName (new name) - changes the display name of the room. Use with caution.
+* removePassage (direction) - removes a passage from this room in the given direction (if any). Use with caution, player can become trapped.
 
 
 Not fully implemented
@@ -173,6 +172,7 @@ These events require multiple parameters.
 * createHiddenItem - adds a hidden object to this room. First param is the item name (you will need to refer to your itemLibrary if you want the item to do anything interesting), second param the location where it is hidden.
 * addTrigger - allows you to add a triggered event to this room. The first param is the trigger group (specialRoomActions, onLightingChange, onItemUse, onSpellCast, or onSearch - these are the only trigger groups that can be changed right now). The second param is the event that should be triggered, along with any parameters for that event.
 * removeTrigger - allows you to remove a triggered event from the room. The first param is the trigger group (see addTrigger). The second param is the event to be removed.
+* createPassage - allows you to add a connection to a new room. First param is the direction, the second param is the `id` of the room to connect. Use with caution, as you could trap the player if you're not careful.
 
 
 Not fully implemented:

@@ -200,11 +200,11 @@
       },
       "onSearch":
       {
-      	"bones":"createMonster StormWight;print \"A storm wight appears.\"",
+      	"bones":"createMonster StormWight;print \"A storm wight appears.\""
       },
       "connectedRoomIds":
       {
-        "NORTH":8,
+        "NORTH":8
       }
     },
     {
@@ -215,7 +215,7 @@
       "connectedRoomIds":
       {
         "WEST":8,
-        "PORTA:":1
+        "PORTAL":1
       }
     },
     {
@@ -310,6 +310,13 @@
 		{
 			"drink":"heal 10"
 		},
+		"onHeroLeave":
+		{
+			"PORTAL":
+			{
+				"action":"@1 createPassage PORTAL 26"
+			}
+		},
     	"connectedRoomIds":
     	{
     		"WEST":24,
@@ -321,7 +328,12 @@
     {
     	"name":"Extra Loot Room near End",
     	"id":27,
+    	"description":"There's a big rug in the center of the room.",
     	"lighting":1.0,
+    	"onSearch":
+    	{
+    		"rug":"createPassage NORTH 29"
+    	},
     	"connectedRoomIds":
     	{
     		"SOUTH":26
@@ -330,7 +342,21 @@
     {
     	"name":"Boss Room",
     	"id":28,
-    	"description":"Counter his elemental attacks. Lava/blizzard and explosion/morass"
+    	"description":"Counter his elemental attacks. Lava/blizzard and explosion/morass",
+    	"connectedRoomIds":
+    	{
+    		"EAST":26
+    	}
+    },
+    {
+    	"name":"Hidden Secret Treasure Room",
+    	"id":29,
+    	"description":"Wow, super secret hidden treasure.",
+    	"lighting": 1.0,
+    	"connectedRoomIds":
+    	{
+    		"SOUTH":27
+    	}
     }
   ]
 }

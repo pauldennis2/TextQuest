@@ -55,5 +55,15 @@ public enum Direction {
                 return null;
         }
     }
+    
+    public static Direction getDirectionFromString (String input) {
+    	input = input.toLowerCase();
+    	for (Direction direction : Direction.values()) {
+    		if (direction.toString().toLowerCase().equals(input)) {
+    			return direction;
+    		}
+    	}
+    	return null;
+    }
 
 }

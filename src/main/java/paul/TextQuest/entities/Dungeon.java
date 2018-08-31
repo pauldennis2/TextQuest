@@ -27,6 +27,8 @@ public class Dungeon extends MetaLocation {
     private transient DungeonRoom entrance;
     private Map<String, Integer> levels;
     
+    private transient Map<Integer, DungeonRoom> roomsById;
+    
     private DungeonRoom template;
 
     public Dungeon () {
@@ -45,14 +47,7 @@ public class Dungeon extends MetaLocation {
     }
     
     public DungeonRoom getRoomById (int id) {
-    	List<DungeonRoom> matches = rooms.stream()
-    			.filter(room -> room.getId() == id)
-    			.collect(Collectors.toList());
-    	
-    	if (matches.size() == 0) {
-    		return null;
-    	}
-    	return matches.get(0);
+    	return roomsById.get(id);
     }
 
     public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
@@ -79,7 +74,7 @@ public class Dungeon extends MetaLocation {
     }
 
     private void connectRooms () {
-        Map<Integer, DungeonRoom> roomsById = new HashMap<>();
+        roomsById = new HashMap<>();
         rooms.forEach(e -> roomsById.put(e.getId(), e));
 
         entrance = roomsById.get(1);
