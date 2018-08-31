@@ -32,7 +32,7 @@
   		"health":20,
   		"might":4,
   		"defense": 3,
-  		"onDeath": "createItem wightSoulgem"
+  		"onDeath": "casgdgm"
   	}
   },
   "template":
@@ -40,7 +40,8 @@
   	"name":"Dungeon Template",
   	"onSpellCast":
   	{
-  		"any":"modStat numAvailableSpells 2"
+  		"any":"modStat numAvailableSpells 2",
+  		"Borgle":"heal 10"
   	}
   },
   "rooms":
@@ -60,13 +61,13 @@
       
       "specialRoomActions":
       {
-      	"fire":"print \"You have chose the fire path.\"",
+      	"fire":"sdgwsdghsh",
       	"ice":"print \"You have chosen the ice path.\""
       }
     },
     {
-      "name":"",
-      "id":26,
+      "name":"Ice Path Start",
+      "id":2,
       "description":"This is the start of the ice path",
       "lighting": 1.0,
       "items":

@@ -1049,4 +1049,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
 		this.equippedItems = equippedItems;
 	}
     
+	public void setTextOut (TextInterface textOut) {
+		this.textOut = textOut;
+	}
 }

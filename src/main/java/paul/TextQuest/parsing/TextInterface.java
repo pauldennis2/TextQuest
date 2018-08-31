@@ -23,6 +23,13 @@ public class TextInterface extends UserInterfaceClass {
     public void start (TextInterface textOut) {
         children.forEach(child -> child.start(this));
     }
+    
+    public TextInterface () {
+        buffer = new ArrayList<>();
+        debug = new ArrayList<>();
+        tutorial = new ArrayList<>();
+        children = new ArrayList<>();
+    }
 
     public TextInterface(Hero hero) throws IOException {
         buffer = new ArrayList<>();

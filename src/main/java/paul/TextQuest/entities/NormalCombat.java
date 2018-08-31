@@ -9,7 +9,6 @@ import paul.TextQuest.parsing.*;
  * Created by pauldennis on 8/21/17.
  */
 public class NormalCombat extends UserInterfaceClass {
-    //Working on combat-feature branch
 
     private TextInterface textOut;
     private DungeonRoom room;
@@ -54,7 +53,7 @@ public class NormalCombat extends UserInterfaceClass {
         if (finished) {
             throw new AssertionError("Fight is over");
         }
-        //Todo: add initiative. For now the hero always gets it
+        //TODO: add initiative. For now the hero always gets it
         List<Monster> monsters = room.getMonsters();
         Hero hero = room.getHero();
         if (monsters.size() > 0) {

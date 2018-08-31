@@ -3,6 +3,7 @@ package paul.TextQuest.entities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import paul.TextQuest.enums.Direction;
+import paul.TextQuest.parsing.TextInterface;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -115,7 +116,10 @@ public class Dungeon extends MetaLocation {
     		
     		//Check triggers
     		Map<String, Map<String, String>> metaMap = room.getMetaMap();
-    		
+    		Hero hero = new Hero("Tester");
+    		TextInterface textOut = new TextInterface();
+    		hero.setTextOut(textOut);
+    		room.setHero(hero);
     		for (String mapName : metaMap.keySet()) {
     			Map<String, String> triggers = metaMap.get(mapName);
     			if (triggers == null) {
@@ -123,9 +127,11 @@ public class Dungeon extends MetaLocation {
     			}
     			for (String trigger : triggers.keySet()) {
     				try {
+    					room.start(textOut);
     					room.doAction(triggers.get(trigger));
     				} catch (Throwable t) {
-    					triggerWarnings.add("Warning: exception on trigger " + trigger + " in " + mapName + ". Exception: " + t.getMessage());
+    					triggerWarnings.add("Warning: exception on trigger " + trigger + " in " + mapName + ". " +
+    							"Exception: " + t.getMessage() + ", Action was " + triggers.get(trigger));
     				}
     			}
     		}
@@ -138,13 +144,13 @@ public class Dungeon extends MetaLocation {
     	System.out.println("Completed evaluation of dungeon:" + dungeonName + " with " + rooms.size() + " rooms.");
     	
     	System.out.println("One way warnings (" + oneWayWarnings.size() + "):");
-    	oneWayWarnings.forEach(System.err::println);
+    	oneWayWarnings.forEach(System.out::println);
     	
     	System.out.println("Trigger warnings (" + triggerWarnings.size() + "): (no, not that kind)");
-    	triggerWarnings.forEach(System.err::println);
+    	triggerWarnings.forEach(System.out::println);
     	
     	System.out.println("Miscellaneous warnings (" + miscWarnings.size() + ")");
-    	miscWarnings.forEach(System.err::println);
+    	miscWarnings.forEach(System.out::println);
     }
 
     public List<DungeonRoom> getRooms() {
@@ -221,6 +227,5 @@ public class Dungeon extends MetaLocation {
 	public void setTemplate(DungeonRoom template) {
 		this.template = template;
 	}
-    
     
 }

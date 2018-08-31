@@ -344,7 +344,6 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         
         multiParamActionMap.put("createPassage", (room, args) -> {
-        	System.err.println("Creating passage.");
         	Direction direction = Direction.getDirectionFromString(args[1]);
         	int id = Integer.parseInt(args[2]);
         	
