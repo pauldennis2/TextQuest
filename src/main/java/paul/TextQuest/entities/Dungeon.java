@@ -30,10 +30,15 @@ public class Dungeon extends MetaLocation {
     
     private transient Map<Integer, DungeonRoom> roomsById;
     
+    private transient Map<String, String> dungeonVariables;
+    private transient Map<String, Integer> dungeonValues;
+    
     private DungeonRoom template;
 
     public Dungeon () {
         rooms = new ArrayList<>();
+        dungeonVariables = new HashMap<>();
+        dungeonValues = new HashMap<>();
     }
 
     public DungeonRoom getRoomByName (String name) {
@@ -151,6 +156,31 @@ public class Dungeon extends MetaLocation {
     	
     	System.out.println("Miscellaneous warnings (" + miscWarnings.size() + ")");
     	miscWarnings.forEach(System.out::println);
+    }
+    
+    public void setDungeonVar (String name, String variable) {
+    	try {
+    		Integer val = Integer.parseInt(variable);
+    		dungeonValues.put(name, val);
+    	} catch (NumberFormatException ex) {
+    		dungeonVariables.put(name, variable);
+    	}
+    }
+    
+    public void addToDungeonVal (String name, int amount) {
+    	if (dungeonValues.containsKey(name)) {
+    		dungeonValues.put(name, dungeonValues.get(name) + amount);
+    	} else {
+    		dungeonValues.put(name, amount);
+    	}
+    }
+    
+    public String getDungeonVariable (String name) {
+    	return dungeonVariables.get(name);
+    }
+    
+    public int getDungeonValue (String name) {
+    	return dungeonValues.get(name);
     }
 
     public List<DungeonRoom> getRooms() {
