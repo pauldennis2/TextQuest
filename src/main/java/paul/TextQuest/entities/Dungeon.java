@@ -175,6 +175,14 @@ public class Dungeon extends MetaLocation {
     	}
     }
     
+    public Map<String, Integer> getDungeonValues () {
+    	return dungeonValues;
+    }
+    
+    public Map<String, String> getDungeonVariables () {
+    	return dungeonVariables;
+    }
+    
     public String getDungeonVariable (String name) {
     	return dungeonVariables.get(name);
     }

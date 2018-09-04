@@ -24,7 +24,7 @@
   	"name":"Dungeon Template",
   	"onSpellCast":
   	{
-  		"any":"print SPELL_CAST"
+  		"any":"addToDungeonValue numSpellsCast 1;modStat numAvailableSpells 2"
   	}
   },
   "rooms":
@@ -41,8 +41,7 @@
       },
       "onSpellCast":
       {
-      	"any": "print \"Some spell was cast.\"",
-      	"ice": "teleportHero \"Healing Fountain\""
+      	"ice": "$if[{numSpellsCast} >= 3] print AWESOME"
       },
       "onItemUse":
       {
@@ -80,7 +79,6 @@
       },
       "onSpellCast":
       {
-      	"any":"modStat numAvailableSpells 2",
       	"fire": "createItem Nitro",
       	"ice": "teachSpell fire"
       },

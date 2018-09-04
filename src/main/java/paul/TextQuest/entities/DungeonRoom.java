@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import javax.sound.midi.Soundbank;
+
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
@@ -358,6 +360,21 @@ public class DungeonRoom extends UserInterfaceClass {
         	room.textOut.debug("A passage opens to the " + direction + ".");
         });
         
+        multiParamActionMap.put("setDungeonVariable", (room, args) -> {
+        	room.getDungeon().setDungeonVar(args[1], args[2]);
+        	room.textOut.debug("Vars: Set " + args[1] + " to " + args[2]);
+        });
+        
+        multiParamActionMap.put("setDungeonValue", (room, args) -> {
+        	room.getDungeon().setDungeonVar(args[1], args[2]);
+        	room.textOut.debug("Vars: Set " + args[1] + " to " + args[2]);
+        });
+        
+        multiParamActionMap.put("addToDungeonValue", (room, args) -> {
+        	room.getDungeon().addToDungeonVal(args[1], Integer.parseInt(args[2]));
+        	room.textOut.debug("Vars: Added " + args[2] + " to " + args[1]);
+        });
+        
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {
@@ -602,10 +619,94 @@ public class DungeonRoom extends UserInterfaceClass {
             this.lighting = lighting;
         }
     }
-
+    
+    public static String replaceVariables (String input, Map<String, String> variables, Map<String, Integer> values) {
+    	while (input.contains("{")) {
+    		int openIndex = input.indexOf("{");
+    		int closeIndex = input.indexOf("}");
+    		String varString = input.substring(openIndex + 1, closeIndex);
+    		
+    		String mappedValue;
+    		if (values.containsKey(varString)) {
+    			mappedValue = "" + values.get(varString);
+    		} else if (variables.containsKey(varString)) {
+    			mappedValue = variables.get(varString);
+    		} else {
+    			throw new AssertionError("Could not find the variable in any map. Input: " + input);
+    		}
+    		
+    		input = input.substring(0, openIndex) + mappedValue + input.substring(closeIndex + 1);
+    	}
+    	return input;
+    }
+    
+    private String replaceVariables (String input) {
+    	Map<String, String> variables = getDungeon().getDungeonVariables();
+    	Map<String, Integer> values = getDungeon().getDungeonValues();
+    	while (input.contains("{")) {
+    		int openIndex = input.indexOf("{");
+    		int closeIndex = input.indexOf("}");
+    		String varString = input.substring(openIndex + 1, closeIndex);
+    		
+    		String mappedValue;
+    		if (values.containsKey(varString)) {
+    			mappedValue = "" + values.get(varString);
+    		} else if (variables.containsKey(varString)) {
+    			mappedValue = variables.get(varString);
+    		} else {
+    			throw new AssertionError("Could not find the variable in any map. Input: " + input);
+    		}
+    		
+    		input = input.substring(0, openIndex) + mappedValue + input.substring(closeIndex + 1);
+    	}
+    	return input;
+    }
+    
+    private static boolean evaluateCondition (String condition) {
+    	String[] tokens = condition.split(" ");
+    	String first = tokens[0];
+    	String second = tokens[2];
+    	String comparator = tokens[1];
+    	
+    	if (comparator.equals("=")) {
+    		return first.equals(second);
+    	} else {
+    		int firstVal = Integer.parseInt(first);
+    		int secondVal = Integer.parseInt(second);
+    		
+    		if (comparator.equals(">")) {
+    			return firstVal > secondVal;
+    		} else if (comparator.equals(">=")) {
+    			return firstVal >= secondVal;
+    		} else if (comparator.equals("<")) {
+    			return firstVal < secondVal;
+    		} else if (comparator.equals("<=")) {
+    			return firstVal <= secondVal;
+    		} else {
+    			throw new AssertionError("Comparison was illegal: " + comparator);
+    		}
+    	}
+    }
+    
     public void doAction (String action) {
+    	String originalMessage = action;
         if (voidActionMap == null || paramActionMap == null || multiParamActionMap == null) {
             initActionMaps();
+        }
+        
+        if (action.contains("{")) {
+        	action = replaceVariables(action);
+        }
+        
+        if (action.startsWith("$if")) {
+        	String condition = action.substring(action.indexOf("[") + 1, action.indexOf("]"));
+        	boolean proceed = evaluateCondition(condition);
+        	if (proceed) {
+        		action = action.substring(action.indexOf("]") + 2);
+        	} else {
+        		textOut.debug("Not proceeding with action. Original statement: " + originalMessage);
+        		return;
+        	}
         }
         
         if (action.startsWith("@")) {
