@@ -23,6 +23,8 @@ public class Dungeon extends MetaLocation {
     
     private Map<String, BackpackItem> itemLibrary;
     private Map<String, Monster> monsterLibrary;
+    
+    private String onVariableSet;
 
     private transient boolean cleared;
     private transient DungeonRoom entrance;
@@ -264,6 +266,14 @@ public class Dungeon extends MetaLocation {
 
 	public void setTemplate(DungeonRoom template) {
 		this.template = template;
+	}
+	
+	public void setOnVariableSet (String onVariableSet) {
+		this.onVariableSet = onVariableSet;
+	}
+	
+	public String getOnVariableSet () {
+		return onVariableSet;
 	}
     
 }

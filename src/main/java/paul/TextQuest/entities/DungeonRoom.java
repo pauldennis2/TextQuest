@@ -363,16 +363,25 @@ public class DungeonRoom extends UserInterfaceClass {
         multiParamActionMap.put("setDungeonVariable", (room, args) -> {
         	room.getDungeon().setDungeonVar(args[1], args[2]);
         	room.textOut.debug("Vars: Set " + args[1] + " to " + args[2]);
+        	if (room.getDungeon().getOnVariableSet() != null) {
+        		room.doAction(room.getDungeon().getOnVariableSet());
+        	}
         });
         
         multiParamActionMap.put("setDungeonValue", (room, args) -> {
         	room.getDungeon().setDungeonVar(args[1], args[2]);
         	room.textOut.debug("Vars: Set " + args[1] + " to " + args[2]);
+        	if (room.getDungeon().getOnVariableSet() != null) {
+        		room.doAction(room.getDungeon().getOnVariableSet());
+        	}
         });
         
         multiParamActionMap.put("addToDungeonValue", (room, args) -> {
         	room.getDungeon().addToDungeonVal(args[1], Integer.parseInt(args[2]));
         	room.textOut.debug("Vars: Added " + args[2] + " to " + args[1]);
+        	if (room.getDungeon().getOnVariableSet() != null) {
+        		room.doAction(room.getDungeon().getOnVariableSet());
+        	}
         });
         
     }

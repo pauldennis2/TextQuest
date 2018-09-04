@@ -94,6 +94,38 @@ So here are the quick and dirty rules:
 
 This guide will cover several different "advanced" functions (things that are a bit more complicated than just creating a monster when the hero enters a room). Examples include triggering events in other rooms, conditional triggers, and triggering multiple events at the same time. At this point in development, the behavior when trying to combine these functions is hard to predict. For example, I'm not sure what would happen if you tried to have a conditional event triggered remotely. You can always give it a try, but your mileage may vary. Consider combining these functions to be unsupported at this time.
 
+### Dungeon Variables/Values
+
+(Note: if you're a programmer, the logic for this is very similar to storing information in the HttpSession)
+
+To create a dynamic dungeon experience you might need to keep track of some variables that persist throughout the dungeon. Maybe you're creating a water dungeon and want to keep track of the water level. Or maybe you want to keep track of the number of monsters the hero's killed for some reason. There is now a great way to do that, using events described below. For now, let's go over the maps. These maps are attached to the dungeon. It's important to note that these variables don't DO anything by themselves. You'll need to refer to them in your events to have any effect. We'll see an example of that later. Both of these maps store things using a String key. So if you want to keep track of the water level you could use `waterLevel` as your key.
+
+* Variables Map<String, String> - this map accepts String inputs (in other words text). The advantage of this map is that it's totally open. You can set `waterLevel` to "bananas" if you want. The downside is that you can only work with these as strings. 
+* Values Map<String, Integer> - this map only accepts integers (whole numbers).  Here you could set the `waterLevel` to 1, 2, 0, -1, whatever. The advantage of this map is that you can work with the data as numbers - so it would be possible to create a condition such as `$if[{waterLevel} > 2]` -> whatever. You can also use `addToDungeonValue` to add or subtract. So if you want to increase the water level, `addToDungeonValue waterLevel 1` will add 1 to whatever the existing level is.
+
+#### Referring to Values
+
+Let's say for some arbitrary reason you've been keeping track of the dungeon's water level, and you want to create an event that heals the player an amount equal to the water level. You would use the appropriate events to set the `waterLevel` value, but how do we actually access that? The answer is that we use a special syntax. Whenever you want to refer to a value/variable, you use braces `{}` surrounding the value/variable's name: `{waterLevel}`. (You don't need to specify here whether it's a "variable" or a "value" - it'll look in both places, with preference for values). So, to heal the player an amount equal to the water level, we would just use `heal {waterLevel}`. It'll automatically look for a variable or value with that name and insert the appropriate value. So if the water level is '2', you would get `heal 2`. Note: you should definitely not use braces in any normal name. So don't try to name a room "{Special Room}". In general, avoid using special characters such as $, @, {}, |, :, and so on.
+
+**Note**: the only way to work with values right now is adding or subtracting. But what if you want to multiply something? Well, it's limited, but you can use the value while you're modifying it. So let's say we want to *double* the water level: `addToDungeonValue waterLevel {waterLevel}` doubles the current water level.
+
+#### Creating Conditional Events
+
+In order to truly make use of the dungeon variables, we need to be able to check them in conditional statements. For example, maybe you're keeping track of the number of spells the hero has cast using a value named `numSpellsCast`. In order to make an event conditional on the number of spells cast, we use an `$if` statement:
+
+`$if[{numSpellsCast} > 5}] heal 10` would make it so that the player would be healed if they have previously cast more than 5 spells.
+
+Let's diagram this out. We basically have two parts here - the conditional and the actual event. The conditional is `$if[{numSpellsCast} > 5]`. The event is `heal 10` (you should already be comfortable with that part). Let's break down the conditional. It **always** starts with `$if` (lower case). This is just a token to let the parser know we're starting a conditional. The actual condition to be evaluated lives inside the brackets `[]`. In this case it is `{numSpellsCast} > 5`. The general shape of a condition is: <first parameter> <comparator> <second parameter>. You can use whatever combination of constants and variables you want (though the condition `5 < 3` would always evaluate to false, it's a legitimate condition). We use braces `{}` to refer to the variable/value we want (see above).
+
+Possible comparators:
+* = - equals. The only comparator that works with String variables.
+* > - greater than. Only for numbers (as are all the rest)
+* >= - greater than or equal to.
+* < - less than
+* <= - Less than or equal to.
+
+Coming soon: an "else" functionality.
+
 ## Creating A Dungeon
 
 A dungeon has a "dungeonName" property and a List of "rooms".
@@ -112,6 +144,9 @@ The dungeon is organized into "rooms". Each room can theoretically be as large a
 
 
 The "library" properties really just provide shortcuts for items and monsters that you want to use in multiple places. If you just want a monster to be used once, you should just put it in the room's list of monsters (see below). They are also useful for defining "interesting" objects and monsters that are created by triggered events.
+
+Triggers (optional):
+* onVariableSet - triggered when any dungeon variable is changed. You'll probably need to use a conditional to make this behave how you want it to. `"onVariableSet": "$if[{numSpellsCast = 5}] print Awesome"` would print "Awesome" when the hero casts their 5th spell (assuming you are properly tracking that).
 
 #### Dungeon Template
 
@@ -187,38 +222,6 @@ There's not a lot you can currently do with items. We'll work on this!
 
 Triggers (all Optional)
 * onSmash - Some obstacles are "smashable". This trigger defines what happens when they're smashed.
-
-### Dungeon Variables/Values
-
-(Note: if you're a programmer, the logic for this is very similar to storing information in the HttpSession)
-
-To create a dynamic dungeon experience you might need to keep track of some variables that persist throughout the dungeon. Maybe you're creating a water dungeon and want to keep track of the water level. Or maybe you want to keep track of the number of monsters the hero's killed for some reason. There is now a great way to do that, using events described below. For now, let's go over the maps. These maps are attached to the dungeon. It's important to note that these variables don't DO anything by themselves. You'll need to refer to them in your events to have any effect. We'll see an example of that later. Both of these maps store things using a String key. So if you want to keep track of the water level you could use `waterLevel` as your key.
-
-* Variables Map<String, String> - this map accepts String inputs (in other words text). The advantage of this map is that it's totally open. You can set `waterLevel` to "bananas" if you want. The downside is that you can only work with these as strings. 
-* Values Map<String, Integer> - this map only accepts integers (whole numbers).  Here you could set the `waterLevel` to 1, 2, 0, -1, whatever. The advantage of this map is that you can work with the data as numbers - so it would be possible to create a condition such as `$if[{waterLevel} > 2]` -> whatever. You can also use `addToDungeonValue` to add or subtract. So if you want to increase the water level, `addToDungeonValue waterLevel 1` will add 1 to whatever the existing level is.
-
-#### Referring to Values
-
-Let's say for some arbitrary reason you've been keeping track of the dungeon's water level, and you want to create an event that heals the player an amount equal to the water level. You would use the appropriate events to set the `waterLevel` value, but how do we actually access that? The answer is that we use a special syntax. Whenever you want to refer to a value/variable, you use braces `{}` surrounding the value/variable's name: `{waterLevel}`. (You don't need to specify here whether it's a "variable" or a "value" - it'll look in both places, with preference for values). So, to heal the player an amount equal to the water level, we would just use `heal {waterLevel}`. It'll automatically look for a variable or value with that name and insert the appropriate value. So if the water level is '2', you would get `heal 2`. Note: you should definitely not use braces in any normal name. So don't try to name a room "{Special Room}". In general, avoid using special characters such as $, @, {}, |, :, and so on.
-
-**Note**: the only way to work with values right now is adding or subtracting. But what if you want to multiply something? Well, it's limited, but you can use the value while you're modifying it. So let's say we want to *double* the water level: `addToDungeonValue waterLevel {waterLevel}` doubles the current water level.
-
-#### Creating Conditional Events
-
-In order to truly make use of the dungeon variables, we need to be able to check them in conditional statements. For example, maybe you're keeping track of the number of spells the hero has cast using a value named `numSpellsCast`. In order to make an event conditional on the number of spells cast, we use an `$if` statement:
-
-`$if[{numSpellsCast} > 5}] heal 10` would make it so that the player would be healed if they have previously cast more than 5 spells.
-
-Let's diagram this out. We basically have two parts here - the conditional and the actual event. The conditional is `$if[{numSpellsCast} > 5]`. The event is `heal 10` (you should already be comfortable with that part). Let's break down the conditional. It **always** starts with `$if` (lower case). This is just a token to let the parser know we're starting a conditional. The actual condition to be evaluated lives inside the brackets `[]`. In this case it is `{numSpellsCast} > 5`. The general shape of a condition is: <first parameter> <comparator> <second parameter>. You can use whatever combination of constants and variables you want (though the condition `5 < 3` would always evaluate to false, it's a legitimate condition). We use braces `{}` to refer to the variable/value we want (see above).
-
-Possible comparators:
-* = - equals. The only comparator that works with String variables.
-* > - greater than. Only for numbers (as are all the rest)
-* >= - greater than or equal to.
-* < - less than
-* <= - Less than or equal to.
-
-Coming soon: an "else" functionality.
 
 ### List of Triggered Events
 
