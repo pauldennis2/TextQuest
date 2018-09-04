@@ -865,6 +865,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         return isSneaking;
     }
 
+    //TODO: investigate. This could cause problems in serialization
     public int getMight() {
         return might + mightMod;
     }

@@ -115,12 +115,12 @@ In order to truly make use of the dungeon variables, we need to be able to check
 
 `$if[{numSpellsCast} > 5}] heal 10` would make it so that the player would be healed if they have previously cast more than 5 spells.
 
-Let's diagram this out. We basically have two parts here - the conditional and the actual event. The conditional is `$if[{numSpellsCast} > 5]`. The event is `heal 10` (you should already be comfortable with that part). Let's break down the conditional. It **always** starts with `$if` (lower case). This is just a token to let the parser know we're starting a conditional. The actual condition to be evaluated lives inside the brackets `[]`. In this case it is `{numSpellsCast} > 5`. The general shape of a condition is: <first parameter> <comparator> <second parameter>. You can use whatever combination of constants and variables you want (though the condition `5 < 3` would always evaluate to false, it's a legitimate condition). We use braces `{}` to refer to the variable/value we want (see above).
+Let's diagram this out. We basically have two parts here - the conditional and the actual event. The conditional is `$if[{numSpellsCast} > 5]`. The event is `heal 10` (you should already be comfortable with that part). Let's break down the conditional. It **always** starts with `$if` (lower case). This is just a token to let the parser know we're starting a conditional. The actual condition to be evaluated lives inside the brackets `[]`. In this case it is `{numSpellsCast} > 5`. The general shape of a condition is: {first parameter} {comparator} {second parameter}. You can use whatever combination of constants and variables you want (though the condition `5 < 3` would always evaluate to false, it's a legitimate condition). We use braces `{}` to refer to the variable/value we want (see above).
 
 Possible comparators:
 * = - equals. The only comparator that works with String variables.
-* > - greater than. Only for numbers (as are all the rest)
-* >= - greater than or equal to.
+* (Symbol can't display) - greater than. Only for numbers (as are all the rest)
+* (Symbol can't display) - greater than or equal to.
 * < - less than
 * <= - Less than or equal to.
 
