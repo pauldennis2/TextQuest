@@ -12,7 +12,10 @@
   		"onDeath":"addToDungeonValue numShadowsKilled 1"
   	}
   },
-  "onVariableSet":"$if[{numShadowsKilled} = 3] print \"A barrier has been removed.\" $else print \"You feel a barrier weakening.\"",
+  "onVariableSet":
+  {
+  	"numShadowsKilled":"$if[{numShadowsKilled} = 3] print \"A barrier has been removed.\" $else print \"You feel a barrier weakening.\""
+  },
   "levels":
   {
     "Ground":0,
