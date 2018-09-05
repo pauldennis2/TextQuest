@@ -24,7 +24,9 @@ public class Dungeon extends MetaLocation {
     private Map<String, BackpackItem> itemLibrary;
     private Map<String, Monster> monsterLibrary;
     
-    private String onVariableSet;
+    //private String onVariableSet;
+    
+    private Map<String, String> onVariableSet;
 
     private transient boolean cleared;
     private transient DungeonRoom entrance;
@@ -41,6 +43,7 @@ public class Dungeon extends MetaLocation {
         rooms = new ArrayList<>();
         dungeonVariables = new HashMap<>();
         dungeonValues = new HashMap<>();
+        onVariableSet = new HashMap<>();
     }
 
     public DungeonRoom getRoomByName (String name) {
@@ -268,11 +271,11 @@ public class Dungeon extends MetaLocation {
 		this.template = template;
 	}
 	
-	public void setOnVariableSet (String onVariableSet) {
+	public void setOnVariableSet (Map<String, String> onVariableSet) {
 		this.onVariableSet = onVariableSet;
 	}
 	
-	public String getOnVariableSet () {
+	public Map<String, String> getOnVariableSet () {
 		return onVariableSet;
 	}
     

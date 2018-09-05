@@ -1,6 +1,18 @@
 {
   "dungeonName":"Darklight Dungeon",
   "description":"This shadowy dungeon has lots of shadows.",
+  "monsterLibrary":
+  {
+  	"Shadow":
+  	{
+  		"name":"Shadow",
+  		"health": 8,
+  		"might":2,
+  		"defense":1,
+  		"onDeath":"addToDungeonValue numShadowsKilled 1"
+  	}
+  },
+  "onVariableSet":"$if[{numShadowsKilled} = 3] print \"A barrier has been removed.\" $else print \"You feel a barrier weakening.\"",
   "levels":
   {
     "Ground":0,
@@ -12,7 +24,7 @@
     {
       "name":"Entryway",
       "id":1,
-      "description":"Another boring entryway. But there's a chasm! Better jump.",
+      "description":"A chasm divides this brightly lit room in two.",
       "lighting":1.0,
       "obstacles":
       [
@@ -32,14 +44,6 @@
           "onSmash":"createMonster Skeleton"
         }
       ],
-      "onHeroLeave":
-      {
-        "EAST":
-        {
-          "action":"giveExp 100",
-          "stops":true
-        }
-      },
       "connectedRoomIds":
       {
         "EAST":2
@@ -50,14 +54,6 @@
       "id":2,
       "description":"Something.",
       "lighting":0.5,
-      "obstacles":
-      [
-        {
-          "@class" : "paul.TextQuest.entities.obstacles.ShinePuzzle",
-          "name": "Shine Puzzle",
-          "solution": "shine"
-        }
-      ],
       "connectedRoomIds":
       {
         "WEST":1,

@@ -11,6 +11,8 @@ public class Feature {
     private String description;
 
     private transient boolean bumped;
+    
+    private String status;
 
     public Feature () {
 
@@ -55,4 +57,14 @@ public class Feature {
     public void setBumped(boolean bumped) {
         this.bumped = bumped;
     }
+
+	public String getStatus() {
+		return status;
+	}
+
+	public void setStatus(String status) {
+		this.status = status;
+	}
+    
+    
 }
