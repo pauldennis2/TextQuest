@@ -41,7 +41,8 @@
       },
       "onSpellCast":
       {
-      	"ice": "$if[{hero.name} = Link] print NO_ZELDA"
+      	"ice": "$if[{hero.name} = Link AND {heat} > 1] print NO_ZELDA_ITS_HOT",
+      	"fire": "setDungeonValue heat 5"
       },
       "onItemUse":
       {

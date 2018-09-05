@@ -125,12 +125,21 @@ Let's diagram this out. We basically have two parts here - the conditional and t
 
 Possible comparators:
 * = - equals. The only comparator that works with String variables.
+* != - NOT equal. Returns true if the properties are not equal, or false if they are.
 * (Symbol can't display) - greater than. Only for numbers (as are all the rest)
 * (Symbol can't display) - greater than or equal to.
 * < - less than
 * <= - Less than or equal to.
 
 Coming soon: an "else" functionality.
+
+#### Boolean Logic
+
+Conditions now happily support simple [boolean logic](https://en.wikipedia.org/wiki/Boolean_algebra) (sorry, there are no good quick online boolean tutorials. Message me iff this is false). You can use "AND" and "OR" statements using those keywords or using C-style operators ("&&" for AND, "||" for OR). For example:
+
+`$if[{numSpellsCast} > 3 OR {hero.magic} > 2] print Bigmagic` 
+
+Boolean logic cannot currently be nested - so you couldn't have a statement like `if[(3 > 2) && (1 = 1 || 2 = 3)]
 
 ## Creating A Dungeon
 

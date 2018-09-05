@@ -688,7 +688,8 @@ public class DungeonRoom extends UserInterfaceClass {
 	    		} else if (variables.containsKey(varString)) {
 	    			value = variables.get(varString);
 	    		} else {
-	    			throw new AssertionError("Could not find the variable in any map. Input: " + input);
+	    			value = "0";
+	    			textOut.debug("Could not find variable *" + varString + "* in any map. Input: " + input);
 	    		}
     		}
     		
@@ -705,6 +706,8 @@ public class DungeonRoom extends UserInterfaceClass {
     	
     	if (comparator.equals("=")) {
     		return first.equals(second);
+    	} else if (comparator.equals("!=")) {
+    		return !first.equals(second);
     	} else {
     		int firstVal = Integer.parseInt(first);
     		int secondVal = Integer.parseInt(second);
@@ -723,6 +726,31 @@ public class DungeonRoom extends UserInterfaceClass {
     	}
     }
     
+    private static boolean evaluateConditionForBoolean (String condition) {
+    	String[] splits;
+    	boolean isAnd;
+    	if (condition.contains("AND")) {
+    		splits = condition.split("AND");
+    		isAnd = true;
+    	} else if (condition.contains("&&")) {
+    		splits = condition.split("&&");
+    		isAnd = true;
+    	} else if (condition.contains("OR")) {
+    		splits = condition.split("OR");
+    		isAnd = false;
+    	} else if (condition.contains("||")) {
+    		splits = condition.split("||");
+    		isAnd = false;
+    	} else {
+    		return evaluateCondition(condition);
+    	}
+    	if (isAnd) {
+    		return evaluateCondition(splits[0].trim()) && evaluateCondition(splits[1].trim());
+    	} else {
+    		return evaluateCondition(splits[0].trim()) || evaluateCondition(splits[1].trim());
+    	}
+    }
+    
     public void doAction (String action) {
     	String originalMessage = action;
         if (voidActionMap == null || paramActionMap == null || multiParamActionMap == null) {
@@ -735,7 +763,7 @@ public class DungeonRoom extends UserInterfaceClass {
         
         if (action.startsWith("$if")) {
         	String condition = action.substring(action.indexOf("[") + 1, action.indexOf("]"));
-        	boolean proceed = evaluateCondition(condition);
+        	boolean proceed = evaluateConditionForBoolean(condition);
         	if (proceed) {
         		action = action.substring(action.indexOf("]") + 2);
         	} else {
