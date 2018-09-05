@@ -107,7 +107,7 @@ public class Dungeon extends MetaLocation {
 		test.evaluateDungeon();
 	}
     
-    public void evaluateDungeon () {
+    public void evaluateDungeon () throws Exception {
     	List<String> oneWayWarnings = new ArrayList<>();
     	List<String> triggerWarnings = new ArrayList<>();
     	List<String> miscWarnings = new ArrayList<>();
@@ -124,7 +124,7 @@ public class Dungeon extends MetaLocation {
     		//Check triggers
     		Map<String, Map<String, String>> metaMap = room.getMetaMap();
     		Hero hero = new Hero("Tester");
-    		TextInterface textOut = new TextInterface();
+    		TextInterface textOut = TextInterface.getInstance(hero);
     		hero.setTextOut(textOut);
     		room.setHero(hero);
     		for (String mapName : metaMap.keySet()) {

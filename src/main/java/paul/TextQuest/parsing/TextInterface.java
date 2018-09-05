@@ -18,20 +18,27 @@ public class TextInterface extends UserInterfaceClass {
     private List<String> tutorial;
 
     private DungeonRunner runner;
+    
+    private static TextInterface instance;
+    
 
     @Override
     public void start (TextInterface textOut) {
         children.forEach(child -> child.start(this));
     }
     
-    public TextInterface () {
-        buffer = new ArrayList<>();
-        debug = new ArrayList<>();
-        tutorial = new ArrayList<>();
-        children = new ArrayList<>();
+    public static TextInterface getInstance (Hero hero) {
+    	if (instance == null) {
+    		try {
+    			instance = new TextInterface(hero);
+    		} catch (IOException ex) {
+    			ex.printStackTrace();
+    		}
+    	}
+    	return instance;
     }
 
-    public TextInterface(Hero hero) throws IOException {
+    private TextInterface(Hero hero) throws IOException {
         buffer = new ArrayList<>();
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();

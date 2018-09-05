@@ -177,6 +177,8 @@ public class DungeonRoom extends UserInterfaceClass {
             room.getHero().restoreHealth(amt);
         });
         paramActionMap.put("print", (room, param) -> room.textOut.println(param));
+        paramActionMap.put("debug", (room, param) -> room.textOut.debug(param));
+        paramActionMap.put("tutorial", (room, param) -> room.textOut.tutorial(param));
         paramActionMap.put("bump", (room, param) -> room.textOut.println("Ouch! You bumped into something."));
         
         //New 8/28

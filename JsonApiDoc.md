@@ -252,6 +252,10 @@ Here are the current possible events:
 
 These events need an extra bit of information, often a number. For example if you want to giveExp - how much? If you want to spawn a monster, I need to know the name. The parameter is listed in parentheses here:
 
+* print (text) - prints the given text to the normal text area
+* debug (text) - prints the given text to the debug window
+* tutorial (text) - prints the given text to the tutorial window
+
 * createMonster (name) - currently the only monster that can be created is a skeleton. More flexibility to come!
 * explode (damage amount) - the hero takes some damage from an explosion
 * giveExp (exp amount) - the hero gets experience
