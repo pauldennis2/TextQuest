@@ -109,6 +109,12 @@ Let's say for some arbitrary reason you've been keeping track of the dungeon's w
 
 **Note**: the only way to work with values right now is adding or subtracting. But what if you want to multiply something? Well, it's limited, but you can use the value while you're modifying it. So let's say we want to *double* the water level: `addToDungeonValue waterLevel {waterLevel}` doubles the current water level.
 
+#### Referring to the Hero - Using Dot Notation
+
+You can also now refer to the Hero's stats using "dot notation". `{hero.might}` would be a dynamic reference to the hero's current might stat. These expressions can be included in conditions. Currently you cannot refer to any of the hero's "complex" attributes like their location or the contents of their backpack. You can only refer to integer properties (health, maxHealth, might, magic, sneak, defense, maxSpellsPerDay, level, and exp) and the hero's name.
+
+You can also explicitly refer to dungeon variables like: `{dungeon.waterLevel}`. If you don't use any dot notation (just `{waterLevel}`) it'll assume you're referring to dungeon variables. 
+
 #### Creating Conditional Events
 
 In order to truly make use of the dungeon variables, we need to be able to check them in conditional statements. For example, maybe you're keeping track of the number of spells the hero has cast using a value named `numSpellsCast`. In order to make an event conditional on the number of spells cast, we use an `$if` statement:

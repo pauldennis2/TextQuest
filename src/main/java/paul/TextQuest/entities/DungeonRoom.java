@@ -22,8 +22,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import javax.sound.midi.Soundbank;
-
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
@@ -656,17 +654,45 @@ public class DungeonRoom extends UserInterfaceClass {
     		int openIndex = input.indexOf("{");
     		int closeIndex = input.indexOf("}");
     		String varString = input.substring(openIndex + 1, closeIndex);
-    		
-    		String mappedValue;
-    		if (values.containsKey(varString)) {
-    			mappedValue = "" + values.get(varString);
-    		} else if (variables.containsKey(varString)) {
-    			mappedValue = variables.get(varString);
+    		String value;
+    		if (varString.contains(".")) {
+    			String[] tokens = varString.split("\\.");
+    			if (tokens[0].equals("dungeon")) {
+    				varString = tokens[1];
+    				
+    				if (values.containsKey(varString)) {
+    	    			value = "" + values.get(varString);
+    	    		} else if (variables.containsKey(varString)) {
+    	    			value = variables.get(varString);
+    	    		} else {
+    	    			throw new AssertionError("Could not find the variable in any map. Input: " + input);
+    	    		}
+    			} else if (tokens[0].equals("hero")) {
+    				String fieldName = tokens[1];
+    				if (fieldName.equals("name")) {
+    					value = getHero().getName();
+    				} else {
+    					Integer result = getHero().getIntField(fieldName);
+    					if (result != null) {
+    						value = "" + result;
+    					} else {
+    						throw new AssertionError("Bad dot notation field with input: " + input);
+    					}
+    				}
+    			} else {
+    				throw new AssertionError("Bad dot notation in input: " + input);
+    			}
     		} else {
-    			throw new AssertionError("Could not find the variable in any map. Input: " + input);
+	    		if (values.containsKey(varString)) {
+	    			value = "" + values.get(varString);
+	    		} else if (variables.containsKey(varString)) {
+	    			value = variables.get(varString);
+	    		} else {
+	    			throw new AssertionError("Could not find the variable in any map. Input: " + input);
+	    		}
     		}
     		
-    		input = input.substring(0, openIndex) + mappedValue + input.substring(closeIndex + 1);
+    		input = input.substring(0, openIndex) + value + input.substring(closeIndex + 1);
     	}
     	return input;
     }

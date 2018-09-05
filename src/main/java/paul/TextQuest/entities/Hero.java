@@ -27,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -275,20 +276,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
     		throw new AssertionError("Error");
     	}
     }
-    
-    public static void main(String[] args) throws Exception {
-		Hero hero = new Hero("Gimli");
-		String json = hero.createJsonString();
-		System.out.println(json);
-		saveHeroToFile("paul", hero);
-		System.out.println("=====");
-		
-		Hero fromFile = loadHeroFromFile("paul", "Gimli");
-		System.out.println(fromFile);
-		System.out.println("=====");
-		
-		System.out.println(getHeroListForUser("paul"));
-	}
     
     public static void saveHeroToFile (String username, Hero hero) {
     	String fileName = SAVE_PATH + username + "/" + hero.getName() + ".json";
@@ -1052,5 +1039,22 @@ public class Hero extends UserInterfaceClass implements Serializable {
     
 	public void setTextOut (TextInterface textOut) {
 		this.textOut = textOut;
+	}
+	
+	public Integer getIntField (String fieldName) {
+		Class <? extends Hero> heroClass = getClass();
+		try {
+			String methodName = "get" + StringUtils.capitalize(fieldName);
+			Method method = heroClass.getDeclaredMethod(methodName);
+			Object response = method.invoke(this);
+			return (Integer) response;
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+	
+	public static void main(String[] args) {
+		Hero hero = new Hero("Paul");
+		System.out.println("might = " + hero.getIntField("name"));
 	}
 }

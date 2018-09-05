@@ -41,7 +41,7 @@
       },
       "onSpellCast":
       {
-      	"ice": "$if[{numSpellsCast} >= 3] print AWESOME"
+      	"ice": "$if[{hero.name} = Link] print NO_ZELDA"
       },
       "onItemUse":
       {
