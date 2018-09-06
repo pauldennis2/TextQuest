@@ -19,6 +19,9 @@ public class Chasm extends Obstacle {
                 hero.addExp(DEFAULT_XP_AMT);
                 return true;
             }
+            if (onAttempt != null) {
+            	hero.getLocation().doAction(onAttempt);
+            }
             return false;
         } else {
             return true;

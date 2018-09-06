@@ -12,7 +12,7 @@ import paul.TextQuest.enums.SpeakingVolume;
 import paul.TextQuest.interfaces.MultiParamAction;
 import paul.TextQuest.interfaces.ParamAction;
 import paul.TextQuest.interfaces.VoidAction;
-import paul.TextQuest.interfaces.listeners.SpeechListener;
+import paul.TextQuest.interfaces.SpeechListener;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.TextInterface;
 import paul.TextQuest.parsing.UserInterfaceClass;
@@ -86,6 +86,7 @@ public class DungeonRoom extends UserInterfaceClass {
         speechListeners = new ArrayList<>();
         specialRoomActions = new HashMap<>();
         children = new ArrayList<>();
+        features = new ArrayList<>();
         initUniversalSpeechListeners();
     }
     
@@ -177,6 +178,8 @@ public class DungeonRoom extends UserInterfaceClass {
             room.getHero().restoreHealth(amt);
         });
         paramActionMap.put("print", (room, param) -> room.textOut.println(param));
+        paramActionMap.put("debug", (room, param) -> room.textOut.debug(param));
+        paramActionMap.put("tutorial", (room, param) -> room.textOut.tutorial(param));
         paramActionMap.put("bump", (room, param) -> room.textOut.println("Ouch! You bumped into something."));
         
         //New 8/28
@@ -192,6 +195,7 @@ public class DungeonRoom extends UserInterfaceClass {
         
         paramActionMap.put("changeRoomDescription", (room, param) -> {
         	room.setDescription(param);
+        	room.textOut.println(param);
         	room.textOut.debug("Room description changed to " + param);
         	room.textOut.debug("current doesn't matter since description only happens once");
         });
@@ -254,6 +258,38 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         
         paramActionMap.put("changeRoomName", (room, param) -> room.setName(param));
+        
+        paramActionMap.put("removePassage", (room, param) -> {
+        	Direction direction = Direction.getDirectionFromString(param);
+        	Map<Direction, DungeonRoom> connectedRooms = room.getConnectedRooms();
+        	connectedRooms.remove(direction);
+        	room.setConnectedRooms(connectedRooms);
+        	room.textOut.debug("A passage to the " + param + " closes.");
+        });
+        
+        paramActionMap.put("clearObstacle", (room, param) -> {
+        	room.getObstacles().stream()
+        		.filter(obstacle -> obstacle.getName().equals(param))
+        		.forEach(obstacle -> {
+        			obstacle.setCleared(true);
+        		});
+        });
+        
+        paramActionMap.put("addFeature", (room, param) -> {
+        	room.features.add(new Feature(param));
+        	room.textOut.debug("Added " + param + " feature to room.");
+        });
+        
+        paramActionMap.put("removeFeature", (room, param) -> {
+        	List<Feature> toBeRemoved = room.features.stream()
+        		.filter(feature -> feature.getName().equals(param))
+        		.collect(Collectors.toList());
+        	
+        	for (Feature feature : toBeRemoved) {
+        		room.features.remove(feature);
+        		room.textOut.debug("Removed " + feature);
+        	}
+        });
         
         //MultiParam Actions\\
         multiParamActionMap.put("modStat", (room, args) -> {
@@ -334,6 +370,49 @@ public class DungeonRoom extends UserInterfaceClass {
         multiParamActionMap.put("modMonsterStats", (room, args) -> {
         	throw new AssertionError("not yet implemented");
         });
+        
+        multiParamActionMap.put("createPassage", (room, args) -> {
+        	Direction direction = Direction.getDirectionFromString(args[1]);
+        	int id = Integer.parseInt(args[2]);
+        	
+        	Map<Direction, DungeonRoom> connectedRooms = room.getConnectedRooms();
+        	if (connectedRooms.containsKey(direction)) {
+        		room.textOut.debug("There was already a connection in the direction " + direction + ".");
+        		room.textOut.debug("It was to " + connectedRooms.get(direction).getName() + ".");
+        	}
+        	DungeonRoom otherRoom = room.getDungeon().getRoomById(id);
+        	connectedRooms.put(direction, otherRoom);
+        	room.setConnectedRooms(connectedRooms);
+        	room.textOut.debug("A passage opens to the " + direction + ".");
+        });
+        
+        multiParamActionMap.put("setDungeonVariable", (room, args) -> {
+        	Dungeon dungeon = room.getDungeon();
+        	dungeon.setDungeonVar(args[1], args[2]);
+        	room.textOut.debug("Vars: Set " + args[1] + " to " + args[2]);
+        	if (dungeon.getOnVariableSet().get(args[1]) != null) {
+        		room.doAction(dungeon.getOnVariableSet().get(args[1]));
+        	}
+        });
+        
+        multiParamActionMap.put("setDungeonValue", (room, args) -> {
+        	Dungeon dungeon = room.getDungeon();
+        	dungeon.setDungeonVar(args[1], args[2]);
+        	room.textOut.debug("Vars: Set " + args[1] + " to " + args[2]);
+        	if (dungeon.getOnVariableSet().get(args[1]) != null) {
+        		room.doAction(dungeon.getOnVariableSet().get(args[1]));
+        	}
+        });
+        
+        multiParamActionMap.put("addToDungeonValue", (room, args) -> {
+        	Dungeon dungeon = room.getDungeon();
+        	dungeon.addToDungeonVal(args[1], Integer.parseInt(args[2]));
+        	room.textOut.debug("Vars: Added " + args[2] + " to " + args[1]);
+        	if (room.getDungeon().getOnVariableSet().get(args[1]) != null) {
+        		room.doAction(dungeon.getOnVariableSet().get(args[1]));
+        	}
+        });
+        
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {
@@ -441,7 +520,6 @@ public class DungeonRoom extends UserInterfaceClass {
         }
 
         connectedRooms.put(direction, other);
-        other.connectedRooms.put(direction.getOpposite(), this);
     }
 
     public Set<Direction> getTravelDirections () {
@@ -461,21 +539,6 @@ public class DungeonRoom extends UserInterfaceClass {
 
     @Override
     public InputType show () {
-    	//TODO fix
-    	/*//Old impl
-        if (bossFight != null && !bossFight.isConquered()) {
-            InputType type = bossFight.show();
-            if (type != InputType.NONE) {
-                requester = bossFight;
-                return type;
-            }
-            return bossFight.show();
-        } else {
-            describe();
-        }
-        return InputType.NONE;*/
-        
-    	// new impl
     	monsters.forEach(monster -> monster.addRoomReference(this));
     	if (bossFight != null) {
     		if (!bossFight.isConquered()) {
@@ -515,6 +578,19 @@ public class DungeonRoom extends UserInterfaceClass {
             textOut.println("The room has the following obstacles:");
             obstaclesForDisplay.forEach(e -> textOut.println(e));
         }
+        
+        features.stream()
+        	.filter(feature -> feature.isVisible(lighting))
+        	.forEach(feature -> {
+        		String completeDescription = feature.getName();
+        		if (feature.getDescription() != null) {
+        			completeDescription += " " + feature.getDescription();
+        		}
+        		if (feature.getStatus() != null) {
+        			completeDescription += " - " + feature.getStatus();
+        		}
+        		textOut.println(completeDescription);
+        	});
 
         //Print riddles
         obstacles.stream()
@@ -562,6 +638,10 @@ public class DungeonRoom extends UserInterfaceClass {
     	}
     	return visibleItems;
     }
+    
+    public boolean isDirectlyConnectedTo (DungeonRoom otherRoom) {
+    	return connectedRooms.containsValue(otherRoom);
+    }
 
     public void updateMonsters () {
         monsters = monsters.stream()
@@ -590,10 +670,158 @@ public class DungeonRoom extends UserInterfaceClass {
             this.lighting = lighting;
         }
     }
-
+    
+    public static String replaceVariables (String input, Map<String, String> variables, Map<String, Integer> values) {
+    	while (input.contains("{")) {
+    		int openIndex = input.indexOf("{");
+    		int closeIndex = input.indexOf("}");
+    		String varString = input.substring(openIndex + 1, closeIndex);
+    		
+    		String mappedValue;
+    		if (values.containsKey(varString)) {
+    			mappedValue = "" + values.get(varString);
+    		} else if (variables.containsKey(varString)) {
+    			mappedValue = variables.get(varString);
+    		} else {
+    			throw new AssertionError("Could not find the variable in any map. Input: " + input);
+    		}
+    		
+    		input = input.substring(0, openIndex) + mappedValue + input.substring(closeIndex + 1);
+    	}
+    	return input;
+    }
+    
+    private String replaceVariables (String input) {
+    	Map<String, String> variables = getDungeon().getDungeonVariables();
+    	Map<String, Integer> values = getDungeon().getDungeonValues();
+    	while (input.contains("{")) {
+    		int openIndex = input.indexOf("{");
+    		int closeIndex = input.indexOf("}");
+    		String varString = input.substring(openIndex + 1, closeIndex);
+    		String value;
+    		if (varString.contains(".")) {
+    			String[] tokens = varString.split("\\.");
+    			if (tokens[0].equals("dungeon")) {
+    				varString = tokens[1];
+    				
+    				if (values.containsKey(varString)) {
+    	    			value = "" + values.get(varString);
+    	    		} else if (variables.containsKey(varString)) {
+    	    			value = variables.get(varString);
+    	    		} else {
+    	    			throw new AssertionError("Could not find the variable in any map. Input: " + input);
+    	    		}
+    			} else if (tokens[0].equals("hero")) {
+    				String fieldName = tokens[1];
+    				if (fieldName.equals("name")) {
+    					value = getHero().getName();
+    				} else {
+    					Integer result = getHero().getIntField(fieldName);
+    					if (result != null) {
+    						value = "" + result;
+    					} else {
+    						throw new AssertionError("Bad dot notation field with input: " + input);
+    					}
+    				}
+    			} else {
+    				throw new AssertionError("Bad dot notation in input: " + input);
+    			}
+    		} else {
+	    		if (values.containsKey(varString)) {
+	    			value = "" + values.get(varString);
+	    		} else if (variables.containsKey(varString)) {
+	    			value = variables.get(varString);
+	    		} else {
+	    			value = "0";
+	    			textOut.debug("Could not find variable *" + varString + "* in any map. Input: " + input);
+	    		}
+    		}
+    		
+    		input = input.substring(0, openIndex) + value + input.substring(closeIndex + 1);
+    	}
+    	return input;
+    }
+    
+    private static boolean evaluateCondition (String condition) {
+    	String[] tokens = condition.split(" ");
+    	String first = tokens[0];
+    	String second = tokens[2];
+    	String comparator = tokens[1];
+    	
+    	if (comparator.equals("=")) {
+    		return first.equals(second);
+    	} else if (comparator.equals("!=")) {
+    		return !first.equals(second);
+    	} else {
+    		int firstVal = Integer.parseInt(first);
+    		int secondVal = Integer.parseInt(second);
+    		
+    		if (comparator.equals(">")) {
+    			return firstVal > secondVal;
+    		} else if (comparator.equals(">=")) {
+    			return firstVal >= secondVal;
+    		} else if (comparator.equals("<")) {
+    			return firstVal < secondVal;
+    		} else if (comparator.equals("<=")) {
+    			return firstVal <= secondVal;
+    		} else {
+    			throw new AssertionError("Comparison was illegal: " + comparator);
+    		}
+    	}
+    }
+    
+    private static boolean evaluateConditionForBoolean (String condition) {
+    	String[] splits;
+    	boolean isAnd;
+    	if (condition.contains("AND")) {
+    		splits = condition.split("AND");
+    		isAnd = true;
+    	} else if (condition.contains("&&")) {
+    		splits = condition.split("&&");
+    		isAnd = true;
+    	} else if (condition.contains("OR")) {
+    		splits = condition.split("OR");
+    		isAnd = false;
+    	} else if (condition.contains("||")) {
+    		splits = condition.split("||");
+    		isAnd = false;
+    	} else {
+    		return evaluateCondition(condition);
+    	}
+    	if (isAnd) {
+    		return evaluateCondition(splits[0].trim()) && evaluateCondition(splits[1].trim());
+    	} else {
+    		return evaluateCondition(splits[0].trim()) || evaluateCondition(splits[1].trim());
+    	}
+    }
+    
     public void doAction (String action) {
+    	String originalMessage = action;
         if (voidActionMap == null || paramActionMap == null || multiParamActionMap == null) {
             initActionMaps();
+        }
+        
+        if (action.contains("{")) {
+        	action = replaceVariables(action);
+        }
+        
+        if (action.startsWith("$if")) {
+        	String condition = action.substring(action.indexOf("[") + 1, action.indexOf("]"));
+        	boolean proceed = evaluateConditionForBoolean(condition);
+        	if (proceed) {
+        		action = action.substring(action.indexOf("]") + 2);
+        		if (action.contains("$else")) {
+        			action = action.substring(0, action.indexOf("$else"));
+        		}
+        	} else {
+        		if (action.contains("$else")) {
+        			action = action.substring(action.indexOf("$else") + 6);
+        			textOut.debug("Found an else. Proceeding with action: " + action);
+        		} else {
+	        		textOut.debug("Not proceeding with action. Original statement: " + originalMessage);
+	        		return;
+        		}
+        	}
         }
         
         if (action.startsWith("@")) {
@@ -886,12 +1114,18 @@ public class DungeonRoom extends UserInterfaceClass {
         return obstacles;
     }
 
+    /**
+     * Sets up back references.
+     * @param obstacles
+     */
     public void setObstacles(List<Obstacle> obstacles) {
         this.obstacles = obstacles;
+        this.obstacles.forEach(obs ->  obs.setLocation(this));
     }
 
     public void addObstacle (Obstacle obstacle) {
         obstacles.add(obstacle);
+        obstacle.setLocation(this);
     }
 
     public String getBossFightFileLocation() {
@@ -1003,5 +1237,12 @@ public class DungeonRoom extends UserInterfaceClass {
 
 	public void setOnHeroEnter(EnteringRoomAction onHeroEnter) {
 		this.onHeroEnter = onHeroEnter;
+	}
+	
+	public Map<String, Map<String, String>> getMetaMap () {
+		if (metaMap == null) {
+			initMetaMap();
+		}
+		return metaMap;
 	}
 }

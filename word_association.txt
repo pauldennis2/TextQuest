@@ -8,10 +8,13 @@ loot : gather, take, grab, pickup, acquire
 retreat : skedaddle, vamoose, runaway, back
 plunder : lootchest
 jump : leap, vault, vaultingboots
+shine : shine, reflect, mirrorshield
 smash : crush, bash
 describe : report
 douse : snuff
 leave : leave, exit
+save : save
+clean : clean, polish
 |
 |Param Action Words: (i.e. "travel where?" "use what?", "cast what spell?")
 |===
@@ -27,6 +30,8 @@ shout : yell
 whisper : murmur
 search : examine, look
 drop : drop
+equip : equip, don, wear
+unequip : unequip
 |
 |Concept Words:
 |===

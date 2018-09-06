@@ -2,23 +2,148 @@
 
 Hello and welcome! One of the features of TextQuest is that it allows anyone familiar with some basic JSON and general design concepts to create their own dungeons. This document will explain how all of that works. First let's cover a couple of important concepts.
 
+### Intended Audience and Technical Level
+
+This document is intended for people with some degree of technical proficiency. When describing how stuff works, I will do my best to assume you're not a programmer. But there are some basic concepts of programming such as "variables" and "maps" and some degree of syntax. Again, I'll do my best to provide examples, but if you're already glazing over, this probably isn't for you.
+
 ### JSON
 
 JSON (JavaScript Object Notation) is basically just a way to store data - in our case, all the data associated with a dungeon. If you're unfamiliar with JSON, you can read about it [here](https://www.w3schools.com/js/js_json_intro.asp). Rest assured, even if you're not a programmer it is fairly easy to pick up.
 
-### Triggers and Mapping
+### Triggers, Events and Mapping
 
-A core concept of designing a dungeon is the concept of **triggers**. As the dungeon designer you want to be able to have events trigger (or cause) other events. For example, the hero enters a room, tries to open the chest, and all the doors lock and monsters show up and attack. Or maybe the hero decides to smash a barrel, but it was filled with explosives so when they do they'll take damage. The (theoretical) possibilities of triggers are endless, and they're essential to create dynamic dungeons that "react" to actions of the player.
+A core concept of designing a dungeon is the concept of **triggers**. As the dungeon designer you want to be able to have circumstances trigger (or cause) **events**. For example, the hero enters a room, tries to open the chest, and all the doors lock and monsters show up and attack. Or maybe the hero decides to smash a barrel, but it was filled with explosives so when they do they'll take damage. The trigger is the circumstance that causes the event. The event is what actually happens. The (theoretical) possibilities of triggers are endless, and they're essential to create dynamic dungeons that "react" to actions of the player. It's up to the dungeon designer to create triggers and events that "make sense" within the context of the dungeon. So in the case of this barrel smashing hero, the trigger would be `onSmash`, and the event would be `explode 10` to deal 10 damage to the hero.
 
 So how as a dungeon designer do you access these wonderful triggers? That brings us to the concept of a **map**. A map is a core concept in computer science, but we don't need to dive into deep details. A mapping is basically just a connection between data. A common example is a dictionary, which you can think of as a map from Words to Definitions. If you look up the Word "banana" you would get a Definition like "a yellow tropical fruit". 
 
 In TextQuest, triggers are mapped by character strings. One simple example is "giveExp", which allows us to directly give experience points to the hero. We provide as a **paramater** the amount of experience we wish to give. All triggers use `lowerCamelCase`, so the words are all squashed together with the first letter of each word except the first capitalized. We'll talk about how to use triggers more specifically later on.
+
+Triggers persist by default (unless otherwise noted). That means that if there's a trigger in a room when a hero uses a particular spell, it'll keep triggering every time the hero casts the spell (it doesn't go away after the first time).
+
+### Adding and Removing Triggers
+
+An important feature of triggers/events is the ability to **dynamically** add and remove triggers from the dungeon. For example, let's say you've defined a room with a healing fountain. You've defined a `specialRoomAction` so that when the hero drinks from the fountain they are healed. But let's say you want this fountain set up so that if the hero casts an ice spell, it will freeze over and be un-usable. Casting a fire spell unfreezes the fountain.
+```
+"onSpellCast":
+      {
+      	"any":"modStat numAvailableSpells 2",
+      	"ice":"removeTrigger specialRoomActions drink;print \"The Fountain freezes over.\"",
+      	"fire":"addTrigger specialRoomActions drink heal 10;print \"The fountain is unfrozen.\""
+      }
+```
+
+The possibilities here are endless, but it's worth specifically noting that you can use this capability to override the default persistence of triggers. So if you have a trigger that you want to only happen once you could add `;removeTrigger <info>`. You can also think of this as enabling/disabling triggers (there is no alternative way to enable/disable triggers).
 
 ### Optional vs Required Properties
 
 The last and easiest concept to understand is that many properties are optional (not required). This means that you do not have to include that property for things to work. One example of an optional property is the "tutorial" property. This is a message displayed in the "tutorial" text area when the hero enters a given room. If you don't include this property, no message will be displayed.
 
 I highly recommend leaving optional properties out unless you need them. This will keep your JSON cleaner and easier to read. I'll do my best to indicate which properties are required, as well as indicating defaults in cases where it makes sense.
+
+When I say a property is required, it means that leaving it off (except in special circumstances) will cause problems.
+
+### Room IDs
+
+As we'll discuss below your dungeon is made up of "rooms". Each room must have a unique identification/ID number. You can use whatever numbering scheme you want. One easy suggestion for small dungeons is to assign each floor a block of 10 IDs (So all the rooms on the first floor are 1-9, second floor 10-19, etc). This helps keep things organized. Alternatively for bigger dungeons you could do 101, 102, 103, 201, 202, 203, etc. Whatever works for you. A couple important notes:
+
+* Each id must be unique. You can't have two rooms with id 50.
+* By default (and this is currently not configurable) the dungeon entrance (where the player starts) will be the room with ID 1.
+
+### Quotes, Spaces, and General Syntax
+
+This section will discuss some best practices and common problems.
+
+**Special Characters** - First, it's just generally good principle to avoid using any special characters in regular names. So don't try to call a room "The Boss Room!" - instead just use "The Boss Room". Special characters with specific meanings: @, $, ;, {}, [], "", \. Special characters without specific meanings: _, :, ,, %, #, !, &, *, ^, <>, ?, ', /, +.
+
+Here is a quick reference of the special meanings of the various characters (more explanation below):
+
+* @ - used to indicate remote instructions (triggered event should happen in a different room)
+* $ - used to start a conditional event
+* ; - used to group multiple events together
+* {} - used to refer to a dungeon variable
+* [] - used to define a condition
+* "" - used to define a String
+* \ - used to "escape" quotes.
+
+What characters are safe? You can use any alphanumeric character (a-z, A-Z, 0-9) in names. Dashes are OK too. 
+
+#### Spaces and Quotes
+
+All of the instructions in your JSON file need to be parsed. The parsing is largely based on spaces. So in the event statement `heal 10`, it sees the first "word" is "heal", and finds the appropriate action. It also knows it needs an amount to heal, so it tries to parse the "10" to a number. **Note**: it's very easy to screw things up by adding even just one extra space. So while the difference between `heal 10` and `heal  10` (two spaces) may seem insignificant, the first one works and the second doesn't. Also, when using semi-colons to include multiple events, don't add an extra space after the semi-colon (I know it's tempting). `print Boom;explode 10` works. `print Boom; explode 10` fails.
+
+So don't use extra spaces!
+
+But what happens if you want to define something that does have spaces? One of the most basic events is `print`, which allows us to print out some information to the user. You could just put your message as one "word", using underscores: `print Something_happened`. This is sort of ugly however and doesn't look very professional. The better way to do this is to use the backslash `\` and quotes `""` to define a String. This allows us to define one "word" with spaces in it. Because we're already inside a string, we have to use the backslash to escape the quotes we're going to add. So the new message would be:
+
+`print \"Something happened\"`
+
+This is still encased in quotes as normal, so in your JSON this would look like:
+
+```json
+"onHeroEnter":"print \"Something happened\""
+```
+
+Note that if you just want one word you don't need the quotes. `print BOOM` works fine.
+
+So here are the quick and dirty rules:
+1. Avoid using special characters (especially @, $, ;, {}, [], "", and \) except for their intended purpose.
+2. Be very careful not to have any  extra   spaces.
+3. Use **escaped** quotes to define strings that can have spaces.
+
+#### Advanced Functionality Combo Warning
+
+This guide will cover several different "advanced" functions (things that are a bit more complicated than just creating a monster when the hero enters a room). Examples include triggering events in other rooms, conditional triggers, and triggering multiple events at the same time. At this point in development, the behavior when trying to combine these functions is hard to predict. For example, I'm not sure what would happen if you tried to have a conditional event triggered remotely. You can always give it a try, but your mileage may vary. Consider combining these functions to be unsupported at this time.
+
+### Dungeon Variables/Values
+
+(Note: if you're a programmer, the logic for this is very similar to storing information in the HttpSession)
+
+To create a dynamic dungeon experience you might need to keep track of some variables that persist throughout the dungeon. Maybe you're creating a water dungeon and want to keep track of the water level. Or maybe you want to keep track of the number of monsters the hero's killed for some reason. There is now a great way to do that, using events described below. For now, let's go over the maps. These maps are attached to the dungeon. It's important to note that these variables don't DO anything by themselves. You'll need to refer to them in your events to have any effect. We'll see an example of that later. Both of these maps store things using a String key. So if you want to keep track of the water level you could use `waterLevel` as your key.
+
+* Variables Map<String, String> - this map accepts String inputs (in other words text). The advantage of this map is that it's totally open. You can set `waterLevel` to "bananas" if you want. The downside is that you can only work with these as strings. 
+* Values Map<String, Integer> - this map only accepts integers (whole numbers).  Here you could set the `waterLevel` to 1, 2, 0, -1, whatever. The advantage of this map is that you can work with the data as numbers - so it would be possible to create a condition such as `$if[{waterLevel} > 2]` -> whatever. You can also use `addToDungeonValue` to add or subtract. So if you want to increase the water level, `addToDungeonValue waterLevel 1` will add 1 to whatever the existing level is.
+
+#### Referring to Values
+
+Let's say for some arbitrary reason you've been keeping track of the dungeon's water level, and you want to create an event that heals the player an amount equal to the water level. You would use the appropriate events to set the `waterLevel` value, but how do we actually access that? The answer is that we use a special syntax. Whenever you want to refer to a value/variable, you use braces `{}` surrounding the value/variable's name: `{waterLevel}`. (You don't need to specify here whether it's a "variable" or a "value" - it'll look in both places, with preference for values). So, to heal the player an amount equal to the water level, we would just use `heal {waterLevel}`. It'll automatically look for a variable or value with that name and insert the appropriate value. So if the water level is '2', you would get `heal 2`. Note: you should definitely not use braces in any normal name. So don't try to name a room "{Special Room}". In general, avoid using special characters such as $, @, {}, |, :, and so on.
+
+**Note**: the only way to work with values right now is adding or subtracting. But what if you want to multiply something? Well, it's limited, but you can use the value while you're modifying it. So let's say we want to *double* the water level: `addToDungeonValue waterLevel {waterLevel}` doubles the current water level.
+
+#### Referring to the Hero - Using Dot Notation
+
+You can also now refer to the Hero's stats using "dot notation". `{hero.might}` would be a dynamic reference to the hero's current might stat. These expressions can be included in conditions. Currently you cannot refer to any of the hero's "complex" attributes like their location or the contents of their backpack. You can only refer to integer properties (health, maxHealth, might, magic, sneak, defense, maxSpellsPerDay, level, and exp) and the hero's name.
+
+You can also explicitly refer to dungeon variables like: `{dungeon.waterLevel}`. If you don't use any dot notation (just `{waterLevel}`) it'll assume you're referring to dungeon variables. 
+
+#### Creating Conditional Events
+
+In order to truly make use of the dungeon variables, we need to be able to check them in conditional statements. For example, maybe you're keeping track of the number of spells the hero has cast using a value named `numSpellsCast`. In order to make an event conditional on the number of spells cast, we use an `$if` statement:
+
+`$if[{numSpellsCast} > 5}] heal 10` would make it so that the player would be healed if they have previously cast more than 5 spells.
+
+Let's diagram this out. We basically have two parts here - the conditional and the actual event. The conditional is `$if[{numSpellsCast} > 5]`. The event is `heal 10` (you should already be comfortable with that part). Let's break down the conditional. It **always** starts with `$if` (lower case). This is just a token to let the parser know we're starting a conditional. The actual condition to be evaluated lives inside the brackets `[]`. In this case it is `{numSpellsCast} > 5`. The general shape of a condition is: {first parameter} {comparator} {second parameter}. You can use whatever combination of constants and variables you want (though the condition `5 < 3` would always evaluate to false, it's a legitimate condition). We use braces `{}` to refer to the variable/value we want (see above).
+
+Possible comparators:
+* = - equals. The only comparator that works with String variables.
+* != - NOT equal. Returns true if the properties are not equal, or false if they are.
+* Greater than. Only for numbers (as are all the rest)
+* Greater than or equal to.
+* < - less than
+* <= - Less than or equal to.
+
+**Else**: You can now define an event that will be triggered if your condition isn't met. 
+
+`$if[{numShadowsKilled} = 3] print \"A barrier has been removed.\" $else print \"You feel a barrier weakening.\"`
+
+This will print one message if the condition is met and a different one if it isn't.
+
+#### Boolean Logic
+
+Conditions now happily support simple [boolean logic](https://en.wikipedia.org/wiki/Boolean_algebra) (sorry, there are no good quick online boolean tutorials. Message me iff this is false). You can use "AND" and "OR" statements using those keywords or using C-style operators ("&&" for AND, "||" for OR). For example:
+
+`$if[{numSpellsCast} > 3 OR {hero.magic} > 2] print Bigmagic` 
+
+Boolean logic cannot currently be nested - so you couldn't have a statement like `if[(3 > 2) && (1 = 1 || 2 = 3)]
 
 ## Creating A Dungeon
 
@@ -38,6 +163,9 @@ The dungeon is organized into "rooms". Each room can theoretically be as large a
 
 
 The "library" properties really just provide shortcuts for items and monsters that you want to use in multiple places. If you just want a monster to be used once, you should just put it in the room's list of monsters (see below). They are also useful for defining "interesting" objects and monsters that are created by triggered events.
+
+Triggers (optional):
+* onVariableSet - triggered when any dungeon variable is changed. You'll probably need to use a conditional to make this behave how you want it to. `"onVariableSet": "$if[{numSpellsCast = 5}] print Awesome"` would print "Awesome" when the hero casts their 5th spell (assuming you are properly tracking that).
 
 #### Dungeon Template
 
@@ -61,6 +189,7 @@ The Dungeon Template is a convenience feature that allows you to declare propert
 * chest - Optional
 * bossFightFileLocation - boss fights are stored separately as their own JSON file. This is a name of a file in the "encounters" directory. Optional
 * hiddenItems - you can "hide" items here in a map corresponding to their location. So if something is hidden by the fountain, it won't turn up when the player types "loot". They would have to "search fountain".
+* features - every room can have a list of "Features". Features are mainly a part of how the room is described - they can also be used in other ways (such as Mirror features being used in the Shine Puzzle).
 
 Triggers (all Optional)
 * onHeroLeave - a place to add triggers for when the Hero leaves a room. Mapped by direction.
@@ -68,7 +197,7 @@ Triggers (all Optional)
 * specialRoomActions - you can define special action words unique to this room. For example, if there's a fountain you could allow the player to "drink" from it. It's up to you to decide what happens when they take that action
 * onFightStart - triggered when combat starts
 * onFightEnd - triggered at the end of combat (if the hero survives!)
-* onSearch - when a Hero searches a specific location
+* onSearch - when a Hero searches a specific location. **Not persistent** - by default this trigger goes away after it's triggered.
 * onSpellCast - triggered when a spell of a particular type is cast. Like lighting change, this is a map and requires specifying the spell type. Multiple types can be specified (Player casts ice spell -> event A, Player casts fire spell -> event B). You can use "any" for a wildcard.
 * onHeroEnter - triggered when the Hero enters the room. Optional flag to doOnce.
 * onItemUse - triggered when the hero uses a specific item. Use "any" for a wildcard.
@@ -113,10 +242,14 @@ There's not a lot you can currently do with items. We'll work on this!
 
 Triggers (all Optional)
 * onSmash - Some obstacles are "smashable". This trigger defines what happens when they're smashed.
+* onAttempt - What should happen when the Hero **unsuccessfully** attempts the obstacle.
+* onClear - What should happen when the Hero **successfully** clears the obstacle.
 
 ### List of Triggered Events
 
 All possible events must be hard coded into the game. That means you're limited to the (currently very small) set of events I've programmed into the game. Keep in mind that the events are just one side of it. In other words, these are just "some things that can happen". **How** and why they happen is determined by the trigger.
+
+Note: 
 
 **Remote Triggers**: It's now possible to have events be triggered in other rooms. To do this you add an "@id" to the beginning of the event message. Adding "@1" would try to trigger the event in the room with Id 1. Note: it doesn't always make sense to do this. Use with caution.
 
@@ -128,13 +261,15 @@ Here are the current possible events:
 
 These events need an extra bit of information, often a number. For example if you want to giveExp - how much? If you want to spawn a monster, I need to know the name. The parameter is listed in parentheses here:
 
+* print (text) - prints the given text to the normal text area
+* debug (text) - prints the given text to the debug window
+* tutorial (text) - prints the given text to the tutorial window
+
 * createMonster (name) - currently the only monster that can be created is a skeleton. More flexibility to come!
 * explode (damage amount) - the hero takes some damage from an explosion
 * giveExp (exp amount) - the hero gets experience
 * bump (object) - Used to momentarily delay the hero from leaving the room.
 * heal (healing amount) - heals the player
-
-New 8/28:
 * teachSpell (spell name) - teaches the Hero the given spell if they don't already know it
 * teleportHero (room name) - moves the Hero to the given room (if it exists). Use with caution I guess
 * createItem (item name) - creates the given item and places it in the room. You will need to refer to an item in your itemLibrary for anything other than a blank item.
@@ -142,10 +277,11 @@ New 8/28:
 * removeItem (item name) - attempts to remove the given item from the room's list of items (won't find items in chest, hidden items, etc)
 * removeItemFromHero (item name) - attempts to remove the given item from the Hero's backpack. Use with caution - you could remove essential quest items.
 * changeRoomName (new name) - changes the display name of the room. Use with caution.
-
-
-Not fully implemented
-* changeRoomDescription - modify the description of the room
+* removePassage (direction) - removes a passage from this room in the given direction (if any). Use with caution, player can become trapped.
+* addFeature (feature name) - Adds a new Feature to the room with the given name
+* removeFeature (feature name) - Removes **all** features with the given name.
+* changeRoomDescription (new description) - modify the description of the room
+* clearObstacle (obstacle name) - Clears **all** obstacles with the given name in the room.
 
 #### MultiParam Events
 
@@ -155,6 +291,10 @@ These events require multiple parameters.
 * createHiddenItem - adds a hidden object to this room. First param is the item name (you will need to refer to your itemLibrary if you want the item to do anything interesting), second param the location where it is hidden.
 * addTrigger - allows you to add a triggered event to this room. The first param is the trigger group (specialRoomActions, onLightingChange, onItemUse, onSpellCast, or onSearch - these are the only trigger groups that can be changed right now). The second param is the event that should be triggered, along with any parameters for that event.
 * removeTrigger - allows you to remove a triggered event from the room. The first param is the trigger group (see addTrigger). The second param is the event to be removed.
+* createPassage - allows you to add a connection to a new room. First param is the direction, the second param is the `id` of the room to connect. Use with caution, as you could trap the player if you're not careful.
+* setDungeonVariable - allows you to modify the dungeon's variable map. First param is the name of the variable you want to set, second param is the value you want it to have.
+* setDungeonValue - used interchangeably with setDungeonVariable. "Value" refers to integers (whole numbers) whereas "variable" refers to the string map.
+* addToDungeonValue - allows you to modify existing values in the values map. First param is the name of the value to set, and the second is the amount to add. You can use negative numbers to subtract instead. `addToDungeonValue waterLevel -1` would decrease waterLevel by 1.
 
 
 Not fully implemented:
@@ -177,7 +317,6 @@ Hopefully soon we'll add many more possible events, and even the ability to crea
 ### Future Triggers
 
 Here are some triggers that I hope to add to the game soon:
-
 Room:
 * speechTriggers - similar to Riddles, triggered when a hero speaks a given phrase
 
@@ -187,10 +326,10 @@ Items:
 Monsters:
 * onDealDamage - triggered when the monster deals damage to the player
 
-Obstacles:
-* onAttempt - when someone attempts an obstacle
-* onClear - when an obstacle is cleared
-
 ### Future Events
 
 * modMonsterStats
+* equip - force the hero to equip a given item
+* unequip - force the hero to unequip an item they currently have equipped
+* createObstacle
+* disableHero

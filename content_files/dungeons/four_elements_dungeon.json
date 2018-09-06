@@ -1,0 +1,364 @@
+{
+  "dungeonName":"Four Elements Dungeon",
+  "description":"Blasts of superheated air alternate with gusts of frigid wind.",
+  "itemLibrary":
+  {
+  	"wightSoulgem":
+  	{
+  		"name":"Wight's Soul Gem",
+  		"value": 250,
+  		"onPickup": "print \"As you pick up the gem you get a real spooky-like feeling.\""
+  	}
+  },
+  "monsterLibrary":
+  {
+  	"IceGoblin":
+  	{
+  		"name":"Ice Goblin",
+  		"health":6,
+  		"might": 2,
+  		"defense": 1
+  	},
+  	"FireGoblin":
+  	{
+  		"name":"Fire Goblin",
+  		"health":8,
+  		"might":3,
+  		"defense": 0
+  	},
+  	"StormWight":
+  	{
+  		"name":"Storm Wight",
+  		"health":20,
+  		"might":4,
+  		"defense": 3,
+  		"onDeath": "createItem wightSoulgem"
+  	}
+  },
+  "template":
+  {
+  	"name":"Dungeon Template",
+  	"onSpellCast":
+  	{
+  		"any":"modStat numAvailableSpells 2"
+  	}
+  },
+  "rooms":
+  [
+    {
+      "name":"Entryway",
+      "id":1,
+      "description":"This is the entryway. It's temperate. You must make a choice: ice, or fire. Choose.",
+      "lighting": 1.0,
+      "connectedRoomIds":
+      {
+        "NORTH":2,
+        "SOUTH":6,
+        "EAST":11,
+        "DOWN":21
+      },
+      
+      "specialRoomActions":
+      {
+      	"fire":"print \"You have chose the fire path.\"",
+      	"ice":"print \"You have chosen the ice path.\""
+      }
+    },
+    {
+      "name":"Ice Path Start",
+      "id":2,
+      "description":"This is the start of the ice path",
+      "lighting": 1.0,
+      "items":
+      [
+        {
+          "name":"Potion"
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "SOUTH":1,
+        "NORTH":3
+      }
+    },
+    {
+      "name":"Ice Riddle Room",
+      "id":3,
+      "description":"A passageway.",
+      "lighting": 0.9,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.TextQuest.entities.obstacles.RiddleObstacle",
+          "name": "Ice Riddle",
+          "solution": "iceberg",
+          "displayIfCleared":true,
+          "riddle": "Lighter than what I am made of, more of me is hidden than seen. I am the bane of the mariner.",
+          "blockedDirections":
+          [
+            "NORTH"
+          ]
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "SOUTH":2,
+        "NORTH":4
+      }
+    },
+    {
+      "name":"Ice Loot Explore",
+      "id":4,
+      "description":"Take a look around",
+      "lighting": 1.0,
+      "monsters":
+      [
+        {
+          "name":"Ice Goblin",
+          "health": 5,
+          "might": 2
+        }
+      ],
+      "connectedRoomIds":
+      {
+        "NORTH":5,
+        "SOUTH":3
+      }
+    },
+    {
+      "name":"Ice Miniboss",
+      "id":5,
+      "description":"There is an ice miniboss in this room",
+      "lighting": 1.0,
+      "connectedRoomIds":
+      {
+        "SOUTH":4,
+        "PORTAL":1
+      }
+    },
+    {
+      "name":"Fire Path Start",
+      "id":6,
+      "description":"The start of the fire path.",
+      "lighting": 1.0,
+      "connectedRoomIds":
+      {
+        "NORTH":1,
+        "EAST":7
+      }
+    },
+    {
+      "name":"Fire Loot Explore",
+      "id":7,
+      "description":"Take a look around. Warm in here.",
+      "lighting":1.0,
+      "connectedRoomIds":
+      {
+        "WEST":6,
+        "EAST":8
+      }
+    },
+    {
+      "name":"Fire Riddle Room",
+      "id":8,
+      "description":"Fire riddle here.",
+      "lighting":1.0,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.TextQuest.entities.obstacles.RiddleObstacle",
+          "name": "Fire Riddle",
+          "solution": "candle",
+          "displayIfCleared":true,
+          "riddle": "I am quickest when thin and slowest when fat. My life is measured in hours and I serve by being devoured.",
+          "blockedDirections":
+          [
+            "EAST",
+            "SOUTH"
+          ]
+        }
+      ],
+      "connectedRoomIds":
+      {
+      	"WEST":7,
+        "EAST":10,
+        "SOUTH":9
+      }
+    },
+    {
+      "name":"Fire Extra Loot Room",
+      "id":9,
+      "description":"You've come back here after finding the dungeon's item. Great rewards await. There are some bones in a corner, and a big pile of clothes in another.",
+      "lighting":1.0,
+      "hiddenItems":
+      {
+        "clothes":
+        [
+          {
+            "name":"Boots of Stealth"
+          }
+        ]
+      },
+      "onSearch":
+      {
+      	"bones":"createMonster StormWight;print \"A storm wight appears.\""
+      },
+      "connectedRoomIds":
+      {
+        "NORTH":8
+      }
+    },
+    {
+      "name":"Fire Miniboss Room",
+      "id":10,
+      "description":"A giant glowing fiery cavern with a sinister guardian.",
+      "lighting":1.0,
+      "connectedRoomIds":
+      {
+        "WEST":8,
+        "PORTAL":1
+      }
+    },
+    {
+    	"name":"Dungeon Item Room",
+    	"id":11,
+    	"lighting":1.0,
+    	"items":
+    	[
+    		{
+    			"name":"Spelltwister Crystal"
+    		}
+    	],
+    	"connectedRoomIds":
+    	{
+    		"WEST":1
+    	}
+    },
+    {
+    	"name":"Downstairs Landing",
+    	"id":21,
+    	"lighting":1.0,
+    	"connectedRoomIds":
+    	{
+    		"UP":1,
+    		"EAST":22
+    	}
+    },
+    {
+    	"name":"Passageway",
+    	"id":22,
+    	"description":"Blizzard blocker east",
+    	"lighting":1.0,
+    	"connectedRoomIds":
+    	{
+    		"NORTH":23,
+    		"WEST":21,
+    		"EAST":24
+    	}
+    },
+    {
+    	"name":"Air Learning Room",
+    	"id":23,
+    	"lighting": 1.0,
+    	"items":
+    	[
+    		{
+    			"name":"Wind Crystal"
+    		}
+    	],
+    	"connectedRoomIds":
+    	{
+    		"SOUTH":22
+    	}
+    },
+    {
+    	"name":"Elemental Training Room",
+    	"description":"lava block east, explosion block south",
+    	"id":24,
+    	"lighting":1.0,
+    	"onItemUse":
+    	{
+    		"Wind Crystal":"teachSpell wind",
+    		"Earth Crystal":"teachSpell earth"
+    	},
+    	"connectedRoomIds":
+    	{
+    		"EAST":26,
+    		"WEST":22,
+    		"SOUTH":25
+    	}
+    },
+    {
+    	"name":"Earth Learning Room",
+    	"id":25,
+    	"lighting":1.0,
+    	"items":
+    	[
+    		{
+    			"name":"Earth Crystal"
+    		}
+    	],
+    	"connectedRoomIds":
+    	{
+    		"NORTH":24
+    	}
+    },
+    {
+    	"name":"Boss Antechamber with Fountain",
+    	"description":"Morass block north and east",
+    	"id":26,
+    	"lighting":1.0,
+    	"specialRoomActions":
+		{
+			"drink":"heal 10"
+		},
+		"onHeroLeave":
+		{
+			"PORTAL":
+			{
+				"action":"@1 createPassage PORTAL 26"
+			}
+		},
+    	"connectedRoomIds":
+    	{
+    		"WEST":24,
+    		"NORTH":27,
+    		"EAST":28,
+    		"PORTAL":1
+    	}
+    },
+    {
+    	"name":"Extra Loot Room near End",
+    	"id":27,
+    	"description":"There's a big rug in the center of the room.",
+    	"lighting":1.0,
+    	"onSearch":
+    	{
+    		"rug":"createPassage NORTH 29"
+    	},
+    	"connectedRoomIds":
+    	{
+    		"SOUTH":26
+    	}
+    },
+    {
+    	"name":"Boss Room",
+    	"id":28,
+    	"description":"Counter his elemental attacks. Lava/blizzard and explosion/morass",
+    	"connectedRoomIds":
+    	{
+    		"EAST":26
+    	}
+    },
+    {
+    	"name":"Hidden Secret Treasure Room",
+    	"id":29,
+    	"description":"Wow, super secret hidden treasure.",
+    	"lighting": 1.0,
+    	"connectedRoomIds":
+    	{
+    		"SOUTH":27
+    	}
+    }
+  ]
+}

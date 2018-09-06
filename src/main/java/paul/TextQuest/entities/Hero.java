@@ -9,9 +9,11 @@ import paul.TextQuest.LeavingRoomAction;
 import paul.TextQuest.entities.obstacles.Obstacle;
 import paul.TextQuest.entities.obstacles.SmashableObstacle;
 import paul.TextQuest.enums.Direction;
+import paul.TextQuest.enums.EquipSlot;
 import paul.TextQuest.enums.LevelUpCategory;
 import paul.TextQuest.enums.SpeakingVolume;
 import paul.TextQuest.interfaces.*;
+import paul.TextQuest.new_interfaces.EquipableItem;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.MagicUniversity;
 import paul.TextQuest.parsing.TextInterface;
@@ -25,6 +27,7 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -93,6 +96,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
     //TODO what was this ^^about 
     private transient Map<String, SpellAction> spellMap;
     
+    private Map<EquipSlot, EquipableItem> equippedItems;
+    
     private static Map<String, SpellAction> possibleSpellMap;
 
     private transient Random random;
@@ -109,6 +114,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         backpack = new Backpack();
         spellbook = new ArrayList<>();
         clearedDungeons = new ArrayList<>();
+        equippedItems = new HashMap<>();
         initMaps();
     }
 
@@ -127,11 +133,17 @@ public class Hero extends UserInterfaceClass implements Serializable {
         level = 0;
         exp = 0;
         maxSpellsPerDay = 1;
-        BackpackItem sword = new BackpackItem("Sword");
+        EquipableItem sword = new EquipableItem("Sword");
+        sword.setMightMod(1);
         sword.setUndroppable(true);
         backpack.add(new BackpackItem("Torch"));
         backpack.add(sword);
         backpack.add(new BackpackItem("Bow"));
+        
+        EquipableItem noiseHelm = new EquipableItem("Noisehelm");
+        noiseHelm.setOnEquip("print HELM_ON");
+        noiseHelm.setOnUnequip("print HELM_OFF");
+        backpack.add(noiseHelm);
 
         initMaps();
     }
@@ -237,10 +249,17 @@ public class Hero extends UserInterfaceClass implements Serializable {
         list.add(NEW_SKILL);
         list.add(INC_STATS);
         levelUpActions.put(1, list);
+        //TODO: fix/expand (breaks after level 1)
     }
 
     private static Hero jsonRestore(String heroJson) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
+        //mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL); //Unexpected token (START_OBJECT), expected START_ARRAY: need JSON Array to contain As.WRAPPER_ARRAY type information for class paul.TextQuest.entities.Hero
+        //mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT); //-> unrecognized field @type
+        //mapper.enableDefaultTyping(); // Unexpected token (START_OBJECT), expected VALUE_STRING: need JSON String that contains type id (for subtype of java.util.List)
+        //(none) //-> unrecognized field @type
+        //mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_CONCRETE_AND_ARRAYS); //Unexpected token (START_OBJECT), expected VALUE_STRING: need JSON String that contains type id (for subtype of java.util.List)
+        //mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE);
         return mapper.readValue(heroJson, Hero.class);
     }
 
@@ -257,20 +276,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
     		throw new AssertionError("Error");
     	}
     }
-    
-    public static void main(String[] args) throws Exception {
-		Hero hero = new Hero("Gimli");
-		String json = hero.createJsonString();
-		System.out.println(json);
-		saveHeroToFile("paul", hero);
-		System.out.println("=====");
-		
-		Hero fromFile = loadHeroFromFile("paul", "Gimli");
-		System.out.println(fromFile);
-		System.out.println("=====");
-		
-		System.out.println(getHeroListForUser("paul"));
-	}
     
     public static void saveHeroToFile (String username, Hero hero) {
     	String fileName = SAVE_PATH + username + "/" + hero.getName() + ".json";
@@ -322,6 +327,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
         } else {
             if (location.getSpecialRoomActions().get(action) != null) {
                 String roomAction = location.getSpecialRoomActions().get(action);
+                
+                /* Old implementation. As of 9/6/18 not sure why this makes any sense
                 String[] splits = roomAction.split(" ");
                 switch (splits[0]) {
                     case "heal":
@@ -331,6 +338,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
                     default:
                         throw new AssertionError("No other ops supported.");
                 }
+                */
+                location.doAction(roomAction);
             } else {
                 textOut.debug("Action not in map.");
                 throw new AssertionError();
@@ -378,6 +387,11 @@ public class Hero extends UserInterfaceClass implements Serializable {
 
 
     private void initActionMap () {
+    	
+    	//TODO remove this when no longer needed
+    	heroVoidActions.put("save", room -> {
+    		saveHeroToFile("paul" , this);
+    	});
 
         heroVoidActions.put("describe", DungeonRoom::describe);
 
@@ -442,15 +456,15 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 textOut.println("You don't have the key");
             } else {
                 textOut.println("Trademarked chest-opening music, rapid ascending style.");
+                List<BackpackItem> chestContents = chest.removeContents();
+                chestContents.forEach(item -> {
+                    if (item.hasPickupAction()) {
+                        room.doAction(item.getOnPickup());
+                    }
+                    textOut.println("Looted " + item.getName() + " from chest.");
+                    backpack.add(item);
+                });
             }
-            List<BackpackItem> chestContents = chest.removeContents();
-            chestContents.forEach(item -> {
-                if (item.hasPickupAction()) {
-                    room.doAction(item.getOnPickup());
-                }
-                textOut.println("Looted " + item.getName() + " from chest.");
-                backpack.add(item);
-            });
         });
         
         heroVoidActions.put("leave", room -> {
@@ -466,15 +480,45 @@ public class Hero extends UserInterfaceClass implements Serializable {
         	}
         });
         
+        heroVoidActions.put("clean", room -> {
+        	room.getFeatures().stream()
+        		.filter(feature -> feature.getName().contains("Mirror") && feature.isVisible(room.getLighting()))
+        		.filter(mirror -> { //Filter out mirrors that are already clean.
+        			if (mirror.getStatus() != null) {
+        				return !mirror.getStatus().equals("clean");
+        			} else {
+        				return true;
+        			}
+        		})
+        		.forEach(feature -> {
+        			feature.setStatus("clean");
+        			textOut.println("You polished the " + feature.getName());
+        		});
+        });
+        
+        heroVoidActions.put("shine", room -> {
+        	if (backpack.contains("Mirror Shield")) {
+        		room.getObstacles().stream()
+        			.filter(obs -> obs.getSolution().equals("shine"))
+        			.forEach(shinePuzzle -> {
+        				shinePuzzle.attempt("shine", this);
+        			});
+        	} else {
+        		textOut.println("Shine off of what?");
+        	}
+        
+        });
+        //TODO: once equippable items are real, change these implementations
+        //(shouldn't be backpack.contains() - should be if equipped
         heroVoidActions.put("jump", room -> {
             if (backpack.contains("Boots of Vaulting")) {
                 if (room.getObstacles().size() == 0) {
                     textOut.println("Nothing to jump.");
                 } else {
                     room.getObstacles().stream()
-                            .filter(e -> e.getSolution().equals("jump")) //Filter out non-chasms
-                            .forEach(e -> {
-                                e.attempt("jump", this);
+                            .filter(obs -> obs.getSolution().equals("jump")) //Filter out non-chasms
+                            .forEach(chasm -> {
+                                chasm.attempt("jump", this);
                                 textOut.println("You made it across!");
                             });
                 }
@@ -510,11 +554,13 @@ public class Hero extends UserInterfaceClass implements Serializable {
         heroParamActions.put("use", (room, param) -> {
             if (room.getHero().getBackpack().contains(param)) {
                 itemActions.get(param).doAction(room);
-                if (room.getOnItemUse().containsKey("any")) {
-                	room.doAction(room.getOnItemUse().get("any"));
-                }
-                if (room.getOnItemUse().containsKey(param)) {
-                	room.doAction(room.getOnItemUse().get(param));
+                if (room.getOnItemUse() != null) {
+	                if (room.getOnItemUse().containsKey("any")) {
+	                	room.doAction(room.getOnItemUse().get("any"));
+	                }
+	                if (room.getOnItemUse().containsKey(param)) {
+	                	room.doAction(room.getOnItemUse().get(param));
+	                }
                 }
             } else {
                 textOut.println("You don't have a " + param + " to use.");
@@ -532,6 +578,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
             if (room.getOnSearch().containsKey(param)) {
             	textOut.println("From searching near " + param + " something happened.");
             	room.doAction(room.getOnSearch().get(param));
+            	//onSearch triggers don't persist
+            	room.getOnSearch().remove(param);
             }
             if (hiddenItems == null) {
                 textOut.println("You didn't find anything near " + param);
@@ -545,9 +593,9 @@ public class Hero extends UserInterfaceClass implements Serializable {
         });
         
         heroParamActions.put("drop", (room, param) -> {
-        	List<BackpackItem> herosItems = backpack.getItems();
+        	List<BackpackItem> items = backpack.getItems();
         	boolean found = false;
-        	for (BackpackItem item : herosItems) {
+        	for (BackpackItem item : items) {
         		if (item.getName().toLowerCase().equals(param)) {
         			if (item.isUndroppable()) {
         				textOut.println("Sorry honey, you can't drop that item.");
@@ -569,9 +617,42 @@ public class Hero extends UserInterfaceClass implements Serializable {
         });
 
         heroParamActions.put("equip", (room, param) -> {
-        	
+        	List<BackpackItem> items = backpack.getItems();
+        	boolean found = false;
+        	for (BackpackItem item : items) {
+        		if (item.getName().toLowerCase().equals(param)) {
+        			if (item.getClass() == EquipableItem.class) {
+        				
+        			} else {
+        				textOut.println("That item isn't equipable, sorry.");
+        			}
+        			found = true;
+        		}
+        	}
+        	if (!found) {
+        		textOut.println("You don't have a " + param + " to equip.");
+        	}
         });
         
+        heroParamActions.put("unequip", (room, param) -> {
+        	//We'll attempt to find by item name first, then by slot
+        	boolean found = false;
+        	for (EquipSlot slot : equippedItems.keySet()) {
+        		EquipableItem item = equippedItems.get(slot);
+        		if (item.getName().toLowerCase().equals(param)) {
+        			unequip(slot);
+        			found = true;
+        			textOut.println("Unequipped " + item.getName());
+        		} else if (slot.toString().toLowerCase().equals(param)) {
+        			unequip(slot);
+        			found = true;
+        			textOut.println("Unequipped " + item.getName());
+        		}
+        	}
+        	if (!found) {
+        		textOut.println("You don't have a " + param + " equipped.");
+        	}
+        });
         
     }
 
@@ -657,6 +738,35 @@ public class Hero extends UserInterfaceClass implements Serializable {
         backpack.stream()
                 .filter(e -> e.getName().equals(itemName))
                 .findAny().ifPresent(item -> backpack.remove(item));
+    }
+    
+    public void equip (EquipableItem item) {
+    	unequip(item.getSlot());
+    	
+    	mightMod += item.getMightMod();
+    	magicMod += item.getMagicMod();
+    	sneakMod += item.getSneakMod();
+    	defenseMod += item.getDefenseMod();
+    	
+    	if (item.getOnEquip() != null) {
+    		location.doAction(item.getOnEquip());
+    	}
+    	backpack.remove(item);
+    }
+    
+    public void unequip (EquipSlot slot) {
+    	if (equippedItems.get(slot) != null) {
+    		EquipableItem item = equippedItems.get(slot);
+    		mightMod -= item.getMightMod();
+    		magicMod -= item.getMagicMod();
+    		sneakMod -= item.getSneakMod();
+    		defenseMod -= item.getDefenseMod();
+    		
+    		if (item.getOnUnequip() != null) {
+    			location.doAction(item.getOnUnequip());
+    		}
+    		backpack.add(equippedItems.remove(slot));
+    	}
     }
 
     public void restoreHealth (int healthAmount) {
@@ -778,6 +888,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         return isSneaking;
     }
 
+    //TODO: investigate. This could cause problems in serialization
     public int getMight() {
         return might + mightMod;
     }
@@ -953,6 +1064,33 @@ public class Hero extends UserInterfaceClass implements Serializable {
     public void setNumSpellsAvailable (int numSpellsAvailable) {
     	this.numSpellsAvailable = numSpellsAvailable;
     }
-    
 
+	public Map<EquipSlot, EquipableItem> getEquippedItems() {
+		return equippedItems;
+	}
+
+	public void setEquippedItems(Map<EquipSlot, EquipableItem> equippedItems) {
+		this.equippedItems = equippedItems;
+	}
+    
+	public void setTextOut (TextInterface textOut) {
+		this.textOut = textOut;
+	}
+	
+	public Integer getIntField (String fieldName) {
+		Class <? extends Hero> heroClass = getClass();
+		try {
+			String methodName = "get" + StringUtils.capitalize(fieldName);
+			Method method = heroClass.getDeclaredMethod(methodName);
+			Object response = method.invoke(this);
+			return (Integer) response;
+		} catch (Exception ex) {
+			return null;
+		}
+	}
+	
+	public static void main(String[] args) {
+		Hero hero = new Hero("Paul");
+		System.out.println("might = " + hero.getIntField("name"));
+	}
 }

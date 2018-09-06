@@ -9,7 +9,6 @@ import paul.TextQuest.parsing.*;
  * Created by pauldennis on 8/21/17.
  */
 public class NormalCombat extends UserInterfaceClass {
-    //Working on combat-feature branch
 
     private TextInterface textOut;
     private DungeonRoom room;
@@ -33,6 +32,7 @@ public class NormalCombat extends UserInterfaceClass {
                 .sum();
     }
 
+    @Override
     public void start (TextInterface textOut) {
         this.textOut = textOut;
     }
@@ -54,25 +54,25 @@ public class NormalCombat extends UserInterfaceClass {
         if (finished) {
             throw new AssertionError("Fight is over");
         }
-        //Todo: add initiative. For now the hero always gets it
+        //TODO: add initiative. For now the hero always gets it
         List<Monster> monsters = room.getMonsters();
         Hero hero = room.getHero();
         if (monsters.size() > 0) {
-            //Hero attack
+            //Hero attacks the first monster in the list
             int might = hero.getMight();
             int damageRoll = random.nextInt(might + 1) + might;
-            Monster monster = monsters.get(0);
-            double chance = calcAccuracy(might, monster.getDefense());
+            Monster firstMonster = monsters.get(0);
+            double chance = calcAccuracy(might, firstMonster.getDefense());
             double roll = Math.random();
             if (chance > roll) {
-                int taken = monster.takeDamage(damageRoll);
-                textOut.println("You hit " + monster.getName() + " for " + taken + " damage.");
-                if (monster.getHealth() <= 0) {
-                    textOut.println("You killed " + monster.getName());
+                int taken = firstMonster.takeDamage(damageRoll);
+                textOut.println("You hit " + firstMonster.getName() + " for " + taken + " damage.");
+                if (firstMonster.getHealth() <= 0) {
+                    textOut.println("You killed " + firstMonster.getName());
                     room.updateMonsters();
                 }
             } else {
-                textOut.println("You missed " + monster.getName() + ".");
+                textOut.println("You missed " + firstMonster.getName() + ".");
             }
             monsters = room.getMonsters();
 
@@ -80,12 +80,12 @@ public class NormalCombat extends UserInterfaceClass {
                 endCombat();
                 return InputType.FINISHED;
             }
-            monsters.forEach(m -> {
+            monsters.forEach(monster -> {
                 if (monster.isDisabled()) {
                     textOut.println(monster.getName() + " misses its turn (disabled).");
                     monster.nextRound();
                 } else {
-                    int monsterMight = m.getMight();
+                    int monsterMight = monster.getMight();
                     int monsterDamageRoll = random.nextInt(monsterMight + 1) + monsterMight;
                     double mChance = calcAccuracy(monsterMight, hero.getDefense());
                     double mRoll = Math.random();

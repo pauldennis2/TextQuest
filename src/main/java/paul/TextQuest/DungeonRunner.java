@@ -1,5 +1,6 @@
 package paul.TextQuest;
 
+import paul.TextQuest.entities.BackpackItem;
 import paul.TextQuest.entities.Dungeon;
 import paul.TextQuest.entities.DungeonRoom;
 import paul.TextQuest.entities.Hero;
@@ -30,8 +31,9 @@ public class DungeonRunner extends UserInterfaceClass {
 
     private static final List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue", "search");
 
-    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "trigger_dungeon.json";//"first_dungeon.json";
-
+    //public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "trigger_dungeon.json";//"first_dungeon.json";
+    //public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "four_elements_dungeon.json";//"first_dungeon.json";
+    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "darklight_dungeon.json";//"first_dungeon.json";
 
     public DungeonRunner (Hero hero) throws IOException {
         this.hero = hero;
@@ -53,7 +55,7 @@ public class DungeonRunner extends UserInterfaceClass {
         
         //Temporary
         //hero.setLocation(dungeon.getRoomByName("Healing Fountain"));
-        //hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
+        hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
     }
 
     @Override

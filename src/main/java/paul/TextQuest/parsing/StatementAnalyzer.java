@@ -64,7 +64,9 @@ public class StatementAnalyzer {
         }
 
 
-
+        //TODO Consider moving some of this functionality into other classes like Hero
+        //i.e. let the Hero class worry about how to cast a spell, etc. Forcing this class
+        //to care about those things is bloating it.
         if (voidActionWords.size() > 0) {
             analysis.setAnalysis(voidActionWords.get(0), null, true);
             if (paramActionWords.size() > 0) {
@@ -165,6 +167,30 @@ public class StatementAnalyzer {
             	}
             	analysis.setActionable(true);
             	analysis.setActionWord("drop");
+            	analysis.setActionParam(itemName);
+            } else if (actionWord.equals("equip")) {
+            	String[] tokens = analysis.getTokens();
+            	String itemName = "";
+            	for (int i = 1; i < tokens.length; i++) {
+            		itemName += tokens[i];
+            		if (i + 1 < tokens.length) {
+            			itemName += " ";
+            		}
+            	}
+            	analysis.setActionable(true);
+            	analysis.setActionWord("equip");
+            	analysis.setActionParam(itemName);
+            } else if (actionWord.equals("unequip")) {
+            	String[] tokens = analysis.getTokens();
+            	String itemName = "";
+            	for (int i = 1; i < tokens.length; i++) {
+            		itemName += tokens[i];
+            		if (i + 1 < tokens.length) {
+            			itemName += " ";
+            		}
+            	}
+            	analysis.setActionable(true);
+            	analysis.setActionWord("unequip");
             	analysis.setActionParam(itemName);
             } else {
                 List<String> conceptWords = analysis.getTokenMatchMap().get(WordType.CONCEPT);

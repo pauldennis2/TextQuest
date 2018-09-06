@@ -3,21 +3,24 @@ package paul.TextQuest.entities;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
 
-
-
-@JsonTypeInfo(defaultImpl=BackpackItem.class,
-        use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonTypeInfo(
+		defaultImpl = BackpackItem.class,
+        use = JsonTypeInfo.Id.NAME, 
+        include = JsonTypeInfo.As.PROPERTY,
+        property = "type")//,
+        //visible = true)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Note.class, name = "note")
+        @JsonSubTypes.Type(value = Note.class, name = "note"),
+        //@JsonSubTypes.Type(value = EquipableItem.class, name = EquipableItem._TYPE)
 })
 @JsonInclude(Include.NON_NULL)
-//@JsonInclude(Include.NON_DEFAULT)
 public class BackpackItem extends DungeonRoomEntity {
 
     private String name;
@@ -29,6 +32,9 @@ public class BackpackItem extends DungeonRoomEntity {
     private String onDrop;
     private boolean darklight; //Item can only be seen in the dark
     private boolean undroppable;
+    
+    private int numCharges;
+    private String onUse;
 
     public BackpackItem () {
 
@@ -131,4 +137,23 @@ public class BackpackItem extends DungeonRoomEntity {
     public void setOnDrop (String onDrop) {
     	this.onDrop = onDrop;
     }
+
+	public int getNumCharges() {
+		return numCharges;
+	}
+
+	@JsonInclude(Include.NON_DEFAULT)
+	public void setNumCharges(int numCharges) {
+		this.numCharges = numCharges;
+	}
+
+	public String getOnUse() {
+		return onUse;
+	}
+
+	public void setOnUse(String onUse) {
+		this.onUse = onUse;
+	}
+    
+    
 }
