@@ -13,6 +13,10 @@ public class ShinePuzzle extends Obstacle {
 	
 	private int numMirrors;
 	
+	public ShinePuzzle () {
+		
+	}
+	
 	public ShinePuzzle (int numMirrors) {
 		super();
 		this.numMirrors = numMirrors;

@@ -452,15 +452,15 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 textOut.println("You don't have the key");
             } else {
                 textOut.println("Trademarked chest-opening music, rapid ascending style.");
+                List<BackpackItem> chestContents = chest.removeContents();
+                chestContents.forEach(item -> {
+                    if (item.hasPickupAction()) {
+                        room.doAction(item.getOnPickup());
+                    }
+                    textOut.println("Looted " + item.getName() + " from chest.");
+                    backpack.add(item);
+                });
             }
-            List<BackpackItem> chestContents = chest.removeContents();
-            chestContents.forEach(item -> {
-                if (item.hasPickupAction()) {
-                    room.doAction(item.getOnPickup());
-                }
-                textOut.println("Looted " + item.getName() + " from chest.");
-                backpack.add(item);
-            });
         });
         
         heroVoidActions.put("leave", room -> {
@@ -544,11 +544,13 @@ public class Hero extends UserInterfaceClass implements Serializable {
         heroParamActions.put("use", (room, param) -> {
             if (room.getHero().getBackpack().contains(param)) {
                 itemActions.get(param).doAction(room);
-                if (room.getOnItemUse().containsKey("any")) {
-                	room.doAction(room.getOnItemUse().get("any"));
-                }
-                if (room.getOnItemUse().containsKey(param)) {
-                	room.doAction(room.getOnItemUse().get(param));
+                if (room.getOnItemUse() != null) {
+	                if (room.getOnItemUse().containsKey("any")) {
+	                	room.doAction(room.getOnItemUse().get("any"));
+	                }
+	                if (room.getOnItemUse().containsKey(param)) {
+	                	room.doAction(room.getOnItemUse().get(param));
+	                }
                 }
             } else {
                 textOut.println("You don't have a " + param + " to use.");

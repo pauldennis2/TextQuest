@@ -1,5 +1,6 @@
 package paul.TextQuest;
 
+import paul.TextQuest.entities.BackpackItem;
 import paul.TextQuest.entities.Dungeon;
 import paul.TextQuest.entities.DungeonRoom;
 import paul.TextQuest.entities.Hero;
@@ -54,7 +55,7 @@ public class DungeonRunner extends UserInterfaceClass {
         
         //Temporary
         //hero.setLocation(dungeon.getRoomByName("Healing Fountain"));
-        //hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
+        hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
     }
 
     @Override

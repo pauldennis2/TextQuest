@@ -86,6 +86,7 @@ public class DungeonRoom extends UserInterfaceClass {
         speechListeners = new ArrayList<>();
         specialRoomActions = new HashMap<>();
         children = new ArrayList<>();
+        features = new ArrayList<>();
         initUniversalSpeechListeners();
     }
     
@@ -577,8 +578,6 @@ public class DungeonRoom extends UserInterfaceClass {
             textOut.println("The room has the following obstacles:");
             obstaclesForDisplay.forEach(e -> textOut.println(e));
         }
-        
-        
         
         features.stream()
         	.filter(feature -> feature.isVisible(lighting))
