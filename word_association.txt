@@ -8,6 +8,7 @@ loot : gather, take, grab, pickup, acquire
 retreat : skedaddle, vamoose, runaway, back
 plunder : lootchest
 jump : leap, vault, vaultingboots
+shine : shine, reflect, mirrorshield
 smash : crush, bash
 describe : report
 douse : snuff

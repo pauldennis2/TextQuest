@@ -46,6 +46,8 @@ public class ShinePuzzle extends Obstacle {
     		}
     		return false;
     	} else {
+    		hero.getTextOut().println("The reflected light reaches the crytal. The way is now open.");
+    		setCleared(true);
     		return true;
     	}
     }

@@ -327,6 +327,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
         } else {
             if (location.getSpecialRoomActions().get(action) != null) {
                 String roomAction = location.getSpecialRoomActions().get(action);
+                
+                /* Old implementation. As of 9/6/18 not sure why this makes any sense
                 String[] splits = roomAction.split(" ");
                 switch (splits[0]) {
                     case "heal":
@@ -336,6 +338,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
                     default:
                         throw new AssertionError("No other ops supported.");
                 }
+                */
+                location.doAction(roomAction);
             } else {
                 textOut.debug("Action not in map.");
                 throw new AssertionError();
@@ -479,7 +483,13 @@ public class Hero extends UserInterfaceClass implements Serializable {
         heroVoidActions.put("clean", room -> {
         	room.getFeatures().stream()
         		.filter(feature -> feature.getName().contains("Mirror") && feature.isVisible(room.getLighting()))
-        		.filter(mirror -> !mirror.getStatus().equals("clean"))
+        		.filter(mirror -> { //Filter out mirrors that are already clean.
+        			if (mirror.getStatus() != null) {
+        				return !mirror.getStatus().equals("clean");
+        			} else {
+        				return true;
+        			}
+        		})
         		.forEach(feature -> {
         			feature.setStatus("clean");
         			textOut.println("You polished the " + feature.getName());
