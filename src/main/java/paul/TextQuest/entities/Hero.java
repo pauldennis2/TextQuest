@@ -476,15 +476,39 @@ public class Hero extends UserInterfaceClass implements Serializable {
         	}
         });
         
+        heroVoidActions.put("clean", room -> {
+        	room.getFeatures().stream()
+        		.filter(feature -> feature.getName().contains("Mirror") && feature.isVisible(room.getLighting()))
+        		.filter(mirror -> !mirror.getStatus().equals("clean"))
+        		.forEach(feature -> {
+        			feature.setStatus("clean");
+        			textOut.println("You polished the " + feature.getName());
+        		});
+        });
+        
+        heroVoidActions.put("shine", room -> {
+        	if (backpack.contains("Mirror Shield")) {
+        		room.getObstacles().stream()
+        			.filter(obs -> obs.getSolution().equals("shine"))
+        			.forEach(shinePuzzle -> {
+        				shinePuzzle.attempt("shine", this);
+        			});
+        	} else {
+        		textOut.println("Shine off of what?");
+        	}
+        
+        });
+        //TODO: once equippable items are real, change these implementations
+        //(shouldn't be backpack.contains() - should be if equipped
         heroVoidActions.put("jump", room -> {
             if (backpack.contains("Boots of Vaulting")) {
                 if (room.getObstacles().size() == 0) {
                     textOut.println("Nothing to jump.");
                 } else {
                     room.getObstacles().stream()
-                            .filter(e -> e.getSolution().equals("jump")) //Filter out non-chasms
-                            .forEach(e -> {
-                                e.attempt("jump", this);
+                            .filter(obs -> obs.getSolution().equals("jump")) //Filter out non-chasms
+                            .forEach(chasm -> {
+                                chasm.attempt("jump", this);
                                 textOut.println("You made it across!");
                             });
                 }

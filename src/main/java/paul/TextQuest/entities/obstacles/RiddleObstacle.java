@@ -30,6 +30,9 @@ public class RiddleObstacle extends Obstacle {
                 hero.addExp(DEFAULT_XP_AMT * RIDDLE_MULT);
                 return true;
             }
+            if (onAttempt != null) {
+    			hero.getLocation().doAction(onAttempt);
+    		}
             return false;
         } else {
             return true;

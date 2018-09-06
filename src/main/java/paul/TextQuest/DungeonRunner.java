@@ -30,9 +30,9 @@ public class DungeonRunner extends UserInterfaceClass {
 
     private static final List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue", "search");
 
-    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "trigger_dungeon.json";//"first_dungeon.json";
+    //public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "trigger_dungeon.json";//"first_dungeon.json";
     //public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "four_elements_dungeon.json";//"first_dungeon.json";
-
+    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "darklight_dungeon.json";//"first_dungeon.json";
 
     public DungeonRunner (Hero hero) throws IOException {
         this.hero = hero;

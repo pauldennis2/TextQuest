@@ -194,6 +194,7 @@ public class DungeonRoom extends UserInterfaceClass {
         
         paramActionMap.put("changeRoomDescription", (room, param) -> {
         	room.setDescription(param);
+        	room.textOut.println(param);
         	room.textOut.debug("Room description changed to " + param);
         	room.textOut.debug("current doesn't matter since description only happens once");
         });
@@ -271,6 +272,22 @@ public class DungeonRoom extends UserInterfaceClass {
         		.forEach(obstacle -> {
         			obstacle.setCleared(true);
         		});
+        });
+        
+        paramActionMap.put("addFeature", (room, param) -> {
+        	room.features.add(new Feature(param));
+        	room.textOut.debug("Added " + param + " feature to room.");
+        });
+        
+        paramActionMap.put("removeFeature", (room, param) -> {
+        	List<Feature> toBeRemoved = room.features.stream()
+        		.filter(feature -> feature.getName().equals(param))
+        		.collect(Collectors.toList());
+        	
+        	for (Feature feature : toBeRemoved) {
+        		room.features.remove(feature);
+        		room.textOut.debug("Removed " + feature);
+        	}
         });
         
         //MultiParam Actions\\
@@ -1098,12 +1115,18 @@ public class DungeonRoom extends UserInterfaceClass {
         return obstacles;
     }
 
+    /**
+     * Sets up back references.
+     * @param obstacles
+     */
     public void setObstacles(List<Obstacle> obstacles) {
         this.obstacles = obstacles;
+        this.obstacles.forEach(obs ->  obs.setLocation(this));
     }
 
     public void addObstacle (Obstacle obstacle) {
         obstacles.add(obstacle);
+        obstacle.setLocation(this);
     }
 
     public String getBossFightFileLocation() {

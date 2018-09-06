@@ -106,6 +106,7 @@
           "@class" : "paul.TextQuest.entities.obstacles.MagicBarrier",
           "name": "ShadowBarrier",
           "solution": "(script)",
+          "onClear": "changeRoomDescription \"The stairs leading down are no longer blocked.\"",
           "displayIfCleared":false,
           "blockedDirections":
           [
@@ -251,6 +252,10 @@
         "WELL_LIT":"makeMinibossStrong",
         "PITCH_BLACK":"makeMinibossWeak"
       },
+      "specialRoomActions":
+      {
+      	"climb":"removeTrigger specialRoomActions climb;addFeature Mirror"
+      },
       "monsters":
       [
         {
@@ -270,14 +275,47 @@
           "behavior":
           {
             "EVERY_OTHER_ROUND":"light"
-          }
+          },
+          "onDeath":"changeRoomDescription \"There's a light crystal in the room\""
         }
       ],
       "items":
       [
         {
           "name":"Mirror Shield",
-          "onPickup":"addShinePuzzle"
+          "onPickup":"print \"The way out is barred by a gate controlled by the Light Crystal.\";tutorial \"You'll need to clean all the mirrors in the room and then use shine.\""
+        }
+      ],
+      "features":
+      [
+      	{
+      		"name":"North Mirror"
+      	},
+      	{
+      		"name":"South Mirror"
+      	},
+      	{
+      		"name":"Light Crystal",
+      		"description": "A dim crystal sits in the middle of the room."
+      	},
+      	{
+      		"name":"Small Ladder",
+      		"description": "A small ladder allows you to climb up closer to the ceiling."
+      	}
+      ],
+      "obstacles":
+      [
+        {
+          "@class" : "paul.TextQuest.entities.obstacles.ShinePuzzle",
+          "name": "Shine Puzzle",
+          "solution":"shine",
+          "numMirrors":3,
+          "onAttempt":"tutorial \"
+          "displayIfCleared":true,
+          "blockedDirections":
+          [
+            "WEST"
+          ]
         }
       ],
       "connectedRoomIds":

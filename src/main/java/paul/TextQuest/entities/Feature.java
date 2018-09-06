@@ -17,6 +17,10 @@ public class Feature {
     public Feature () {
 
     }
+    
+    public Feature (String name) {
+    	this.name = name;
+    }
 
     public boolean isDarklight() {
         return darklight;

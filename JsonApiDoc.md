@@ -189,6 +189,7 @@ The Dungeon Template is a convenience feature that allows you to declare propert
 * chest - Optional
 * bossFightFileLocation - boss fights are stored separately as their own JSON file. This is a name of a file in the "encounters" directory. Optional
 * hiddenItems - you can "hide" items here in a map corresponding to their location. So if something is hidden by the fountain, it won't turn up when the player types "loot". They would have to "search fountain".
+* features - every room can have a list of "Features". Features are mainly a part of how the room is described - they can also be used in other ways (such as Mirror features being used in the Shine Puzzle).
 
 Triggers (all Optional)
 * onHeroLeave - a place to add triggers for when the Hero leaves a room. Mapped by direction.
@@ -241,6 +242,8 @@ There's not a lot you can currently do with items. We'll work on this!
 
 Triggers (all Optional)
 * onSmash - Some obstacles are "smashable". This trigger defines what happens when they're smashed.
+* onAttempt - What should happen when the Hero **unsuccessfully** attempts the obstacle.
+* onClear - What should happen when the Hero **successfully** clears the obstacle.
 
 ### List of Triggered Events
 
@@ -275,10 +278,10 @@ These events need an extra bit of information, often a number. For example if yo
 * removeItemFromHero (item name) - attempts to remove the given item from the Hero's backpack. Use with caution - you could remove essential quest items.
 * changeRoomName (new name) - changes the display name of the room. Use with caution.
 * removePassage (direction) - removes a passage from this room in the given direction (if any). Use with caution, player can become trapped.
-
-
-Not fully implemented
-* changeRoomDescription - modify the description of the room
+* addFeature (feature name) - Adds a new Feature to the room with the given name
+* removeFeature (feature name) - Removes **all** features with the given name.
+* changeRoomDescription (new description) - modify the description of the room
+* clearObstacle (obstacle name) - Clears **all** obstacles with the given name in the room.
 
 #### MultiParam Events
 
@@ -323,16 +326,10 @@ Items:
 Monsters:
 * onDealDamage - triggered when the monster deals damage to the player
 
-Obstacles:
-* onAttempt - when someone attempts an obstacle
-* onClear - when an obstacle is cleared
-
 ### Future Events
 
 * modMonsterStats
 * equip - force the hero to equip a given item
 * unequip - force the hero to unequip an item they currently have equipped
 * createObstacle
-* addFeature
-* clearObstacle
 * disableHero
