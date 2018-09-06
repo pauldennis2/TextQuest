@@ -126,12 +126,16 @@ Let's diagram this out. We basically have two parts here - the conditional and t
 Possible comparators:
 * = - equals. The only comparator that works with String variables.
 * != - NOT equal. Returns true if the properties are not equal, or false if they are.
-* (Symbol can't display) - greater than. Only for numbers (as are all the rest)
-* (Symbol can't display) - greater than or equal to.
+* Greater than. Only for numbers (as are all the rest)
+* Greater than or equal to.
 * < - less than
 * <= - Less than or equal to.
 
-Coming soon: an "else" functionality.
+**Else**: You can now define an event that will be triggered if your condition isn't met. 
+
+`$if[{numShadowsKilled} = 3] print \"A barrier has been removed.\" $else print \"You feel a barrier weakening.\"`
+
+This will print one message if the condition is met and a different one if it isn't.
 
 #### Boolean Logic
 
@@ -185,6 +189,7 @@ The Dungeon Template is a convenience feature that allows you to declare propert
 * chest - Optional
 * bossFightFileLocation - boss fights are stored separately as their own JSON file. This is a name of a file in the "encounters" directory. Optional
 * hiddenItems - you can "hide" items here in a map corresponding to their location. So if something is hidden by the fountain, it won't turn up when the player types "loot". They would have to "search fountain".
+* features - every room can have a list of "Features". Features are mainly a part of how the room is described - they can also be used in other ways (such as Mirror features being used in the Shine Puzzle).
 
 Triggers (all Optional)
 * onHeroLeave - a place to add triggers for when the Hero leaves a room. Mapped by direction.
@@ -237,10 +242,14 @@ There's not a lot you can currently do with items. We'll work on this!
 
 Triggers (all Optional)
 * onSmash - Some obstacles are "smashable". This trigger defines what happens when they're smashed.
+* onAttempt - What should happen when the Hero **unsuccessfully** attempts the obstacle.
+* onClear - What should happen when the Hero **successfully** clears the obstacle.
 
 ### List of Triggered Events
 
 All possible events must be hard coded into the game. That means you're limited to the (currently very small) set of events I've programmed into the game. Keep in mind that the events are just one side of it. In other words, these are just "some things that can happen". **How** and why they happen is determined by the trigger.
+
+Note: 
 
 **Remote Triggers**: It's now possible to have events be triggered in other rooms. To do this you add an "@id" to the beginning of the event message. Adding "@1" would try to trigger the event in the room with Id 1. Note: it doesn't always make sense to do this. Use with caution.
 
@@ -251,6 +260,10 @@ Here are the current possible events:
 #### Param Events
 
 These events need an extra bit of information, often a number. For example if you want to giveExp - how much? If you want to spawn a monster, I need to know the name. The parameter is listed in parentheses here:
+
+* print (text) - prints the given text to the normal text area
+* debug (text) - prints the given text to the debug window
+* tutorial (text) - prints the given text to the tutorial window
 
 * createMonster (name) - currently the only monster that can be created is a skeleton. More flexibility to come!
 * explode (damage amount) - the hero takes some damage from an explosion
@@ -265,10 +278,10 @@ These events need an extra bit of information, often a number. For example if yo
 * removeItemFromHero (item name) - attempts to remove the given item from the Hero's backpack. Use with caution - you could remove essential quest items.
 * changeRoomName (new name) - changes the display name of the room. Use with caution.
 * removePassage (direction) - removes a passage from this room in the given direction (if any). Use with caution, player can become trapped.
-
-
-Not fully implemented
-* changeRoomDescription - modify the description of the room
+* addFeature (feature name) - Adds a new Feature to the room with the given name
+* removeFeature (feature name) - Removes **all** features with the given name.
+* changeRoomDescription (new description) - modify the description of the room
+* clearObstacle (obstacle name) - Clears **all** obstacles with the given name in the room.
 
 #### MultiParam Events
 
@@ -304,10 +317,6 @@ Hopefully soon we'll add many more possible events, and even the ability to crea
 ### Future Triggers
 
 Here are some triggers that I hope to add to the game soon:
-
-Dungeon:
-* onVariableSet - triggered when the variable maps are changed
-
 Room:
 * speechTriggers - similar to Riddles, triggered when a hero speaks a given phrase
 
@@ -317,10 +326,10 @@ Items:
 Monsters:
 * onDealDamage - triggered when the monster deals damage to the player
 
-Obstacles:
-* onAttempt - when someone attempts an obstacle
-* onClear - when an obstacle is cleared
-
 ### Future Events
 
 * modMonsterStats
+* equip - force the hero to equip a given item
+* unequip - force the hero to unequip an item they currently have equipped
+* createObstacle
+* disableHero

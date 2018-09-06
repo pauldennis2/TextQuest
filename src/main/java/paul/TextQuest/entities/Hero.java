@@ -327,6 +327,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
         } else {
             if (location.getSpecialRoomActions().get(action) != null) {
                 String roomAction = location.getSpecialRoomActions().get(action);
+                
+                /* Old implementation. As of 9/6/18 not sure why this makes any sense
                 String[] splits = roomAction.split(" ");
                 switch (splits[0]) {
                     case "heal":
@@ -336,6 +338,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
                     default:
                         throw new AssertionError("No other ops supported.");
                 }
+                */
+                location.doAction(roomAction);
             } else {
                 textOut.debug("Action not in map.");
                 throw new AssertionError();
@@ -452,15 +456,15 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 textOut.println("You don't have the key");
             } else {
                 textOut.println("Trademarked chest-opening music, rapid ascending style.");
+                List<BackpackItem> chestContents = chest.removeContents();
+                chestContents.forEach(item -> {
+                    if (item.hasPickupAction()) {
+                        room.doAction(item.getOnPickup());
+                    }
+                    textOut.println("Looted " + item.getName() + " from chest.");
+                    backpack.add(item);
+                });
             }
-            List<BackpackItem> chestContents = chest.removeContents();
-            chestContents.forEach(item -> {
-                if (item.hasPickupAction()) {
-                    room.doAction(item.getOnPickup());
-                }
-                textOut.println("Looted " + item.getName() + " from chest.");
-                backpack.add(item);
-            });
         });
         
         heroVoidActions.put("leave", room -> {
@@ -476,15 +480,45 @@ public class Hero extends UserInterfaceClass implements Serializable {
         	}
         });
         
+        heroVoidActions.put("clean", room -> {
+        	room.getFeatures().stream()
+        		.filter(feature -> feature.getName().contains("Mirror") && feature.isVisible(room.getLighting()))
+        		.filter(mirror -> { //Filter out mirrors that are already clean.
+        			if (mirror.getStatus() != null) {
+        				return !mirror.getStatus().equals("clean");
+        			} else {
+        				return true;
+        			}
+        		})
+        		.forEach(feature -> {
+        			feature.setStatus("clean");
+        			textOut.println("You polished the " + feature.getName());
+        		});
+        });
+        
+        heroVoidActions.put("shine", room -> {
+        	if (backpack.contains("Mirror Shield")) {
+        		room.getObstacles().stream()
+        			.filter(obs -> obs.getSolution().equals("shine"))
+        			.forEach(shinePuzzle -> {
+        				shinePuzzle.attempt("shine", this);
+        			});
+        	} else {
+        		textOut.println("Shine off of what?");
+        	}
+        
+        });
+        //TODO: once equippable items are real, change these implementations
+        //(shouldn't be backpack.contains() - should be if equipped
         heroVoidActions.put("jump", room -> {
             if (backpack.contains("Boots of Vaulting")) {
                 if (room.getObstacles().size() == 0) {
                     textOut.println("Nothing to jump.");
                 } else {
                     room.getObstacles().stream()
-                            .filter(e -> e.getSolution().equals("jump")) //Filter out non-chasms
-                            .forEach(e -> {
-                                e.attempt("jump", this);
+                            .filter(obs -> obs.getSolution().equals("jump")) //Filter out non-chasms
+                            .forEach(chasm -> {
+                                chasm.attempt("jump", this);
                                 textOut.println("You made it across!");
                             });
                 }
@@ -520,11 +554,13 @@ public class Hero extends UserInterfaceClass implements Serializable {
         heroParamActions.put("use", (room, param) -> {
             if (room.getHero().getBackpack().contains(param)) {
                 itemActions.get(param).doAction(room);
-                if (room.getOnItemUse().containsKey("any")) {
-                	room.doAction(room.getOnItemUse().get("any"));
-                }
-                if (room.getOnItemUse().containsKey(param)) {
-                	room.doAction(room.getOnItemUse().get(param));
+                if (room.getOnItemUse() != null) {
+	                if (room.getOnItemUse().containsKey("any")) {
+	                	room.doAction(room.getOnItemUse().get("any"));
+	                }
+	                if (room.getOnItemUse().containsKey(param)) {
+	                	room.doAction(room.getOnItemUse().get(param));
+	                }
                 }
             } else {
                 textOut.println("You don't have a " + param + " to use.");

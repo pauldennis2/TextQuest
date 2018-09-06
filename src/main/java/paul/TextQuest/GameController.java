@@ -83,7 +83,7 @@ public class GameController {
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
         if (textOut == null) {
         	Hero hero = (Hero) session.getAttribute("hero");
-            textOut = new TextInterface(hero);
+            textOut = TextInterface.getInstance(hero);
             textOut.start(null);
             session.setAttribute("textInterface", textOut);
         }

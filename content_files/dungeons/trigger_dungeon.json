@@ -41,7 +41,7 @@
       },
       "onSpellCast":
       {
-      	"ice": "$if[{hero.name} = Link AND {heat} > 1] print NO_ZELDA_ITS_HOT",
+      	"ice": "tutorial \"You cast an ice spell. Ataboy.\"",
       	"fire": "setDungeonValue heat 5"
       },
       "onItemUse":

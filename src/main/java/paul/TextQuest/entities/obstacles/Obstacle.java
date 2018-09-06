@@ -2,6 +2,7 @@ package paul.TextQuest.entities.obstacles;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
+import paul.TextQuest.entities.DungeonRoom;
 import paul.TextQuest.entities.DungeonRoomEntity;
 import paul.TextQuest.entities.Hero;
 import paul.TextQuest.enums.Direction;
@@ -28,8 +29,13 @@ public abstract class Obstacle extends DungeonRoomEntity {
     //Represents whether this is a "major obstacle" puzzle or just a smashed barrel or something
     private boolean displayIfCleared;
     private boolean blocksLooting;
+    
+    private String onClear;
+    protected String onAttempt;
 
     private List<Direction> blockedDirections;
+    
+    private transient DungeonRoom location;
 
     public Obstacle () {
         blockedDirections = new ArrayList<>();
@@ -50,7 +56,10 @@ public abstract class Obstacle extends DungeonRoomEntity {
         return isCleared;
     }
 
-    protected void setCleared(boolean cleared) {
+    public void setCleared(boolean cleared) {
+    	if (cleared && onClear != null) {
+    		location.doAction(onClear);
+    	}
         isCleared = cleared;
     }
 
@@ -123,5 +132,25 @@ public abstract class Obstacle extends DungeonRoomEntity {
 		return "Obstacle [name=" + name + ", solution=" + solution + ", isCleared=" + isCleared + ", blocksLooting="
 				+ blocksLooting + ", blockedDirections=" + blockedDirections + "]";
 	}
-    
+	
+	public void setLocation (DungeonRoom location) {
+		this.location = location;
+	}
+
+	public String getOnClear() {
+		return onClear;
+	}
+
+	public void setOnClear(String onClear) {
+		this.onClear = onClear;
+	}
+
+	public String getOnAttempt() {
+		return onAttempt;
+	}
+
+	public void setOnAttempt(String onAttempt) {
+		this.onAttempt = onAttempt;
+	}
+	
 }

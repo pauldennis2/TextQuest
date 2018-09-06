@@ -86,6 +86,7 @@ public class DungeonRoom extends UserInterfaceClass {
         speechListeners = new ArrayList<>();
         specialRoomActions = new HashMap<>();
         children = new ArrayList<>();
+        features = new ArrayList<>();
         initUniversalSpeechListeners();
     }
     
@@ -177,6 +178,8 @@ public class DungeonRoom extends UserInterfaceClass {
             room.getHero().restoreHealth(amt);
         });
         paramActionMap.put("print", (room, param) -> room.textOut.println(param));
+        paramActionMap.put("debug", (room, param) -> room.textOut.debug(param));
+        paramActionMap.put("tutorial", (room, param) -> room.textOut.tutorial(param));
         paramActionMap.put("bump", (room, param) -> room.textOut.println("Ouch! You bumped into something."));
         
         //New 8/28
@@ -192,6 +195,7 @@ public class DungeonRoom extends UserInterfaceClass {
         
         paramActionMap.put("changeRoomDescription", (room, param) -> {
         	room.setDescription(param);
+        	room.textOut.println(param);
         	room.textOut.debug("Room description changed to " + param);
         	room.textOut.debug("current doesn't matter since description only happens once");
         });
@@ -261,6 +265,30 @@ public class DungeonRoom extends UserInterfaceClass {
         	connectedRooms.remove(direction);
         	room.setConnectedRooms(connectedRooms);
         	room.textOut.debug("A passage to the " + param + " closes.");
+        });
+        
+        paramActionMap.put("clearObstacle", (room, param) -> {
+        	room.getObstacles().stream()
+        		.filter(obstacle -> obstacle.getName().equals(param))
+        		.forEach(obstacle -> {
+        			obstacle.setCleared(true);
+        		});
+        });
+        
+        paramActionMap.put("addFeature", (room, param) -> {
+        	room.features.add(new Feature(param));
+        	room.textOut.debug("Added " + param + " feature to room.");
+        });
+        
+        paramActionMap.put("removeFeature", (room, param) -> {
+        	List<Feature> toBeRemoved = room.features.stream()
+        		.filter(feature -> feature.getName().equals(param))
+        		.collect(Collectors.toList());
+        	
+        	for (Feature feature : toBeRemoved) {
+        		room.features.remove(feature);
+        		room.textOut.debug("Removed " + feature);
+        	}
         });
         
         //MultiParam Actions\\
@@ -359,26 +387,29 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         
         multiParamActionMap.put("setDungeonVariable", (room, args) -> {
-        	room.getDungeon().setDungeonVar(args[1], args[2]);
+        	Dungeon dungeon = room.getDungeon();
+        	dungeon.setDungeonVar(args[1], args[2]);
         	room.textOut.debug("Vars: Set " + args[1] + " to " + args[2]);
-        	if (room.getDungeon().getOnVariableSet() != null) {
-        		room.doAction(room.getDungeon().getOnVariableSet());
+        	if (dungeon.getOnVariableSet().get(args[1]) != null) {
+        		room.doAction(dungeon.getOnVariableSet().get(args[1]));
         	}
         });
         
         multiParamActionMap.put("setDungeonValue", (room, args) -> {
-        	room.getDungeon().setDungeonVar(args[1], args[2]);
+        	Dungeon dungeon = room.getDungeon();
+        	dungeon.setDungeonVar(args[1], args[2]);
         	room.textOut.debug("Vars: Set " + args[1] + " to " + args[2]);
-        	if (room.getDungeon().getOnVariableSet() != null) {
-        		room.doAction(room.getDungeon().getOnVariableSet());
+        	if (dungeon.getOnVariableSet().get(args[1]) != null) {
+        		room.doAction(dungeon.getOnVariableSet().get(args[1]));
         	}
         });
         
         multiParamActionMap.put("addToDungeonValue", (room, args) -> {
-        	room.getDungeon().addToDungeonVal(args[1], Integer.parseInt(args[2]));
+        	Dungeon dungeon = room.getDungeon();
+        	dungeon.addToDungeonVal(args[1], Integer.parseInt(args[2]));
         	room.textOut.debug("Vars: Added " + args[2] + " to " + args[1]);
-        	if (room.getDungeon().getOnVariableSet() != null) {
-        		room.doAction(room.getDungeon().getOnVariableSet());
+        	if (room.getDungeon().getOnVariableSet().get(args[1]) != null) {
+        		room.doAction(dungeon.getOnVariableSet().get(args[1]));
         	}
         });
         
@@ -547,6 +578,19 @@ public class DungeonRoom extends UserInterfaceClass {
             textOut.println("The room has the following obstacles:");
             obstaclesForDisplay.forEach(e -> textOut.println(e));
         }
+        
+        features.stream()
+        	.filter(feature -> feature.isVisible(lighting))
+        	.forEach(feature -> {
+        		String completeDescription = feature.getName();
+        		if (feature.getDescription() != null) {
+        			completeDescription += " " + feature.getDescription();
+        		}
+        		if (feature.getStatus() != null) {
+        			completeDescription += " - " + feature.getStatus();
+        		}
+        		textOut.println(completeDescription);
+        	});
 
         //Print riddles
         obstacles.stream()
@@ -766,9 +810,17 @@ public class DungeonRoom extends UserInterfaceClass {
         	boolean proceed = evaluateConditionForBoolean(condition);
         	if (proceed) {
         		action = action.substring(action.indexOf("]") + 2);
+        		if (action.contains("$else")) {
+        			action = action.substring(0, action.indexOf("$else"));
+        		}
         	} else {
-        		textOut.debug("Not proceeding with action. Original statement: " + originalMessage);
-        		return;
+        		if (action.contains("$else")) {
+        			action = action.substring(action.indexOf("$else") + 6);
+        			textOut.debug("Found an else. Proceeding with action: " + action);
+        		} else {
+	        		textOut.debug("Not proceeding with action. Original statement: " + originalMessage);
+	        		return;
+        		}
         	}
         }
         
@@ -1062,12 +1114,18 @@ public class DungeonRoom extends UserInterfaceClass {
         return obstacles;
     }
 
+    /**
+     * Sets up back references.
+     * @param obstacles
+     */
     public void setObstacles(List<Obstacle> obstacles) {
         this.obstacles = obstacles;
+        this.obstacles.forEach(obs ->  obs.setLocation(this));
     }
 
     public void addObstacle (Obstacle obstacle) {
         obstacles.add(obstacle);
+        obstacle.setLocation(this);
     }
 
     public String getBossFightFileLocation() {
