@@ -9,12 +9,12 @@
   		"health": 8,
   		"might":2,
   		"defense":1,
-  		"onDeath":"addToDungeonValue numShadowsKilled 1"
+  		"onDeath":"addToDungeonValue numShadowsKilled 1;print \"You feel a barrier weakening.\""
   	}
   },
   "onVariableSet":
   {
-  	"numShadowsKilled":"$if[{numShadowsKilled} = 3] print \"A barrier has been removed.\" $else print \"You feel a barrier weakening.\""
+  	"numShadowsKilled":"$if[{numShadowsKilled} = 3] @4 clearObstacle ShadowBarrier"
   },
   "levels":
   {
@@ -53,10 +53,14 @@
       }
     },
     {
-      "name":"First Room",
+      "name":"Shadowy Crossway",
       "id":2,
-      "description":"Something.",
+      "description":"Passages lead out of this dimly lit room. One corner is completely obscured by shadow.",
       "lighting":0.5,
+      "onSearch":
+      {
+      	"corner":"createMonster Shadow;startFight;print \"A living shadow leaps out and attacks!\""
+      },
       "connectedRoomIds":
       {
         "WEST":1,
@@ -66,9 +70,9 @@
       }
     },
     {
-      "name":"Treasure Room",
+      "name":"Shadowy Storage",
       "id":3,
-      "description":"Has some treasure.",
+      "description":"You can't initially make out much in this room.",
       "lighting":0.5,
       "chest":
       {
@@ -92,10 +96,23 @@
       }
     },
     {
-      "name":"Room 4",
+      "name":"Shadowy Basement Access",
       "id":4,
-      "description":"Mainly a passage.",
+      "description":"The stairs leading down are blocked by a shadowy barrier.",
       "lighting":0.5,
+      "obstacles":
+      [
+        {
+          "@class" : "paul.TextQuest.entities.obstacles.MagicBarrier",
+          "name": "ShadowBarrier",
+          "solution": "(script)",
+          "displayIfCleared":false,
+          "blockedDirections":
+          [
+            "DOWN"
+          ]
+        }
+      ],
       "connectedRoomIds":
       {
         "WEST":3,
@@ -104,16 +121,24 @@
       }
     },
     {
-      "name":"Monster Room",
+      "name":"Shadowy Guardroom",
       "id":5,
-      "description":"There be monsters.",
+      "description":"A dangerous shadow guards this room.",
       "lighting":0.5,
       "monsters":
       [
         {
-          "name":"Red BlobGoblin",
-          "health": 5,
-          "might": 2
+          "name":"Shadow Guard",
+          "health": 10,
+          "might": 3,
+          "defense":2,
+          "onDeath": "addToDungeonValue numShadowsKilled 1;print \"You feel a barrier weakening.\""
+        }
+      ],
+      "items":
+      [
+        {
+          "name":"Potion"
         }
       ],
       "connectedRoomIds":
@@ -123,9 +148,9 @@
       }
     },
     {
-      "name":"Darklight Key Room",
+      "name":"Dim Closet",
       "id":6,
-      "description":"Probably a key around here somewhere.",
+      "description":"There is a small table in this tiny room. Nothing else is visible.",
       "lighting":0.5,
       "items":
       [
@@ -140,18 +165,18 @@
       }
     },
     {
-      "name":"Shadows Riddle Room",
+      "name":"Dim Passage",
       "id":7,
-      "description":"Duh.",
+      "description":"We hope you don't take a dim view of riddles.",
       "lighting":0.5,
       "obstacles":
       [
         {
           "@class" : "paul.TextQuest.entities.obstacles.RiddleObstacle",
-          "name": "Sphinx Riddle",
+          "name": "Riddle",
           "solution": "shadows",
           "displayIfCleared":true,
-          "riddle": "We flee from the light.",
+          "riddle": "We can only live where there is light, but we die if light shines on us.",
           "blockedDirections":
           [
             "EAST"
@@ -165,9 +190,9 @@
       }
     },
     {
-      "name":"Double Treasure Room",
+      "name":"Shadowy Armory",
       "id":8,
-      "description":"There be treasure.",
+      "description":"This room appears to be completely empty.",
       "lighting":0.5,
       "chest":
       {
@@ -178,16 +203,8 @@
         "contents":
         [
           {
-            "name":"Helm of Darkvision"
-          }
-        ]
-      },
-      "hiddenItems":
-      {
-        "floor":
-        [
-          {
-            "name":"50 Gold"
+            "name":"Helm of Defense",
+            "onPickup":"createMonster Shadow"
           }
         ]
       },
@@ -199,7 +216,7 @@
     {
       "name":"Stair Up",
       "id":9,
-      "description":"Stairs lead up into light.",
+      "description":"Stairs lead up into blindingly bright light.",
       "lighting":0.5,
       "items":
       [
@@ -216,7 +233,7 @@
     {
       "name":"2nd Floor Landing",
       "id":11,
-      "description":"It's bright up here",
+      "description":"Bright light comes from no apparent source, reflecting off white tiles.",
       "lighting":1.0,
       "connectedRoomIds":
       {

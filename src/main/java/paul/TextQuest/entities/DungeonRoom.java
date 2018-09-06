@@ -265,6 +265,14 @@ public class DungeonRoom extends UserInterfaceClass {
         	room.textOut.debug("A passage to the " + param + " closes.");
         });
         
+        paramActionMap.put("clearObstacle", (room, param) -> {
+        	room.getObstacles().stream()
+        		.filter(obstacle -> obstacle.getName().equals(param))
+        		.forEach(obstacle -> {
+        			obstacle.setCleared(true);
+        		});
+        });
+        
         //MultiParam Actions\\
         multiParamActionMap.put("modStat", (room, args) -> {
         	/*
@@ -786,6 +794,9 @@ public class DungeonRoom extends UserInterfaceClass {
         	boolean proceed = evaluateConditionForBoolean(condition);
         	if (proceed) {
         		action = action.substring(action.indexOf("]") + 2);
+        		if (action.contains("$else")) {
+        			action = action.substring(0, action.indexOf("$else"));
+        		}
         	} else {
         		if (action.contains("$else")) {
         			action = action.substring(action.indexOf("$else") + 6);

@@ -50,7 +50,7 @@ public abstract class Obstacle extends DungeonRoomEntity {
         return isCleared;
     }
 
-    protected void setCleared(boolean cleared) {
+    public void setCleared(boolean cleared) {
         isCleared = cleared;
     }
 
