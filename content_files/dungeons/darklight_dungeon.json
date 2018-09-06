@@ -10,6 +10,13 @@
   		"might":2,
   		"defense":1,
   		"onDeath":"addToDungeonValue numShadowsKilled 1;print \"You feel a barrier weakening.\""
+  	},
+  	"MiniShadow":
+  	{
+  		"name":"Small Shadow",
+  		"health":4,
+  		"might":1,
+  		"defense":0
   	}
   },
   "onVariableSet":
@@ -215,7 +222,7 @@
       }
     },
     {
-      "name":"Stair Up",
+      "name":"Upper Floor Access",
       "id":9,
       "description":"Stairs lead up into blindingly bright light.",
       "lighting":0.5,
@@ -254,7 +261,11 @@
       },
       "specialRoomActions":
       {
-      	"climb":"removeTrigger specialRoomActions climb;addFeature Mirror"
+      	"climb":"removeTrigger specialRoomActions climb;removeTrigger onSearch ladder;addFeature Mirror;print \"You found a mirror up near the ceiling.\""
+      },
+      "onSearch":
+      {
+      	"ladder":"removeTrigger specialRoomActions climb;addFeature Mirror;print \"You found a mirror up near the ceiling.\""
       },
       "monsters":
       [
@@ -310,7 +321,7 @@
           "name": "Shine Puzzle",
           "solution":"shine",
           "numMirrors":3,
-          "onAttempt":"tutorial \"
+          "onAttempt":"tutorial \"You have to find and clean all three mirrors first.\"",
           "displayIfCleared":true,
           "blockedDirections":
           [
@@ -327,7 +338,7 @@
       "name":"Basement Landing",
       "id":21,
       "lighting":0.0,
-      "description":"It's very dark down here.",
+      "description":"It's pitch black down here.",
       "connectedRoomIds":
       {
         "UP":4,
@@ -336,10 +347,45 @@
       }
     },
     {
-      "name":"Shine Puzzle 6",
+      "name":"Dark Access Room",
       "id":22,
       "lighting":0.0,
       "description":"There's a puzzle here? Eventually.",
+      "features":
+      [
+      	{
+      		"name":"Large Mirror"
+      	},
+      	{
+      		"name":"Big Switch",
+      		"description":"A big switch. Try flicking it."
+      	}
+      ],
+      "specialRoomActions":
+      {
+      	"flick":"removeTrigger specialRoomActions flick;addFeature Mirror"
+      },
+      "obstacles":
+      [
+        {
+          "@class" : "paul.TextQuest.entities.obstacles.ShinePuzzle",
+          "name": "Shine Puzzle",
+          "solution":"shine",
+          "numMirrors":3,
+          "onAttempt":"tutorial \"You have to find and clean all three mirrors first.\"",
+          "displayIfCleared":false,
+          "blockedDirections":
+          [
+            "EAST"
+          ]
+        },
+        {
+          "@class" : "paul.TextQuest.entities.obstacles.SmashableObstacle",
+          "name": "Barrel",
+          "solution": "smash",
+          "onSmash":"addFeature Mirror;print \"Smashing the barrel reveals a mirror hidden behind it.\""
+        }
+      ],
       "connectedRoomIds":
       {
         "NORTH":21,
@@ -347,18 +393,22 @@
       }
     },
     {
-      "name":"Darklight Fountain Room",
+      "name":"Shadow Restoration Room",
       "id":23,
       "lighting":0.1,
       "description":"It's not quite pitch black in here.",
       "features":
       [
         {
-          "name":"fountain",
-          "description":"Darklight Healing Fountain",
+          "name":"Darklight Healing Fountain",
           "darklight":true
         }
       ],
+      "onLightingChange":
+      {
+        "WELL_LIT":"removeTrigger specialRoomActions drink",
+        "PITCH_BLACK":"addTrigger specialRoomActions drink heal 10"
+      },
       "onHeroLeave":
       {
         "EAST":
@@ -385,10 +435,19 @@
       }
     },
     {
-      "name":"Room 25",
+      "name":"Shadowsplitter Research",
       "id":25,
       "lighting":0.0,
-      "description":"???",
+      "monsters":
+      [
+      	{
+          "name":"Massive Shadow",
+          "health": 15,
+          "might": 1,
+          "defense":2,
+          "onDeath": "createMonster MiniShadow;createMonster MiniShadow;print \"The massive shadow splits in two!\""
+        }
+      ],
       "connectedRoomIds":
       {
         "SOUTH":21,
@@ -396,10 +455,14 @@
       }
     },
     {
-      "name":"Room 26",
+      "name":"Shadow Training",
       "id":26,
       "lighting":0.0,
-      "description":"Even more ??",
+      "description":"There's a large pool of shadow in the middle of the room.",
+      "onSearch":
+      {
+      	"pool":"teachSpell shadow;explode 5"
+      },
       "connectedRoomIds":
       {
         "WEST":25
