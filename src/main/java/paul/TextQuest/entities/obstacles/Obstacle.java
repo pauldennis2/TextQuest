@@ -30,6 +30,8 @@ public abstract class Obstacle extends DungeonRoomEntity {
     private boolean displayIfCleared;
     private boolean blocksLooting;
     
+    private String description;
+    
     private String onClear;
     protected String onAttempt;
 
@@ -149,6 +151,14 @@ public abstract class Obstacle extends DungeonRoomEntity {
 
 	public void setOnAttempt(String onAttempt) {
 		this.onAttempt = onAttempt;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 }

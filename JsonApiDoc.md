@@ -219,7 +219,7 @@ Triggers (all Optional)
 * name - The monster's name. **Required**
 * health, might, defense - the monster's stats. Might increases the power and accuracy of physical attacks. Defense reduces damage and increases chance to dodge. Health is how much damage the monster can take before death. **Required**
 * isMiniboss - a flag indicating if the monster is a miniboss. Optional
-* description - A custom description for the monster (i.e. perhaps describing their manner, position in the room, etc). Optional
+* description - A custom description for the monster (i.e. perhaps describing their manner, position in the room, etc). Will be displayed *instead of* the monster's name. Optional
 * abilities Optional Together with the behavior property, can be used to define more interesting behaviors for a monster.
 * behavior Optional
 
@@ -250,6 +250,7 @@ There's not a lot you can currently do with items. We'll work on this!
 * displayIfCleared - Optional flag as to whether we should continue to include this obstacle in the room description once it's been cleared. For something like a smashed barrel, we probably don't want to keep displaying it. For a riddle, it's good to remind the player that this was the room where they solved it.
 * blockedDirections - A List of directions that are blocked until this obstacle is cleared. Optional
 * expAmount - the amount of experience the hero should receive when clearing the obstacle. Different types have different defaults, but the base default is 25 experience points.
+* description - An optional detailed description of the obstacle that will be displayed *instead of* the name. Optional
 
 Triggers (all Optional)
 * onSmash - Some obstacles are "smashable". This trigger defines what happens when they're smashed.

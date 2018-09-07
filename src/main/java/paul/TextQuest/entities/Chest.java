@@ -43,6 +43,12 @@ public class Chest {
         }
     }
     
+    public void open () {
+    	if (!locked) {
+    		isOpen = true;
+    	}
+    }
+    
     public void open (BackpackItem key) {
     	if (locked) {
     		unlock(key);

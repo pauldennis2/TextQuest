@@ -27,7 +27,7 @@ public class ShinePuzzle extends Obstacle {
     	List<Feature> features = hero.getLocation().getFeatures();
     	int cleanMirrors = 0;
     	for (Feature feature : features) {
-    		if (feature.getName().contains("Mirror") && feature.getStatus().equals("clean")) {
+    		if (feature.getName().contains("Mirror") && feature.getStatus() != null && feature.getStatus().equals("clean")) {
 				cleanMirrors++;
     		}
     	}

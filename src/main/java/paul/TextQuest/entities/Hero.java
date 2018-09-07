@@ -365,7 +365,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         itemActions.put("potion", room -> {
             this.restoreHealth(POTION_VALUE);
             this.removeItem("Potion");
-            textOut.println("Drank a potion and restored up to 9 health.");
+            textOut.println("Drank a potion.");
         });
         itemActions.put("bow", room -> textOut.println("You don't know how to use that yet."));
     }
@@ -373,7 +373,9 @@ public class Hero extends UserInterfaceClass implements Serializable {
     private void initViews () {
         views.put("status", room -> printStats());
         views.put("map", room -> textOut.println("Map not yet implemented."));
-        views.put("backpack", room -> textOut.println(backpack));
+        views.put("backpack", room -> {
+        	textOut.println("You have the following items in your pack: " + StringUtils.prettyPrintList(backpack.getItems()));
+        });
         views.put("spellbook", room -> {
             if (spellMap.keySet().size() == 0) {
                 textOut.println("You don't know any spells yet.");
@@ -441,6 +443,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         	if (chest == null) {
         		textOut.println("There's no chest to open.");
         	} else {
+        		chest.open();
 	        	room.getHero().backpack.stream()
 	            	.filter(item -> item.getName().contains("Key"))
 	            	.forEach(chest::open);
@@ -800,11 +803,15 @@ public class Hero extends UserInterfaceClass implements Serializable {
     }
 
     public void restoreHealth (int healthAmount) {
-        health += healthAmount;
-        if (health > maxHealth) {
-            health = maxHealth;
-        }
-        textOut.println("Restored up to " + healthAmount + ". Current health = " + health);
+    	if (health < maxHealth) {
+    		health += healthAmount;
+    		if (health > maxHealth) {
+                health = maxHealth;
+            } 
+    		textOut.println("Restored up to " + healthAmount + " health. (" + health + "/" + maxHealth + ")");
+    	} else {
+        	textOut.debug("Health was already at max.");
+        }       
     }
 
     public void printStats () {

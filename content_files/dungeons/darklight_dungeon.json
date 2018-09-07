@@ -36,11 +36,17 @@
       "id":1,
       "description":"The passage leading onwards is framed by a statue of the sun on the left, and a shapeless shadow on the right.",
       "lighting":1.0,
+      "tutorial":"Some things in the Darklight Dungeon can only be seen in the dark. Try using \"douse\" to darken the room.",
+      "onLightingChange":
+      {
+        "WELL_LIT":"removePassage EAST;print \"The passage east disappears.\"",
+        "PITCH_BLACK":"createPassage EAST 2;print \"A passage appears in the darkness.\""
+      },
       "obstacles":
       [
         {
           "@class" : "paul.TextQuest.entities.obstacles.Chasm",
-          "name": "Chasm",
+          "name": "chasm",
           "solution": "jump",
           "blockedDirections":
           [
@@ -56,7 +62,6 @@
       ],
       "connectedRoomIds":
       {
-        "EAST":2
       }
     },
     {

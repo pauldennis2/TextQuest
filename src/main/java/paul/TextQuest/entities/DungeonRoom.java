@@ -561,7 +561,24 @@ public class DungeonRoom extends UserInterfaceClass {
     }
 
     public void describe () {
+    	
+    	/* Description Order
+    	 * (if applicable)
+    	 * 1. Light level
+    	 * 2. Room Description
+    	 * 3. Monsters
+    	 * 4. Obstacles that block travel
+    	 * 5. Chest
+    	 * 6. Visible items
+    	 * 7. Features with a description
+    	 * 8. Riddle message
+    	 * 9. Obstacles that don't block travel, features with no description
+    	 * 10. Passages out
+    	 * This is based on a rough concept of the priorities/importance,
+    	 * with passages last because they're about leaving the room. 
+    	 */
         LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
+        //1. Light level
     	switch (lightingLevel) {
     	case WELL_LIT:
     		textOut.println("The room is well-lit.");
@@ -572,9 +589,11 @@ public class DungeonRoom extends UserInterfaceClass {
     	case PITCH_BLACK:
     		textOut.println("The room is pitch black.");
     	}
+    	//2. Room Description
         if (description != null) {
         	textOut.println(description);
         }
+        //3. Monsters
         switch (lightingLevel) {
 	        case WELL_LIT:
 	        	List<Monster> undescribed = new ArrayList<>(monsters);
@@ -601,8 +620,10 @@ public class DungeonRoom extends UserInterfaceClass {
 				break;
         }
         
-        describeObstacles();
+        //4. Obstacles that block travel
+        describeBlockingObstacles();
         
+        //5. Chest
         if (chest != null && chest.isVisible(lighting)) {
         	String chestDescription;
         	if (chest.isOpen()) {
@@ -612,106 +633,125 @@ public class DungeonRoom extends UserInterfaceClass {
         			chestDescription = "There's an open " + chest.getName() + " (empty)";
         		}
         	} else {
-        		chestDescription = "There's a";
-        		if (StringUtils.startsWithVowel(chest.getName())) {
-        			chestDescription += "n";
-        		}
-        		chestDescription += " " + chest.getName() + ".";
+        		chestDescription = "There's " + StringUtils.addAOrAn(chest.getName());
             	if (chest.getContents().size() == 0) {
             		chestDescription += " (empty)";
             	}
+            	chestDescription += ".";
         	}
         	
         	textOut.println(chestDescription);
         }
+        
+        //6. Visible items
         List<BackpackItem> visibleItems = items.stream().filter(item -> item.isVisible(lighting)).collect(Collectors.toList());
 
-        if (visibleItems.size() > 0) {
+        if (visibleItems.size() > 1) {
         	textOut.println("You can see the following items: " + StringUtils.prettyPrintList(visibleItems));
+        } else if (visibleItems.size() == 1) {
+        	textOut.println("You can see " + StringUtils.addAOrAn(visibleItems.get(0).getName()) + ".");
         }
 	    
+        //7. Features with a description
         features.stream()
         	.filter(feature -> feature.isVisible(lighting))
-        	.forEach(feature -> {
-        		String completeDescription = feature.getName();
-        		if (feature.getDescription() != null) {
-        			completeDescription += " " + feature.getDescription();
-        		}
-        		if (feature.getStatus() != null) {
-        			completeDescription += " - " + feature.getStatus();
-        		}
-        		textOut.println(completeDescription);
-        	});
+        	.filter(feature -> feature.getDescription() != null)
+        	.forEach(feature -> textOut.println(feature.getDescription()));
         
-        //Print riddle messages
+        //8. Riddle messages
         obstacles.stream()
-                .filter(e -> e.getClass() == RiddleObstacle.class)
-                .filter(e -> !e.isCleared())
-                .forEach(e -> textOut.println("A riddle:\"" + ((RiddleObstacle) e).getRiddle() + "\""));
+            .filter(obs -> obs.getClass() == RiddleObstacle.class)
+            .filter(riddle -> !riddle.isCleared())
+            .forEach(riddle -> textOut.println("A riddle:\"" + ((RiddleObstacle) riddle).getRiddle() + "\""));
+        
+        //9. Obstacles that don't block travel, features with no description
+        List<String> lowPrioFeatures = new ArrayList<>();
+        obstacles.stream()
+        	.filter(obs -> {
+        		if (obs.isCleared()) {
+        			return obs.isDisplayIfCleared();
+        		}
+        		return true;
+        	})
+        	.filter(obs -> {
+        		List<Direction> blocked = obs.getBlockedDirections();
+        		if (blocked == null || blocked.size() == 0) { //Safe because of short-circuiting
+        			return true;
+        		}
+        		return false;
+        	})
+        	.forEach(obs -> lowPrioFeatures.add(obs.getName()));
+        features.stream()
+        	.filter(feature -> feature.isVisible(lighting))
+        	.filter(feature -> feature.getDescription() == null)
+        	.forEach(feature -> {
+        		String shortDesc = feature.getName();
+        		if (feature.getStatus() != null) {
+        			shortDesc += " - " + feature.getStatus();
+        		}
+        		lowPrioFeatures.add(shortDesc);
+        	});
+        if (lowPrioFeatures.size() > 0) {
+        	textOut.println("You can also see " + StringUtils.prettyPrintList(lowPrioFeatures));
+        }
 
+        //10. Passages out
         describePassages();
     }
     
-    private void describeObstacles () {
-    	List<Obstacle> nonBlockers = new ArrayList<>();
-        List<Obstacle> blockers = new ArrayList<>();
+    private void describeBlockingObstacles () {
     	obstacles.stream()
-    			.filter(obstacle -> { //Filter out obstacles we don't want to display
-    				if (obstacle.isCleared()) {
-    					return obstacle.isDisplayIfCleared();
-    				}
-    				return true;
-    			}) 
-                .forEach(obstacle -> { //Then split them into blockers and non-blockers
-                    if (obstacle.isCleared()) {
-                    	nonBlockers.add(obstacle);
-                    } else {
-                    	List<Direction> blocked = obstacle.getBlockedDirections();
-                    	System.out.println(obstacle.getName() + ": " + blocked);
-                    	if (blocked != null && blocked.size() > 0) {
-                    		blockers.add(obstacle);
-                    	} else {
-                    		nonBlockers.add(obstacle);
-                    	}
-                    }
-                });
-    	
-    	blockers.forEach(obs -> {
-    		List<Direction> blocked = obs.getBlockedDirections();
-    		String obstacleDescription = "A " + obs.getName() + " blocks travel ";
-    		if (blocked.contains(Direction.ALL)) {
-    			obstacleDescription += "in all directions.";
-    			textOut.println(obstacleDescription);
-    			return;
-    		}
-    		List<Direction> cardinals = new ArrayList<>();
-    		List<Direction> nonCardinals = new ArrayList<>();
-    		blocked.stream()
-    			.forEach(direction -> {
-    				if (direction.isCardinal()) {
-    					cardinals.add(direction);
-    				} else {
-    					nonCardinals.add(direction);
-    				}
-    			});
-    		if (nonCardinals.contains(Direction.PORTAL)) {
-    			obstacleDescription += "through the Portal";
-    			nonCardinals.remove(Direction.PORTAL);
-    			if (nonCardinals.size() + cardinals.size() > 0) {
-    				obstacleDescription += ", ";
-    			}
-    		}
-    		if (nonCardinals.size() > 0) {
-    			obstacleDescription += StringUtils.prettyPrintList(nonCardinals);
-    			if (cardinals.size() > 0) {
-    				obstacleDescription.replaceAll("\\.", ", ");
-    			}
-    		}
-    		obstacleDescription += StringUtils.prettyPrintList(cardinals);
-    		textOut.println(obstacleDescription);
-    	});
-    	String nonBlockersDescription = StringUtils.prettyPrintList(nonBlockers.stream().map(Obstacle::getName).collect(Collectors.toList()));
-    	textOut.println(nonBlockersDescription);
+			.filter(obstacle -> { //Filter out obstacles we don't want to display
+				if (obstacle.isCleared()) {
+					return obstacle.isDisplayIfCleared();
+				}
+				return true;
+			}) 
+            .filter(obstacle -> { //Then filter for blockers that aren't cleared
+                if (!obstacle.isCleared()) {
+                	List<Direction> blocked = obstacle.getBlockedDirections();
+                	if (blocked != null && blocked.size() > 0) {
+                		return true;
+                	} else {
+                		return false;
+                	}
+                }
+                return false;
+            })
+            .forEach(obs -> {
+            	List<Direction> blocked = obs.getBlockedDirections();
+        		String obstacleDescription = "A " + obs.getName() + " blocks travel ";
+        		if (blocked.contains(Direction.ALL)) {
+        			obstacleDescription += "in all directions.";
+        			textOut.println(obstacleDescription);
+        			return;
+        		}
+        		List<Direction> cardinals = new ArrayList<>();
+        		List<Direction> nonCardinals = new ArrayList<>();
+        		blocked.stream()
+        			.forEach(direction -> {
+        				if (direction.isCardinal()) {
+        					cardinals.add(direction);
+        				} else {
+        					nonCardinals.add(direction);
+        				}
+        			});
+        		if (nonCardinals.contains(Direction.PORTAL)) {
+        			obstacleDescription += "through the Portal";
+        			nonCardinals.remove(Direction.PORTAL);
+        			if (nonCardinals.size() + cardinals.size() > 0) {
+        				obstacleDescription += ", ";
+        			}
+        		}
+        		if (nonCardinals.size() > 0) {
+        			obstacleDescription += StringUtils.prettyPrintList(nonCardinals);
+        			if (cardinals.size() > 0) {
+        				obstacleDescription.replaceAll("\\.", ", ");
+        			}
+        		}
+        		obstacleDescription += StringUtils.prettyPrintList(cardinals);
+        		textOut.println(obstacleDescription);
+            });
     }
     
     private void describePassages () {
@@ -779,7 +819,11 @@ public class DungeonRoom extends UserInterfaceClass {
     public void setLighting (double lighting) {
         if (lighting != this.lighting) {
             if (onLightingChange != null) {
-                String action = onLightingChange.get(LightingLevel.getLightingLevel(lighting));
+            	System.out.println("There's a lighting change.");
+            	System.out.println(onLightingChange);
+            	System.out.println("LightingLevel = " + LightingLevel.getLightingLevel(lighting));
+                String action = onLightingChange.get(LightingLevel.getLightingLevel(lighting).toString());
+                System.out.println(action);
                 if (action != null) {
                     doAction(action);
                 }

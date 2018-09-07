@@ -47,6 +47,14 @@ public class StringUtils {
 		return response;
 	}
 	
+	public static String addAOrAn (String input) {
+		if (startsWithVowel(input)) {
+			return "an " + input;
+		} else {
+			return "a " + input;
+		}
+	}
+	
 	public static boolean startsWithVowel (String input) {
 		input = input.toLowerCase();
 		return input.startsWith("a") || input.startsWith("e") || input.startsWith("i")
