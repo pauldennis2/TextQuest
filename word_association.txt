@@ -15,6 +15,7 @@ douse : snuff
 leave : leave, exit
 save : save
 clean : clean, polish
+open : open
 |
 |Param Action Words: (i.e. "travel where?" "use what?", "cast what spell?")
 |===

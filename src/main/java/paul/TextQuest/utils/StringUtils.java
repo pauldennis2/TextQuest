@@ -29,4 +29,27 @@ public class StringUtils {
 		}
 		return response;
 	}
+	
+	public static String prettyPrintListNoPeriod (List<?> list) {
+		if (list.size() == 2) {
+			return list.get(0) + " and " + list.get(1) + ".";
+		}
+		String response = "";
+		for (int i = 0; i < list.size(); i++) {
+			response += list.get(i);
+			if (i + 2 == list.size()) {
+				response += ", and ";
+			} else if (i + 1 == list.size()) {
+			} else {
+				response += ", ";
+			}
+		}
+		return response;
+	}
+	
+	public static boolean startsWithVowel (String input) {
+		input = input.toLowerCase();
+		return input.startsWith("a") || input.startsWith("e") || input.startsWith("i")
+				|| input.startsWith("o") || input.startsWith("u") || input.startsWith("h");
+	}
 }

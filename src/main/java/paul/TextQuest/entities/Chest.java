@@ -13,6 +13,8 @@ public class Chest {
 
     private List<BackpackItem> contents;
     private boolean darklight;
+    
+    private transient boolean isOpen;
 
     public Chest() {
         contents = new ArrayList<>();
@@ -39,6 +41,17 @@ public class Chest {
         if (key.getName().equals(this.key)) {
             locked = false;
         }
+    }
+    
+    public void open (BackpackItem key) {
+    	if (locked) {
+    		unlock(key);
+    		if (!locked) {
+    			isOpen = true;
+    		}
+    	} else {
+    		isOpen = true;
+    	}
     }
 
     public List<BackpackItem> removeContents () {
@@ -97,5 +110,9 @@ public class Chest {
 
     public void setDarklight(boolean darklight) {
         this.darklight = darklight;
+    }
+    
+    public boolean isOpen () {
+    	return isOpen;
     }
 }

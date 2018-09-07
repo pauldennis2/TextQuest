@@ -410,7 +410,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
                         }
                     });
         });
-        heroVoidActions.put("loot", room -> room.lootRoom()
+        heroVoidActions.put("loot", room -> {
+        	room.lootRoom()
             .stream()
             .filter(item -> item.isVisible(location.getLighting()))
             .forEach(item -> {
@@ -419,7 +420,58 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 }
                 backpack.add(item);
                 textOut.println("Picked up " + item.getName());
-        }));
+            });
+        	Chest chest = room.getChest();
+        	if (chest != null && chest.isOpen()) {
+        		List<BackpackItem> chestContents = chest.removeContents();
+                chestContents.forEach(item -> {
+                    if (item.hasPickupAction()) {
+                        room.doAction(item.getOnPickup());
+                    }
+                    textOut.println("Looted " + item.getName() + " from chest.");
+                    backpack.add(item);
+                });
+        	} else if (room.getChest() != null) {
+        		textOut.println("You can't loot from a chest that's not open.");
+        	}
+        });
+        
+        heroVoidActions.put("open", room -> {
+        	Chest chest = room.getChest();
+        	if (chest == null) {
+        		textOut.println("There's no chest to open.");
+        	} else {
+	        	room.getHero().backpack.stream()
+	            	.filter(item -> item.getName().contains("Key"))
+	            	.forEach(chest::open);
+	        	if (chest.isLocked()) {
+	        		textOut.println("You don't have the key to " + chest.getName() + ".");
+	        	}
+        	}
+        });
+        
+        heroVoidActions.put("plunder", room -> {
+            Chest chest = room.getChest();
+            if (chest == null) {
+                textOut.println("Nothing to plunder here.");
+            }
+            room.getHero().backpack.stream()
+                .filter(item -> item.getName().contains("Key"))
+                .forEach(chest::unlock);
+            if (chest.isLocked()) {
+                textOut.println("You don't have the key to " + chest.getName() + ".");
+            } else {
+                List<BackpackItem> chestContents = chest.removeContents();
+                chestContents.forEach(item -> {
+                    if (item.hasPickupAction()) {
+                        room.doAction(item.getOnPickup());
+                    }
+                    textOut.println("Looted " + item.getName() + " from chest.");
+                    backpack.add(item);
+                });
+            }
+        });
+        
         heroVoidActions.put("retreat", room -> room.getHero().retreat());
         heroVoidActions.put("sneak", room -> {
             switch (sneak) {
@@ -442,28 +494,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
         heroVoidActions.put("fight", room -> textOut.getRunner().startCombat());
 
         heroVoidActions.put("rescue", room -> textOut.println("No princes to rescue right now."));
-
-        heroVoidActions.put("plunder", room -> {
-            Chest chest = room.getChest();
-            if (chest == null) {
-                textOut.println("Nothing to plunder here.");
-            }
-            room.getHero().backpack.stream()
-                .filter(item -> item.getName().contains("Key"))
-                .forEach(chest::unlock);
-            if (chest.isLocked()) {
-                textOut.println("You don't have the key");
-            } else {
-                List<BackpackItem> chestContents = chest.removeContents();
-                chestContents.forEach(item -> {
-                    if (item.hasPickupAction()) {
-                        room.doAction(item.getOnPickup());
-                    }
-                    textOut.println("Looted " + item.getName() + " from chest.");
-                    backpack.add(item);
-                });
-            }
-        });
         
         heroVoidActions.put("leave", room -> {
         	boolean cleared = room.getDungeon().isCleared();
@@ -583,7 +613,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
             }
             if (hiddenItems == null && !triggerFlag) {
                 textOut.println("You didn't find anything near " + param);
-            } else {
+            } else if (hiddenItems != null) {
                 textOut.println("Searching around " + param + ", you found:");
                 hiddenItems.forEach(item -> {
                     textOut.println(item);
@@ -787,6 +817,9 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 .filter(obs -> !obs.isCleared())
                 .filter(obs -> {
                     List<Direction> blockedDirections = obs.getBlockedDirections();
+                    if (blockedDirections == null || blockedDirections.isEmpty()) {
+                    	return false;
+                    }
                     if (blockedDirections.get(0) == Direction.ALL) {
                         return true;
                     }

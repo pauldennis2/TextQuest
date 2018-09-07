@@ -562,26 +562,35 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void describe () {
         LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
-        if (!description.contains("dim") && !description.contains("bright")) {
-        	switch (lightingLevel) {
-        	case WELL_LIT:
-        		textOut.println("The room is well-lit.");
-        		break;
-        	case DIM:
-        		textOut.println("The room is dimly lit.");
-        		break;
-        	case PITCH_BLACK:
-        		textOut.println("The room is pitch black.");
-        	}
+    	switch (lightingLevel) {
+    	case WELL_LIT:
+    		textOut.println("The room is well-lit.");
+    		break;
+    	case DIM:
+    		textOut.println("The room is dimly lit.");
+    		break;
+    	case PITCH_BLACK:
+    		textOut.println("The room is pitch black.");
+    	}
+        if (description != null) {
+        	textOut.println(description);
         }
-        
-        textOut.println(description);
         switch (lightingLevel) {
 	        case WELL_LIT:
-	            monsters.forEach(textOut::println);
+	        	List<Monster> undescribed = new ArrayList<>(monsters);
+	        	for (Monster monster : monsters) {
+	        		if (monster.hasDescription()) {
+	        			textOut.println(monster.getDescription());
+	        			undescribed.remove(monster);
+	        		}
+	        	}
+	        	if (undescribed.size() > 1) {
+	        		textOut.println("You see " + StringUtils.prettyPrintListNoPeriod(undescribed) + " moving around the room.");
+	        	} else if (undescribed.size() == 1) {
+	        		textOut.println("You see a " + undescribed.get(0) + " moving around the room.");
+	        	}
 	            break;
 	        case DIM:
-	            textOut.println("The room is dimly lit.");
 	            if (monsters.size() > 1) {
 	                textOut.println("You can see " + monsters.size() + " figures moving around.");
 	            } else if (monsters.size() == 1) {
@@ -595,16 +604,31 @@ public class DungeonRoom extends UserInterfaceClass {
         describeObstacles();
         
         if (chest != null && chest.isVisible(lighting)) {
-        	String chestDescription = "There's a " + chest.getName();
-        	if (chest.getContents().size() == 0) {
-        		chestDescription += " (empty)";
+        	String chestDescription;
+        	if (chest.isOpen()) {
+        		if (chest.getContents().size() != 0) {
+        			chestDescription = "There's an open " + chest.getName() + " with " + StringUtils.prettyPrintList(chest.getContents());
+        		} else {
+        			chestDescription = "There's an open " + chest.getName() + " (empty)";
+        		}
+        	} else {
+        		chestDescription = "There's a";
+        		if (StringUtils.startsWithVowel(chest.getName())) {
+        			chestDescription += "n";
+        		}
+        		chestDescription += " " + chest.getName() + ".";
+            	if (chest.getContents().size() == 0) {
+            		chestDescription += " (empty)";
+            	}
         	}
+        	
         	textOut.println(chestDescription);
         }
-        
-        items.stream()
-	        .filter(item -> item.isVisible(lighting))
-	        .forEach(textOut::println);
+        List<BackpackItem> visibleItems = items.stream().filter(item -> item.isVisible(lighting)).collect(Collectors.toList());
+
+        if (visibleItems.size() > 0) {
+        	textOut.println("You can see the following items: " + StringUtils.prettyPrintList(visibleItems));
+        }
 	    
         features.stream()
         	.filter(feature -> feature.isVisible(lighting))
@@ -623,7 +647,7 @@ public class DungeonRoom extends UserInterfaceClass {
         obstacles.stream()
                 .filter(e -> e.getClass() == RiddleObstacle.class)
                 .filter(e -> !e.isCleared())
-                .forEach(e -> textOut.println(((RiddleObstacle) e).getRiddle()));
+                .forEach(e -> textOut.println("A riddle:\"" + ((RiddleObstacle) e).getRiddle() + "\""));
 
         describePassages();
     }

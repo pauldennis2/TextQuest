@@ -14,6 +14,8 @@ public class Monster extends DungeonRoomEntity {
     private int might;
     private int defense;
     private String name;
+    
+    private String description;
 
     private transient int disabledForRounds = 0;
 
@@ -217,5 +219,17 @@ public class Monster extends DungeonRoomEntity {
     
     public void addRoomReference (DungeonRoom room) {
     	this.location = room;
+    }
+    
+    public void setDescription (String description) {
+    	this.description = description;
+    }
+    
+    public String getDescription () {
+    	return description;
+    }
+    
+    public boolean hasDescription () {
+    	return description != null && !description.trim().equals("");
     }
 }

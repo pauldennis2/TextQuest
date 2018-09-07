@@ -145,6 +145,12 @@ Conditions now happily support simple [boolean logic](https://en.wikipedia.org/w
 
 Boolean logic cannot currently be nested - so you couldn't have a statement like `if[(3 > 2) && (1 = 1 || 2 = 3)]
 
+#### Designing Events
+
+A note on designing events: most events are "lightweight" in what they print out. This allows you the freedom as the dungeon designer to decide how to describe the event. On the flip side, it means that (a lot of the time) if you don't add a custom `print` statement, the event won't be described to the player. Sometimes this is good - you might want to have things happen without the player being aware. `createMonster Skeleton;print \"A skeleton appears.\"`
+
+Coming... maybe not soon, but eventually: the ability to define more complex events you can later refer to with keywords. (Scripts).
+
 ## Creating A Dungeon
 
 A dungeon has a "dungeonName" property and a List of "rooms".
@@ -177,9 +183,13 @@ The Dungeon Template is a convenience feature that allows you to declare propert
 
 #### Room Properties
 
+**Room Description Note**: Keep in mind when adding a description to the room that all the visible features, monsters, obstacles, will be described by the game dynamically. It's best to rely on these descriptions when possible. Consider an example: if you included an item about how the room is "dimly lit" in the description, what happens when the hero uses a torch? Well, the **actual** lighting level of the room would change, and you'd end up with a conflicting description: "The room is well-lit. This dim room is <blah blah>". Similarly, if you put something about a monster in the room description, when the monster is killed, that description either becomes incorrect or must be modified.
+
+**In general try to avoid including anything changeable in the description.** Anything about the room's description you want to change can be set up as a feature, a monster, etc. Descriptions are optional, and if you don't have anything additional to say about the room, you can leave it off.
+
 * name - The "display name" for a room. **Required**
 * id - Each room needs a unique identifier. You can number rooms sequentially (1, 2, 3... etc), or by floor (Rooms on Floor 1 11, 12, 13... Floor 2 21, 22, 23 -  recommended). **Required**
-* description - A basic description of the room in general (not all the items as these are described separately)
+* description - A basic description of the room in general (not all the items as these are described separately) Optional.
 * tutorial - A tutorial message that will be displayed the first two times the hero enters the room. Optional
 * lighting - The initial light level of the room, from 0.0 (pitch black) to 1.0 (fully lit). Affects visibility of items/monsters in the room. Required?
 * items - a List of items that are just sort of laying around in the room (on a table, on the floor, on a shelf, etc). The hero will pick up all these items when they type "loot". Optional
@@ -209,6 +219,7 @@ Triggers (all Optional)
 * name - The monster's name. **Required**
 * health, might, defense - the monster's stats. Might increases the power and accuracy of physical attacks. Defense reduces damage and increases chance to dodge. Health is how much damage the monster can take before death. **Required**
 * isMiniboss - a flag indicating if the monster is a miniboss. Optional
+* description - A custom description for the monster (i.e. perhaps describing their manner, position in the room, etc). Optional
 * abilities Optional Together with the behavior property, can be used to define more interesting behaviors for a monster.
 * behavior Optional
 

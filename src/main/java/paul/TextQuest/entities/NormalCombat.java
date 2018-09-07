@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Random;
 
 import paul.TextQuest.parsing.*;
+import paul.TextQuest.utils.StringUtils;
 
 /**
  * Created by pauldennis on 8/21/17.
@@ -35,6 +36,7 @@ public class NormalCombat extends UserInterfaceClass {
     @Override
     public void start (TextInterface textOut) {
         this.textOut = textOut;
+        textOut.println("Combat started with " + StringUtils.prettyPrintList(room.getMonsters()));
     }
 
     public InputType handleResponse (String response) {
@@ -111,7 +113,7 @@ public class NormalCombat extends UserInterfaceClass {
         if (onCombatEnd != null) {
         	room.doAction(onCombatEnd);
         }
-        room.doAction("print {hero.health}/{hero.maxHealth}");
+        room.doAction("print Health:{hero.health}/{hero.maxHealth}");
         expCalc = 0;
         finished = true;
     }

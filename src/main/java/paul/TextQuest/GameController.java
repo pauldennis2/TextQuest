@@ -136,7 +136,7 @@ public class GameController {
             }
         }
         if (!userInput.equals("")) {
-            textOut.println("You entered: \"" + userInput + "\"");
+            textOut.debug("You entered: \"" + userInput + "\"");
         }
         try {
             textOut.processResponse(userInput);
