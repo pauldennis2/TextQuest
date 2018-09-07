@@ -50,9 +50,14 @@ public class Chest {
         contents = new ArrayList<>();
         return returnContent;
     }
-
-
-
+    
+    public static final double DEFAULT_VISIBILITY_THRESHHOLD = 0.6;
+    public boolean isVisible (double lighting) {
+        if (darklight) {
+            return lighting == 0.0;
+        }
+        return lighting >= DEFAULT_VISIBILITY_THRESHHOLD;
+    }
 
     public boolean isLocked() {
         return locked;

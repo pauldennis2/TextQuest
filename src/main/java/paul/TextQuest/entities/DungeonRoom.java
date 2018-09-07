@@ -16,6 +16,7 @@ import paul.TextQuest.interfaces.SpeechListener;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.TextInterface;
 import paul.TextQuest.parsing.UserInterfaceClass;
+import paul.TextQuest.utils.StringUtils;
 import paul.TextQuest.utils.VictoryException;
 
 import java.io.IOException;
@@ -66,7 +67,6 @@ public class DungeonRoom extends UserInterfaceClass {
     private transient Map<Direction, DungeonRoom> connectedRooms;
     private transient BossFight bossFight;
     private transient Hero hero;
-    private transient boolean described;
     
     //Used to find trigger maps from strings
     private transient Map<String, Map<String, String>> metaMap;
@@ -442,7 +442,7 @@ public class DungeonRoom extends UserInterfaceClass {
     }
 
     public void vocalize (String message, SpeakingVolume volume) {
-        textOut.println("Player " + volume.toString().toLowerCase() + "s: " + message);
+        textOut.println(hero.getName() + " " + volume.toString().toLowerCase() + "s, \"" + message + "\".");
         speechListeners.forEach(e -> e.notify(message, volume));
     }
 
@@ -562,23 +562,50 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void describe () {
         LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
-        if (!described) {
-            textOut.println(description);
-            described = true;
-        }
-        List<Obstacle> obstaclesForDisplay = obstacles.stream()
-                .filter(obstacle -> {
-                    if (obstacle.isCleared()) {
-                        return obstacle.isDisplayIfCleared();
-                    }
-                    return true;
-                })
-                .collect(Collectors.toList());
-        if (obstaclesForDisplay.size() > 0) {
-            textOut.println("The room has the following obstacles:");
-            obstaclesForDisplay.forEach(e -> textOut.println(e));
+        if (!description.contains("dim") && !description.contains("bright")) {
+        	switch (lightingLevel) {
+        	case WELL_LIT:
+        		textOut.println("The room is well-lit.");
+        		break;
+        	case DIM:
+        		textOut.println("The room is dimly lit.");
+        		break;
+        	case PITCH_BLACK:
+        		textOut.println("The room is pitch black.");
+        	}
         }
         
+        textOut.println(description);
+        switch (lightingLevel) {
+	        case WELL_LIT:
+	            monsters.forEach(textOut::println);
+	            break;
+	        case DIM:
+	            textOut.println("The room is dimly lit.");
+	            if (monsters.size() > 1) {
+	                textOut.println("You can see " + monsters.size() + " figures moving around.");
+	            } else if (monsters.size() == 1) {
+	                textOut.println("You can see one figure moving around.");
+	            }
+	            break;
+			default:
+				break;
+        }
+        
+        describeObstacles();
+        
+        if (chest != null && chest.isVisible(lighting)) {
+        	String chestDescription = "There's a " + chest.getName();
+        	if (chest.getContents().size() == 0) {
+        		chestDescription += " (empty)";
+        	}
+        	textOut.println(chestDescription);
+        }
+        
+        items.stream()
+	        .filter(item -> item.isVisible(lighting))
+	        .forEach(textOut::println);
+	    
         features.stream()
         	.filter(feature -> feature.isVisible(lighting))
         	.forEach(feature -> {
@@ -591,37 +618,109 @@ public class DungeonRoom extends UserInterfaceClass {
         		}
         		textOut.println(completeDescription);
         	});
-
-        //Print riddles
+        
+        //Print riddle messages
         obstacles.stream()
                 .filter(e -> e.getClass() == RiddleObstacle.class)
                 .filter(e -> !e.isCleared())
                 .forEach(e -> textOut.println(((RiddleObstacle) e).getRiddle()));
 
-        switch (lightingLevel) {
-            case WELL_LIT:
-                textOut.println("The room is well-lit.");
-                monsters.forEach(textOut::println);
-                break;
-            case DIM:
-                textOut.println("The room is dimly lit.");
-                if (monsters.size() > 1) {
-                    textOut.println("You can see " + monsters.size() + " figures moving around.");
-                } else if (monsters.size() == 1) {
-                    textOut.println("You can see one figure moving around.");
-                }
-                break;
-            case PITCH_BLACK:
-                textOut.println("The room is pitch black.");
-                break;
+        describePassages();
+    }
+    
+    private void describeObstacles () {
+    	List<Obstacle> nonBlockers = new ArrayList<>();
+        List<Obstacle> blockers = new ArrayList<>();
+    	obstacles.stream()
+    			.filter(obstacle -> { //Filter out obstacles we don't want to display
+    				if (obstacle.isCleared()) {
+    					return obstacle.isDisplayIfCleared();
+    				}
+    				return true;
+    			}) 
+                .forEach(obstacle -> { //Then split them into blockers and non-blockers
+                    if (obstacle.isCleared()) {
+                    	nonBlockers.add(obstacle);
+                    } else {
+                    	List<Direction> blocked = obstacle.getBlockedDirections();
+                    	System.out.println(obstacle.getName() + ": " + blocked);
+                    	if (blocked != null && blocked.size() > 0) {
+                    		blockers.add(obstacle);
+                    	} else {
+                    		nonBlockers.add(obstacle);
+                    	}
+                    }
+                });
+    	
+    	blockers.forEach(obs -> {
+    		List<Direction> blocked = obs.getBlockedDirections();
+    		String obstacleDescription = "A " + obs.getName() + " blocks travel ";
+    		if (blocked.contains(Direction.ALL)) {
+    			obstacleDescription += "in all directions.";
+    			textOut.println(obstacleDescription);
+    			return;
+    		}
+    		List<Direction> cardinals = new ArrayList<>();
+    		List<Direction> nonCardinals = new ArrayList<>();
+    		blocked.stream()
+    			.forEach(direction -> {
+    				if (direction.isCardinal()) {
+    					cardinals.add(direction);
+    				} else {
+    					nonCardinals.add(direction);
+    				}
+    			});
+    		if (nonCardinals.contains(Direction.PORTAL)) {
+    			obstacleDescription += "through the Portal";
+    			nonCardinals.remove(Direction.PORTAL);
+    			if (nonCardinals.size() + cardinals.size() > 0) {
+    				obstacleDescription += ", ";
+    			}
+    		}
+    		if (nonCardinals.size() > 0) {
+    			obstacleDescription += StringUtils.prettyPrintList(nonCardinals);
+    			if (cardinals.size() > 0) {
+    				obstacleDescription.replaceAll("\\.", ", ");
+    			}
+    		}
+    		obstacleDescription += StringUtils.prettyPrintList(cardinals);
+    		textOut.println(obstacleDescription);
+    	});
+    	String nonBlockersDescription = StringUtils.prettyPrintList(nonBlockers.stream().map(Obstacle::getName).collect(Collectors.toList()));
+    	textOut.println(nonBlockersDescription);
+    }
+    
+    private void describePassages () {
+    	Set<Direction> passages = connectedRooms.keySet();
+        List<Direction> cardinals = passages.stream().filter(dir -> dir.isCardinal()).collect(Collectors.toList());
+        int numPassages = cardinals.size();
+        String passageDescription;
+        if (numPassages > 1) {
+        	passageDescription = "There are passages leading ";
+        } else if (numPassages == 1) {
+        	passageDescription = "There is a passage leading ";
+        } else {
+        	passageDescription = "";
         }
-
-        items.stream()
-                .filter(item -> item.isVisible(lighting))
-                .forEach(textOut::println);
-
-        textOut.println("There are passages leading:");
-        connectedRooms.keySet().forEach(e -> textOut.println(e));
+        passageDescription += StringUtils.prettyPrintList(cardinals);
+        textOut.println(passageDescription);
+        if (passages.contains(Direction.UP) || passages.contains(Direction.DOWN)) {
+        	String stairsDescription = "There are stairs leading ";
+        	if (passages.contains(Direction.UP)) {
+        		stairsDescription += "up";
+        		if (passages.contains(Direction.DOWN)) {
+        			stairsDescription += " and down.";
+        		} else {
+        			stairsDescription += ".";
+        		}
+        	} else {
+        		stairsDescription += "down.";
+        	}
+        	textOut.println(stairsDescription);
+        }
+        if (passages.contains(Direction.PORTAL)) {
+        	textOut.println("There is also a strange portal.");
+        }
     }
 
     public List<BackpackItem> lootRoom () {

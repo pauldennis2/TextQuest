@@ -111,6 +111,7 @@ public class NormalCombat extends UserInterfaceClass {
         if (onCombatEnd != null) {
         	room.doAction(onCombatEnd);
         }
+        room.doAction("print {hero.health}/{hero.maxHealth}");
         expCalc = 0;
         finished = true;
     }

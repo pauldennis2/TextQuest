@@ -398,14 +398,13 @@ public class Hero extends UserInterfaceClass implements Serializable {
         heroVoidActions.put("douse", room -> room.setLighting(0.0));
 
         heroVoidActions.put("smash", room -> {
-            textOut.println("Starting a smashing spree.");
             room.getObstacles().stream()
                     .filter(obs -> obs.getClass() == SmashableObstacle.class)
                     .filter(obs -> !obs.isCleared())
                     .forEach(obs -> {
                         boolean success = obs.attempt("smash", room.getHero());
                         if (success) {
-                            textOut.println("You smashed " + obs.getName() + ".");
+                            textOut.println("You smashed a " + obs.getName() + ".");
                         } else {
                             textOut.println("Ouch! " + obs.getName() + " is hard.");
                         }
@@ -455,7 +454,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
             if (chest.isLocked()) {
                 textOut.println("You don't have the key");
             } else {
-                textOut.println("Trademarked chest-opening music, rapid ascending style.");
                 List<BackpackItem> chestContents = chest.removeContents();
                 chestContents.forEach(item -> {
                     if (item.hasPickupAction()) {
@@ -575,13 +573,15 @@ public class Hero extends UserInterfaceClass implements Serializable {
 
         heroParamActions.put("search", (room, param) -> {
             List<BackpackItem> hiddenItems = room.getHiddenItems().get(param);
+            boolean triggerFlag = false;
             if (room.getOnSearch().containsKey(param)) {
-            	textOut.println("From searching near " + param + " something happened.");
+            	textOut.debug("From searching near " + param + ", action = " + room.getOnSearch().get(param));
             	room.doAction(room.getOnSearch().get(param));
             	//onSearch triggers don't persist
             	room.getOnSearch().remove(param);
+            	triggerFlag = true;
             }
-            if (hiddenItems == null) {
+            if (hiddenItems == null && !triggerFlag) {
                 textOut.println("You didn't find anything near " + param);
             } else {
                 textOut.println("Searching around " + param + ", you found:");
