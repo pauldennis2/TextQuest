@@ -1,0 +1,155 @@
+{
+	"dungeonName":"Steampunk Dungeon",
+	"description":"Gears n stuff.",
+	"rooms":
+	[
+		{
+			"name":"Entryway",
+			"id":1,
+			"connectedRoomIds":
+			{
+				"NORTH":2
+			}
+		},
+		{
+			"name":"First Puzzle Room",
+			"id":2,
+			"connectedRoomIds":
+			{
+				"SOUTH":1,
+				"WEST":3,
+				"EAST":4,
+				"NORTH":5
+			}
+		},
+		{
+			"name":"West Gear Room",
+			"id":3,
+			"items":
+			[
+				{
+					"name":"Iron Gear Wheel"
+				}
+			],
+			"connectedRoomIds":
+			{
+				"EAST":2
+			}
+		},
+		{
+			"name":"East Gear Room",
+			"description":"There's a pile of stones in the corner.",
+			"id":4,
+			"hiddenItems":
+			{
+				"stones":
+				[
+					{
+						"name":"Iron Gear Wheel"
+					}
+				]
+			},
+			"connectedRoomIds":
+			{
+				"WEST":2
+			}
+		},
+		{
+			"name":"Steam Puzzle Room",
+			"id":5,
+			"connectedRoomIds":
+			{
+				"SOUTH":2,
+				"WEST":6,
+				"EAST":9,
+				"NORTH":10
+			}
+		},
+		{
+			"name":"West Passage Containing Coal",
+			"id":6,
+			"chest":
+			{
+				"name":"Blackened Chest",
+				"locked":false,
+				"contents":
+				[
+					{
+						"name":"Coal"
+					}
+				]
+			},
+			"connectedRoomIds":
+			{
+				"EAST":5,
+				"WEST":7
+			}
+		},
+		{
+			"name":"Riddle puzzle Room",
+			"id":7,
+			"obstacles": 
+			[
+				{
+					"@class" : "paul.TextQuest.entities.obstacles.RiddleObstacle",
+					"name":"Voice Activated Barrier",
+					"solution":"15",
+					"riddle": "What's 3 times 5?",
+					"onAttempt":"Wow, u suck at math.",
+					"blockedDirections":
+					[
+						"NORTH"
+					]
+				}
+				
+			],
+			"connectedRoomIds":
+			{
+				"EAST":6,
+				"NORTH":8
+			}
+		},
+		{
+			"name":"Waterflow Room",
+			"id":8,
+			"tutorial":"Try start.",
+			"specialRoomActions":
+			{
+				"start":"print \"Water gurgles through the pipes.\";setDungeonValue water 1"
+			},
+			"connectedRoomIds":
+			{
+				"SOUTH":7
+			}
+		},
+		{
+			"name":"Furnace Room",
+			"id":9,
+			"tutorial":"Try insert.",
+			"specialRoomActions":
+			{
+				"insert":"setFeatureDescription Furnace \"A large furnace occupies this room. It's warm and burning away.\""
+			},
+			"features":
+			[
+				{
+					"name":"Furnace",
+					"description":"A large furnace occupies this room. It's cold and dormant."
+				}
+			],
+			"connectedRoomIds":
+			{
+				"WEST":5
+			}
+		},
+		{
+			"name":"Courtyard Room",
+			"id":10,
+			"description":"This room is overgrown with vines that appear to be spreading from the north.",
+			"connectedRoomIds": 
+			{
+				"SOUTH":5
+			}
+		}
+	]
+}

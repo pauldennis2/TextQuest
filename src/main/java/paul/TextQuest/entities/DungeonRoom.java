@@ -2,7 +2,6 @@ package paul.TextQuest.entities;
 
 import paul.TextQuest.EnteringRoomAction;
 import paul.TextQuest.LeavingRoomAction;
-import paul.TextQuest.bossfight.BossFight;
 import paul.TextQuest.entities.obstacles.Chasm;
 import paul.TextQuest.entities.obstacles.Obstacle;
 import paul.TextQuest.entities.obstacles.RiddleObstacle;
@@ -19,7 +18,6 @@ import paul.TextQuest.parsing.UserInterfaceClass;
 import paul.TextQuest.utils.StringUtils;
 import paul.TextQuest.utils.VictoryException;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -65,7 +63,6 @@ public class DungeonRoom extends UserInterfaceClass {
 
     private transient Dungeon dungeon;
     private transient Map<Direction, DungeonRoom> connectedRooms;
-    private transient BossFight bossFight;
     private transient Hero hero;
     
     //Used to find trigger maps from strings
@@ -88,6 +85,8 @@ public class DungeonRoom extends UserInterfaceClass {
         children = new ArrayList<>();
         features = new ArrayList<>();
         initUniversalSpeechListeners();
+        
+        lighting = 1.0; //By default rooms should be well-lit.
     }
     
     public DungeonRoom (String name, String description) {
@@ -145,13 +144,13 @@ public class DungeonRoom extends UserInterfaceClass {
             room.hero.setPreviousLocation(null); //Prevent retreating
         });
         
-        voidActionMap.put("addShinePuzzle", room ->
-                room.getHero().getTextOut().println("Shine puzzle added. (not really)"));
-        
-        
         voidActionMap.put("removeChest", room -> {
         	room.chest = null;
         	room.textOut.println("The chest vanished.");
+        });
+        
+        voidActionMap.put("setDungeonCleared", room -> {
+        	room.getDungeon().setCleared(true);
         });
         
         
@@ -169,9 +168,30 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         paramActionMap.put("explode", (room, param) -> {
             int damageAmt = Integer.parseInt(param);
-            room.getHero().getTextOut().println("BOOM!! Explosions!");
+            room.textOut.println("BOOM!! Explosions!");
+            room.textOut.debug("@Deprecated");
             room.getHero().takeNonMitigatedDamage(damageAmt);
         });
+        paramActionMap.put("takeDamage", (room, param) -> {
+        	int damageAmt = Integer.parseInt(param);
+        	room.getHero().takeNonMitigatedDamage(damageAmt);
+        });
+        multiParamActionMap.put("takeTypedDamage", (room, args) -> {
+        	int damageAmt = Integer.parseInt(args[1]);
+        	room.getHero().takeNonMitigatedDamage(damageAmt);
+        	room.textOut.println("You took " + damageAmt + " " + args[2] + " damage.");
+        });
+        multiParamActionMap.put("takeSourcedDamage", (room, args) -> {
+        	int damageAmt = Integer.parseInt(args[1]);
+        	room.getHero().takeNonMitigatedDamage(damageAmt);
+        	room.textOut.println("You took " + damageAmt + " damage from " + args[2] + ".");
+        });
+        multiParamActionMap.put("takeTypedSourcedTypedDamage", (room, args) -> {
+        	int damageAmt = Integer.parseInt(args[1]);
+        	room.getHero().takeNonMitigatedDamage(damageAmt);
+        	room.textOut.println("You took " + damageAmt + " " + args[2] + " damage from " + args[3] + ".");
+        });
+        
         paramActionMap.put("giveExp", (room, param) -> room.getHero().addExp(Integer.parseInt(param)));
         paramActionMap.put("heal", (room, param) -> {
             int amt = Integer.parseInt(param);
@@ -413,6 +433,12 @@ public class DungeonRoom extends UserInterfaceClass {
         	}
         });
         
+        multiParamActionMap.put("setFeatureDescription", (room, args) -> {
+        	room.getFeatures().stream()
+        		.filter(feature -> feature.getName().equals(args[1]))
+        		.forEach(feature -> feature.setDescription(args[2]));
+        });
+        
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {
@@ -529,35 +555,14 @@ public class DungeonRoom extends UserInterfaceClass {
     @Override
     public void start (TextInterface textOut) {
         this.textOut = textOut;
-        if (bossFight != null) {
-        	children.add(bossFight);
-            bossFight.start(textOut);
-        } else {
-            children = new ArrayList<>();
-        }
+        children = new ArrayList<>();    
     }
 
     @Override
     public InputType show () {
     	monsters.forEach(monster -> monster.addRoomReference(this));
-    	if (bossFight != null) {
-    		if (!bossFight.isConquered()) {
-	    		InputType type = bossFight.show();
-	            if (type != InputType.NONE) {
-	                requester = bossFight;
-	                return type;
-	            }
-	            return bossFight.show();
-    		} else {
-    			textOut.debug("Attempting to exit boss fight gracefully");
-    			System.err.println("Attempting to exit boss fight gracefully");
-    			return InputType.NONE;
-    		}
-    	} else {
-    		describe();
-    	}
+		describe();
     	return InputType.NONE;
-    	
     }
 
     public void describe () {
@@ -1025,9 +1030,25 @@ public class DungeonRoom extends UserInterfaceClass {
         } else {
 	        if (action.contains(" ")) {
 	        	if (action.contains("\"")) {
-	        		String[] tokens = action.split(" ");
-	        		String[] message = action.split("\"");
-	        		paramActionMap.get(tokens[0]).doAction(this, message[1]);
+	        		//Objective here is to pull out the quoted message, then split
+	        		//Then put the message back and evaluate. 
+	        		
+	        		//TODO - want to get this working:
+	        		//"setFeatureDescription Furnace \"A large furnace occupies this room. It's warm and burning away.\""
+	        		String message = action.split("\"")[1];
+	        		String actionWithoutQuote = action.substring(0, action.indexOf("\"")) 
+	        				+ " #message " + action.substring(action.lastIndexOf("\""));
+	        		String[] tokens = actionWithoutQuote.split(" ");
+	        		for (int i = 0; i < tokens.length; i++) {
+	        			if (tokens[i].equals("#message")) {
+	        				tokens[i] = message;
+	        			}
+	        		}
+	        		if (tokens.length == 2) {
+	        			paramActionMap.get(tokens[0]).doAction(this, message);
+	        		} else {
+	        			multiParamActionMap.get(tokens[0]).doAction(this, tokens);
+	        		}
 	        	} else {
 		            String[] tokens = action.split(" ");
 		            if (tokens.length == 2) {
@@ -1252,9 +1273,6 @@ public class DungeonRoom extends UserInterfaceClass {
         		onHeroEnter.setDone(true);
         	}
         }
-        if (bossFight != null) {
-            bossFight.setHero(hero);
-        }
     }
 
     public void removeHero () {
@@ -1297,17 +1315,6 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public String getBossFightFileLocation() {
         return bossFightFileLocation;
-    }
-
-    /**
-     * Attempts to find the boss fight and build it.
-     * @param bossFightFileLocation
-     * @throws IOException
-     */
-    public void setBossFightFileLocation(String bossFightFileLocation) throws IOException {
-        this.bossFightFileLocation = bossFightFileLocation;
-
-        this.bossFight = BossFight.buildBossFightFromFile(bossFightFileLocation);
     }
 
     public String getTutorial() {

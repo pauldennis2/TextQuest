@@ -151,6 +151,14 @@ A note on designing events: most events are "lightweight" in what they print out
 
 Coming... maybe not soon, but eventually: the ability to define more complex events you can later refer to with keywords. (Scripts).
 
+### Saving and How Dungeons Work
+
+Out of a desire to keep the "saving" process simple, it's only possible for the player to save their game between dungeons. This makes things a lot simpler because we don't have to keep track of the hero's location within a dungeon, which items they have picked up, enemies fought, status of dungeon variables, etc. How this works in practice is that at some point you will need to set the dungeon to "cleared" after the hero is finished doing all of the essential things (killing the boss, saving the hostage, etc.). This means that the player has the option to leave the dungeon and save their progress. Once the hero leaves a dungeon they can't come back.
+
+If the player decides to leave the dungeon before it is cleared they will lose all progress. This is a good incentive to keep dungeons relatively short. You can break a dungeon up into multiple sub-dungeons (though the player cannot travel between them).
+
+At some point there will be an additional JSON file to define a group of dungeons as part of a larger story. Coming soon!
+
 ## Creating A Dungeon
 
 A dungeon has a "dungeonName" property and a List of "rooms".
@@ -278,7 +286,7 @@ These events need an extra bit of information, often a number. For example if yo
 * tutorial (text) - prints the given text to the tutorial window
 
 * createMonster (name) - currently the only monster that can be created is a skeleton. More flexibility to come!
-* explode (damage amount) - the hero takes some damage from an explosion
+* explode (damage amount) - Deprecated. Use takeDamage instead. The hero takes some damage from an explosion and a message is printed.
 * giveExp (exp amount) - the hero gets experience
 * bump (object) - Used to momentarily delay the hero from leaving the room.
 * heal (healing amount) - heals the player
@@ -294,6 +302,7 @@ These events need an extra bit of information, often a number. For example if yo
 * removeFeature (feature name) - Removes **all** features with the given name.
 * changeRoomDescription (new description) - modify the description of the room
 * clearObstacle (obstacle name) - Clears **all** obstacles with the given name in the room.
+* takeDamage (damage amount) - the Hero takes some damage. No message is printed. See takeTypedDamage, takeSourcedDamage, takeTypedSourcedDamage.
 
 #### MultiParam Events
 
@@ -308,9 +317,13 @@ These events require multiple parameters.
 * setDungeonValue - used interchangeably with setDungeonVariable. "Value" refers to integers (whole numbers) whereas "variable" refers to the string map.
 * addToDungeonValue - allows you to modify existing values in the values map. First param is the name of the value to set, and the second is the amount to add. You can use negative numbers to subtract instead. `addToDungeonValue waterLevel -1` would decrease waterLevel by 1.
 
+Damaging Events:
 
-Not fully implemented:
-* castSpell
+If you want the hero to take some damage, you can always use the simple event `takeDamage` to do that, and print your own custom message ("A spike trap hits you for 10 damage"). However, for convenience, these methods print a quick message about the damage type (i.e. fire, acid, piercing, electrical, whatever) and/or the source (i.e. "a goblin", "a spike trap") depending on the method.
+
+* takeTypedDamage - does damage and prints "You take <amount> <type> damage."
+* takeSourcedDamage - does damage and prints "You take <amount> damage from <source>."
+* takeTypedSourcedDamage - does damage and prints "You take <amount> <type> damage from <source>."
 
 #### Void Events
 
@@ -318,11 +331,12 @@ These events just happen, and they don't need any extra information.
 
 * douse - the room becomes completely dark
 * light - the room becomes fully bright
-* makeMinibossStrong/makeMinibossWeak - created custom events for Darklight, these alter the stats of any miniboss in the room
+* makeMinibossStrong/makeMinibossWeak - created custom events for Darklight, these alter the stats of any miniboss in the room. (Look for this to be deprecated or generified eventually). 
 * startFight - starts combat with any monsters in the room
 * victory - Ends the game. Use with caution, I guess.
 * crackFloor - creates a Chasm obstacle and prevents retreating. The hero will be stuck unless they have Boots of Vaulting
 * removeChest - removes the chest from the current room (if applicable)
+* setDungeonCleared - Sets the dungeon to cleared status, meaning the hero can leave and save (see saving). 
 
 Hopefully soon we'll add many more possible events, and even the ability to create custom events.
 
@@ -343,5 +357,6 @@ Monsters:
 * modMonsterStats
 * equip - force the hero to equip a given item
 * unequip - force the hero to unequip an item they currently have equipped
-* createObstacle
+* addObstacle
 * disableHero
+* castSpell - generate a spell-like effect

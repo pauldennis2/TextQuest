@@ -607,7 +607,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         heroParamActions.put("search", (room, param) -> {
             List<BackpackItem> hiddenItems = room.getHiddenItems().get(param);
             boolean triggerFlag = false;
-            if (room.getOnSearch().containsKey(param)) {
+            if (room.getOnSearch() != null && room.getOnSearch().containsKey(param)) {
             	textOut.debug("From searching near " + param + ", action = " + room.getOnSearch().get(param));
             	room.doAction(room.getOnSearch().get(param));
             	//onSearch triggers don't persist
