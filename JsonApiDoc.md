@@ -47,7 +47,7 @@ When I say a property is required, it means that leaving it off (except in speci
 As we'll discuss below your dungeon is made up of "rooms". Each room must have a unique identification/ID number. You can use whatever numbering scheme you want. One easy suggestion for small dungeons is to assign each floor a block of 10 IDs (So all the rooms on the first floor are 1-9, second floor 10-19, etc). This helps keep things organized. Alternatively for bigger dungeons you could do 101, 102, 103, 201, 202, 203, etc. Whatever works for you. A couple important notes:
 
 * Each id must be unique. You can't have two rooms with id 50.
-* By default (and this is currently not configurable) the dungeon entrance (where the player starts) will be the room with ID 1.
+* By default the dungeon entrance (where the player starts) will be the room with ID 1. You can define this as a custom property (see Dungeon Properties).
 
 ### Quotes, Spaces, and General Syntax
 
@@ -174,6 +174,7 @@ The dungeon is organized into "rooms". Each room can theoretically be as large a
 * itemLibrary - a Map that allows you to create custom items and reference them later. Optional
 * monsterLibrary - a Map that allows you to create custom monsters and reference them later. Optional
 * template - see the next section
+* entranceRoomId - optional, allows you to define a custom ID for your entrance. Really optional and shouldn't be needed, but it's there if you want it.
 
 
 The "library" properties really just provide shortcuts for items and monsters that you want to use in multiple places. If you just want a monster to be used once, you should just put it in the room's list of monsters (see below). They are also useful for defining "interesting" objects and monsters that are created by triggered events.
@@ -202,7 +203,7 @@ The Dungeon Template is a convenience feature that allows you to declare propert
 * lighting - The initial light level of the room, from 0.0 (pitch black) to 1.0 (fully lit). Affects visibility of items/monsters in the room. Required?
 * items - a List of items that are just sort of laying around in the room (on a table, on the floor, on a shelf, etc). The hero will pick up all these items when they type "loot". Optional
 * monsters - a List of monsters in the room. By default they won't attack but their presence prevents the hero from exploring further. Optional
-* connectedRoomIds - a Map between Directions (like "EAST") and the id of the room it's connected to in that direction. This is a very important paramater as it defines how everything connects. **Required**, but you only need to list directions that are connected (if there's nothing to the North of a room, you don't need to list that). **Note**: if you want connections to be two-way connections you need each room connected to the other (so Room 4 is connected via EAST to Room 5, and Room 5 connects to Room 4 via WEST). Be careful with one-way connections since they could leave the hero trapped. **Note 2**: Technically there's no geography enforced. So Room 4 could go east to Room 5, and Room 5 could lead "East" back to Room 4. I recommend avoiding this as it will confuse the designer and the player both.
+* connectedRoomIds - a Map between Directions (like "EAST") and the id of the room it's connected to in that direction. This is a very important parameter as it defines how everything connects. **Required**, but you only need to list directions that are connected (if there's nothing to the North of a room, you don't need to list that). **Note**: if you want connections to be two-way connections you need each room connected to the other (so Room 4 is connected via EAST to Room 5, and Room 5 connects to Room 4 via WEST). Be careful with one-way connections since they could leave the hero trapped. **Note 2**: Technically there's no geography enforced. So Room 4 could go east to Room 5, and Room 5 could lead "East" back to Room 4. I recommend avoiding this as it will confuse the designer and the player both.
 * obstacles - a List of Obstacles in the room. Obstacles represent things the hero can interact with (puzzles to solve, chasms to jump, etc) that often prevent progress. Obstacles are an important part of designing interesting dungeons. Optional
 * chest - Optional
 * bossFightFileLocation - boss fights are stored separately as their own JSON file. This is a name of a file in the "encounters" directory. Optional

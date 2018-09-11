@@ -33,7 +33,7 @@ public class DungeonRunner extends UserInterfaceClass {
 
     //public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "trigger_dungeon.json";//"first_dungeon.json";
     //public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "four_elements_dungeon.json";//"first_dungeon.json";
-    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "steampunk_dungeon.json";//"first_dungeon.json";
+    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "darklight_dungeon.json";//"first_dungeon.json";
 
     public DungeonRunner (Hero hero) throws IOException {
         this.hero = hero;
@@ -55,6 +55,7 @@ public class DungeonRunner extends UserInterfaceClass {
         //Temporary
         //hero.setLocation(dungeon.getRoomByName("Healing Fountain"));
         hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
+        hero.setLocation(dungeon.getRoom(11));
     }
 
     @Override

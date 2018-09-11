@@ -225,7 +225,7 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         
         paramActionMap.put("teleportHero", (room, param) -> {
-        	DungeonRoom otherRoom = room.getDungeon().getRoomByName(param);
+        	DungeonRoom otherRoom = room.getDungeon().getRoom(param);
         	if (otherRoom != null) {
         		room.textOut.debug("Attempting to move hero to " + otherRoom.name);
         		Hero hero = room.getHero();
@@ -252,7 +252,7 @@ public class DungeonRoom extends UserInterfaceClass {
         
         paramActionMap.put("swapChest", (room, param) -> {
         	int id = Integer.parseInt(param);
-        	DungeonRoom other = room.getDungeon().getRoomById(id);
+        	DungeonRoom other = room.getDungeon().getRoom(id);
         	if (other.getChest() == null && room.getChest() == null) {
         		room.textOut.debug("Both chests are null");
         		return;
@@ -281,7 +281,11 @@ public class DungeonRoom extends UserInterfaceClass {
         	room.textOut.debug("Attempted to remove " + param + " from hero.");
         });
         
-        paramActionMap.put("changeRoomName", (room, param) -> room.setName(param));
+        paramActionMap.put("changeRoomName", (room, param) -> {
+        	String oldName = room.getName();
+        	room.setName(param);
+        	room.getDungeon().updateRoomName(room, oldName);
+        });
         
         paramActionMap.put("removePassage", (room, param) -> {
         	Direction direction = Direction.getDirectionFromString(param);
@@ -404,7 +408,7 @@ public class DungeonRoom extends UserInterfaceClass {
         		room.textOut.debug("There was already a connection in the direction " + direction + ".");
         		room.textOut.debug("It was to " + connectedRooms.get(direction).getName() + ".");
         	}
-        	DungeonRoom otherRoom = room.getDungeon().getRoomById(id);
+        	DungeonRoom otherRoom = room.getDungeon().getRoom(id);
         	connectedRooms.put(direction, otherRoom);
         	room.setConnectedRooms(connectedRooms);
         	room.textOut.debug("A passage opens to the " + direction + ".");
@@ -1013,7 +1017,7 @@ public class DungeonRoom extends UserInterfaceClass {
         	String roomTargetString = tokens[0].replaceAll("@", "");
         	try {
         		int roomId = Integer.parseInt(roomTargetString);
-        		DungeonRoom target = getDungeon().getRoomById(roomId);
+        		DungeonRoom target = getDungeon().getRoom(roomId);
         		if (target != null) {
         			textOut.debug("Attempting to send instruction to " + target.getName());
         			String actionString = action.substring(action.indexOf(" ") + 1);
@@ -1266,9 +1270,6 @@ public class DungeonRoom extends UserInterfaceClass {
         numVisits++;
         if (tutorial != null) {
             if (numVisits == 1) {
-                textOut.tutorial(tutorial);
-            } else if (numVisits == 2) {
-                textOut.tutorial("Repeating tutorial just in case.");
                 textOut.tutorial(tutorial);
             }
         }
