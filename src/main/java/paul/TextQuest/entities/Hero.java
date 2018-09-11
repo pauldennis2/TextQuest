@@ -664,7 +664,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
         				}
         			}
         		});
-        	
         });
 
         heroParamActions.put("equip", (room, param) -> {

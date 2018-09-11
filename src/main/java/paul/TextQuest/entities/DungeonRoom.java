@@ -824,11 +824,7 @@ public class DungeonRoom extends UserInterfaceClass {
     public void setLighting (double lighting) {
         if (lighting != this.lighting) {
             if (onLightingChange != null) {
-            	System.out.println("There's a lighting change.");
-            	System.out.println(onLightingChange);
-            	System.out.println("LightingLevel = " + LightingLevel.getLightingLevel(lighting));
                 String action = onLightingChange.get(LightingLevel.getLightingLevel(lighting).toString());
-                System.out.println(action);
                 if (action != null) {
                     doAction(action);
                 }
