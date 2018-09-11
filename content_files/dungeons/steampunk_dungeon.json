@@ -11,6 +11,10 @@
 		{
 			"name":"Entryway",
 			"id":1,
+			"onHeroAction":
+			{
+				"douse":"print \"Message about dousing.\"!STOPS"
+			},
 			"connectedRoomIds":
 			{
 				"NORTH":2

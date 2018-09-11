@@ -315,18 +315,30 @@ public class Hero extends UserInterfaceClass implements Serializable {
     }
 
     public void takeAction (String action) {
-        VoidAction voidAction = heroVoidActions.get(action);
-        if (voidAction != null) {
-            voidAction.doAction(location);
-        } else {
-            if (location.getSpecialRoomActions().get(action) != null) {
-                String roomAction = location.getSpecialRoomActions().get(action);
-                location.doAction(roomAction);
-            } else {
-                textOut.debug("Action not in map.");
-                throw new AssertionError();
-            }
-        }
+    	String onHeroAction = location.getOnHeroAction().get(action);
+    	boolean stops = false;
+    	if (onHeroAction != null) {
+    		location.doAction(onHeroAction);
+    		if (onHeroAction.contains("!STOPS")) {
+        		onHeroAction.replaceAll("!STOPS", "");
+        		textOut.debug("This trigger stops the action.");
+        		stops = true;
+        	}
+    	}
+    	if (!stops) {
+	        VoidAction voidAction = heroVoidActions.get(action);
+	        if (voidAction != null) {
+	            voidAction.doAction(location);
+	        } else {
+	            if (location.getSpecialRoomActions().get(action) != null) {
+	                String roomAction = location.getSpecialRoomActions().get(action);
+	                location.doAction(roomAction);
+	            } else {
+	                textOut.debug("Action not in map.");
+	                throw new AssertionError();
+	            }
+	        }
+    	}
     }
 
     public void takeAction (String action, String param) {

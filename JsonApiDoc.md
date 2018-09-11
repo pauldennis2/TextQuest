@@ -219,6 +219,7 @@ Triggers (all Optional)
 * onSpellCast - triggered when a spell of a particular type is cast. Like lighting change, this is a map and requires specifying the spell type. Multiple types can be specified (Player casts ice spell -> event A, Player casts fire spell -> event B). You can use "any" for a wildcard.
 * onHeroEnter - triggered when the Hero enters the room. Optional flag to doOnce.
 * onItemUse - triggered when the hero uses a specific item. Use "any" for a wildcard.
+* onHeroAction - this allows you to define triggers for any specific hero action. For example you could add a trigger to take place when the hero searches, loots, etc. Note that the action will still be taken - but you can include the keyword "!STOPS" to prevent this from happening. Example: `onHeroAction: {"douse":"print \"You can't reach the torches to douse them.\"!STOPS"}` 
 
 ### Other Things With Properties
 

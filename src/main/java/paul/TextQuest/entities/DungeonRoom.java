@@ -49,6 +49,7 @@ public class DungeonRoom extends UserInterfaceClass {
     
     private Map<String, String> onSpellCast;
     private Map<String, String> onSearch;
+    private Map<String, String> onHeroAction;
     
     private String onCombatStart;
     private String onCombatEnd;
@@ -86,6 +87,8 @@ public class DungeonRoom extends UserInterfaceClass {
         features = new ArrayList<>();
         initUniversalSpeechListeners();
         
+        onHeroAction = new HashMap<>();
+        
         lighting = 1.0; //By default rooms should be well-lit.
     }
     
@@ -102,6 +105,7 @@ public class DungeonRoom extends UserInterfaceClass {
         metaMap.put("onItemUse", onItemUse);
         metaMap.put("onSpellCast", onSpellCast);
         metaMap.put("onSearch", onSearch);
+        metaMap.put("onHeroAction", onHeroAction);
     }
 
     private static void initActionMaps () {
@@ -1414,6 +1418,14 @@ public class DungeonRoom extends UserInterfaceClass {
 		this.onHeroEnter = onHeroEnter;
 	}
 	
+	public Map<String, String> getOnHeroAction() {
+		return onHeroAction;
+	}
+
+	public void setOnHeroAction(Map<String, String> onHeroAction) {
+		this.onHeroAction = onHeroAction;
+	}
+
 	public Map<String, Map<String, String>> getMetaMap () {
 		if (metaMap == null) {
 			initMetaMap();
