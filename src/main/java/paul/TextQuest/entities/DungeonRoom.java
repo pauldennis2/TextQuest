@@ -1046,15 +1046,8 @@ public class DungeonRoom extends UserInterfaceClass {
         			}
         		}
         		if (tokens.length == 2) {
-        			
-        			for (int i = 0; i < tokens.length; i++) {
-        				System.out.println("tokens[" + i + "] = " + tokens[i]);
-        			}
         			paramActionMap.get(tokens[0]).doAction(this, message);
         		} else {
-        			for (int i = 0; i < tokens.length; i++) {
-        				System.out.println("tokens[" + i + "] = " + tokens[i]);
-        			}
         			multiParamActionMap.get(tokens[0]).doAction(this, tokens);
         		}
         	} else {
