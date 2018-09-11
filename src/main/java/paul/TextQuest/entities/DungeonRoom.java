@@ -123,7 +123,6 @@ public class DungeonRoom extends UserInterfaceClass {
                     miniboss.setMight(2);
                     miniboss.setDefense(1);
                     miniboss.disable(1);
-                    room.getHero().getTextOut().println("Made " + miniboss.getName() + " weak.");
                 });
         });
         voidActionMap.put("makeMinibossStrong", room -> {
@@ -132,7 +131,6 @@ public class DungeonRoom extends UserInterfaceClass {
                 .forEach(miniboss -> {
                     miniboss.setMight(5);
                     miniboss.setDefense(12);
-                    room.getHero().getTextOut().println("Made " + miniboss.getName() + " strong.");
                 });
         });
         voidActionMap.put("startFight", room -> room.getHero().takeAction("fight"));

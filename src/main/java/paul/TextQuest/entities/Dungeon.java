@@ -90,11 +90,18 @@ public class Dungeon extends MetaLocation {
     private void connectRooms () {
         roomsById = new HashMap<>();
         roomsByName = new HashMap<>();
-
         
-
+        rooms.forEach(room -> {
+        	if (roomsById.containsKey(room.getId()) || roomsByName.containsKey(room.getName())) {
+            	throw new AssertionError("Room names and IDs must be unique.");
+            }
+        	roomsById.put(room.getId(), room);
+            roomsByName.put(room.getName(), room);
+        });
+        //These for-eaches MUST be separate because the 2nd one relies on IDs being ready.
         rooms.forEach(room -> {
         	room.setDungeon(this);
+        	
             Map<Direction, Integer> connectedRoomIds = room.getConnectedRoomIds();
             connectedRoomIds.keySet().forEach(f -> {
                 Integer id = connectedRoomIds.get(f);
@@ -104,11 +111,6 @@ public class Dungeon extends MetaLocation {
             if (template != null) {
             	room.applyTemplate(template);
             }
-            if (roomsById.containsKey(room.getId()) || roomsByName.containsKey(room.getName())) {
-            	throw new AssertionError("Room names and IDs must be unique.");
-            }
-            roomsById.put(room.getId(), room);
-            roomsByName.put(room.getName(), room);
         });
         if (entranceRoomId == null) {
         	entrance = roomsById.get(1);

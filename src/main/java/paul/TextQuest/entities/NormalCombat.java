@@ -1,8 +1,10 @@
 package paul.TextQuest.entities;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
+import paul.TextQuest.enums.BehaviorTiming;
 import paul.TextQuest.parsing.*;
 import paul.TextQuest.utils.StringUtils;
 
@@ -23,6 +25,8 @@ public class NormalCombat extends UserInterfaceClass {
     private boolean finished = false;
     
     private String onCombatEnd;
+    
+    private int roundNum;
 
     public NormalCombat (DungeonRoom room) {
         this.room = room;
@@ -31,6 +35,7 @@ public class NormalCombat extends UserInterfaceClass {
         expCalc = room.getMonsters().stream()
                 .mapToInt(Monster::getExp)
                 .sum();
+        roundNum = 1;
     }
 
     @Override
@@ -56,6 +61,7 @@ public class NormalCombat extends UserInterfaceClass {
         if (finished) {
             throw new AssertionError("Fight is over");
         }
+        textOut.println("Combat Round " + roundNum);
         //TODO: add initiative. For now the hero always gets it
         List<Monster> monsters = room.getMonsters();
         Hero hero = room.getHero();
@@ -87,17 +93,35 @@ public class NormalCombat extends UserInterfaceClass {
                     textOut.println(monster.getName() + " misses its turn (disabled).");
                     monster.nextRound();
                 } else {
+                	//Monster attack
                     int monsterMight = monster.getMight();
                     int monsterDamageRoll = random.nextInt(monsterMight + 1) + monsterMight;
                     double mChance = calcAccuracy(monsterMight, hero.getDefense());
                     double mRoll = Math.random();
                     if (mChance > mRoll) {
                         hero.takeDamage(monsterDamageRoll);
+                        String onDealDamage = monster.getOnDealDamage();
+                        if (onDealDamage != null) {
+                        	room.doAction(onDealDamage);
+                        }
                     } else {
                         textOut.println(monster.getName() + " missed you.");
                     }
+                    //Monster behavior
+                    textOut.debug("Evaluating behaviors for round " + roundNum);
+                    Map<BehaviorTiming, String> behavior = monster.getBehavior();
+                    for (BehaviorTiming timing : behavior.keySet()) {
+                    	textOut.debug("Evaluating " + timing);
+                    	if (timing.evaluate(roundNum)) {
+                    		room.doAction(behavior.get(timing));
+                    		textOut.debug("we took action: " + behavior.get(timing));
+                    	} else {
+                    		textOut.debug("we did not take action: " + behavior.get(timing));
+                    	}
+                    }
                 }
             });
+            roundNum++;
         } else {
             endCombat();
             return InputType.FINISHED;
@@ -113,7 +137,7 @@ public class NormalCombat extends UserInterfaceClass {
         if (onCombatEnd != null) {
         	room.doAction(onCombatEnd);
         }
-        room.doAction("print Health:{hero.health}/{hero.maxHealth}");
+        room.doAction("print Health:{hero.health}/{hero.maxHealth}"); //This is a cute wiring workaround
         expCalc = 0;
         finished = true;
     }
