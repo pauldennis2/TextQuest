@@ -222,6 +222,10 @@ public class DungeonRoom extends UserInterfaceClass {
         	room.textOut.debug("current doesn't matter since description only happens once");
         });
         
+        paramActionMap.put("disableHero", (room, param) -> {
+        	room.getHero().disable(Integer.parseInt(param));
+        });
+        
         paramActionMap.put("teleportHero", (room, param) -> {
         	DungeonRoom otherRoom = room.getDungeon().getRoom(param);
         	if (otherRoom != null) {

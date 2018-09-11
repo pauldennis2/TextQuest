@@ -87,7 +87,7 @@ public class Monster extends DungeonRoomEntity {
     }
 
     public void disable (int rounds) {
-        disabledForRounds = rounds;
+        disabledForRounds += rounds;
         if (onDisable != null) {
         	location.doAction(onDisable);
         }

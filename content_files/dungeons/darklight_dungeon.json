@@ -282,8 +282,7 @@
           "behavior":
           {
             "EVERY_OTHER_ROUND":"light;print \"The torches flare to life and the room is bathed in light. The Lieutenant gathers strength.\""
-          },
-          "onDeath":"changeRoomDescription \"There's a light crystal in the room\""
+          }
         }
       ],
       "chest":
@@ -430,6 +429,20 @@
       "id":24,
       "lighting":0.0,
       "description":"Lair of the boss",
+      "monsters":
+      [
+        {
+          "name":"Shadow Captain",
+          "health": 25,
+          "might": 2,
+          "defense":1,
+          "isMiniboss":true,
+          "behavior":
+          {
+            "EVERY_THIRD_ROUND":"setFeatureDescription Mirror dirty;print \"Shadows seep out of the captain and cover the room.\""
+          }
+        }
+      ],
       "connectedRoomIds":
       {
         "WEST":23

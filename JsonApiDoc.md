@@ -237,6 +237,7 @@ Triggers (all Optional)
 * onDeath - when a monster dies
 * onTakeDamage - when a monster takes damage (does trigger when monster dies from damage)
 * onDisable - triggered when a monster is disabled (i.e. stunned)
+* onDealDamage - when a monster successfully deals damage to the hero
 
 #### Item Properties
  
@@ -305,6 +306,7 @@ These events need an extra bit of information, often a number. For example if yo
 * changeRoomDescription (new description) - modify the description of the room
 * clearObstacle (obstacle name) - Clears **all** obstacles with the given name in the room.
 * takeDamage (damage amount) - the Hero takes some damage. No message is printed. See takeTypedDamage, takeSourcedDamage, takeTypedSourcedDamage.
+* disableHero (rounds) - stuns the Hero for a number of rounds. No behavior outside of combat. (Only use in combat).
 
 #### MultiParam Events
 
@@ -351,14 +353,10 @@ Room:
 Items:
 * onUse - when an item is used
 
-Monsters:
-* onDealDamage - triggered when the monster deals damage to the player
-
 ### Future Events
 
 * modMonsterStats
 * equip - force the hero to equip a given item
 * unequip - force the hero to unequip an item they currently have equipped
 * addObstacle
-* disableHero
 * castSpell - generate a spell-like effect

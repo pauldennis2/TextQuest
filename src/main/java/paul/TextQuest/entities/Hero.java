@@ -82,6 +82,9 @@ public class Hero extends UserInterfaceClass implements Serializable {
     private transient int sneakMod;
     private transient int defenseMod;
     private transient int numSpellsAvailable;
+    
+    private transient int block;
+    private transient int disabledForRounds;
 
     private transient DungeonRoom location;
     private transient DungeonRoom previousLocation;
@@ -550,6 +553,11 @@ public class Hero extends UserInterfaceClass implements Serializable {
             } else {
                 textOut.println("Hmm... not much happened.");
             }
+        });
+        
+        heroVoidActions.put("block", room -> {
+        	textOut.debug("Blocking doesn't do anything right now except against the boss.");
+        	
         });
 
         heroParamActions.put("cast", (room, param) -> {
@@ -1139,9 +1147,35 @@ public class Hero extends UserInterfaceClass implements Serializable {
 	public void setEquippedItems(Map<EquipSlot, EquipableItem> equippedItems) {
 		this.equippedItems = equippedItems;
 	}
+	
+	public int getBlock () {
+		return block;
+	}
     
 	public void setTextOut (TextInterface textOut) {
 		this.textOut = textOut;
+	}
+	
+	//TODO: seems like there's some commonality between this and monster - shared base class?
+	public boolean isDisabled () {
+		return disabledForRounds > 0;
+	}
+	
+	public void disable (int numRounds) {
+		disabledForRounds += numRounds;
+	}
+	
+	public void unDisable () {
+		disabledForRounds = 0;
+	}
+	
+	public void nextRound () {
+		if (disabledForRounds > 0) {
+			disabledForRounds--;
+		}
+		if (block > 0) {
+			block--;
+		}
 	}
 	
 	public Integer getIntField (String fieldName) {

@@ -67,21 +67,26 @@ public class NormalCombat extends UserInterfaceClass {
         Hero hero = room.getHero();
         if (monsters.size() > 0) {
             //Hero attacks the first monster in the list
-            int might = hero.getMight();
-            int damageRoll = random.nextInt(might + 1) + might;
-            Monster firstMonster = monsters.get(0);
-            double chance = calcAccuracy(might, firstMonster.getDefense());
-            double roll = Math.random();
-            if (chance > roll) {
-                int taken = firstMonster.takeDamage(damageRoll);
-                textOut.println("You hit " + firstMonster.getName() + " for " + taken + " damage.");
-                if (firstMonster.getHealth() <= 0) {
-                    textOut.println("You killed " + firstMonster.getName());
-                    room.updateMonsters();
-                }
-            } else {
-                textOut.println("You missed " + firstMonster.getName() + ".");
-            }
+        	if (!hero.isDisabled()) {
+	            int might = hero.getMight();
+	            int damageRoll = random.nextInt(might + 1) + might;
+	            Monster firstMonster = monsters.get(0);
+	            double chance = calcAccuracy(might, firstMonster.getDefense());
+	            double roll = Math.random();
+	            if (chance > roll) {
+	                int taken = firstMonster.takeDamage(damageRoll);
+	                textOut.println("You hit " + firstMonster.getName() + " for " + taken + " damage.");
+	                if (firstMonster.getHealth() <= 0) {
+	                    textOut.println("You killed " + firstMonster.getName());
+	                    room.updateMonsters();
+	                }
+	            } else {
+	                textOut.println("You missed " + firstMonster.getName() + ".");
+	            }
+        	} else {
+        		textOut.println("You were unable to attack (stunned)");
+        	}
+        	hero.nextRound();
             monsters = room.getMonsters();
 
             if (monsters.size() == 0) {
@@ -131,6 +136,7 @@ public class NormalCombat extends UserInterfaceClass {
     }
 
     private void endCombat () {
+    	room.getHero().unDisable();
         if (expCalc > 0) {
             room.getHero().addExp(expCalc + BASE_COMBAT_XP);
         }
