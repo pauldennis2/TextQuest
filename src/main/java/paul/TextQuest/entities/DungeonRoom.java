@@ -972,6 +972,7 @@ public class DungeonRoom extends UserInterfaceClass {
         if (voidActionMap == null || paramActionMap == null || multiParamActionMap == null) {
             initActionMaps();
         }
+        System.out.println("action = " + action);
         //If action contains a semi-colon it contains multiple sub-actions
         if (action.startsWith("$if")) {
         	if (action.contains("{")) {

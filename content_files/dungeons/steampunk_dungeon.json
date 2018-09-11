@@ -1,6 +1,11 @@
 {
 	"dungeonName":"Steampunk Dungeon",
 	"description":"Gears n stuff.",
+	"onVariableSet":
+	{
+		"water":"$if[{water} = 1 AND {furnace} = 1] @5 clearObstacle \"Steam Activated Barrier\"",
+		"furnace":"$if[{water} = 1 AND {furnace} = 1] @5 clearObstacle \"Steam Activated Barrier\""
+	},
 	"rooms":
 	[
 		{
@@ -22,8 +27,18 @@
 					"isContainer":true,
 					"onInsert":
 					{
-						"gear":"addToDungeonValue gears 1;$if[{gears} = 2] print \"Two gears makes me happy.\""
+						"gear":"addToDungeonValue gears 1;$if[{gears} = 2] clearObstacle \"Stone Barrier\""
 					}
+				}
+			],
+			"obstacles":
+			[
+				{
+					"@class" : "paul.TextQuest.entities.obstacles.MagicBarrier",
+					"name": "Stone Barrier",
+					"solution": "(script)",
+					"displayIfCleared":false,
+					"onClear": "print \"The gears rotate and the barrier slides away with a grating sound.\""
 				}
 			],
 			"connectedRoomIds":
@@ -69,6 +84,20 @@
 		{
 			"name":"Steam Puzzle Room",
 			"id":5,
+			"obstacles":
+			[
+				{
+					"@class" : "paul.TextQuest.entities.obstacles.MagicBarrier",
+					"name": "Steam Activated Barrier",
+					"solution": "(script)",
+					"displayIfCleared":false,
+					"onClear": "print \"You hear a grating sound in another room.\"",
+					"blockedDirections":
+					[
+						"NORTH"
+					]
+				}
+			],
 			"connectedRoomIds":
 			{
 				"SOUTH":2,
@@ -107,7 +136,7 @@
 					"name":"Voice Activated Barrier",
 					"solution":"15",
 					"riddle": "What's 3 times 5?",
-					"onAttempt":"Wow, u suck at math.",
+					"onAttempt": "print \"Wow, u suck at math.\"",
 					"blockedDirections":
 					[
 						"NORTH"
