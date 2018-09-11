@@ -254,12 +254,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
 
     private static Hero jsonRestore(String heroJson) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        //mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL); //Unexpected token (START_OBJECT), expected START_ARRAY: need JSON Array to contain As.WRAPPER_ARRAY type information for class paul.TextQuest.entities.Hero
-        //mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT); //-> unrecognized field @type
-        //mapper.enableDefaultTyping(); // Unexpected token (START_OBJECT), expected VALUE_STRING: need JSON String that contains type id (for subtype of java.util.List)
-        //(none) //-> unrecognized field @type
-        //mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_CONCRETE_AND_ARRAYS); //Unexpected token (START_OBJECT), expected VALUE_STRING: need JSON String that contains type id (for subtype of java.util.List)
-        //mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE);
         return mapper.readValue(heroJson, Hero.class);
     }
 
@@ -327,18 +321,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
         } else {
             if (location.getSpecialRoomActions().get(action) != null) {
                 String roomAction = location.getSpecialRoomActions().get(action);
-                
-                /* Old implementation. As of 9/6/18 not sure why this makes any sense
-                String[] splits = roomAction.split(" ");
-                switch (splits[0]) {
-                    case "heal":
-                        int amt = Integer.parseInt(splits[1]);
-                        this.restoreHealth(amt);
-                        break;
-                    default:
-                        throw new AssertionError("No other ops supported.");
-                }
-                */
                 location.doAction(roomAction);
             } else {
                 textOut.debug("Action not in map.");
@@ -631,7 +613,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         	for (BackpackItem item : items) {
         		if (item.getName().toLowerCase().equals(param)) {
         			if (item.isUndroppable()) {
-        				textOut.println("Sorry honey, you can't drop that item.");
+        				textOut.println("You can't drop " + item.getName());
         			} else {
         				backpack.remove(item);
         				textOut.println("Dropped " + item.getName());
@@ -647,6 +629,42 @@ public class Hero extends UserInterfaceClass implements Serializable {
         	if (!found) {
         		textOut.println("You don't have a " + param + " to drop.");
         	}
+        });
+        
+        heroParamActions.put("insert", (room, param) -> {
+        	List<Container> containers = new ArrayList<>();
+        	if (room.getChest() != null) {
+        		containers.add(room.getChest());
+        	}
+        	room.getFeatures().stream()
+        		.filter(Feature::isContainer)
+        		.forEach(feature -> containers.add(feature));
+        	if (containers.size() > 1) {
+        		textOut.println("There are multiple containers. Requires disambiguation (unsupported)");
+        		return;
+        	} else if (containers.size() == 0) {
+        		textOut.println("There are no containers into which to insert items.");
+        		return;
+        	}
+        	Container container = containers.get(0);
+        	List<BackpackItem> matchingItems = backpack.getItems().stream()
+        		.filter(item -> item.getName().toLowerCase().contains(param.toLowerCase()))
+        		.collect(Collectors.toList());
+        	
+        		matchingItems.forEach(item -> {
+        			if (item.isUndroppable()) {
+        				textOut.println("You can't drop/insert " + item.getName());
+        			} else {
+        				textOut.println("Inserted " + item.getName());
+        				backpack.remove(item);
+        				container.add(item);
+        				String onInsert = container.getOnInsert().get(item.getName().toLowerCase());
+        				if (onInsert != null) {
+        					room.doAction(onInsert);
+        				}
+        			}
+        		});
+        	
         });
 
         heroParamActions.put("equip", (room, param) -> {
@@ -994,8 +1012,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
         this.sneak = sneak;
     }
 
-    
-
     public int getMaxSpellsPerDay() {
         return maxSpellsPerDay;
     }
@@ -1127,10 +1143,5 @@ public class Hero extends UserInterfaceClass implements Serializable {
 		} catch (Exception ex) {
 			return null;
 		}
-	}
-	
-	public static void main(String[] args) {
-		Hero hero = new Hero("Paul");
-		System.out.println("might = " + hero.getIntField("name"));
 	}
 }

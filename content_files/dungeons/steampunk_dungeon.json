@@ -14,6 +14,18 @@
 		{
 			"name":"First Puzzle Room",
 			"id":2,
+			"features":
+			[
+				{
+					"name":"Gear Machine",
+					"description":"A large gear machine is missing some gears.",
+					"isContainer":true,
+					"onInsert":
+					{
+						"gear":"addToDungeonValue gears 1;$if[{gears} = 2] print \"Two gears makes me happy.\""
+					}
+				}
+			],
 			"connectedRoomIds":
 			{
 				"SOUTH":1,
@@ -28,7 +40,7 @@
 			"items":
 			[
 				{
-					"name":"Iron Gear Wheel"
+					"name":"Gear"
 				}
 			],
 			"connectedRoomIds":
@@ -45,7 +57,7 @@
 				"stones":
 				[
 					{
-						"name":"Iron Gear Wheel"
+						"name":"Gear"
 					}
 				]
 			},
@@ -125,16 +137,16 @@
 		{
 			"name":"Furnace Room",
 			"id":9,
-			"tutorial":"Try insert.",
-			"specialRoomActions":
-			{
-				"insert":"setFeatureDescription Furnace \"A large furnace occupies this room. It's warm and burning away.\""
-			},
 			"features":
 			[
 				{
 					"name":"Furnace",
-					"description":"A large furnace occupies this room. It's cold and dormant."
+					"description":"A large furnace occupies this room. It's cold and dormant.",
+					"isContainer":true,
+					"onInsert":
+					{
+						"coal":"setDungeonValue furnace 1;setFeatureDescription Furnace \"A large furnace occupies this room. It's warm and burning away.\""
+					}
 				}
 			],
 			"connectedRoomIds":

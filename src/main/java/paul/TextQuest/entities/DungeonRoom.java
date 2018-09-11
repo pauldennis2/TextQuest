@@ -972,12 +972,11 @@ public class DungeonRoom extends UserInterfaceClass {
         if (voidActionMap == null || paramActionMap == null || multiParamActionMap == null) {
             initActionMaps();
         }
-        
-        if (action.contains("{")) {
-        	action = replaceVariables(action);
-        }
-        
+        //If action contains a semi-colon it contains multiple sub-actions
         if (action.startsWith("$if")) {
+        	if (action.contains("{")) {
+            	action = replaceVariables(action);
+            }
         	String condition = action.substring(action.indexOf("[") + 1, action.indexOf("]"));
         	boolean proceed = evaluateConditionForBoolean(condition);
         	if (proceed) {
@@ -995,6 +994,18 @@ public class DungeonRoom extends UserInterfaceClass {
         		}
         	}
         }
+        if (action.contains(";")) {
+        	String[] statements = action.split(";");
+        	for (String statement : statements) {
+        		doAction(statement);
+        	}
+        	return;
+        }
+        
+        if (action.contains("{")) {
+        	action = replaceVariables(action);
+        }
+        
         
         if (action.startsWith("@")) {
         	String[] tokens = action.split(" ");
@@ -1021,46 +1032,46 @@ public class DungeonRoom extends UserInterfaceClass {
         	return;
         }
         
-        //If action contains a semi-colon it contains multiple sub-actions
-        if (action.contains(";")) {
-        	String[] statements = action.split(";");
-        	for (String statement : statements) {
-        		doAction(statement);
+        if (action.contains(" ")) {
+        	if (action.contains("\"")) {
+        		//Objective here is to pull out the quoted message, then split
+        		//Then put the message back and evaluate. 
+        		
+        		//TODO - want to get this working:
+        		//"setFeatureDescription Furnace \"A large furnace occupies this room. It's warm and burning away.\""
+        		String message = action.split("\"")[1];
+        		String actionWithoutQuote = action.substring(0, action.indexOf("\"")) 
+        				+ "#message" + action.substring(action.lastIndexOf("\"") + 1);
+        		String[] tokens = actionWithoutQuote.split(" ");
+        		for (int i = 0; i < tokens.length; i++) {
+        			if (tokens[i].equals("#message")) {
+        				tokens[i] = message;
+        			}
+        		}
+        		if (tokens.length == 2) {
+        			
+        			for (int i = 0; i < tokens.length; i++) {
+        				System.out.println("tokens[" + i + "] = " + tokens[i]);
+        			}
+        			paramActionMap.get(tokens[0]).doAction(this, message);
+        		} else {
+        			for (int i = 0; i < tokens.length; i++) {
+        				System.out.println("tokens[" + i + "] = " + tokens[i]);
+        			}
+        			multiParamActionMap.get(tokens[0]).doAction(this, tokens);
+        		}
+        	} else {
+	            String[] tokens = action.split(" ");
+	            if (tokens.length == 2) {
+	            	paramActionMap.get(tokens[0]).doAction(this, tokens[1]);
+	            } else {
+	            	multiParamActionMap.get(tokens[0]).doAction(this, tokens);
+	            }
         	}
         } else {
-	        if (action.contains(" ")) {
-	        	if (action.contains("\"")) {
-	        		//Objective here is to pull out the quoted message, then split
-	        		//Then put the message back and evaluate. 
-	        		
-	        		//TODO - want to get this working:
-	        		//"setFeatureDescription Furnace \"A large furnace occupies this room. It's warm and burning away.\""
-	        		String message = action.split("\"")[1];
-	        		String actionWithoutQuote = action.substring(0, action.indexOf("\"")) 
-	        				+ " #message " + action.substring(action.lastIndexOf("\""));
-	        		String[] tokens = actionWithoutQuote.split(" ");
-	        		for (int i = 0; i < tokens.length; i++) {
-	        			if (tokens[i].equals("#message")) {
-	        				tokens[i] = message;
-	        			}
-	        		}
-	        		if (tokens.length == 2) {
-	        			paramActionMap.get(tokens[0]).doAction(this, message);
-	        		} else {
-	        			multiParamActionMap.get(tokens[0]).doAction(this, tokens);
-	        		}
-	        	} else {
-		            String[] tokens = action.split(" ");
-		            if (tokens.length == 2) {
-		            	paramActionMap.get(tokens[0]).doAction(this, tokens[1]);
-		            } else {
-		            	multiParamActionMap.get(tokens[0]).doAction(this, tokens);
-		            }
-	        	}
-	        } else {
-	            voidActionMap.get(action).doAction(this);
-	        }
+            voidActionMap.get(action).doAction(this);
         }
+        
     }
     
     /**

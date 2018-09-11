@@ -5,19 +5,18 @@ import java.util.*;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class Chest {
+public class Chest extends Container {
 
     private boolean locked;
     private String key;
     private String name;
 
-    private List<BackpackItem> contents;
     private boolean darklight;
     
     private transient boolean isOpen;
 
     public Chest() {
-        contents = new ArrayList<>();
+        super();
     }
 
     public Chest (String name) {
@@ -30,11 +29,6 @@ public class Chest {
     @Override
     public String toString () {
         return name;
-    }
-
-    //This is meant to be called as part of initialization not gameplay
-    public void addItem (BackpackItem item) {
-        contents.add(item);
     }
 
     public void unlock (BackpackItem key) {
@@ -86,10 +80,6 @@ public class Chest {
         return name;
     }
 
-    public List<BackpackItem> getContents() {
-        return contents;
-    }
-
     public void setLocked(boolean locked) {
         this.locked = locked;
     }
@@ -104,10 +94,6 @@ public class Chest {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setContents(List<BackpackItem> contents) {
-        this.contents = contents;
     }
 
     public boolean isDarklight() {
