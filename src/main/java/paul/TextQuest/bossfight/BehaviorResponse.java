@@ -5,6 +5,7 @@ import paul.TextQuest.enums.ActionResponseTiming;
 /**
  * Created by Paul Dennis on 8/14/2017.
  */
+@Deprecated
 public class BehaviorResponse {
 
     private String causingAction; //The action that causes this response

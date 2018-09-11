@@ -103,7 +103,6 @@ public class GameController {
         model.addAttribute("username", session.getAttribute("username"));
 
         if (tutorial != null && tutorial.size() > 0) {
-            System.out.println("tutorial added with size " + tutorial.size());
             model.addAttribute("tutorial", tutorial);
         }
 

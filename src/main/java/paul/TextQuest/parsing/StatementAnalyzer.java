@@ -168,6 +168,19 @@ public class StatementAnalyzer {
             	analysis.setActionable(true);
             	analysis.setActionWord("drop");
             	analysis.setActionParam(itemName);
+            } else if (actionWord.equals("insert")) {
+            	String[] tokens = analysis.getTokens();
+            	String itemName = "";
+            	for (int i = 1; i < tokens.length; i++) {
+            		itemName += tokens[i];
+            		if (i + 1 < tokens.length) {
+            			itemName += " ";
+            		}
+            	}
+            	
+            	analysis.setActionable(true);
+            	analysis.setActionWord("insert");
+            	analysis.setActionParam(itemName);
             } else if (actionWord.equals("equip")) {
             	String[] tokens = analysis.getTokens();
             	String itemName = "";

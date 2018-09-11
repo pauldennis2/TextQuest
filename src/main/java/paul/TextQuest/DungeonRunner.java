@@ -55,6 +55,7 @@ public class DungeonRunner extends UserInterfaceClass {
         //Temporary
         //hero.setLocation(dungeon.getRoomByName("Healing Fountain"));
         hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
+        hero.setLocation(dungeon.getRoom(11));
     }
 
     @Override

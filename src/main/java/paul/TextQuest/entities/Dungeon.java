@@ -27,12 +27,15 @@ public class Dungeon extends MetaLocation {
     //private String onVariableSet;
     
     private Map<String, String> onVariableSet;
+    
+    private Integer entranceRoomId;
 
     private transient boolean cleared;
     private transient DungeonRoom entrance;
     private Map<String, Integer> levels;
     
     private transient Map<Integer, DungeonRoom> roomsById;
+    private transient Map<String, DungeonRoom> roomsByName;
     
     private transient Map<String, String> dungeonVariables;
     private transient Map<String, Integer> dungeonValues;
@@ -46,7 +49,7 @@ public class Dungeon extends MetaLocation {
         onVariableSet = new HashMap<>();
     }
 
-    public DungeonRoom getRoomByName (String name) {
+    public DungeonRoom getRoom (String name) {
         List<DungeonRoom> matches = rooms.stream()
                 .filter(room -> room.getName().equals(name))
                 .collect(Collectors.toList());
@@ -57,7 +60,7 @@ public class Dungeon extends MetaLocation {
         return matches.get(0);
     }
     
-    public DungeonRoom getRoomById (int id) {
+    public DungeonRoom getRoom (int id) {
     	return roomsById.get(id);
     }
 
@@ -86,12 +89,19 @@ public class Dungeon extends MetaLocation {
 
     private void connectRooms () {
         roomsById = new HashMap<>();
-        rooms.forEach(e -> roomsById.put(e.getId(), e));
-
-        entrance = roomsById.get(1);
-
+        roomsByName = new HashMap<>();
+        
+        rooms.forEach(room -> {
+        	if (roomsById.containsKey(room.getId()) || roomsByName.containsKey(room.getName())) {
+            	throw new AssertionError("Room names and IDs must be unique.");
+            }
+        	roomsById.put(room.getId(), room);
+            roomsByName.put(room.getName(), room);
+        });
+        //These for-eaches MUST be separate because the 2nd one relies on IDs being ready.
         rooms.forEach(room -> {
         	room.setDungeon(this);
+        	
             Map<Direction, Integer> connectedRoomIds = room.getConnectedRoomIds();
             connectedRoomIds.keySet().forEach(f -> {
                 Integer id = connectedRoomIds.get(f);
@@ -102,6 +112,11 @@ public class Dungeon extends MetaLocation {
             	room.applyTemplate(template);
             }
         });
+        if (entranceRoomId == null) {
+        	entrance = roomsById.get(1);
+        } else {
+        	entrance = roomsById.get(entranceRoomId);
+        }
     }
     
     public static void main(String[] args) throws Exception {
@@ -151,16 +166,19 @@ public class Dungeon extends MetaLocation {
     			miscWarnings.add("Warning: Name is blank for room with id " + room.getId());
     		}
     	}
-    	System.out.println("Completed evaluation of dungeon:" + dungeonName + " with " + rooms.size() + " rooms.");
+    	List<String> messages = new ArrayList<>();
+    	messages.add("Completed evaluation of dungeon:" + dungeonName + " with " + rooms.size() + " rooms.");
     	
-    	System.out.println("One way warnings (" + oneWayWarnings.size() + "):");
-    	oneWayWarnings.forEach(System.out::println);
+    	messages.add("One way warnings (" + oneWayWarnings.size() + "):");
+    	oneWayWarnings.forEach(messages::add);
     	
-    	System.out.println("Trigger warnings (" + triggerWarnings.size() + "): (no, not that kind)");
-    	triggerWarnings.forEach(System.out::println);
+    	messages.add("Trigger warnings (" + triggerWarnings.size() + "): (no, not that kind)");
+    	triggerWarnings.forEach(messages::add);
     	
-    	System.out.println("Miscellaneous warnings (" + miscWarnings.size() + ")");
-    	miscWarnings.forEach(System.out::println);
+    	messages.add("Miscellaneous warnings (" + miscWarnings.size() + ")");
+    	miscWarnings.forEach(messages::add);
+    	
+    	messages.forEach(System.out::println);
     }
     
     public void setDungeonVar (String name, String variable) {
@@ -178,6 +196,14 @@ public class Dungeon extends MetaLocation {
     	} else {
     		dungeonValues.put(name, amount);
     	}
+    }
+    
+    public void updateRoomName (DungeonRoom room, String oldName) {
+    	if (roomsByName.containsKey(room.getName())) {//If it's already mapped, we have a conflict
+    		throw new AssertionError("Room names must be unique. New name " + room.getName() + " is a duplicate.");
+    	}
+    	roomsByName.remove(oldName);
+    	roomsByName.put(room.getName(), room);
     }
     
     public Map<String, Integer> getDungeonValues () {
@@ -277,6 +303,10 @@ public class Dungeon extends MetaLocation {
 	
 	public Map<String, String> getOnVariableSet () {
 		return onVariableSet;
+	}
+	
+	public void setEntranceRoomId (int entranceRoomId) {
+		this.entranceRoomId = entranceRoomId;
 	}
     
 }

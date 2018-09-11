@@ -2,7 +2,6 @@ package paul.TextQuest.entities;
 
 import paul.TextQuest.EnteringRoomAction;
 import paul.TextQuest.LeavingRoomAction;
-import paul.TextQuest.bossfight.BossFight;
 import paul.TextQuest.entities.obstacles.Chasm;
 import paul.TextQuest.entities.obstacles.Obstacle;
 import paul.TextQuest.entities.obstacles.RiddleObstacle;
@@ -19,7 +18,6 @@ import paul.TextQuest.parsing.UserInterfaceClass;
 import paul.TextQuest.utils.StringUtils;
 import paul.TextQuest.utils.VictoryException;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -51,6 +49,7 @@ public class DungeonRoom extends UserInterfaceClass {
     
     private Map<String, String> onSpellCast;
     private Map<String, String> onSearch;
+    private Map<String, String> onHeroAction;
     
     private String onCombatStart;
     private String onCombatEnd;
@@ -65,7 +64,6 @@ public class DungeonRoom extends UserInterfaceClass {
 
     private transient Dungeon dungeon;
     private transient Map<Direction, DungeonRoom> connectedRooms;
-    private transient BossFight bossFight;
     private transient Hero hero;
     
     //Used to find trigger maps from strings
@@ -88,6 +86,10 @@ public class DungeonRoom extends UserInterfaceClass {
         children = new ArrayList<>();
         features = new ArrayList<>();
         initUniversalSpeechListeners();
+        
+        onHeroAction = new HashMap<>();
+        
+        lighting = 1.0; //By default rooms should be well-lit.
     }
     
     public DungeonRoom (String name, String description) {
@@ -103,6 +105,7 @@ public class DungeonRoom extends UserInterfaceClass {
         metaMap.put("onItemUse", onItemUse);
         metaMap.put("onSpellCast", onSpellCast);
         metaMap.put("onSearch", onSearch);
+        metaMap.put("onHeroAction", onHeroAction);
     }
 
     private static void initActionMaps () {
@@ -120,7 +123,6 @@ public class DungeonRoom extends UserInterfaceClass {
                     miniboss.setMight(2);
                     miniboss.setDefense(1);
                     miniboss.disable(1);
-                    room.getHero().getTextOut().println("Made " + miniboss.getName() + " weak.");
                 });
         });
         voidActionMap.put("makeMinibossStrong", room -> {
@@ -129,7 +131,6 @@ public class DungeonRoom extends UserInterfaceClass {
                 .forEach(miniboss -> {
                     miniboss.setMight(5);
                     miniboss.setDefense(12);
-                    room.getHero().getTextOut().println("Made " + miniboss.getName() + " strong.");
                 });
         });
         voidActionMap.put("startFight", room -> room.getHero().takeAction("fight"));
@@ -145,13 +146,13 @@ public class DungeonRoom extends UserInterfaceClass {
             room.hero.setPreviousLocation(null); //Prevent retreating
         });
         
-        voidActionMap.put("addShinePuzzle", room ->
-                room.getHero().getTextOut().println("Shine puzzle added. (not really)"));
-        
-        
         voidActionMap.put("removeChest", room -> {
         	room.chest = null;
         	room.textOut.println("The chest vanished.");
+        });
+        
+        voidActionMap.put("setDungeonCleared", room -> {
+        	room.getDungeon().setCleared(true);
         });
         
         
@@ -169,9 +170,30 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         paramActionMap.put("explode", (room, param) -> {
             int damageAmt = Integer.parseInt(param);
-            room.getHero().getTextOut().println("BOOM!! Explosions!");
+            room.textOut.println("BOOM!! Explosions!");
+            room.textOut.debug("@Deprecated");
             room.getHero().takeNonMitigatedDamage(damageAmt);
         });
+        paramActionMap.put("takeDamage", (room, param) -> {
+        	int damageAmt = Integer.parseInt(param);
+        	room.getHero().takeNonMitigatedDamage(damageAmt);
+        });
+        multiParamActionMap.put("takeTypedDamage", (room, args) -> {
+        	int damageAmt = Integer.parseInt(args[1]);
+        	room.getHero().takeNonMitigatedDamage(damageAmt);
+        	room.textOut.println("You took " + damageAmt + " " + args[2] + " damage.");
+        });
+        multiParamActionMap.put("takeSourcedDamage", (room, args) -> {
+        	int damageAmt = Integer.parseInt(args[1]);
+        	room.getHero().takeNonMitigatedDamage(damageAmt);
+        	room.textOut.println("You took " + damageAmt + " damage from " + args[2] + ".");
+        });
+        multiParamActionMap.put("takeTypedSourcedTypedDamage", (room, args) -> {
+        	int damageAmt = Integer.parseInt(args[1]);
+        	room.getHero().takeNonMitigatedDamage(damageAmt);
+        	room.textOut.println("You took " + damageAmt + " " + args[2] + " damage from " + args[3] + ".");
+        });
+        
         paramActionMap.put("giveExp", (room, param) -> room.getHero().addExp(Integer.parseInt(param)));
         paramActionMap.put("heal", (room, param) -> {
             int amt = Integer.parseInt(param);
@@ -200,8 +222,12 @@ public class DungeonRoom extends UserInterfaceClass {
         	room.textOut.debug("current doesn't matter since description only happens once");
         });
         
+        paramActionMap.put("disableHero", (room, param) -> {
+        	room.getHero().disable(Integer.parseInt(param));
+        });
+        
         paramActionMap.put("teleportHero", (room, param) -> {
-        	DungeonRoom otherRoom = room.getDungeon().getRoomByName(param);
+        	DungeonRoom otherRoom = room.getDungeon().getRoom(param);
         	if (otherRoom != null) {
         		room.textOut.debug("Attempting to move hero to " + otherRoom.name);
         		Hero hero = room.getHero();
@@ -228,7 +254,7 @@ public class DungeonRoom extends UserInterfaceClass {
         
         paramActionMap.put("swapChest", (room, param) -> {
         	int id = Integer.parseInt(param);
-        	DungeonRoom other = room.getDungeon().getRoomById(id);
+        	DungeonRoom other = room.getDungeon().getRoom(id);
         	if (other.getChest() == null && room.getChest() == null) {
         		room.textOut.debug("Both chests are null");
         		return;
@@ -257,7 +283,11 @@ public class DungeonRoom extends UserInterfaceClass {
         	room.textOut.debug("Attempted to remove " + param + " from hero.");
         });
         
-        paramActionMap.put("changeRoomName", (room, param) -> room.setName(param));
+        paramActionMap.put("changeRoomName", (room, param) -> {
+        	String oldName = room.getName();
+        	room.setName(param);
+        	room.getDungeon().updateRoomName(room, oldName);
+        });
         
         paramActionMap.put("removePassage", (room, param) -> {
         	Direction direction = Direction.getDirectionFromString(param);
@@ -380,7 +410,7 @@ public class DungeonRoom extends UserInterfaceClass {
         		room.textOut.debug("There was already a connection in the direction " + direction + ".");
         		room.textOut.debug("It was to " + connectedRooms.get(direction).getName() + ".");
         	}
-        	DungeonRoom otherRoom = room.getDungeon().getRoomById(id);
+        	DungeonRoom otherRoom = room.getDungeon().getRoom(id);
         	connectedRooms.put(direction, otherRoom);
         	room.setConnectedRooms(connectedRooms);
         	room.textOut.debug("A passage opens to the " + direction + ".");
@@ -411,6 +441,12 @@ public class DungeonRoom extends UserInterfaceClass {
         	if (room.getDungeon().getOnVariableSet().get(args[1]) != null) {
         		room.doAction(dungeon.getOnVariableSet().get(args[1]));
         	}
+        });
+        
+        multiParamActionMap.put("setFeatureDescription", (room, args) -> {
+        	room.getFeatures().stream()
+        		.filter(feature -> feature.getName().equals(args[1]))
+        		.forEach(feature -> feature.setDescription(args[2]));
         });
         
     }
@@ -529,35 +565,14 @@ public class DungeonRoom extends UserInterfaceClass {
     @Override
     public void start (TextInterface textOut) {
         this.textOut = textOut;
-        if (bossFight != null) {
-        	children.add(bossFight);
-            bossFight.start(textOut);
-        } else {
-            children = new ArrayList<>();
-        }
+        children = new ArrayList<>();    
     }
 
     @Override
     public InputType show () {
     	monsters.forEach(monster -> monster.addRoomReference(this));
-    	if (bossFight != null) {
-    		if (!bossFight.isConquered()) {
-	    		InputType type = bossFight.show();
-	            if (type != InputType.NONE) {
-	                requester = bossFight;
-	                return type;
-	            }
-	            return bossFight.show();
-    		} else {
-    			textOut.debug("Attempting to exit boss fight gracefully");
-    			System.err.println("Attempting to exit boss fight gracefully");
-    			return InputType.NONE;
-    		}
-    	} else {
-    		describe();
-    	}
+		describe();
     	return InputType.NONE;
-    	
     }
 
     public void describe () {
@@ -819,11 +834,7 @@ public class DungeonRoom extends UserInterfaceClass {
     public void setLighting (double lighting) {
         if (lighting != this.lighting) {
             if (onLightingChange != null) {
-            	System.out.println("There's a lighting change.");
-            	System.out.println(onLightingChange);
-            	System.out.println("LightingLevel = " + LightingLevel.getLightingLevel(lighting));
                 String action = onLightingChange.get(LightingLevel.getLightingLevel(lighting).toString());
-                System.out.println(action);
                 if (action != null) {
                     doAction(action);
                 }
@@ -967,12 +978,12 @@ public class DungeonRoom extends UserInterfaceClass {
         if (voidActionMap == null || paramActionMap == null || multiParamActionMap == null) {
             initActionMaps();
         }
-        
-        if (action.contains("{")) {
-        	action = replaceVariables(action);
-        }
-        
+        System.out.println("action = " + action);
+        //If action contains a semi-colon it contains multiple sub-actions
         if (action.startsWith("$if")) {
+        	if (action.contains("{")) {
+            	action = replaceVariables(action);
+            }
         	String condition = action.substring(action.indexOf("[") + 1, action.indexOf("]"));
         	boolean proceed = evaluateConditionForBoolean(condition);
         	if (proceed) {
@@ -990,13 +1001,25 @@ public class DungeonRoom extends UserInterfaceClass {
         		}
         	}
         }
+        if (action.contains(";")) {
+        	String[] statements = action.split(";");
+        	for (String statement : statements) {
+        		doAction(statement);
+        	}
+        	return;
+        }
+        
+        if (action.contains("{")) {
+        	action = replaceVariables(action);
+        }
+        
         
         if (action.startsWith("@")) {
         	String[] tokens = action.split(" ");
         	String roomTargetString = tokens[0].replaceAll("@", "");
         	try {
         		int roomId = Integer.parseInt(roomTargetString);
-        		DungeonRoom target = getDungeon().getRoomById(roomId);
+        		DungeonRoom target = getDungeon().getRoom(roomId);
         		if (target != null) {
         			textOut.debug("Attempting to send instruction to " + target.getName());
         			String actionString = action.substring(action.indexOf(" ") + 1);
@@ -1016,30 +1039,39 @@ public class DungeonRoom extends UserInterfaceClass {
         	return;
         }
         
-        //If action contains a semi-colon it contains multiple sub-actions
-        if (action.contains(";")) {
-        	String[] statements = action.split(";");
-        	for (String statement : statements) {
-        		doAction(statement);
+        if (action.contains(" ")) {
+        	if (action.contains("\"")) {
+        		//Objective here is to pull out the quoted message, then split
+        		//Then put the message back and evaluate. 
+        		
+        		//TODO - want to get this working:
+        		//"setFeatureDescription Furnace \"A large furnace occupies this room. It's warm and burning away.\""
+        		String message = action.split("\"")[1];
+        		String actionWithoutQuote = action.substring(0, action.indexOf("\"")) 
+        				+ "#message" + action.substring(action.lastIndexOf("\"") + 1);
+        		String[] tokens = actionWithoutQuote.split(" ");
+        		for (int i = 0; i < tokens.length; i++) {
+        			if (tokens[i].equals("#message")) {
+        				tokens[i] = message;
+        			}
+        		}
+        		if (tokens.length == 2) {
+        			paramActionMap.get(tokens[0]).doAction(this, message);
+        		} else {
+        			multiParamActionMap.get(tokens[0]).doAction(this, tokens);
+        		}
+        	} else {
+	            String[] tokens = action.split(" ");
+	            if (tokens.length == 2) {
+	            	paramActionMap.get(tokens[0]).doAction(this, tokens[1]);
+	            } else {
+	            	multiParamActionMap.get(tokens[0]).doAction(this, tokens);
+	            }
         	}
         } else {
-	        if (action.contains(" ")) {
-	        	if (action.contains("\"")) {
-	        		String[] tokens = action.split(" ");
-	        		String[] message = action.split("\"");
-	        		paramActionMap.get(tokens[0]).doAction(this, message[1]);
-	        	} else {
-		            String[] tokens = action.split(" ");
-		            if (tokens.length == 2) {
-		            	paramActionMap.get(tokens[0]).doAction(this, tokens[1]);
-		            } else {
-		            	multiParamActionMap.get(tokens[0]).doAction(this, tokens);
-		            }
-	        	}
-	        } else {
-	            voidActionMap.get(action).doAction(this);
-	        }
+            voidActionMap.get(action).doAction(this);
         }
+        
     }
     
     /**
@@ -1241,9 +1273,6 @@ public class DungeonRoom extends UserInterfaceClass {
         if (tutorial != null) {
             if (numVisits == 1) {
                 textOut.tutorial(tutorial);
-            } else if (numVisits == 2) {
-                textOut.tutorial("Repeating tutorial just in case.");
-                textOut.tutorial(tutorial);
             }
         }
         if (onHeroEnter != null) {
@@ -1251,9 +1280,6 @@ public class DungeonRoom extends UserInterfaceClass {
         		doAction(onHeroEnter.getAction());
         		onHeroEnter.setDone(true);
         	}
-        }
-        if (bossFight != null) {
-            bossFight.setHero(hero);
         }
     }
 
@@ -1297,17 +1323,6 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public String getBossFightFileLocation() {
         return bossFightFileLocation;
-    }
-
-    /**
-     * Attempts to find the boss fight and build it.
-     * @param bossFightFileLocation
-     * @throws IOException
-     */
-    public void setBossFightFileLocation(String bossFightFileLocation) throws IOException {
-        this.bossFightFileLocation = bossFightFileLocation;
-
-        this.bossFight = BossFight.buildBossFightFromFile(bossFightFileLocation);
     }
 
     public String getTutorial() {
@@ -1406,6 +1421,14 @@ public class DungeonRoom extends UserInterfaceClass {
 		this.onHeroEnter = onHeroEnter;
 	}
 	
+	public Map<String, String> getOnHeroAction() {
+		return onHeroAction;
+	}
+
+	public void setOnHeroAction(Map<String, String> onHeroAction) {
+		this.onHeroAction = onHeroAction;
+	}
+
 	public Map<String, Map<String, String>> getMetaMap () {
 		if (metaMap == null) {
 			initMetaMap();

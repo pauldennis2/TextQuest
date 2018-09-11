@@ -15,6 +15,7 @@ import java.util.*;
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
+@Deprecated
 public class BossFight extends UserInterfaceClass {
 
     private String name;

@@ -256,12 +256,11 @@
     {
       "name":"Light Lieutenant's Office",
       "id":12,
-      "description":"A shining figure stands in the middle of the room.",
       "lighting":1.0,
       "onLightingChange":
       {
         "WELL_LIT":"makeMinibossStrong",
-        "PITCH_BLACK":"makeMinibossWeak"
+        "PITCH_BLACK":"makeMinibossWeak;print \"As the torches go out, the Lieutenant staggers, weakened.\""
       },
       "specialRoomActions":
       {
@@ -279,19 +278,11 @@
           "might": 2,
           "defense":1,
           "isMiniboss":true,
-          "abilities":
-          {
-            "light":
-            {
-              "action":"light",
-              "before":true
-            }
-          },
+          "description":"A shining figure stands in the middle of the room, drawing in light from the bright room.",
           "behavior":
           {
-            "EVERY_OTHER_ROUND":"light"
-          },
-          "onDeath":"changeRoomDescription \"There's a light crystal in the room\""
+            "EVERY_OTHER_ROUND":"light;print \"The torches flare to life and the room is bathed in light. The Lieutenant gathers strength.\""
+          }
         }
       ],
       "chest":
@@ -438,7 +429,20 @@
       "id":24,
       "lighting":0.0,
       "description":"Lair of the boss",
-      "bossFightFileLocation":"shadow_captain.json",
+      "monsters":
+      [
+        {
+          "name":"Shadow Captain",
+          "health": 25,
+          "might": 2,
+          "defense":1,
+          "isMiniboss":true,
+          "behavior":
+          {
+            "EVERY_THIRD_ROUND":"setFeatureDescription Mirror dirty;print \"Shadows seep out of the captain and cover the room.\""
+          }
+        }
+      ],
       "connectedRoomIds":
       {
         "WEST":23

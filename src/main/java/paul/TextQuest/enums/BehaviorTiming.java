@@ -13,8 +13,25 @@ public enum BehaviorTiming {
 
     public static final double DEFAULT_CHANCE = 0.3;
 
-    public static boolean doBehavior (BehaviorTiming timing, int roundNum) {
+    public static boolean evaluate (BehaviorTiming timing, int roundNum) {
         switch (timing) {
+            case EVERY_ROUND:
+                return true;
+            case EVERY_OTHER_ROUND:
+                return roundNum % 2 == 1;
+            case EVERY_THIRD_ROUND:
+                return roundNum % 3 == 1;
+            case FLAT_CHANCE:
+                return Math.random() < DEFAULT_CHANCE;
+            case ESCALATING_CHANCE:
+                throw new AssertionError("Not yet implemented");
+            default:
+                throw new AssertionError("Unreachable");
+        }
+    }
+    
+    public boolean evaluate (int roundNum) {
+        switch (this) {
             case EVERY_ROUND:
                 return true;
             case EVERY_OTHER_ROUND:

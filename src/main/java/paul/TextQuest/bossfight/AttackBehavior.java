@@ -15,6 +15,7 @@ import java.util.List;
 /**
  * Created by Paul Dennis on 8/13/2017.
  */
+@Deprecated
 public class AttackBehavior extends UserInterfaceClass {
 
     private String name;
