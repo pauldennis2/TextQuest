@@ -103,7 +103,6 @@ public class GameController {
         model.addAttribute("username", session.getAttribute("username"));
 
         if (tutorial != null && tutorial.size() > 0) {
-            System.out.println("tutorial added with size " + tutorial.size());
             model.addAttribute("tutorial", tutorial);
         }
 
@@ -136,7 +135,7 @@ public class GameController {
             }
         }
         if (!userInput.equals("")) {
-            textOut.println("You entered: \"" + userInput + "\"");
+            textOut.debug("You entered: \"" + userInput + "\"");
         }
         try {
             textOut.processResponse(userInput);

@@ -4,11 +4,13 @@ package paul.TextQuest.entities;
  * Created by Paul Dennis on 9/6/2017.
  */
 //TODO - what is this class for?
-public class Feature {
+public class Feature extends Container {
 
     private String name;
     private boolean darklight;
     private String description;
+    
+    private boolean isContainer;
 
     private transient boolean bumped;
     
@@ -68,6 +70,14 @@ public class Feature {
 
 	public void setStatus(String status) {
 		this.status = status;
+	}
+
+	public boolean isContainer() {
+		return isContainer;
+	}
+
+	public void setIsContainer(boolean isContainer) {
+		this.isContainer = isContainer;
 	}
     
     

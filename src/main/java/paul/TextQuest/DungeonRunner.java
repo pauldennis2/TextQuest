@@ -45,8 +45,7 @@ public class DungeonRunner extends UserInterfaceClass {
     public void start (TextInterface textOut) {
         this.textOut = textOut;
         currentRoom = dungeon.getEntrance();
-        textOut.println("Welcome to the " + dungeon.getDungeonName());
-
+        textOut.println(dungeon.getDescription());
         children = new ArrayList<>(dungeon.getRooms());
         children.add(hero);
         children.forEach(child -> child.start(textOut));
@@ -56,6 +55,7 @@ public class DungeonRunner extends UserInterfaceClass {
         //Temporary
         //hero.setLocation(dungeon.getRoomByName("Healing Fountain"));
         hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
+        hero.setLocation(dungeon.getRoom(11));
     }
 
     @Override

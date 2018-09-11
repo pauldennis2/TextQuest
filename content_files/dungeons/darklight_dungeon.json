@@ -1,6 +1,6 @@
 {
   "dungeonName":"Darklight Dungeon",
-  "description":"This shadowy dungeon has lots of shadows.",
+  "description":"As you enter the dungeon, you are confused by a torrent of light and shadow. Light seems to reflect off the walls unnaturally, and every surface is a mix of blinding light, pitch black, and muddled grey.",
   "monsterLibrary":
   {
   	"Shadow":
@@ -21,7 +21,7 @@
   },
   "onVariableSet":
   {
-  	"numShadowsKilled":"$if[{numShadowsKilled} = 3] @4 clearObstacle ShadowBarrier"
+  	"numShadowsKilled":"$if[{numShadowsKilled} = 3] @4 clearObstacle \"Shadow Barrier\""
   },
   "levels":
   {
@@ -34,13 +34,19 @@
     {
       "name":"Entryway",
       "id":1,
-      "description":"A chasm divides this brightly lit room in two.",
+      "description":"The passage leading onwards is framed by a statue of the sun on the left, and a shapeless shadow on the right.",
       "lighting":1.0,
+      "tutorial":"Some things in the Darklight Dungeon can only be seen in the dark. Try using \"douse\" to darken the room.",
+      "onLightingChange":
+      {
+        "WELL_LIT":"removePassage EAST;print \"The passage east disappears.\"",
+        "PITCH_BLACK":"createPassage EAST 2;print \"A passage appears in the darkness.\""
+      },
       "obstacles":
       [
         {
           "@class" : "paul.TextQuest.entities.obstacles.Chasm",
-          "name": "Chasm",
+          "name": "chasm",
           "solution": "jump",
           "blockedDirections":
           [
@@ -51,18 +57,17 @@
           "@class" : "paul.TextQuest.entities.obstacles.SmashableObstacle",
           "name": "Barrel",
           "solution": "smash",
-          "onSmash":"createMonster Skeleton"
+          "onSmash":"createMonster Skeleton;print \"A skeleton rises up out of the debris.\""
         }
       ],
       "connectedRoomIds":
       {
-        "EAST":2
       }
     },
     {
       "name":"Shadowy Crossway",
       "id":2,
-      "description":"Passages lead out of this dimly lit room. One corner is completely obscured by shadow.",
+      "description":"One corner is completely obscured by shadow.",
       "lighting":0.5,
       "onSearch":
       {
@@ -88,7 +93,7 @@
         "contents":
         [
           {
-            "name":"Treasure",
+            "name":"Garnet",
             "value":50
           },
           {
@@ -105,15 +110,13 @@
     {
       "name":"Shadowy Basement Access",
       "id":4,
-      "description":"The stairs leading down are blocked by a shadowy barrier.",
       "lighting":0.5,
       "obstacles":
       [
         {
           "@class" : "paul.TextQuest.entities.obstacles.MagicBarrier",
-          "name": "ShadowBarrier",
+          "name": "Shadow Barrier",
           "solution": "(script)",
-          "onClear": "changeRoomDescription \"The stairs leading down are no longer blocked.\"",
           "displayIfCleared":false,
           "blockedDirections":
           [
@@ -131,7 +134,6 @@
     {
       "name":"Shadowy Guardroom",
       "id":5,
-      "description":"A dangerous shadow guards this room.",
       "lighting":0.5,
       "monsters":
       [
@@ -140,6 +142,7 @@
           "health": 10,
           "might": 3,
           "defense":2,
+          "description":"A dangerous shadow stands silently in the middle of the room, blocking your way.",
           "onDeath": "addToDungeonValue numShadowsKilled 1;print \"You feel a barrier weakening.\""
         }
       ],
@@ -181,9 +184,10 @@
       [
         {
           "@class" : "paul.TextQuest.entities.obstacles.RiddleObstacle",
-          "name": "Riddle",
+          "name": "Mystic Barrier",
           "solution": "shadows",
-          "displayIfCleared":true,
+          "onClear":"print \"The barrier fades away.\"",
+          "displayIfCleared":false,
           "riddle": "We can only live where there is light, but we die if light shines on us.",
           "blockedDirections":
           [
@@ -212,7 +216,7 @@
         [
           {
             "name":"Helm of Defense",
-            "onPickup":"createMonster Shadow"
+            "onPickup":"createMonster Shadow;print \"A great wind surges out of the chest as you pick up the Helm.\""
           }
         ]
       },
@@ -252,12 +256,11 @@
     {
       "name":"Light Lieutenant's Office",
       "id":12,
-      "description":"A shining figure stands in the middle of the room.",
       "lighting":1.0,
       "onLightingChange":
       {
         "WELL_LIT":"makeMinibossStrong",
-        "PITCH_BLACK":"makeMinibossWeak"
+        "PITCH_BLACK":"makeMinibossWeak;print \"As the torches go out, the Lieutenant staggers, weakened.\""
       },
       "specialRoomActions":
       {
@@ -275,28 +278,25 @@
           "might": 2,
           "defense":1,
           "isMiniboss":true,
-          "abilities":
-          {
-            "light":
-            {
-              "action":"light",
-              "before":true
-            }
-          },
+          "description":"A shining figure stands in the middle of the room, drawing in light from the bright room.",
           "behavior":
           {
-            "EVERY_OTHER_ROUND":"light"
-          },
-          "onDeath":"changeRoomDescription \"There's a light crystal in the room\""
+            "EVERY_OTHER_ROUND":"light;print \"The torches flare to life and the room is bathed in light. The Lieutenant gathers strength.\""
+          }
         }
       ],
-      "items":
-      [
-        {
+      "chest":
+      {
+        "name":"Shining Chest",
+        "locked":false,
+        "contents":
+        [
+          {
           "name":"Mirror Shield",
           "onPickup":"print \"The way out is barred by a gate controlled by the Light Crystal.\";tutorial \"You'll need to clean all the mirrors in the room and then use shine.\""
         }
-      ],
+        ]
+      },
       "features":
       [
       	{
@@ -318,11 +318,12 @@
       [
         {
           "@class" : "paul.TextQuest.entities.obstacles.ShinePuzzle",
-          "name": "Shine Puzzle",
+          "name": "Shadowy Barrier",
           "solution":"shine",
           "numMirrors":3,
           "onAttempt":"tutorial \"You have to find and clean all three mirrors first.\"",
-          "displayIfCleared":true,
+          "onClear":"print \"The barrier is scoured away by the reflected light.\"",
+          "displayIfCleared":false,
           "blockedDirections":
           [
             "WEST"
@@ -428,7 +429,20 @@
       "id":24,
       "lighting":0.0,
       "description":"Lair of the boss",
-      "bossFightFileLocation":"shadow_captain.json",
+      "monsters":
+      [
+        {
+          "name":"Shadow Captain",
+          "health": 25,
+          "might": 2,
+          "defense":1,
+          "isMiniboss":true,
+          "behavior":
+          {
+            "EVERY_THIRD_ROUND":"setFeatureDescription Mirror dirty;print \"Shadows seep out of the captain and cover the room.\""
+          }
+        }
+      ],
       "connectedRoomIds":
       {
         "WEST":23

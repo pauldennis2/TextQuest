@@ -22,11 +22,11 @@ public enum LevelUpCategory {
     public static String getPrompt (LevelUpCategory category) {
         switch (category) {
             case INC_STATS:
-                return "Which stat to increase?";
+                return "Which stat do you want to increase?";
             case NEW_SKILL:
                 return "Which skill to learn (only available skill is sneak)";
             case NEW_SPELL:
-                return "What type of spell to learn?";
+                return "What type of spell do you want to learn?";
             default:
                 throw new AssertionError();
         }

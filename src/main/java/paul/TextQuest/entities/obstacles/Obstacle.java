@@ -30,6 +30,8 @@ public abstract class Obstacle extends DungeonRoomEntity {
     private boolean displayIfCleared;
     private boolean blocksLooting;
     
+    private String description;
+    
     private String onClear;
     protected String onAttempt;
 
@@ -39,7 +41,6 @@ public abstract class Obstacle extends DungeonRoomEntity {
 
     public Obstacle () {
         blockedDirections = new ArrayList<>();
-        blockedDirections.add(Direction.NONE);
     }
 
     public Obstacle(String name, String solution, boolean isCleared) {
@@ -47,7 +48,6 @@ public abstract class Obstacle extends DungeonRoomEntity {
         this.solution = solution;
         this.isCleared = isCleared;
         blockedDirections = new ArrayList<>();
-        blockedDirections.add(Direction.NONE);
     }
 
     public abstract boolean attempt (String solution, Hero hero);
@@ -151,6 +151,14 @@ public abstract class Obstacle extends DungeonRoomEntity {
 
 	public void setOnAttempt(String onAttempt) {
 		this.onAttempt = onAttempt;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 }

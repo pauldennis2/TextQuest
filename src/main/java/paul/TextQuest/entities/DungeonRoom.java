@@ -2,7 +2,6 @@ package paul.TextQuest.entities;
 
 import paul.TextQuest.EnteringRoomAction;
 import paul.TextQuest.LeavingRoomAction;
-import paul.TextQuest.bossfight.BossFight;
 import paul.TextQuest.entities.obstacles.Chasm;
 import paul.TextQuest.entities.obstacles.Obstacle;
 import paul.TextQuest.entities.obstacles.RiddleObstacle;
@@ -16,9 +15,9 @@ import paul.TextQuest.interfaces.SpeechListener;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.TextInterface;
 import paul.TextQuest.parsing.UserInterfaceClass;
+import paul.TextQuest.utils.StringUtils;
 import paul.TextQuest.utils.VictoryException;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,6 +49,7 @@ public class DungeonRoom extends UserInterfaceClass {
     
     private Map<String, String> onSpellCast;
     private Map<String, String> onSearch;
+    private Map<String, String> onHeroAction;
     
     private String onCombatStart;
     private String onCombatEnd;
@@ -64,9 +64,7 @@ public class DungeonRoom extends UserInterfaceClass {
 
     private transient Dungeon dungeon;
     private transient Map<Direction, DungeonRoom> connectedRooms;
-    private transient BossFight bossFight;
     private transient Hero hero;
-    private transient boolean described;
     
     //Used to find trigger maps from strings
     private transient Map<String, Map<String, String>> metaMap;
@@ -88,6 +86,10 @@ public class DungeonRoom extends UserInterfaceClass {
         children = new ArrayList<>();
         features = new ArrayList<>();
         initUniversalSpeechListeners();
+        
+        onHeroAction = new HashMap<>();
+        
+        lighting = 1.0; //By default rooms should be well-lit.
     }
     
     public DungeonRoom (String name, String description) {
@@ -103,6 +105,7 @@ public class DungeonRoom extends UserInterfaceClass {
         metaMap.put("onItemUse", onItemUse);
         metaMap.put("onSpellCast", onSpellCast);
         metaMap.put("onSearch", onSearch);
+        metaMap.put("onHeroAction", onHeroAction);
     }
 
     private static void initActionMaps () {
@@ -120,7 +123,6 @@ public class DungeonRoom extends UserInterfaceClass {
                     miniboss.setMight(2);
                     miniboss.setDefense(1);
                     miniboss.disable(1);
-                    room.getHero().getTextOut().println("Made " + miniboss.getName() + " weak.");
                 });
         });
         voidActionMap.put("makeMinibossStrong", room -> {
@@ -129,7 +131,6 @@ public class DungeonRoom extends UserInterfaceClass {
                 .forEach(miniboss -> {
                     miniboss.setMight(5);
                     miniboss.setDefense(12);
-                    room.getHero().getTextOut().println("Made " + miniboss.getName() + " strong.");
                 });
         });
         voidActionMap.put("startFight", room -> room.getHero().takeAction("fight"));
@@ -145,13 +146,13 @@ public class DungeonRoom extends UserInterfaceClass {
             room.hero.setPreviousLocation(null); //Prevent retreating
         });
         
-        voidActionMap.put("addShinePuzzle", room ->
-                room.getHero().getTextOut().println("Shine puzzle added. (not really)"));
-        
-        
         voidActionMap.put("removeChest", room -> {
         	room.chest = null;
         	room.textOut.println("The chest vanished.");
+        });
+        
+        voidActionMap.put("setDungeonCleared", room -> {
+        	room.getDungeon().setCleared(true);
         });
         
         
@@ -169,9 +170,30 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         paramActionMap.put("explode", (room, param) -> {
             int damageAmt = Integer.parseInt(param);
-            room.getHero().getTextOut().println("BOOM!! Explosions!");
+            room.textOut.println("BOOM!! Explosions!");
+            room.textOut.debug("@Deprecated");
             room.getHero().takeNonMitigatedDamage(damageAmt);
         });
+        paramActionMap.put("takeDamage", (room, param) -> {
+        	int damageAmt = Integer.parseInt(param);
+        	room.getHero().takeNonMitigatedDamage(damageAmt);
+        });
+        multiParamActionMap.put("takeTypedDamage", (room, args) -> {
+        	int damageAmt = Integer.parseInt(args[1]);
+        	room.getHero().takeNonMitigatedDamage(damageAmt);
+        	room.textOut.println("You took " + damageAmt + " " + args[2] + " damage.");
+        });
+        multiParamActionMap.put("takeSourcedDamage", (room, args) -> {
+        	int damageAmt = Integer.parseInt(args[1]);
+        	room.getHero().takeNonMitigatedDamage(damageAmt);
+        	room.textOut.println("You took " + damageAmt + " damage from " + args[2] + ".");
+        });
+        multiParamActionMap.put("takeTypedSourcedTypedDamage", (room, args) -> {
+        	int damageAmt = Integer.parseInt(args[1]);
+        	room.getHero().takeNonMitigatedDamage(damageAmt);
+        	room.textOut.println("You took " + damageAmt + " " + args[2] + " damage from " + args[3] + ".");
+        });
+        
         paramActionMap.put("giveExp", (room, param) -> room.getHero().addExp(Integer.parseInt(param)));
         paramActionMap.put("heal", (room, param) -> {
             int amt = Integer.parseInt(param);
@@ -200,8 +222,12 @@ public class DungeonRoom extends UserInterfaceClass {
         	room.textOut.debug("current doesn't matter since description only happens once");
         });
         
+        paramActionMap.put("disableHero", (room, param) -> {
+        	room.getHero().disable(Integer.parseInt(param));
+        });
+        
         paramActionMap.put("teleportHero", (room, param) -> {
-        	DungeonRoom otherRoom = room.getDungeon().getRoomByName(param);
+        	DungeonRoom otherRoom = room.getDungeon().getRoom(param);
         	if (otherRoom != null) {
         		room.textOut.debug("Attempting to move hero to " + otherRoom.name);
         		Hero hero = room.getHero();
@@ -228,7 +254,7 @@ public class DungeonRoom extends UserInterfaceClass {
         
         paramActionMap.put("swapChest", (room, param) -> {
         	int id = Integer.parseInt(param);
-        	DungeonRoom other = room.getDungeon().getRoomById(id);
+        	DungeonRoom other = room.getDungeon().getRoom(id);
         	if (other.getChest() == null && room.getChest() == null) {
         		room.textOut.debug("Both chests are null");
         		return;
@@ -257,7 +283,11 @@ public class DungeonRoom extends UserInterfaceClass {
         	room.textOut.debug("Attempted to remove " + param + " from hero.");
         });
         
-        paramActionMap.put("changeRoomName", (room, param) -> room.setName(param));
+        paramActionMap.put("changeRoomName", (room, param) -> {
+        	String oldName = room.getName();
+        	room.setName(param);
+        	room.getDungeon().updateRoomName(room, oldName);
+        });
         
         paramActionMap.put("removePassage", (room, param) -> {
         	Direction direction = Direction.getDirectionFromString(param);
@@ -380,7 +410,7 @@ public class DungeonRoom extends UserInterfaceClass {
         		room.textOut.debug("There was already a connection in the direction " + direction + ".");
         		room.textOut.debug("It was to " + connectedRooms.get(direction).getName() + ".");
         	}
-        	DungeonRoom otherRoom = room.getDungeon().getRoomById(id);
+        	DungeonRoom otherRoom = room.getDungeon().getRoom(id);
         	connectedRooms.put(direction, otherRoom);
         	room.setConnectedRooms(connectedRooms);
         	room.textOut.debug("A passage opens to the " + direction + ".");
@@ -413,6 +443,12 @@ public class DungeonRoom extends UserInterfaceClass {
         	}
         });
         
+        multiParamActionMap.put("setFeatureDescription", (room, args) -> {
+        	room.getFeatures().stream()
+        		.filter(feature -> feature.getName().equals(args[1]))
+        		.forEach(feature -> feature.setDescription(args[2]));
+        });
+        
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {
@@ -442,7 +478,7 @@ public class DungeonRoom extends UserInterfaceClass {
     }
 
     public void vocalize (String message, SpeakingVolume volume) {
-        textOut.println("Player " + volume.toString().toLowerCase() + "s: " + message);
+        textOut.println(hero.getName() + " " + volume.toString().toLowerCase() + "s, \"" + message + "\".");
         speechListeners.forEach(e -> e.notify(message, volume));
     }
 
@@ -529,99 +565,241 @@ public class DungeonRoom extends UserInterfaceClass {
     @Override
     public void start (TextInterface textOut) {
         this.textOut = textOut;
-        if (bossFight != null) {
-        	children.add(bossFight);
-            bossFight.start(textOut);
-        } else {
-            children = new ArrayList<>();
-        }
+        children = new ArrayList<>();    
     }
 
     @Override
     public InputType show () {
     	monsters.forEach(monster -> monster.addRoomReference(this));
-    	if (bossFight != null) {
-    		if (!bossFight.isConquered()) {
-	    		InputType type = bossFight.show();
-	            if (type != InputType.NONE) {
-	                requester = bossFight;
-	                return type;
-	            }
-	            return bossFight.show();
-    		} else {
-    			textOut.debug("Attempting to exit boss fight gracefully");
-    			System.err.println("Attempting to exit boss fight gracefully");
-    			return InputType.NONE;
-    		}
-    	} else {
-    		describe();
-    	}
+		describe();
     	return InputType.NONE;
-    	
     }
 
     public void describe () {
+    	
+    	/* Description Order
+    	 * (if applicable)
+    	 * 1. Light level
+    	 * 2. Room Description
+    	 * 3. Monsters
+    	 * 4. Obstacles that block travel
+    	 * 5. Chest
+    	 * 6. Visible items
+    	 * 7. Features with a description
+    	 * 8. Riddle message
+    	 * 9. Obstacles that don't block travel, features with no description
+    	 * 10. Passages out
+    	 * This is based on a rough concept of the priorities/importance,
+    	 * with passages last because they're about leaving the room. 
+    	 */
         LightingLevel lightingLevel = LightingLevel.getLightingLevel(lighting);
-        if (!described) {
-            textOut.println(description);
-            described = true;
+        //1. Light level
+    	switch (lightingLevel) {
+    	case WELL_LIT:
+    		textOut.println("The room is well-lit.");
+    		break;
+    	case DIM:
+    		textOut.println("The room is dimly lit.");
+    		break;
+    	case PITCH_BLACK:
+    		textOut.println("The room is pitch black.");
+    	}
+    	//2. Room Description
+        if (description != null) {
+        	textOut.println(description);
         }
-        List<Obstacle> obstaclesForDisplay = obstacles.stream()
-                .filter(obstacle -> {
-                    if (obstacle.isCleared()) {
-                        return obstacle.isDisplayIfCleared();
-                    }
-                    return true;
-                })
-                .collect(Collectors.toList());
-        if (obstaclesForDisplay.size() > 0) {
-            textOut.println("The room has the following obstacles:");
-            obstaclesForDisplay.forEach(e -> textOut.println(e));
+        //3. Monsters
+        switch (lightingLevel) {
+	        case WELL_LIT:
+	        	List<Monster> undescribed = new ArrayList<>(monsters);
+	        	for (Monster monster : monsters) {
+	        		if (monster.hasDescription()) {
+	        			textOut.println(monster.getDescription());
+	        			undescribed.remove(monster);
+	        		}
+	        	}
+	        	if (undescribed.size() > 1) {
+	        		textOut.println("You see " + StringUtils.prettyPrintListNoPeriod(undescribed) + " moving around the room.");
+	        	} else if (undescribed.size() == 1) {
+	        		textOut.println("You see a " + undescribed.get(0) + " moving around the room.");
+	        	}
+	            break;
+	        case DIM:
+	            if (monsters.size() > 1) {
+	                textOut.println("You can see " + monsters.size() + " figures moving around.");
+	            } else if (monsters.size() == 1) {
+	                textOut.println("You can see one figure moving around.");
+	            }
+	            break;
+			default:
+				break;
         }
         
+        //4. Obstacles that block travel
+        describeBlockingObstacles();
+        
+        //5. Chest
+        if (chest != null && chest.isVisible(lighting)) {
+        	String chestDescription;
+        	if (chest.isOpen()) {
+        		if (chest.getContents().size() != 0) {
+        			chestDescription = "There's an open " + chest.getName() + " with " + StringUtils.prettyPrintList(chest.getContents());
+        		} else {
+        			chestDescription = "There's an open " + chest.getName() + " (empty)";
+        		}
+        	} else {
+        		chestDescription = "There's " + StringUtils.addAOrAn(chest.getName());
+            	if (chest.getContents().size() == 0) {
+            		chestDescription += " (empty)";
+            	}
+            	chestDescription += ".";
+        	}
+        	
+        	textOut.println(chestDescription);
+        }
+        
+        //6. Visible items
+        List<BackpackItem> visibleItems = items.stream().filter(item -> item.isVisible(lighting)).collect(Collectors.toList());
+
+        if (visibleItems.size() > 1) {
+        	textOut.println("You can see the following items: " + StringUtils.prettyPrintList(visibleItems));
+        } else if (visibleItems.size() == 1) {
+        	textOut.println("You can see " + StringUtils.addAOrAn(visibleItems.get(0).getName()) + ".");
+        }
+	    
+        //7. Features with a description
         features.stream()
         	.filter(feature -> feature.isVisible(lighting))
-        	.forEach(feature -> {
-        		String completeDescription = feature.getName();
-        		if (feature.getDescription() != null) {
-        			completeDescription += " " + feature.getDescription();
-        		}
-        		if (feature.getStatus() != null) {
-        			completeDescription += " - " + feature.getStatus();
-        		}
-        		textOut.println(completeDescription);
-        	});
-
-        //Print riddles
+        	.filter(feature -> feature.getDescription() != null)
+        	.forEach(feature -> textOut.println(feature.getDescription()));
+        
+        //8. Riddle messages
         obstacles.stream()
-                .filter(e -> e.getClass() == RiddleObstacle.class)
-                .filter(e -> !e.isCleared())
-                .forEach(e -> textOut.println(((RiddleObstacle) e).getRiddle()));
-
-        switch (lightingLevel) {
-            case WELL_LIT:
-                textOut.println("The room is well-lit.");
-                monsters.forEach(textOut::println);
-                break;
-            case DIM:
-                textOut.println("The room is dimly lit.");
-                if (monsters.size() > 1) {
-                    textOut.println("You can see " + monsters.size() + " figures moving around.");
-                } else if (monsters.size() == 1) {
-                    textOut.println("You can see one figure moving around.");
-                }
-                break;
-            case PITCH_BLACK:
-                textOut.println("The room is pitch black.");
-                break;
+            .filter(obs -> obs.getClass() == RiddleObstacle.class)
+            .filter(riddle -> !riddle.isCleared())
+            .forEach(riddle -> textOut.println("A riddle:\"" + ((RiddleObstacle) riddle).getRiddle() + "\""));
+        
+        //9. Obstacles that don't block travel, features with no description
+        List<String> lowPrioFeatures = new ArrayList<>();
+        obstacles.stream()
+        	.filter(obs -> {
+        		if (obs.isCleared()) {
+        			return obs.isDisplayIfCleared();
+        		}
+        		return true;
+        	})
+        	.filter(obs -> {
+        		List<Direction> blocked = obs.getBlockedDirections();
+        		if (blocked == null || blocked.size() == 0) { //Safe because of short-circuiting
+        			return true;
+        		}
+        		return false;
+        	})
+        	.forEach(obs -> lowPrioFeatures.add(obs.getName()));
+        features.stream()
+        	.filter(feature -> feature.isVisible(lighting))
+        	.filter(feature -> feature.getDescription() == null)
+        	.forEach(feature -> {
+        		String shortDesc = feature.getName();
+        		if (feature.getStatus() != null) {
+        			shortDesc += " - " + feature.getStatus();
+        		}
+        		lowPrioFeatures.add(shortDesc);
+        	});
+        if (lowPrioFeatures.size() > 0) {
+        	textOut.println("You can also see " + StringUtils.prettyPrintList(lowPrioFeatures));
         }
 
-        items.stream()
-                .filter(item -> item.isVisible(lighting))
-                .forEach(textOut::println);
-
-        textOut.println("There are passages leading:");
-        connectedRooms.keySet().forEach(e -> textOut.println(e));
+        //10. Passages out
+        describePassages();
+    }
+    
+    private void describeBlockingObstacles () {
+    	obstacles.stream()
+			.filter(obstacle -> { //Filter out obstacles we don't want to display
+				if (obstacle.isCleared()) {
+					return obstacle.isDisplayIfCleared();
+				}
+				return true;
+			}) 
+            .filter(obstacle -> { //Then filter for blockers that aren't cleared
+                if (!obstacle.isCleared()) {
+                	List<Direction> blocked = obstacle.getBlockedDirections();
+                	if (blocked != null && blocked.size() > 0) {
+                		return true;
+                	} else {
+                		return false;
+                	}
+                }
+                return false;
+            })
+            .forEach(obs -> {
+            	List<Direction> blocked = obs.getBlockedDirections();
+        		String obstacleDescription = "A " + obs.getName() + " blocks travel ";
+        		if (blocked.contains(Direction.ALL)) {
+        			obstacleDescription += "in all directions.";
+        			textOut.println(obstacleDescription);
+        			return;
+        		}
+        		List<Direction> cardinals = new ArrayList<>();
+        		List<Direction> nonCardinals = new ArrayList<>();
+        		blocked.stream()
+        			.forEach(direction -> {
+        				if (direction.isCardinal()) {
+        					cardinals.add(direction);
+        				} else {
+        					nonCardinals.add(direction);
+        				}
+        			});
+        		if (nonCardinals.contains(Direction.PORTAL)) {
+        			obstacleDescription += "through the Portal";
+        			nonCardinals.remove(Direction.PORTAL);
+        			if (nonCardinals.size() + cardinals.size() > 0) {
+        				obstacleDescription += ", ";
+        			}
+        		}
+        		if (nonCardinals.size() > 0) {
+        			obstacleDescription += StringUtils.prettyPrintList(nonCardinals);
+        			if (cardinals.size() > 0) {
+        				obstacleDescription.replaceAll("\\.", ", ");
+        			}
+        		}
+        		obstacleDescription += StringUtils.prettyPrintList(cardinals);
+        		textOut.println(obstacleDescription);
+            });
+    }
+    
+    private void describePassages () {
+    	Set<Direction> passages = connectedRooms.keySet();
+        List<Direction> cardinals = passages.stream().filter(dir -> dir.isCardinal()).collect(Collectors.toList());
+        int numPassages = cardinals.size();
+        String passageDescription;
+        if (numPassages > 1) {
+        	passageDescription = "There are passages leading ";
+        } else if (numPassages == 1) {
+        	passageDescription = "There is a passage leading ";
+        } else {
+        	passageDescription = "";
+        }
+        passageDescription += StringUtils.prettyPrintList(cardinals);
+        textOut.println(passageDescription);
+        if (passages.contains(Direction.UP) || passages.contains(Direction.DOWN)) {
+        	String stairsDescription = "There are stairs leading ";
+        	if (passages.contains(Direction.UP)) {
+        		stairsDescription += "up";
+        		if (passages.contains(Direction.DOWN)) {
+        			stairsDescription += " and down.";
+        		} else {
+        			stairsDescription += ".";
+        		}
+        	} else {
+        		stairsDescription += "down.";
+        	}
+        	textOut.println(stairsDescription);
+        }
+        if (passages.contains(Direction.PORTAL)) {
+        	textOut.println("There is also a strange portal.");
+        }
     }
 
     public List<BackpackItem> lootRoom () {
@@ -656,7 +834,7 @@ public class DungeonRoom extends UserInterfaceClass {
     public void setLighting (double lighting) {
         if (lighting != this.lighting) {
             if (onLightingChange != null) {
-                String action = onLightingChange.get(LightingLevel.getLightingLevel(lighting));
+                String action = onLightingChange.get(LightingLevel.getLightingLevel(lighting).toString());
                 if (action != null) {
                     doAction(action);
                 }
@@ -800,12 +978,12 @@ public class DungeonRoom extends UserInterfaceClass {
         if (voidActionMap == null || paramActionMap == null || multiParamActionMap == null) {
             initActionMaps();
         }
-        
-        if (action.contains("{")) {
-        	action = replaceVariables(action);
-        }
-        
+        System.out.println("action = " + action);
+        //If action contains a semi-colon it contains multiple sub-actions
         if (action.startsWith("$if")) {
+        	if (action.contains("{")) {
+            	action = replaceVariables(action);
+            }
         	String condition = action.substring(action.indexOf("[") + 1, action.indexOf("]"));
         	boolean proceed = evaluateConditionForBoolean(condition);
         	if (proceed) {
@@ -823,13 +1001,25 @@ public class DungeonRoom extends UserInterfaceClass {
         		}
         	}
         }
+        if (action.contains(";")) {
+        	String[] statements = action.split(";");
+        	for (String statement : statements) {
+        		doAction(statement);
+        	}
+        	return;
+        }
+        
+        if (action.contains("{")) {
+        	action = replaceVariables(action);
+        }
+        
         
         if (action.startsWith("@")) {
         	String[] tokens = action.split(" ");
         	String roomTargetString = tokens[0].replaceAll("@", "");
         	try {
         		int roomId = Integer.parseInt(roomTargetString);
-        		DungeonRoom target = getDungeon().getRoomById(roomId);
+        		DungeonRoom target = getDungeon().getRoom(roomId);
         		if (target != null) {
         			textOut.debug("Attempting to send instruction to " + target.getName());
         			String actionString = action.substring(action.indexOf(" ") + 1);
@@ -849,30 +1039,39 @@ public class DungeonRoom extends UserInterfaceClass {
         	return;
         }
         
-        //If action contains a semi-colon it contains multiple sub-actions
-        if (action.contains(";")) {
-        	String[] statements = action.split(";");
-        	for (String statement : statements) {
-        		doAction(statement);
+        if (action.contains(" ")) {
+        	if (action.contains("\"")) {
+        		//Objective here is to pull out the quoted message, then split
+        		//Then put the message back and evaluate. 
+        		
+        		//TODO - want to get this working:
+        		//"setFeatureDescription Furnace \"A large furnace occupies this room. It's warm and burning away.\""
+        		String message = action.split("\"")[1];
+        		String actionWithoutQuote = action.substring(0, action.indexOf("\"")) 
+        				+ "#message" + action.substring(action.lastIndexOf("\"") + 1);
+        		String[] tokens = actionWithoutQuote.split(" ");
+        		for (int i = 0; i < tokens.length; i++) {
+        			if (tokens[i].equals("#message")) {
+        				tokens[i] = message;
+        			}
+        		}
+        		if (tokens.length == 2) {
+        			paramActionMap.get(tokens[0]).doAction(this, message);
+        		} else {
+        			multiParamActionMap.get(tokens[0]).doAction(this, tokens);
+        		}
+        	} else {
+	            String[] tokens = action.split(" ");
+	            if (tokens.length == 2) {
+	            	paramActionMap.get(tokens[0]).doAction(this, tokens[1]);
+	            } else {
+	            	multiParamActionMap.get(tokens[0]).doAction(this, tokens);
+	            }
         	}
         } else {
-	        if (action.contains(" ")) {
-	        	if (action.contains("\"")) {
-	        		String[] tokens = action.split(" ");
-	        		String[] message = action.split("\"");
-	        		paramActionMap.get(tokens[0]).doAction(this, message[1]);
-	        	} else {
-		            String[] tokens = action.split(" ");
-		            if (tokens.length == 2) {
-		            	paramActionMap.get(tokens[0]).doAction(this, tokens[1]);
-		            } else {
-		            	multiParamActionMap.get(tokens[0]).doAction(this, tokens);
-		            }
-	        	}
-	        } else {
-	            voidActionMap.get(action).doAction(this);
-	        }
+            voidActionMap.get(action).doAction(this);
         }
+        
     }
     
     /**
@@ -1074,9 +1273,6 @@ public class DungeonRoom extends UserInterfaceClass {
         if (tutorial != null) {
             if (numVisits == 1) {
                 textOut.tutorial(tutorial);
-            } else if (numVisits == 2) {
-                textOut.tutorial("Repeating tutorial just in case.");
-                textOut.tutorial(tutorial);
             }
         }
         if (onHeroEnter != null) {
@@ -1084,9 +1280,6 @@ public class DungeonRoom extends UserInterfaceClass {
         		doAction(onHeroEnter.getAction());
         		onHeroEnter.setDone(true);
         	}
-        }
-        if (bossFight != null) {
-            bossFight.setHero(hero);
         }
     }
 
@@ -1130,17 +1323,6 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public String getBossFightFileLocation() {
         return bossFightFileLocation;
-    }
-
-    /**
-     * Attempts to find the boss fight and build it.
-     * @param bossFightFileLocation
-     * @throws IOException
-     */
-    public void setBossFightFileLocation(String bossFightFileLocation) throws IOException {
-        this.bossFightFileLocation = bossFightFileLocation;
-
-        this.bossFight = BossFight.buildBossFightFromFile(bossFightFileLocation);
     }
 
     public String getTutorial() {
@@ -1239,6 +1421,14 @@ public class DungeonRoom extends UserInterfaceClass {
 		this.onHeroEnter = onHeroEnter;
 	}
 	
+	public Map<String, String> getOnHeroAction() {
+		return onHeroAction;
+	}
+
+	public void setOnHeroAction(Map<String, String> onHeroAction) {
+		this.onHeroAction = onHeroAction;
+	}
+
 	public Map<String, Map<String, String>> getMetaMap () {
 		if (metaMap == null) {
 			initMetaMap();

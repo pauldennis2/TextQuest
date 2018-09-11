@@ -7,7 +7,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.databind.ser.std.StdKeySerializers.Default;
 
 import paul.TextQuest.entities.BackpackItem;
 import paul.TextQuest.enums.EquipSlot;

@@ -1,5 +1,7 @@
 package paul.TextQuest.enums;
 
+import java.util.List;
+
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
@@ -27,6 +29,40 @@ public enum Direction {
             default:
                 return null;
         }
+    }
+    
+    /*
+     * Quick method to tell if this direction is one of the cardinal directions
+     * (N, E, S, W).
+     */
+    public boolean isCardinal () {
+    	switch (this) {
+        case NORTH:
+            return true;
+        case EAST:
+            return true;
+        case SOUTH:
+            return true;
+        case WEST:
+            return true;
+        case UP:
+            return false;
+        case DOWN:
+            return false;
+        case PORTAL:
+            return false;
+        default:
+            return false;
+    	}
+    }
+    
+    public static boolean containsCardinal (List<Direction> directions) {
+    	for (Direction direction : directions) {
+    		if (direction.isCardinal()) {
+    			return true;
+    		}
+    	}
+		return false;
     }
 
     @Override

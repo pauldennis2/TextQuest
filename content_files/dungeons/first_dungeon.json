@@ -212,7 +212,6 @@
       "description":"The lair of Pihop-pi. It kinda stinks in here.",
       "lighting":1.0,
       "tutorial":"This is the lair of the dungeon boss. Not yet 100% perfectly implemented. Thanks for playing!",
-      "bossFightFileLocation":"first_boss.json",
       "chest":
       {
         "name":"Pihop-pi's Chest",

@@ -14,18 +14,19 @@ public class Monster extends DungeonRoomEntity {
     private int might;
     private int defense;
     private String name;
+    
+    private String description;
 
     private transient int disabledForRounds = 0;
 
     //Not sure what this is for/what it was intended for
     //private static Map<String, VoidAction> actionMap;
 
-    private Map<String, CombatBehavior> abilities;
     private Map<BehaviorTiming, String> behavior;
     private boolean isMiniboss;
     
     private String onTakeDamage;
-    private String onDealDamage; //TODO: not yet implemented
+    private String onDealDamage;
     private String onDeath;
     private String onDisable;
     
@@ -51,7 +52,6 @@ public class Monster extends DungeonRoomEntity {
     	this.might = monsterTemplate.might;
     	this.health = monsterTemplate.health;
     	this.defense = monsterTemplate.defense;
-    	this.abilities = monsterTemplate.abilities;
     	this.behavior = monsterTemplate.behavior;
     	
     	this.onTakeDamage = monsterTemplate.onTakeDamage;
@@ -87,7 +87,7 @@ public class Monster extends DungeonRoomEntity {
     }
 
     public void disable (int rounds) {
-        disabledForRounds = rounds;
+        disabledForRounds += rounds;
         if (onDisable != null) {
         	location.doAction(onDisable);
         }
@@ -167,14 +167,6 @@ public class Monster extends DungeonRoomEntity {
         this.behavior = behavior;
     }
 
-    public Map<String, CombatBehavior> getAbilities () {
-        return abilities;
-    }
-
-    public void setAbilities (Map<String, CombatBehavior> abilities) {
-        this.abilities = abilities;
-    }
-
     public boolean isMiniboss () {
         return isMiniboss;
     }
@@ -217,5 +209,17 @@ public class Monster extends DungeonRoomEntity {
     
     public void addRoomReference (DungeonRoom room) {
     	this.location = room;
+    }
+    
+    public void setDescription (String description) {
+    	this.description = description;
+    }
+    
+    public String getDescription () {
+    	return description;
+    }
+    
+    public boolean hasDescription () {
+    	return description != null && !description.trim().equals("");
     }
 }

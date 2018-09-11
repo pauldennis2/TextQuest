@@ -15,10 +15,12 @@ douse : snuff
 leave : leave, exit
 save : save
 clean : clean, polish
+open : open
 |
 |Param Action Words: (i.e. "travel where?" "use what?", "cast what spell?")
 |===
 @ParamAction
+insert : place
 travel : sail, journey
 view : see, inspect, show
 use : utilize, wield, employ

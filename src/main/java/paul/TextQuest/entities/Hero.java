@@ -82,6 +82,9 @@ public class Hero extends UserInterfaceClass implements Serializable {
     private transient int sneakMod;
     private transient int defenseMod;
     private transient int numSpellsAvailable;
+    
+    private transient int block;
+    private transient int disabledForRounds;
 
     private transient DungeonRoom location;
     private transient DungeonRoom previousLocation;
@@ -254,12 +257,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
 
     private static Hero jsonRestore(String heroJson) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
-        //mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_FINAL); //Unexpected token (START_OBJECT), expected START_ARRAY: need JSON Array to contain As.WRAPPER_ARRAY type information for class paul.TextQuest.entities.Hero
-        //mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.JAVA_LANG_OBJECT); //-> unrecognized field @type
-        //mapper.enableDefaultTyping(); // Unexpected token (START_OBJECT), expected VALUE_STRING: need JSON String that contains type id (for subtype of java.util.List)
-        //(none) //-> unrecognized field @type
-        //mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.NON_CONCRETE_AND_ARRAYS); //Unexpected token (START_OBJECT), expected VALUE_STRING: need JSON String that contains type id (for subtype of java.util.List)
-        //mapper.enableDefaultTyping(ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE);
         return mapper.readValue(heroJson, Hero.class);
     }
 
@@ -321,30 +318,30 @@ public class Hero extends UserInterfaceClass implements Serializable {
     }
 
     public void takeAction (String action) {
-        VoidAction voidAction = heroVoidActions.get(action);
-        if (voidAction != null) {
-            voidAction.doAction(location);
-        } else {
-            if (location.getSpecialRoomActions().get(action) != null) {
-                String roomAction = location.getSpecialRoomActions().get(action);
-                
-                /* Old implementation. As of 9/6/18 not sure why this makes any sense
-                String[] splits = roomAction.split(" ");
-                switch (splits[0]) {
-                    case "heal":
-                        int amt = Integer.parseInt(splits[1]);
-                        this.restoreHealth(amt);
-                        break;
-                    default:
-                        throw new AssertionError("No other ops supported.");
-                }
-                */
-                location.doAction(roomAction);
-            } else {
-                textOut.debug("Action not in map.");
-                throw new AssertionError();
-            }
-        }
+    	String onHeroAction = location.getOnHeroAction().get(action);
+    	boolean stops = false;
+    	if (onHeroAction != null) {
+    		location.doAction(onHeroAction);
+    		if (onHeroAction.contains("!STOPS")) {
+        		onHeroAction.replaceAll("!STOPS", "");
+        		textOut.debug("This trigger stops the action.");
+        		stops = true;
+        	}
+    	}
+    	if (!stops) {
+	        VoidAction voidAction = heroVoidActions.get(action);
+	        if (voidAction != null) {
+	            voidAction.doAction(location);
+	        } else {
+	            if (location.getSpecialRoomActions().get(action) != null) {
+	                String roomAction = location.getSpecialRoomActions().get(action);
+	                location.doAction(roomAction);
+	            } else {
+	                textOut.debug("Action not in map.");
+	                throw new AssertionError();
+	            }
+	        }
+    	}
     }
 
     public void takeAction (String action, String param) {
@@ -365,7 +362,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         itemActions.put("potion", room -> {
             this.restoreHealth(POTION_VALUE);
             this.removeItem("Potion");
-            textOut.println("Drank a potion and restored up to 9 health.");
+            textOut.println("Drank a potion.");
         });
         itemActions.put("bow", room -> textOut.println("You don't know how to use that yet."));
     }
@@ -373,7 +370,9 @@ public class Hero extends UserInterfaceClass implements Serializable {
     private void initViews () {
         views.put("status", room -> printStats());
         views.put("map", room -> textOut.println("Map not yet implemented."));
-        views.put("backpack", room -> textOut.println(backpack));
+        views.put("backpack", room -> {
+        	textOut.println("You have the following items in your pack: " + StringUtils.prettyPrintList(backpack.getItems()));
+        });
         views.put("spellbook", room -> {
             if (spellMap.keySet().size() == 0) {
                 textOut.println("You don't know any spells yet.");
@@ -398,20 +397,20 @@ public class Hero extends UserInterfaceClass implements Serializable {
         heroVoidActions.put("douse", room -> room.setLighting(0.0));
 
         heroVoidActions.put("smash", room -> {
-            textOut.println("Starting a smashing spree.");
             room.getObstacles().stream()
                     .filter(obs -> obs.getClass() == SmashableObstacle.class)
                     .filter(obs -> !obs.isCleared())
                     .forEach(obs -> {
                         boolean success = obs.attempt("smash", room.getHero());
                         if (success) {
-                            textOut.println("You smashed " + obs.getName() + ".");
+                            textOut.println("You smashed a " + obs.getName() + ".");
                         } else {
                             textOut.println("Ouch! " + obs.getName() + " is hard.");
                         }
                     });
         });
-        heroVoidActions.put("loot", room -> room.lootRoom()
+        heroVoidActions.put("loot", room -> {
+        	room.lootRoom()
             .stream()
             .filter(item -> item.isVisible(location.getLighting()))
             .forEach(item -> {
@@ -420,7 +419,59 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 }
                 backpack.add(item);
                 textOut.println("Picked up " + item.getName());
-        }));
+            });
+        	Chest chest = room.getChest();
+        	if (chest != null && chest.isOpen()) {
+        		List<BackpackItem> chestContents = chest.removeContents();
+                chestContents.forEach(item -> {
+                    if (item.hasPickupAction()) {
+                        room.doAction(item.getOnPickup());
+                    }
+                    textOut.println("Looted " + item.getName() + " from chest.");
+                    backpack.add(item);
+                });
+        	} else if (room.getChest() != null) {
+        		textOut.println("You can't loot from a chest that's not open.");
+        	}
+        });
+        
+        heroVoidActions.put("open", room -> {
+        	Chest chest = room.getChest();
+        	if (chest == null) {
+        		textOut.println("There's no chest to open.");
+        	} else {
+        		chest.open();
+	        	room.getHero().backpack.stream()
+	            	.filter(item -> item.getName().contains("Key"))
+	            	.forEach(chest::open);
+	        	if (chest.isLocked()) {
+	        		textOut.println("You don't have the key to " + chest.getName() + ".");
+	        	}
+        	}
+        });
+        
+        heroVoidActions.put("plunder", room -> {
+            Chest chest = room.getChest();
+            if (chest == null) {
+                textOut.println("Nothing to plunder here.");
+            }
+            room.getHero().backpack.stream()
+                .filter(item -> item.getName().contains("Key"))
+                .forEach(chest::unlock);
+            if (chest.isLocked()) {
+                textOut.println("You don't have the key to " + chest.getName() + ".");
+            } else {
+                List<BackpackItem> chestContents = chest.removeContents();
+                chestContents.forEach(item -> {
+                    if (item.hasPickupAction()) {
+                        room.doAction(item.getOnPickup());
+                    }
+                    textOut.println("Looted " + item.getName() + " from chest.");
+                    backpack.add(item);
+                });
+            }
+        });
+        
         heroVoidActions.put("retreat", room -> room.getHero().retreat());
         heroVoidActions.put("sneak", room -> {
             switch (sneak) {
@@ -443,29 +494,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
         heroVoidActions.put("fight", room -> textOut.getRunner().startCombat());
 
         heroVoidActions.put("rescue", room -> textOut.println("No princes to rescue right now."));
-
-        heroVoidActions.put("plunder", room -> {
-            Chest chest = room.getChest();
-            if (chest == null) {
-                textOut.println("Nothing to plunder here.");
-            }
-            room.getHero().backpack.stream()
-                .filter(item -> item.getName().contains("Key"))
-                .forEach(chest::unlock);
-            if (chest.isLocked()) {
-                textOut.println("You don't have the key");
-            } else {
-                textOut.println("Trademarked chest-opening music, rapid ascending style.");
-                List<BackpackItem> chestContents = chest.removeContents();
-                chestContents.forEach(item -> {
-                    if (item.hasPickupAction()) {
-                        room.doAction(item.getOnPickup());
-                    }
-                    textOut.println("Looted " + item.getName() + " from chest.");
-                    backpack.add(item);
-                });
-            }
-        });
         
         heroVoidActions.put("leave", room -> {
         	boolean cleared = room.getDungeon().isCleared();
@@ -526,6 +554,11 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 textOut.println("Hmm... not much happened.");
             }
         });
+        
+        heroVoidActions.put("block", room -> {
+        	textOut.debug("Blocking doesn't do anything right now except against the boss.");
+        	
+        });
 
         heroParamActions.put("cast", (room, param) -> {
             if (numSpellsAvailable < 1) {
@@ -575,15 +608,17 @@ public class Hero extends UserInterfaceClass implements Serializable {
 
         heroParamActions.put("search", (room, param) -> {
             List<BackpackItem> hiddenItems = room.getHiddenItems().get(param);
-            if (room.getOnSearch().containsKey(param)) {
-            	textOut.println("From searching near " + param + " something happened.");
+            boolean triggerFlag = false;
+            if (room.getOnSearch() != null && room.getOnSearch().containsKey(param)) {
+            	textOut.debug("From searching near " + param + ", action = " + room.getOnSearch().get(param));
             	room.doAction(room.getOnSearch().get(param));
             	//onSearch triggers don't persist
             	room.getOnSearch().remove(param);
+            	triggerFlag = true;
             }
-            if (hiddenItems == null) {
+            if (hiddenItems == null && !triggerFlag) {
                 textOut.println("You didn't find anything near " + param);
-            } else {
+            } else if (hiddenItems != null) {
                 textOut.println("Searching around " + param + ", you found:");
                 hiddenItems.forEach(item -> {
                     textOut.println(item);
@@ -598,7 +633,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         	for (BackpackItem item : items) {
         		if (item.getName().toLowerCase().equals(param)) {
         			if (item.isUndroppable()) {
-        				textOut.println("Sorry honey, you can't drop that item.");
+        				textOut.println("You can't drop " + item.getName());
         			} else {
         				backpack.remove(item);
         				textOut.println("Dropped " + item.getName());
@@ -614,6 +649,41 @@ public class Hero extends UserInterfaceClass implements Serializable {
         	if (!found) {
         		textOut.println("You don't have a " + param + " to drop.");
         	}
+        });
+        
+        heroParamActions.put("insert", (room, param) -> {
+        	List<Container> containers = new ArrayList<>();
+        	if (room.getChest() != null) {
+        		containers.add(room.getChest());
+        	}
+        	room.getFeatures().stream()
+        		.filter(Feature::isContainer)
+        		.forEach(feature -> containers.add(feature));
+        	if (containers.size() > 1) {
+        		textOut.println("There are multiple containers. Requires disambiguation (unsupported)");
+        		return;
+        	} else if (containers.size() == 0) {
+        		textOut.println("There are no containers into which to insert items.");
+        		return;
+        	}
+        	Container container = containers.get(0);
+        	List<BackpackItem> matchingItems = backpack.getItems().stream()
+        		.filter(item -> item.getName().toLowerCase().contains(param.toLowerCase()))
+        		.collect(Collectors.toList());
+        	
+        		matchingItems.forEach(item -> {
+        			if (item.isUndroppable()) {
+        				textOut.println("You can't drop/insert " + item.getName());
+        			} else {
+        				textOut.println("Inserted " + item.getName());
+        				backpack.remove(item);
+        				container.add(item);
+        				String onInsert = container.getOnInsert().get(item.getName().toLowerCase());
+        				if (onInsert != null) {
+        					room.doAction(onInsert);
+        				}
+        			}
+        		});
         });
 
         heroParamActions.put("equip", (room, param) -> {
@@ -770,11 +840,15 @@ public class Hero extends UserInterfaceClass implements Serializable {
     }
 
     public void restoreHealth (int healthAmount) {
-        health += healthAmount;
-        if (health > maxHealth) {
-            health = maxHealth;
-        }
-        textOut.println("Restored up to " + healthAmount + ". Current health = " + health);
+    	if (health < maxHealth) {
+    		health += healthAmount;
+    		if (health > maxHealth) {
+                health = maxHealth;
+            } 
+    		textOut.println("Restored up to " + healthAmount + " health. (" + health + "/" + maxHealth + ")");
+    	} else {
+        	textOut.debug("Health was already at max.");
+        }       
     }
 
     public void printStats () {
@@ -787,6 +861,9 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 .filter(obs -> !obs.isCleared())
                 .filter(obs -> {
                     List<Direction> blockedDirections = obs.getBlockedDirections();
+                    if (blockedDirections == null || blockedDirections.isEmpty()) {
+                    	return false;
+                    }
                     if (blockedDirections.get(0) == Direction.ALL) {
                         return true;
                     }
@@ -954,8 +1031,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
         this.sneak = sneak;
     }
 
-    
-
     public int getMaxSpellsPerDay() {
         return maxSpellsPerDay;
     }
@@ -1072,9 +1147,35 @@ public class Hero extends UserInterfaceClass implements Serializable {
 	public void setEquippedItems(Map<EquipSlot, EquipableItem> equippedItems) {
 		this.equippedItems = equippedItems;
 	}
+	
+	public int getBlock () {
+		return block;
+	}
     
 	public void setTextOut (TextInterface textOut) {
 		this.textOut = textOut;
+	}
+	
+	//TODO: seems like there's some commonality between this and monster - shared base class?
+	public boolean isDisabled () {
+		return disabledForRounds > 0;
+	}
+	
+	public void disable (int numRounds) {
+		disabledForRounds += numRounds;
+	}
+	
+	public void unDisable () {
+		disabledForRounds = 0;
+	}
+	
+	public void nextRound () {
+		if (disabledForRounds > 0) {
+			disabledForRounds--;
+		}
+		if (block > 0) {
+			block--;
+		}
 	}
 	
 	public Integer getIntField (String fieldName) {
@@ -1087,10 +1188,5 @@ public class Hero extends UserInterfaceClass implements Serializable {
 		} catch (Exception ex) {
 			return null;
 		}
-	}
-	
-	public static void main(String[] args) {
-		Hero hero = new Hero("Paul");
-		System.out.println("might = " + hero.getIntField("name"));
 	}
 }
