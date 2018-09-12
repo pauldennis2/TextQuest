@@ -449,6 +449,12 @@ public class DungeonRoom extends UserInterfaceClass {
         		.forEach(feature -> feature.setDescription(args[2]));
         });
         
+        multiParamActionMap.put("setFeatureStatus", (room, args) -> {
+        	room.getFeatures().stream()
+        		.filter(feature -> feature.getName().equals(args[1]))
+        		.forEach(feature -> feature.setStatus(args[2]));
+        });
+        
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {

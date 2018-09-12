@@ -292,9 +292,9 @@
         "contents":
         [
           {
-          "name":"Mirror Shield",
-          "onPickup":"print \"The way out is barred by a gate controlled by the Light Crystal.\";tutorial \"You'll need to clean all the mirrors in the room and then use shine.\""
-        }
+            "name":"Mirror Shield",
+            "onPickup":"print \"The way out is barred by a gate controlled by the Light Crystal.\";tutorial \"You'll need to clean all the mirrors in the room and then use shine.\""
+          }
         ]
       },
       "features":
@@ -439,7 +439,7 @@
           "isMiniboss":true,
           "behavior":
           {
-            "EVERY_THIRD_ROUND":"setFeatureDescription Mirror dirty;print \"Shadows seep out of the captain and cover the room.\""
+            "EVERY_THIRD_ROUND":"setFeatureStatus Mirror dirty;print \"Shadows seep out of the captain and cover the room.\""
           }
         }
       ],

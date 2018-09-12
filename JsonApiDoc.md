@@ -205,8 +205,7 @@ The Dungeon Template is a convenience feature that allows you to declare propert
 * monsters - a List of monsters in the room. By default they won't attack but their presence prevents the hero from exploring further. Optional
 * connectedRoomIds - a Map between Directions (like "EAST") and the id of the room it's connected to in that direction. This is a very important parameter as it defines how everything connects. **Required**, but you only need to list directions that are connected (if there's nothing to the North of a room, you don't need to list that). **Note**: if you want connections to be two-way connections you need each room connected to the other (so Room 4 is connected via EAST to Room 5, and Room 5 connects to Room 4 via WEST). Be careful with one-way connections since they could leave the hero trapped. **Note 2**: Technically there's no geography enforced. So Room 4 could go east to Room 5, and Room 5 could lead "East" back to Room 4. I recommend avoiding this as it will confuse the designer and the player both.
 * obstacles - a List of Obstacles in the room. Obstacles represent things the hero can interact with (puzzles to solve, chasms to jump, etc) that often prevent progress. Obstacles are an important part of designing interesting dungeons. Optional
-* chest - Optional
-* bossFightFileLocation - boss fights are stored separately as their own JSON file. This is a name of a file in the "encounters" directory. Optional
+* chest - a Chest that can contain items for the player. Optional
 * hiddenItems - you can "hide" items here in a map corresponding to their location. So if something is hidden by the fountain, it won't turn up when the player types "loot". They would have to "search fountain".
 * features - every room can have a list of "Features". Features are mainly a part of how the room is described - they can also be used in other ways (such as Mirror features being used in the Shine Puzzle).
 
@@ -320,6 +319,8 @@ These events require multiple parameters.
 * setDungeonVariable - allows you to modify the dungeon's variable map. First param is the name of the variable you want to set, second param is the value you want it to have.
 * setDungeonValue - used interchangeably with setDungeonVariable. "Value" refers to integers (whole numbers) whereas "variable" refers to the string map.
 * addToDungeonValue - allows you to modify existing values in the values map. First param is the name of the value to set, and the second is the amount to add. You can use negative numbers to subtract instead. `addToDungeonValue waterLevel -1` would decrease waterLevel by 1.
+* setFeatureDescription - change the description of a given feature. First param is the name of the feature, second param is the new description.
+* setFeatureStatus - change the status of a feature. First param feature name, second new status.
 
 Damaging Events:
 
