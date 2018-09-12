@@ -314,6 +314,7 @@ These events need an extra bit of information, often a number. For example if yo
 * disableHero (rounds) - stuns the Hero for a number of rounds. No behavior outside of combat. (Only use in combat).
 * doTicks (number of ticks) - performs the given number of ticks. Use with caution. See "Tick Tock Goes the Clock" for info.
 * doTocks (number of tocks) - performs the given number of tocks. Use with caution.
+* removeMonster (monster name) - removes all monsters with the given name from the room.
 
 #### MultiParam Events
 
@@ -329,6 +330,7 @@ These events require multiple parameters.
 * addToDungeonValue - allows you to modify existing values in the values map. First param is the name of the value to set, and the second is the amount to add. You can use negative numbers to subtract instead. `addToDungeonValue waterLevel -1` would decrease waterLevel by 1.
 * setFeatureDescription - change the description of a given feature. First param is the name of the feature, second param is the new description.
 * setFeatureStatus - change the status of a feature. First param feature name, second new status.
+* moveMonster - allows you to transport a monster to a new room. First param is the name of the monster, second param is the ID of the new room.
 
 Damaging Events:
 
@@ -352,6 +354,7 @@ These events just happen, and they don't need any extra information.
 * setDungeonCleared - Sets the dungeon to cleared status, meaning the hero can leave and save (see saving).
 * doTick - does one tick (see "Tick Tock Goes the Clock")
 * doTock - does one tock
+* removeMonsters - removes ALL monsters from the room
 
 Hopefully soon we'll add many more possible events, and even the ability to create custom events.
 

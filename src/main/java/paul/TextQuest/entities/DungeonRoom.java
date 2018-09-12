@@ -39,7 +39,6 @@ public class DungeonRoom extends UserInterfaceClass {
     private Map<String, List<BackpackItem>> hiddenItems;
     private List<Obstacle> obstacles;
     private Chest chest;
-    private String bossFightFileLocation;
     private List<Feature> features;
 
     private Map<String, String> specialRoomActions;
@@ -183,6 +182,8 @@ public class DungeonRoom extends UserInterfaceClass {
         	}
         	room.getDungeon().doTock();
         });
+        
+        voidActionMap.put("removeMonsters", room -> room.removeMonsters());
         
         //Param Actions\\
         paramActionMap.put("createMonster", (room, param) -> {
@@ -334,7 +335,7 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         
         paramActionMap.put("addFeature", (room, param) -> {
-        	room.features.add(new Feature(param));
+        	room.addFeature(new Feature(param));
         	room.textOut.debug("Added " + param + " feature to room.");
         });
         
@@ -361,6 +362,10 @@ public class DungeonRoom extends UserInterfaceClass {
         	for (int i = 0; i < numTocks; i++) {
         		voidActionMap.get("doTock").doAction(room);
         	}
+        });
+        
+        paramActionMap.put("removeMonster", (room, param) -> {
+        	room.removeMonster(param);
         });
         
         //MultiParam Actions\\
@@ -497,6 +502,26 @@ public class DungeonRoom extends UserInterfaceClass {
         		.forEach(feature -> feature.setStatus(args[2]));
         });
         
+        multiParamActionMap.put("moveMonster", (room, args) -> {
+        	String monsterName = args[1];
+        	List<Monster> matches = room.getMonsters().stream()
+        			.filter(monster -> monster.getName().equals(monsterName))
+        			.collect(Collectors.toList());
+        	int roomId = Integer.parseInt(args[2]);
+        	DungeonRoom newRoom = room.getDungeon().getRoom(roomId);
+        	if (newRoom == null) {
+        		throw new AssertionError("Could not find room with id " + roomId);
+        	}
+        	matches.forEach(monster -> {
+        		room.textOut.debug("Moving " + monster);
+        		room.monsters.remove(monster);
+        		if (room.tickTocks.contains(monster)) {
+        			room.tickTocks.remove(monster);
+        		}
+        		newRoom.addMonster(monster);
+        	});
+        });
+        
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {
@@ -566,6 +591,19 @@ public class DungeonRoom extends UserInterfaceClass {
         };
         speechListeners.add(riddleAnswerListener);
         speechListeners.add(shoutAggroListener);
+    }
+    
+    public void removeMonster (String name) {
+    	List<Monster> toBeRemoved = monsters.stream()
+    			.filter(monster -> monster.getName().equals(name))
+    			.collect(Collectors.toList());
+    	
+    	toBeRemoved.forEach(monster -> {
+    		monsters.remove(monster);
+    		if (monster.tickTocks()) {
+    			tickTocks.remove(monster);
+    		}
+    	});
     }
 
     public List<Monster> removeMonsters () {
@@ -900,6 +938,13 @@ public class DungeonRoom extends UserInterfaceClass {
                 .filter(e -> e.getHealth() > 0)
                 .collect(Collectors.toList());
     }
+    
+    public void addFeature (Feature feature) {
+    	features.add(feature);
+    	if (feature.tickTocks()) {
+    		tickTocks.add(feature);
+    	}
+    }
 
     public double getLighting () {
         return lighting;
@@ -1183,7 +1228,7 @@ public class DungeonRoom extends UserInterfaceClass {
     		template.items.forEach(item -> addItem(new BackpackItem(item)));
     	}
     	if (template.features != null) {
-    		throw new AssertionError("Dunno what this is (see Feature class)");
+    		template.features.forEach(feature -> addFeature(feature));
     	}
     	if (template.hiddenItems != null) {
     		template.hiddenItems.keySet().forEach(locationName -> {
@@ -1326,7 +1371,7 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setChest(Chest chest) {
         this.chest = chest;
-        if (chest.tickTocks()) {
+        if (chest != null && chest.tickTocks()) {
         	tickTocks.add(chest);
         }
     }

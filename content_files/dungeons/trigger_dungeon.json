@@ -30,9 +30,8 @@
   "rooms":
   [
     {
-      "name":"Spell Chamber - Ice",
+      "name":"Clock Chamber",
       "id":1,
-      "description":"There's a tome of ice magic on the table.",
       "tutorial":"To navigate the dungeon, you can say \"move\", \"go\", or \"proceed\". You will need to pair this command with a direction. Since the only available direction is East, try typing \"go east\" (without the quotes).",
       "lighting": 1.0,
       "connectedRoomIds":
@@ -287,8 +286,6 @@
       "id":10,
       "description":"The lair of Pihop-pi. It kinda stinks in here.",
       "lighting":1.0,
-      "tutorial":"This is the lair of the dungeon boss. Not yet 100% perfectly implemented. Thanks for playing!",
-      "bossFightFileLocation":"first_boss.json",
       "chest":
       {
         "name":"Pihop-pi's Chest",
