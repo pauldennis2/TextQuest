@@ -63,6 +63,30 @@ public class Dungeon extends MetaLocation {
     public DungeonRoom getRoom (int id) {
     	return roomsById.get(id);
     }
+    
+    public void doTick () {
+    	/*
+    	room.textOut.debug("Doing tick");
+    	if (room.getOnTick() != null) {
+    		room.doAction(room.getOnTick());
+    	}
+    	if (room.getDungeon().getOnTick() != null) {
+    		room.doAction(room.getDungeon().getOnTick());
+    	}
+    	room.tickTocks.forEach(tickTock -> {
+    		if (tickTock.getOnTick() != null) {
+    			room.doAction(tickTock.getOnTick());
+    		}
+    	});
+    	*/
+    	for (DungeonRoom room : rooms) {
+    		
+    	}
+    }
+    
+    public void doTock () {
+    	
+    }
 
     public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
         Dungeon restored = jsonRestore(readDungeonFromFile(fileName));

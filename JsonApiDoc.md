@@ -159,6 +159,12 @@ If the player decides to leave the dungeon before it is cleared they will lose a
 
 At some point there will be an additional JSON file to define a group of dungeons as part of a larger story. Coming soon!
 
+### Tick Tock Goes the Clock
+
+In version 0.0.9, you can now define a "clock" for your dungeon. Nearly ever component now has two new properties: "onTick" and "onTock" (these properties won't be listed below since they are near-universal). You have access to two new events: `doTick` and `doTock`. These events will trigger the appropriate events for all the components. It's your job as the dungeon designer to decide what "advances the clock" in your dungeon. You could do a tick every time the hero moves, every time they cast a spell, etc. "tick" and "tock" just represent two different time-based events. You can use them however you want; by convention, I'd suggest that if one is more common, it should be ticks (ticks happen more than tocks). You could use both together to represent something like seconds/minutes. For example, every time the hero moves, do a tick. Every time a `tick` happens, we advance a dungeon variable called `time`, and if `time = 10` we reset time and do a `tock` (this then triggers whatever `onTock` events you've assigned.
+
+**Note**: You **will** get stuck in an infinite loop if you do something like `"onTick":"doTick"` (it keeps triggering itself over and over). This might seem obvious, particular if you have experience programming. But it's also possible to get stuck in a less obvious way: `"onTick":"light" [...] "onLightingChange:{"WELL_LIT":"doTick"}` would have the same effect.
+
 ## Creating A Dungeon
 
 A dungeon has a "dungeonName" property and a List of "rooms".
@@ -306,6 +312,8 @@ These events need an extra bit of information, often a number. For example if yo
 * clearObstacle (obstacle name) - Clears **all** obstacles with the given name in the room.
 * takeDamage (damage amount) - the Hero takes some damage. No message is printed. See takeTypedDamage, takeSourcedDamage, takeTypedSourcedDamage.
 * disableHero (rounds) - stuns the Hero for a number of rounds. No behavior outside of combat. (Only use in combat).
+* doTicks (number of ticks) - performs the given number of ticks. Use with caution. See "Tick Tock Goes the Clock" for info.
+* doTocks (number of tocks) - performs the given number of tocks. Use with caution.
 
 #### MultiParam Events
 
@@ -341,7 +349,9 @@ These events just happen, and they don't need any extra information.
 * victory - Ends the game. Use with caution, I guess.
 * crackFloor - creates a Chasm obstacle and prevents retreating. The hero will be stuck unless they have Boots of Vaulting
 * removeChest - removes the chest from the current room (if applicable)
-* setDungeonCleared - Sets the dungeon to cleared status, meaning the hero can leave and save (see saving). 
+* setDungeonCleared - Sets the dungeon to cleared status, meaning the hero can leave and save (see saving).
+* doTick - does one tick (see "Tick Tock Goes the Clock")
+* doTock - does one tock
 
 Hopefully soon we'll add many more possible events, and even the ability to create custom events.
 

@@ -69,6 +69,8 @@ public class DungeonRoom extends UserInterfaceClass {
     //Used to find trigger maps from strings
     private transient Map<String, Map<String, String>> metaMap;
     
+    private List<TickTock> tickTocks;
+    
     private static Map<String, VoidAction> voidActionMap;
     private static Map<String, ParamAction> paramActionMap;
     private static Map<String, MultiParamAction> multiParamActionMap;
@@ -88,6 +90,7 @@ public class DungeonRoom extends UserInterfaceClass {
         initUniversalSpeechListeners();
         
         onHeroAction = new HashMap<>();
+        tickTocks = new ArrayList<>();
         
         lighting = 1.0; //By default rooms should be well-lit.
     }
@@ -106,6 +109,14 @@ public class DungeonRoom extends UserInterfaceClass {
         metaMap.put("onSpellCast", onSpellCast);
         metaMap.put("onSearch", onSearch);
         metaMap.put("onHeroAction", onHeroAction);
+    }
+    
+    public void doTick () {
+    	
+    }
+    
+    public void doTock () {
+    	
     }
 
     private static void initActionMaps () {
@@ -155,6 +166,23 @@ public class DungeonRoom extends UserInterfaceClass {
         	room.getDungeon().setCleared(true);
         });
         
+        voidActionMap.put("doTick", room -> {
+        	room.textOut.debug("Doing tick");
+        	Dungeon dungeon = room.getDungeon();
+        	if (dungeon.getOnTick() != null) {
+        		room.doAction(dungeon.getOnTick());
+        	}
+        	dungeon.doTick();
+        });
+        
+        voidActionMap.put("doTock", room -> {
+        	room.textOut.debug("Doing tock");
+        	Dungeon dungeon = room.getDungeon();
+        	if (dungeon.getOnTock() != null) {
+        		room.doAction(dungeon.getOnTock());
+        	}
+        	room.getDungeon().doTock();
+        });
         
         //Param Actions\\
         paramActionMap.put("createMonster", (room, param) -> {
@@ -318,6 +346,20 @@ public class DungeonRoom extends UserInterfaceClass {
         	for (Feature feature : toBeRemoved) {
         		room.features.remove(feature);
         		room.textOut.debug("Removed " + feature);
+        	}
+        });
+        
+        paramActionMap.put("doTicks", (room, param) -> {
+        	int numTicks = Integer.parseInt(param);
+        	for (int i = 0; i < numTicks; i++) {
+        		voidActionMap.get("doTick").doAction(room);
+        	}
+        });
+        
+        paramActionMap.put("doTocks", (room, param) -> {
+        	int numTocks = Integer.parseInt(param);
+        	for (int i = 0; i < numTocks; i++) {
+        		voidActionMap.get("doTock").doAction(room);
         	}
         });
         
@@ -536,6 +578,9 @@ public class DungeonRoom extends UserInterfaceClass {
     public void addMonster (Monster monster) {
         monsters.add(monster);
         monster.addRoomReference(this);
+        if (monster.tickTocks()) {
+        	tickTocks.add(monster);
+        }
     }
 
     public void addMonsters (List<Monster> monsters) {
@@ -544,10 +589,16 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void addContainer (Chest chest) {
         this.chest = chest;
+        if (chest.tickTocks()) {
+        	tickTocks.add(chest);
+        }
     }
 
     public void addItem (BackpackItem item) {
         items.add(item);
+        if (item.tickTocks()) {
+        	tickTocks.add(item);
+        }
     }
 
     public void connectTo (Direction direction, DungeonRoom other) {
