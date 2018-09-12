@@ -64,28 +64,28 @@ public class Dungeon extends MetaLocation {
     	return roomsById.get(id);
     }
     
+    /**Note: this method is a bit weird, in that it gets called BY the room,
+     * then calls all the individual rooms. The calling room is responsible
+     * for triggering the dungeon's tick, if present.
+     */
     public void doTick () {
-    	/*
-    	room.textOut.debug("Doing tick");
-    	if (room.getOnTick() != null) {
-    		room.doAction(room.getOnTick());
-    	}
-    	if (room.getDungeon().getOnTick() != null) {
-    		room.doAction(room.getDungeon().getOnTick());
-    	}
-    	room.tickTocks.forEach(tickTock -> {
-    		if (tickTock.getOnTick() != null) {
-    			room.doAction(tickTock.getOnTick());
-    		}
-    	});
-    	*/
     	for (DungeonRoom room : rooms) {
-    		
+    		room.getTickTocks().forEach(tickTock -> {
+    			if (tickTock.getOnTick() != null) {
+    				room.doAction(tickTock.getOnTick());
+    			}
+    		});
     	}
     }
     
     public void doTock () {
-    	
+    	for (DungeonRoom room : rooms) {
+    		room.getTickTocks().forEach(tickTock -> {
+    			if (tickTock.getOnTock() != null) {
+    				room.doAction(tickTock.getOnTock());
+    			}
+    		});
+    	}
     }
 
     public static Dungeon buildDungeonFromFile (String fileName) throws IOException {

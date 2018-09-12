@@ -570,10 +570,14 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public List<Monster> removeMonsters () {
         List<Monster> removed = monsters;
+        for (Monster monster : removed) {
+        	if (tickTocks.contains(monster)) {
+        		tickTocks.remove(monster);
+        	}
+        }
         monsters = new ArrayList<>();
         return removed;
     }
-
 
     public void addMonster (Monster monster) {
         monsters.add(monster);
@@ -867,6 +871,11 @@ public class DungeonRoom extends UserInterfaceClass {
 	                .filter(item -> item.isVisible(lighting))
 	                .collect(Collectors.toList());
 	        items.removeAll(visibleItems);
+	        visibleItems.forEach(item -> {
+	        	if (tickTocks.contains(item)) {
+	        		tickTocks.remove(item);
+	        	}
+	        });
     	} else {
     		visibleItems = new ArrayList<>();
     		textOut.println("There's an obstacle blocking you from looting.");
@@ -879,6 +888,14 @@ public class DungeonRoom extends UserInterfaceClass {
     }
 
     public void updateMonsters () {
+    	monsters.stream()
+    		.filter(monster -> monster.getHealth() <= 0)
+    		.forEach(monster -> {
+    			if (tickTocks.contains(monster)) {
+    				tickTocks.remove(monster);
+    			}
+    		});
+    	
         monsters = monsters.stream()
                 .filter(e -> e.getHealth() > 0)
                 .collect(Collectors.toList());
@@ -1179,7 +1196,7 @@ public class DungeonRoom extends UserInterfaceClass {
     		}
     	}
     	if (chest == null) {
-    		chest = template.chest;
+    		setChest(template.chest);
     	}
     	
     	//TODO: fix this very duplicative code
@@ -1287,6 +1304,9 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setMonsters(List<Monster> monsters) {
         this.monsters = monsters;
+        monsters.stream()
+        	.filter(Monster::tickTocks)
+        	.forEach(tickTocks::add);
     }
 
     public List<BackpackItem> getItems() {
@@ -1295,6 +1315,9 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setItems(List<BackpackItem> items) {
         this.items = items;
+        items.stream()
+        	.filter(BackpackItem::tickTocks)
+        	.forEach(tickTocks::add);
     }
 
     public Chest getChest() {
@@ -1303,6 +1326,9 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setChest(Chest chest) {
         this.chest = chest;
+        if (chest.tickTocks()) {
+        	tickTocks.add(chest);
+        }
     }
 
     public Map<Direction, Integer> getConnectedRoomIds() {
@@ -1356,6 +1382,12 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setHiddenItems(Map<String, List<BackpackItem>> hiddenItems) {
         this.hiddenItems = hiddenItems;
+        hiddenItems.values().forEach(list -> {
+        	list.stream()
+        		.filter(BackpackItem::tickTocks)
+        		.forEach(tickTocks::add);
+        });
+        	
     }
 
     public List<Obstacle> getObstacles() {
@@ -1368,16 +1400,20 @@ public class DungeonRoom extends UserInterfaceClass {
      */
     public void setObstacles(List<Obstacle> obstacles) {
         this.obstacles = obstacles;
-        this.obstacles.forEach(obs ->  obs.setLocation(this));
+        this.obstacles.forEach(obs -> {
+        	obs.setLocation(this);
+        	if (obs.tickTocks()) {
+        		tickTocks.add(obs);
+        	}
+        });
     }
 
     public void addObstacle (Obstacle obstacle) {
         obstacles.add(obstacle);
+        if (obstacle.tickTocks()) {
+        	tickTocks.add(obstacle);
+        }
         obstacle.setLocation(this);
-    }
-
-    public String getBossFightFileLocation() {
-        return bossFightFileLocation;
     }
 
     public String getTutorial() {
@@ -1418,6 +1454,9 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setFeatures(List<Feature> features) {
         this.features = features;
+        features.stream()
+        	.filter(Feature::tickTocks)
+        	.forEach(tickTocks::add);
     }
     
     public Dungeon getDungeon () {
@@ -1489,5 +1528,9 @@ public class DungeonRoom extends UserInterfaceClass {
 			initMetaMap();
 		}
 		return metaMap;
+	}
+	
+	public List<TickTock> getTickTocks () {
+		return tickTocks;
 	}
 }
