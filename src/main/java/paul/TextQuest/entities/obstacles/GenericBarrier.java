@@ -6,11 +6,13 @@ package paul.TextQuest.entities.obstacles;
 
 import paul.TextQuest.entities.Hero;
 
-public class MagicBarrier extends Obstacle {
+/**
+ * Represents a "generic barrier" that is probably removed through a script.
+ */
+public class GenericBarrier extends Obstacle {
 
 	@Override
 	public boolean attempt(String solution, Hero hero) {
-		// TODO Auto-generated method stub
 		return false;
 	}
 

@@ -95,8 +95,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
     private transient ItemActionMap itemActions;
     private transient Map<String, VoidAction> views;
     
-    //private transient Map<String, LevelUpAction> levelUpActionMap;
-    //TODO what was this ^^about 
     private transient Map<String, SpellAction> spellMap;
     
     private Map<EquipSlot, EquipableItem> equippedItems;
@@ -247,12 +245,21 @@ public class Hero extends UserInterfaceClass implements Serializable {
     //Defines what we can do at each level (i.e. what new skills, stat increases, etc are possible)
     private static void initLevelUpActionMap () {
         levelUpActions = new HashMap<>();
-        ArrayList<LevelUpCategory> list = new ArrayList<>();
-        list.add(NEW_SPELL);
-        list.add(NEW_SKILL);
-        list.add(INC_STATS);
-        levelUpActions.put(1, list);
-        //TODO: fix/expand (breaks after level 1)
+        ArrayList<LevelUpCategory> level1List = new ArrayList<>();
+        level1List.add(NEW_SPELL);
+        level1List.add(NEW_SKILL);
+        level1List.add(INC_STATS);
+        levelUpActions.put(1, level1List);
+        
+        ArrayList<LevelUpCategory> level2List = new ArrayList<>();
+        level2List.add(INC_STATS);
+        level2List.add(INC_STATS);
+        levelUpActions.put(2, level2List);
+        
+        ArrayList<LevelUpCategory> level3List = new ArrayList<>();
+        level3List.add(INC_STATS);
+        level3List.add(INC_STATS);
+        levelUpActions.put(3, level3List);
     }
 
     private static Hero jsonRestore(String heroJson) throws IOException {

@@ -38,8 +38,6 @@ public class DungeonGroup {
 		this.dungeonInfoList = dungeonInfoList;
 	}
 	
-	
-	
 	@Override
 	public String toString() {
 		return "DungeonGroup [name=" + name + ", dungeonInfoList=" + dungeonInfoList + "]";
@@ -117,7 +115,4 @@ class DungeonInfo {
 	public String toString() {
 		return "DungeonInfo [name=" + name + ", fileLocation=" + fileLocation + ", prereqs=" + prereqs + "]";
 	}
-	
-	
-	
 }

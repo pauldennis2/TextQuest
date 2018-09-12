@@ -1044,8 +1044,6 @@ public class DungeonRoom extends UserInterfaceClass {
         		//Objective here is to pull out the quoted message, then split
         		//Then put the message back and evaluate. 
         		
-        		//TODO - want to get this working:
-        		//"setFeatureDescription Furnace \"A large furnace occupies this room. It's warm and burning away.\""
         		String message = action.split("\"")[1];
         		String actionWithoutQuote = action.substring(0, action.indexOf("\"")) 
         				+ "#message" + action.substring(action.lastIndexOf("\"") + 1);

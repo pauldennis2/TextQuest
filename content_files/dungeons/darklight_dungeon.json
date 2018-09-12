@@ -114,7 +114,7 @@
       "obstacles":
       [
         {
-          "@class" : "paul.TextQuest.entities.obstacles.MagicBarrier",
+          "@class" : "paul.TextQuest.entities.obstacles.GenericBarrier",
           "name": "Shadow Barrier",
           "solution": "(script)",
           "displayIfCleared":false,
