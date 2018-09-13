@@ -95,8 +95,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
     private transient ItemActionMap itemActions;
     private transient Map<String, VoidAction> views;
     
-    //private transient Map<String, LevelUpAction> levelUpActionMap;
-    //TODO what was this ^^about 
     private transient Map<String, SpellAction> spellMap;
     
     private Map<EquipSlot, EquipableItem> equippedItems;
@@ -247,12 +245,21 @@ public class Hero extends UserInterfaceClass implements Serializable {
     //Defines what we can do at each level (i.e. what new skills, stat increases, etc are possible)
     private static void initLevelUpActionMap () {
         levelUpActions = new HashMap<>();
-        ArrayList<LevelUpCategory> list = new ArrayList<>();
-        list.add(NEW_SPELL);
-        list.add(NEW_SKILL);
-        list.add(INC_STATS);
-        levelUpActions.put(1, list);
-        //TODO: fix/expand (breaks after level 1)
+        ArrayList<LevelUpCategory> level1List = new ArrayList<>();
+        level1List.add(NEW_SPELL);
+        level1List.add(NEW_SKILL);
+        level1List.add(INC_STATS);
+        levelUpActions.put(1, level1List);
+        
+        ArrayList<LevelUpCategory> level2List = new ArrayList<>();
+        level2List.add(INC_STATS);
+        level2List.add(INC_STATS);
+        levelUpActions.put(2, level2List);
+        
+        ArrayList<LevelUpCategory> level3List = new ArrayList<>();
+        level3List.add(INC_STATS);
+        level3List.add(INC_STATS);
+        levelUpActions.put(3, level3List);
     }
 
     private static Hero jsonRestore(String heroJson) throws IOException {
@@ -617,7 +624,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
             	triggerFlag = true;
             }
             if (hiddenItems == null && !triggerFlag) {
-                textOut.println("You didn't find anything near " + param);
+                textOut.println("You didn't find anything from searching there.");
             } else if (hiddenItems != null) {
                 textOut.println("Searching around " + param + ", you found:");
                 hiddenItems.forEach(item -> {
@@ -788,6 +795,44 @@ public class Hero extends UserInterfaceClass implements Serializable {
                     .forEach(e -> e.setMight(e.getMight() - 1));
             hero.textOut.println("All enemies weakened.");
         });
+    }
+    
+    private static void reagentSpells () {
+    	possibleSpellMap.put("flight", hero -> {
+    		String reagentName = "Swan Feather";
+    		if (hero.getBackpack().contains(reagentName) && hero.spellbook.contains("air")) {
+    			hero.getBackpack().remove(reagentName);
+    			hero.textOut.println("You're flying!");
+    		} else if (!hero.spellbook.contains("air")){
+    			hero.textOut.println("You can't fly without air magic.");
+    		} else {
+    			hero.textOut.println("You're missing the reagent (" + reagentName + ").");
+    		}
+    	});
+    	
+    	possibleSpellMap.put("dig", hero -> {
+    		String reagentName = "Monster Claw";
+    		if (hero.getBackpack().contains(reagentName) && hero.spellbook.contains("earth")) {
+    			hero.getBackpack().remove(reagentName);
+    			hero.textOut.println("You're digging!");
+    		} else if (!hero.spellbook.contains("earth")){
+    			hero.textOut.println("You can't dig without earth magic.");
+    		} else {
+    			hero.textOut.println("You're missing the reagent (" + reagentName + ").");
+    		}
+    	});
+    	
+    	possibleSpellMap.put("fireshield", hero -> {
+    		String reagentName = "Copper Shield";
+    		if (hero.getBackpack().contains(reagentName) && hero.spellbook.contains("fire")) {
+    			hero.getBackpack().remove(reagentName);
+    			hero.textOut.println("You're protected from heat!");
+    		} else if (!hero.spellbook.contains("air")){
+    			hero.textOut.println("You can't protect yourself from heat without fire magic.");
+    		} else {
+    			hero.textOut.println("You're missing the reagent (" + reagentName + ").");
+    		}
+    	});
     }
 
     private static Monster getRandomTarget (List<Monster> monsters) {

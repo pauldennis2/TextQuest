@@ -1,0 +1,16 @@
+4th Dungeon idea: overgrown nature area, use magic vines to swing around.
+
+Patrolling monster concept: onHeroLeave
+-> Or version 2, have dungeon ticks and onTick
+Give the hero the option to wait
+Monster patrols around rooms If hero is caught, sent to jail
+
+
+
+Elemental Combo:
+Air + Ice: Blizzard
+Ice + Earth: Morass
+Earth + Fire: Lava
+Fire + Air: Explosion
+
+Leveled up spelltwister crystal allows combining opposites.

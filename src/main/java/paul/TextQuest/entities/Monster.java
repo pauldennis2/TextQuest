@@ -30,6 +30,8 @@ public class Monster extends DungeonRoomEntity {
     private String onDeath;
     private String onDisable;
     
+    private PatrolRoute patrolRoute;
+    
     private transient DungeonRoom location;
 
     public Monster () {
@@ -222,4 +224,20 @@ public class Monster extends DungeonRoomEntity {
     public boolean hasDescription () {
     	return description != null && !description.trim().equals("");
     }
+
+	public PatrolRoute getPatrolRoute() {
+		return patrolRoute;
+	}
+
+	public void setPatrolRoute(PatrolRoute patrolRoute) {
+		this.patrolRoute = patrolRoute;
+	}
+	
+	public Integer getPatrollerId () {
+		if (patrolRoute != null) {
+			return patrolRoute.getPatrollerId();
+		}
+		return null;
+	}
+    
 }

@@ -38,7 +38,7 @@
 			"obstacles":
 			[
 				{
-					"@class" : "paul.TextQuest.entities.obstacles.MagicBarrier",
+					"@class" : "paul.TextQuest.entities.obstacles.GenericBarrier",
 					"name": "Stone Barrier",
 					"solution": "(script)",
 					"displayIfCleared":false,
@@ -91,7 +91,7 @@
 			"obstacles":
 			[
 				{
-					"@class" : "paul.TextQuest.entities.obstacles.MagicBarrier",
+					"@class" : "paul.TextQuest.entities.obstacles.GenericBarrier",
 					"name": "Steam Activated Barrier",
 					"solution": "(script)",
 					"displayIfCleared":false,

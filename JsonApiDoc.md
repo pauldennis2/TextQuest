@@ -8,7 +8,13 @@ This document is intended for people with some degree of technical proficiency. 
 
 ### JSON
 
-JSON (JavaScript Object Notation) is basically just a way to store data - in our case, all the data associated with a dungeon. If you're unfamiliar with JSON, you can read about it [here](https://www.w3schools.com/js/js_json_intro.asp). Rest assured, even if you're not a programmer it is fairly easy to pick up.
+JSON (JavaScript Object Notation) is basically just a way to store data - in our case, all the data associated with a dungeon. If you're unfamiliar with JSON, you can read about it [here](https://www.w3schools.com/js/js_json_intro.asp). Rest assured, even if you're not a programmer it is fairly easy to pick up. One note is that JSON does not enforce any ordering on the properties; it's just as happy with `"name","description","items"` as with `"items", "description", "name"`. I recommend trying to stick with an order when you're creating your dungeon in order to keep things organized; see existing dungeons for examples/suggested order.
+
+### A Note on Conventions
+
+A convention in this case just means a general agreement (not a fun gathering of people who share a passion for something nerdy). First, I'd like to briefly describe some of the conventions I've used:
+
+* Events are all named with `lowerCamelCase` meaning the words are squished together with no spaces, with each word capitalized except the first. Example: `addMonster`. You have to use these event names to access events. If you tried `AddMonster` or `add_monster` the game wouldn't know what to do.
 
 ### Triggers, Events and Mapping
 
@@ -159,6 +165,14 @@ If the player decides to leave the dungeon before it is cleared they will lose a
 
 At some point there will be an additional JSON file to define a group of dungeons as part of a larger story. Coming soon!
 
+### Tick Tock Goes the Clock
+
+In version 0.0.9, you can now define a "clock" for your dungeon. Nearly ever component now has two new properties: "onTick" and "onTock" (these properties won't be listed below since they are near-universal). You have access to two new events: `doTick` and `doTock`. These events will trigger the appropriate events for all the components. It's your job as the dungeon designer to decide what "advances the clock" in your dungeon. You could do a tick every time the hero moves, every time they cast a spell, etc. "tick" and "tock" just represent two different time-based events. You can use them however you want; by convention, I'd suggest that if one is more common, it should be ticks (ticks happen more than tocks). You could use both together to represent something like seconds/minutes. For example, every time the hero moves, do a tick. Every time a `tick` happens, we advance a dungeon variable called `time`, and if `time = 10` we reset time and do a `tock` (this then triggers whatever `onTock` events you've assigned.
+
+**Note**: You **will** get stuck in an infinite loop if you do something like `"onTick":"doTick"` (it keeps triggering itself over and over). This might seem obvious, particular if you have experience programming. But it's also possible to get stuck in a less obvious way: `"onTick":"light" [...] "onLightingChange:{"WELL_LIT":"doTick"}` would have the same effect.
+
+**Note 2**: If you have multiple tick/tock actions, it's hard to specify the order in which they will happen. In general, you should assume that tick/tock events will happen in a random order. (If A, B, and C all have `tick` events, then the actual order in which those events happen could be A, B, C; B, C, A; C, B, A - etc). 
+
 ## Creating A Dungeon
 
 A dungeon has a "dungeonName" property and a List of "rooms".
@@ -205,8 +219,7 @@ The Dungeon Template is a convenience feature that allows you to declare propert
 * monsters - a List of monsters in the room. By default they won't attack but their presence prevents the hero from exploring further. Optional
 * connectedRoomIds - a Map between Directions (like "EAST") and the id of the room it's connected to in that direction. This is a very important parameter as it defines how everything connects. **Required**, but you only need to list directions that are connected (if there's nothing to the North of a room, you don't need to list that). **Note**: if you want connections to be two-way connections you need each room connected to the other (so Room 4 is connected via EAST to Room 5, and Room 5 connects to Room 4 via WEST). Be careful with one-way connections since they could leave the hero trapped. **Note 2**: Technically there's no geography enforced. So Room 4 could go east to Room 5, and Room 5 could lead "East" back to Room 4. I recommend avoiding this as it will confuse the designer and the player both.
 * obstacles - a List of Obstacles in the room. Obstacles represent things the hero can interact with (puzzles to solve, chasms to jump, etc) that often prevent progress. Obstacles are an important part of designing interesting dungeons. Optional
-* chest - Optional
-* bossFightFileLocation - boss fights are stored separately as their own JSON file. This is a name of a file in the "encounters" directory. Optional
+* chest - a Chest that can contain items for the player. Optional
 * hiddenItems - you can "hide" items here in a map corresponding to their location. So if something is hidden by the fountain, it won't turn up when the player types "loot". They would have to "search fountain".
 * features - every room can have a list of "Features". Features are mainly a part of how the room is described - they can also be used in other ways (such as Mirror features being used in the Shine Puzzle).
 
@@ -230,8 +243,11 @@ Triggers (all Optional)
 * health, might, defense - the monster's stats. Might increases the power and accuracy of physical attacks. Defense reduces damage and increases chance to dodge. Health is how much damage the monster can take before death. **Required**
 * isMiniboss - a flag indicating if the monster is a miniboss. Optional
 * description - A custom description for the monster (i.e. perhaps describing their manner, position in the room, etc). Will be displayed *instead of* the monster's name. Optional
-* abilities Optional Together with the behavior property, can be used to define more interesting behaviors for a monster.
-* behavior Optional
+* behavior - can be used to define more interesting behaviors for a monster. Optional
+* patrolRoute - can be used to define a patrol route for the monster (you will need to use TickTock or some system of events to actually trigger the patrolling). Optional. Properties:
+	* patrolRoute - the IDs of the rooms that the monster visits in order. To have a monster return to the same room or stay in the same room, just use the ID multiple times: [1, 1, 1, 3, 1, 4] this monster would stay in Room 1 for 3 patrol commands, then move to 3, then back to 1, then to 4, before starting over and cycling back
+	* loops - not yet implemented (concept to cover snaking back instead of looping. Can be implemented like this for now: [1, 2, 3, 4, 3, 2]
+	* patrollerId - each monster that patrols needs a unique ID. This ID is then referenced when you run the patrol event: `patrol <id>`. **Note**: I highly recommend not trying to get smart with this (i.e. having monsters that patrol other monsters, having dynamic patrol IDs.
 
 Triggers (all Optional)
 * onDeath - when a monster dies
@@ -307,6 +323,11 @@ These events need an extra bit of information, often a number. For example if yo
 * clearObstacle (obstacle name) - Clears **all** obstacles with the given name in the room.
 * takeDamage (damage amount) - the Hero takes some damage. No message is printed. See takeTypedDamage, takeSourcedDamage, takeTypedSourcedDamage.
 * disableHero (rounds) - stuns the Hero for a number of rounds. No behavior outside of combat. (Only use in combat).
+* doTicks (number of ticks) - performs the given number of ticks. Use with caution. See "Tick Tock Goes the Clock" for info.
+* doTocks (number of tocks) - performs the given number of tocks. Use with caution.
+* removeMonster (monster name) - removes all monsters with the given name from the room.
+* patrol (monster's patroller id) - moves the monster to the next room in its patrol route.
+* randomPatrol (monster's patroller id) - moves the monster to a random place in its patrol route.
 
 #### MultiParam Events
 
@@ -320,6 +341,9 @@ These events require multiple parameters.
 * setDungeonVariable - allows you to modify the dungeon's variable map. First param is the name of the variable you want to set, second param is the value you want it to have.
 * setDungeonValue - used interchangeably with setDungeonVariable. "Value" refers to integers (whole numbers) whereas "variable" refers to the string map.
 * addToDungeonValue - allows you to modify existing values in the values map. First param is the name of the value to set, and the second is the amount to add. You can use negative numbers to subtract instead. `addToDungeonValue waterLevel -1` would decrease waterLevel by 1.
+* setFeatureDescription - change the description of a given feature. First param is the name of the feature, second param is the new description.
+* setFeatureStatus - change the status of a feature. First param feature name, second new status.
+* moveMonster - allows you to transport a monster to a new room. First param is the name of the monster, second param is the ID of the new room.
 
 Damaging Events:
 
@@ -340,7 +364,10 @@ These events just happen, and they don't need any extra information.
 * victory - Ends the game. Use with caution, I guess.
 * crackFloor - creates a Chasm obstacle and prevents retreating. The hero will be stuck unless they have Boots of Vaulting
 * removeChest - removes the chest from the current room (if applicable)
-* setDungeonCleared - Sets the dungeon to cleared status, meaning the hero can leave and save (see saving). 
+* setDungeonCleared - Sets the dungeon to cleared status, meaning the hero can leave and save (see saving).
+* doTick - does one tick (see "Tick Tock Goes the Clock")
+* doTock - does one tock
+* removeMonsters - removes ALL monsters from the room
 
 Hopefully soon we'll add many more possible events, and even the ability to create custom events.
 

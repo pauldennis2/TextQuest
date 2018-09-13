@@ -1,0 +1,72 @@
+{
+  "dungeonName":"Patrol Dungeon",
+  "description":"",
+	"entranceRoomId":0,
+  "template":
+  {
+  	"name":"Dungeon Template",
+  	"specialRoomActions":
+  	{
+  		"tick":"doTick",
+  		"tock":"doTock"
+  	}
+  },
+  "rooms":
+  [
+  	{
+  		"name":"Entrance",
+  		"id":0,
+  		"connectedRoomIds":
+  		{
+  		}
+  	},
+    {
+      "name":"Room 1",
+      "id":1,
+      "monsters":
+      [
+      	{
+      		"name":"Patrolling Goblin",
+      		"health":5,
+      		"onTick":"patrol 1",
+      		"patrolRoute":
+      		{
+      			"roomIds":[1, 2, 3, 4],
+      			"patrollerId":1
+      		}
+      	}
+      ],
+      "connectedRoomIds":
+      {
+        "EAST":2
+      }
+    },
+    {
+      "name":"Room 2",
+      "id":2,
+
+      "connectedRoomIds":
+      {
+        "WEST":1,
+        "SOUTH":3
+      }
+    },
+    {
+      "name":"Room 3",
+      "id":3,
+      "connectedRoomIds":
+      {
+        "NORTH":2,
+        "WEST":4
+      }
+    },
+    {
+      "name":"Room 4",
+      "id":4,
+      "connectedRoomIds":
+      {
+        "EAST":3
+      }
+    }
+  ]
+}
