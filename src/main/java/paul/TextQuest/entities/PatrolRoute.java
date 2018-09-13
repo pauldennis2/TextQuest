@@ -9,7 +9,7 @@ import java.util.Random;
 
 public class PatrolRoute {
 	
-	private List<Integer> patrolRoute;
+	private List<Integer> roomIds;
 	private boolean loops; //if not loops, it snakes
 	private int patrollerId;
 	
@@ -21,22 +21,22 @@ public class PatrolRoute {
 	
 	public int getNextRoomIdAndUpdateIndex () {
     	patrolIndex++;
-    	if (patrolIndex >= patrolRoute.size()) {
+    	if (patrolIndex >= roomIds.size()) {
     		patrolIndex = 0;
     	}
-    	return patrolRoute.get(patrolIndex);
+    	return roomIds.get(patrolIndex);
     }
 	
 	public int getRandomRoomId () {
-		return patrolRoute.get(new Random().nextInt(patrolRoute.size() - 1));
+		return roomIds.get(new Random().nextInt(roomIds.size() - 1));
 	}
 
-	public List<Integer> getPatrolRoute() {
-		return patrolRoute;
+	public int getPatrolIndex() {
+		return patrolIndex;
 	}
 
-	public void setPatrolRoute(List<Integer> patrolRoute) {
-		this.patrolRoute = patrolRoute;
+	public void setPatrolIndex(int patrolIndex) {
+		this.patrolIndex = patrolIndex;
 	}
 
 	public boolean isLoops() {
@@ -54,6 +54,12 @@ public class PatrolRoute {
 	public void setPatrollerId(int patrollerId) {
 		this.patrollerId = patrollerId;
 	}
-	
-	
+
+	public List<Integer> getRoomIds() {
+		return roomIds;
+	}
+
+	public void setRoomIds(List<Integer> roomIds) {
+		this.roomIds = roomIds;
+	}
 }

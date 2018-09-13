@@ -69,23 +69,35 @@ public class Dungeon extends MetaLocation {
      * for triggering the dungeon's tick, if present.
      */
     public void doTick () {
+    	Map<DungeonRoom, List<TickTock>> tickTockMap = new HashMap<>();
+    	
     	for (DungeonRoom room : rooms) {
-    		room.getTickTocks().forEach(tickTock -> {
+    		tickTockMap.put(room, new ArrayList<TickTock>(room.getTickTocks()));
+    	}
+    	tickTockMap.keySet().forEach(room -> {
+    		List<TickTock> tickTocks = tickTockMap.get(room);
+    		tickTocks.forEach(tickTock -> {
     			if (tickTock.getOnTick() != null) {
     				room.doAction(tickTock.getOnTick());
     			}
     		});
-    	}
+    	});
     }
     
     public void doTock () {
+    	Map<DungeonRoom, List<TickTock>> tickTockMap = new HashMap<>();
+    	
     	for (DungeonRoom room : rooms) {
-    		room.getTickTocks().forEach(tickTock -> {
+    		tickTockMap.put(room, new ArrayList<TickTock>(room.getTickTocks()));
+    	}
+    	tickTockMap.keySet().forEach(room -> {
+    		List<TickTock> tickTocks = tickTockMap.get(room);
+    		tickTocks.forEach(tickTock -> {
     			if (tickTock.getOnTock() != null) {
     				room.doAction(tickTock.getOnTock());
     			}
     		});
-    	}
+    	});
     }
 
     public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
