@@ -1,6 +1,8 @@
 {
   "dungeonName":"Trigger Dungeon",
   "description":"",
+  "onTick":"addToDungeonValue time 1;print {time};$if[{time} = 12] setDungeonValue time 1",
+  "onTock":"print DUNGEON_LEVEL_TOCK",
   "itemLibrary":
   {
   	"Nitro":
@@ -22,40 +24,27 @@
   "template":
   {
   	"name":"Dungeon Template",
-  	"onSpellCast":
+  	"onHeroAction":
   	{
-  		"any":"addToDungeonValue numSpellsCast 1;modStat numAvailableSpells 2"
+  		"search":"doTock"
   	}
   },
   "rooms":
   [
     {
-      "name":"Spell Chamber - Ice",
+      "name":"Clock Chamber",
       "id":1,
-      "description":"There's a tome of ice magic on the table.",
-      "tutorial":"To navigate the dungeon, you can say \"move\", \"go\", or \"proceed\". You will need to pair this command with a direction. Since the only available direction is East, try typing \"go east\" (without the quotes).",
+      "onTock":"print CLOCK_CHAMBER_TOCK",
       "lighting": 1.0,
+      "specialRoomActions":
+      {
+      	"tick":"doTick",
+      	"tock":"doTock"
+      },
       "connectedRoomIds":
       {
         "EAST":2
-      },
-      "onSpellCast":
-      {
-      	"ice": "tutorial \"You cast an ice spell. Ataboy.\"",
-      	"fire": "setDungeonValue heat 5"
-      },
-      "onItemUse":
-      {
-      	"any": "@2 createMonster RedBlobgoblin",
-      	"Bow": "print \"You shot the target! 10 points.\""
-      },
-      "items":
-      [
-      	{
-      		"name":"Tome of Ice Magic",
-      		"onPickup": "teachSpell ice;modStat numAvailableSpells 2"
-      	}
-      ]
+      }
     },
     {
       "name":"Nitro Making Room",
@@ -287,8 +276,6 @@
       "id":10,
       "description":"The lair of Pihop-pi. It kinda stinks in here.",
       "lighting":1.0,
-      "tutorial":"This is the lair of the dungeon boss. Not yet 100% perfectly implemented. Thanks for playing!",
-      "bossFightFileLocation":"first_boss.json",
       "chest":
       {
         "name":"Pihop-pi's Chest",

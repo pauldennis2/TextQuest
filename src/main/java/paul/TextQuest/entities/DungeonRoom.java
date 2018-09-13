@@ -39,7 +39,6 @@ public class DungeonRoom extends UserInterfaceClass {
     private Map<String, List<BackpackItem>> hiddenItems;
     private List<Obstacle> obstacles;
     private Chest chest;
-    private String bossFightFileLocation;
     private List<Feature> features;
 
     private Map<String, String> specialRoomActions;
@@ -69,6 +68,8 @@ public class DungeonRoom extends UserInterfaceClass {
     //Used to find trigger maps from strings
     private transient Map<String, Map<String, String>> metaMap;
     
+    private List<TickTock> tickTocks;
+    
     private static Map<String, VoidAction> voidActionMap;
     private static Map<String, ParamAction> paramActionMap;
     private static Map<String, MultiParamAction> multiParamActionMap;
@@ -88,6 +89,7 @@ public class DungeonRoom extends UserInterfaceClass {
         initUniversalSpeechListeners();
         
         onHeroAction = new HashMap<>();
+        tickTocks = new ArrayList<>();
         
         lighting = 1.0; //By default rooms should be well-lit.
     }
@@ -155,6 +157,31 @@ public class DungeonRoom extends UserInterfaceClass {
         	room.getDungeon().setCleared(true);
         });
         
+        voidActionMap.put("doTick", room -> {
+        	room.textOut.debug("Doing tick");
+        	if (room.getOnTick() != null) {
+        		room.doAction(room.getOnTick());
+        	}
+        	Dungeon dungeon = room.getDungeon();
+        	if (dungeon.getOnTick() != null) {
+        		room.doAction(dungeon.getOnTick());
+        	}
+        	dungeon.doTick();
+        });
+        
+        voidActionMap.put("doTock", room -> {
+        	room.textOut.debug("Doing tock");
+        	if (room.getOnTock() != null) {
+        		room.doAction(room.getOnTock());
+        	}
+        	Dungeon dungeon = room.getDungeon();
+        	if (dungeon.getOnTock() != null) {
+        		room.doAction(dungeon.getOnTock());
+        	}
+        	dungeon.doTock();
+        });
+        
+        voidActionMap.put("removeMonsters", room -> room.removeMonsters());
         
         //Param Actions\\
         paramActionMap.put("createMonster", (room, param) -> {
@@ -306,7 +333,7 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         
         paramActionMap.put("addFeature", (room, param) -> {
-        	room.features.add(new Feature(param));
+        	room.addFeature(new Feature(param));
         	room.textOut.debug("Added " + param + " feature to room.");
         });
         
@@ -319,6 +346,44 @@ public class DungeonRoom extends UserInterfaceClass {
         		room.features.remove(feature);
         		room.textOut.debug("Removed " + feature);
         	}
+        });
+        
+        paramActionMap.put("doTicks", (room, param) -> {
+        	int numTicks = Integer.parseInt(param);
+        	for (int i = 0; i < numTicks; i++) {
+        		voidActionMap.get("doTick").doAction(room);
+        	}
+        });
+        
+        paramActionMap.put("doTocks", (room, param) -> {
+        	int numTocks = Integer.parseInt(param);
+        	for (int i = 0; i < numTocks; i++) {
+        		voidActionMap.get("doTock").doAction(room);
+        	}
+        });
+        
+        paramActionMap.put("removeMonster", (room, param) -> {
+        	room.removeMonster(param);
+        });
+        
+        paramActionMap.put("patrol", (room, param) -> {
+        	int monsterId = Integer.parseInt(param);
+        	Monster monster = room.getMonsterByPatrolId(monsterId);
+        	int roomId = monster.getPatrolRoute().getNextRoomIdAndUpdateIndex();
+        	DungeonRoom nextRoom = room.getDungeon().getRoom(roomId);
+        	room.removeMonster(monster);
+        	nextRoom.addMonster(monster);
+        	room.textOut.debug("Moved " + monster.getName() + " from " + room.getName() + " to " + nextRoom.getName());
+        });
+        
+        paramActionMap.put("randomPatrol", (room, param) -> {
+        	int monsterId = Integer.parseInt(param);
+        	Monster monster = room.getMonsterByPatrolId(monsterId);
+        	int roomId = monster.getPatrolRoute().getRandomRoomId();
+        	DungeonRoom nextRoom = room.getDungeon().getRoom(roomId);
+        	room.removeMonster(monster);
+        	nextRoom.addMonster(monster);
+        	room.textOut.debug("Randomly moved " + monster.getName() + " from " + room.getName() + " to " + nextRoom.getName());
         });
         
         //MultiParam Actions\\
@@ -455,6 +520,26 @@ public class DungeonRoom extends UserInterfaceClass {
         		.forEach(feature -> feature.setStatus(args[2]));
         });
         
+        multiParamActionMap.put("moveMonster", (room, args) -> {
+        	String monsterName = args[1];
+        	List<Monster> matches = room.getMonsters().stream()
+        			.filter(monster -> monster.getName().equals(monsterName))
+        			.collect(Collectors.toList());
+        	int roomId = Integer.parseInt(args[2]);
+        	DungeonRoom newRoom = room.getDungeon().getRoom(roomId);
+        	if (newRoom == null) {
+        		throw new AssertionError("Could not find room with id " + roomId);
+        	}
+        	matches.forEach(monster -> {
+        		room.textOut.debug("Moving " + monster);
+        		room.monsters.remove(monster);
+        		if (room.tickTocks.contains(monster)) {
+        			room.tickTocks.remove(monster);
+        		}
+        		newRoom.addMonster(monster);
+        	});
+        });
+        
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {
@@ -525,17 +610,44 @@ public class DungeonRoom extends UserInterfaceClass {
         speechListeners.add(riddleAnswerListener);
         speechListeners.add(shoutAggroListener);
     }
+    
+    public void removeMonster (String name) {
+    	List<Monster> toBeRemoved = monsters.stream()
+    			.filter(monster -> monster.getName().equals(name))
+    			.collect(Collectors.toList());
+    	
+    	toBeRemoved.forEach(monster -> {
+    		monsters.remove(monster);
+    		if (monster.tickTocks()) {
+    			tickTocks.remove(monster);
+    		}
+    	});
+    }
+    
+    public void removeMonster (Monster monster) {
+    	monsters.remove(monster);
+    	if (monster.tickTocks()) {
+    		tickTocks.remove(monster);
+    	}
+    }
 
     public List<Monster> removeMonsters () {
         List<Monster> removed = monsters;
+        for (Monster monster : removed) {
+        	if (tickTocks.contains(monster)) {
+        		tickTocks.remove(monster);
+        	}
+        }
         monsters = new ArrayList<>();
         return removed;
     }
 
-
     public void addMonster (Monster monster) {
         monsters.add(monster);
         monster.addRoomReference(this);
+        if (monster.tickTocks()) {
+        	tickTocks.add(monster);
+        }
     }
 
     public void addMonsters (List<Monster> monsters) {
@@ -544,10 +656,16 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void addContainer (Chest chest) {
         this.chest = chest;
+        if (chest.tickTocks()) {
+        	tickTocks.add(chest);
+        }
     }
 
     public void addItem (BackpackItem item) {
         items.add(item);
+        if (item.tickTocks()) {
+        	tickTocks.add(item);
+        }
     }
 
     public void connectTo (Direction direction, DungeonRoom other) {
@@ -816,6 +934,11 @@ public class DungeonRoom extends UserInterfaceClass {
 	                .filter(item -> item.isVisible(lighting))
 	                .collect(Collectors.toList());
 	        items.removeAll(visibleItems);
+	        visibleItems.forEach(item -> {
+	        	if (tickTocks.contains(item)) {
+	        		tickTocks.remove(item);
+	        	}
+	        });
     	} else {
     		visibleItems = new ArrayList<>();
     		textOut.println("There's an obstacle blocking you from looting.");
@@ -828,9 +951,24 @@ public class DungeonRoom extends UserInterfaceClass {
     }
 
     public void updateMonsters () {
+    	monsters.stream()
+    		.filter(monster -> monster.getHealth() <= 0)
+    		.forEach(monster -> {
+    			if (tickTocks.contains(monster)) {
+    				tickTocks.remove(monster);
+    			}
+    		});
+    	
         monsters = monsters.stream()
                 .filter(e -> e.getHealth() > 0)
                 .collect(Collectors.toList());
+    }
+    
+    public void addFeature (Feature feature) {
+    	features.add(feature);
+    	if (feature.tickTocks()) {
+    		tickTocks.add(feature);
+    	}
     }
 
     public double getLighting () {
@@ -855,27 +993,8 @@ public class DungeonRoom extends UserInterfaceClass {
         }
     }
     
-    public static String replaceVariables (String input, Map<String, String> variables, Map<String, Integer> values) {
-    	while (input.contains("{")) {
-    		int openIndex = input.indexOf("{");
-    		int closeIndex = input.indexOf("}");
-    		String varString = input.substring(openIndex + 1, closeIndex);
-    		
-    		String mappedValue;
-    		if (values.containsKey(varString)) {
-    			mappedValue = "" + values.get(varString);
-    		} else if (variables.containsKey(varString)) {
-    			mappedValue = variables.get(varString);
-    		} else {
-    			throw new AssertionError("Could not find the variable in any map. Input: " + input);
-    		}
-    		
-    		input = input.substring(0, openIndex) + mappedValue + input.substring(closeIndex + 1);
-    	}
-    	return input;
-    }
-    
     private String replaceVariables (String input) {
+    	System.out.println("Replacing variables for input: " + input);
     	Map<String, String> variables = getDungeon().getDungeonVariables();
     	Map<String, Integer> values = getDungeon().getDungeonValues();
     	while (input.contains("{")) {
@@ -923,6 +1042,7 @@ public class DungeonRoom extends UserInterfaceClass {
     		
     		input = input.substring(0, openIndex) + value + input.substring(closeIndex + 1);
     	}
+    	System.out.println("Returning: " + input);
     	return input;
     }
     
@@ -1115,7 +1235,7 @@ public class DungeonRoom extends UserInterfaceClass {
     		template.items.forEach(item -> addItem(new BackpackItem(item)));
     	}
     	if (template.features != null) {
-    		throw new AssertionError("Dunno what this is (see Feature class)");
+    		template.features.forEach(feature -> addFeature(feature));
     	}
     	if (template.hiddenItems != null) {
     		template.hiddenItems.keySet().forEach(locationName -> {
@@ -1128,7 +1248,7 @@ public class DungeonRoom extends UserInterfaceClass {
     		}
     	}
     	if (chest == null) {
-    		chest = template.chest;
+    		setChest(template.chest);
     	}
     	
     	//TODO: fix this very duplicative code
@@ -1201,6 +1321,15 @@ public class DungeonRoom extends UserInterfaceClass {
     		onHeroEnter = template.onHeroEnter;
     	}
     }
+    
+    public Monster getMonsterByPatrolId (int patrollerId) {
+    	for (Monster monster : monsters) {
+    		if (monster.getPatrollerId() == patrollerId) {
+    			return monster;
+    		}
+    	}
+    	return null;
+    }
 
     public boolean isCleared () {
         return monsters.size() == 0;
@@ -1236,6 +1365,9 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setMonsters(List<Monster> monsters) {
         this.monsters = monsters;
+        monsters.stream()
+        	.filter(Monster::tickTocks)
+        	.forEach(tickTocks::add);
     }
 
     public List<BackpackItem> getItems() {
@@ -1244,6 +1376,9 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setItems(List<BackpackItem> items) {
         this.items = items;
+        items.stream()
+        	.filter(BackpackItem::tickTocks)
+        	.forEach(tickTocks::add);
     }
 
     public Chest getChest() {
@@ -1252,6 +1387,9 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setChest(Chest chest) {
         this.chest = chest;
+        if (chest != null && chest.tickTocks()) {
+        	tickTocks.add(chest);
+        }
     }
 
     public Map<Direction, Integer> getConnectedRoomIds() {
@@ -1305,6 +1443,12 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setHiddenItems(Map<String, List<BackpackItem>> hiddenItems) {
         this.hiddenItems = hiddenItems;
+        hiddenItems.values().forEach(list -> {
+        	list.stream()
+        		.filter(BackpackItem::tickTocks)
+        		.forEach(tickTocks::add);
+        });
+        	
     }
 
     public List<Obstacle> getObstacles() {
@@ -1317,16 +1461,20 @@ public class DungeonRoom extends UserInterfaceClass {
      */
     public void setObstacles(List<Obstacle> obstacles) {
         this.obstacles = obstacles;
-        this.obstacles.forEach(obs ->  obs.setLocation(this));
+        this.obstacles.forEach(obs -> {
+        	obs.setLocation(this);
+        	if (obs.tickTocks()) {
+        		tickTocks.add(obs);
+        	}
+        });
     }
 
     public void addObstacle (Obstacle obstacle) {
         obstacles.add(obstacle);
+        if (obstacle.tickTocks()) {
+        	tickTocks.add(obstacle);
+        }
         obstacle.setLocation(this);
-    }
-
-    public String getBossFightFileLocation() {
-        return bossFightFileLocation;
     }
 
     public String getTutorial() {
@@ -1367,6 +1515,9 @@ public class DungeonRoom extends UserInterfaceClass {
 
     public void setFeatures(List<Feature> features) {
         this.features = features;
+        features.stream()
+        	.filter(Feature::tickTocks)
+        	.forEach(tickTocks::add);
     }
     
     public Dungeon getDungeon () {
@@ -1438,5 +1589,9 @@ public class DungeonRoom extends UserInterfaceClass {
 			initMetaMap();
 		}
 		return metaMap;
+	}
+	
+	public List<TickTock> getTickTocks () {
+		return tickTocks;
 	}
 }

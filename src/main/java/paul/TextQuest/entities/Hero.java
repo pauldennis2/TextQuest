@@ -624,7 +624,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
             	triggerFlag = true;
             }
             if (hiddenItems == null && !triggerFlag) {
-                textOut.println("You didn't find anything near " + param);
+                textOut.println("You didn't find anything from searching there.");
             } else if (hiddenItems != null) {
                 textOut.println("Searching around " + param + ", you found:");
                 hiddenItems.forEach(item -> {
@@ -795,6 +795,44 @@ public class Hero extends UserInterfaceClass implements Serializable {
                     .forEach(e -> e.setMight(e.getMight() - 1));
             hero.textOut.println("All enemies weakened.");
         });
+    }
+    
+    private static void reagentSpells () {
+    	possibleSpellMap.put("flight", hero -> {
+    		String reagentName = "Swan Feather";
+    		if (hero.getBackpack().contains(reagentName) && hero.spellbook.contains("air")) {
+    			hero.getBackpack().remove(reagentName);
+    			hero.textOut.println("You're flying!");
+    		} else if (!hero.spellbook.contains("air")){
+    			hero.textOut.println("You can't fly without air magic.");
+    		} else {
+    			hero.textOut.println("You're missing the reagent (" + reagentName + ").");
+    		}
+    	});
+    	
+    	possibleSpellMap.put("dig", hero -> {
+    		String reagentName = "Monster Claw";
+    		if (hero.getBackpack().contains(reagentName) && hero.spellbook.contains("earth")) {
+    			hero.getBackpack().remove(reagentName);
+    			hero.textOut.println("You're digging!");
+    		} else if (!hero.spellbook.contains("earth")){
+    			hero.textOut.println("You can't dig without earth magic.");
+    		} else {
+    			hero.textOut.println("You're missing the reagent (" + reagentName + ").");
+    		}
+    	});
+    	
+    	possibleSpellMap.put("fireshield", hero -> {
+    		String reagentName = "Copper Shield";
+    		if (hero.getBackpack().contains(reagentName) && hero.spellbook.contains("fire")) {
+    			hero.getBackpack().remove(reagentName);
+    			hero.textOut.println("You're protected from heat!");
+    		} else if (!hero.spellbook.contains("air")){
+    			hero.textOut.println("You can't protect yourself from heat without fire magic.");
+    		} else {
+    			hero.textOut.println("You're missing the reagent (" + reagentName + ").");
+    		}
+    	});
     }
 
     private static Monster getRandomTarget (List<Monster> monsters) {

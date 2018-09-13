@@ -29,6 +29,19 @@ public class Backpack extends Location {
     public void remove (BackpackItem item) {
         items.remove(item);
     }
+    
+    public void remove (String itemName) {
+    	BackpackItem toBeRemoved = null;
+    	for (BackpackItem item : items) {
+    		if (item.getName().equals(itemName)) {
+    			toBeRemoved = item;
+    			break;
+    		}
+    	}
+    	if (toBeRemoved != null) {
+    		items.remove(toBeRemoved);
+    	}
+    }
 
     @Override
     public String toString () {

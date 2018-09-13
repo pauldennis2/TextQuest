@@ -2,10 +2,12 @@ package paul.TextQuest.parsing;
 
 import java.util.List;
 
+import paul.TextQuest.entities.TickTock;
+
 /**
  * Created by pauldennis on 8/20/17.
  */
-public abstract class UserInterfaceClass {
+public abstract class UserInterfaceClass extends TickTock {
 
     protected List<UserInterfaceClass> children;
     protected UserInterfaceClass requester;

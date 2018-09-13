@@ -63,6 +63,42 @@ public class Dungeon extends MetaLocation {
     public DungeonRoom getRoom (int id) {
     	return roomsById.get(id);
     }
+    
+    /**Note: this method is a bit weird, in that it gets called BY the room,
+     * then calls all the individual rooms. The calling room is responsible
+     * for triggering the dungeon's tick, if present.
+     */
+    public void doTick () {
+    	Map<DungeonRoom, List<TickTock>> tickTockMap = new HashMap<>();
+    	
+    	for (DungeonRoom room : rooms) {
+    		tickTockMap.put(room, new ArrayList<TickTock>(room.getTickTocks()));
+    	}
+    	tickTockMap.keySet().forEach(room -> {
+    		List<TickTock> tickTocks = tickTockMap.get(room);
+    		tickTocks.forEach(tickTock -> {
+    			if (tickTock.getOnTick() != null) {
+    				room.doAction(tickTock.getOnTick());
+    			}
+    		});
+    	});
+    }
+    
+    public void doTock () {
+    	Map<DungeonRoom, List<TickTock>> tickTockMap = new HashMap<>();
+    	
+    	for (DungeonRoom room : rooms) {
+    		tickTockMap.put(room, new ArrayList<TickTock>(room.getTickTocks()));
+    	}
+    	tickTockMap.keySet().forEach(room -> {
+    		List<TickTock> tickTocks = tickTockMap.get(room);
+    		tickTocks.forEach(tickTock -> {
+    			if (tickTock.getOnTock() != null) {
+    				room.doAction(tickTock.getOnTock());
+    			}
+    		});
+    	});
+    }
 
     public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
         Dungeon restored = jsonRestore(readDungeonFromFile(fileName));
