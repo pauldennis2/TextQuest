@@ -21,6 +21,8 @@ public class Dungeon extends MetaLocation {
     private String description;
     private String dungeonName;
     
+    private List<String> beastiaries;
+    
     private Map<String, BackpackItem> itemLibrary;
     private Map<String, Monster> monsterLibrary;
     
@@ -101,7 +103,7 @@ public class Dungeon extends MetaLocation {
     }
 
     public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
-        Dungeon restored = jsonRestore(readDungeonFromFile(fileName));
+        Dungeon restored = jsonRestore(readFromFile(fileName));
         restored.connectRooms();
         return restored;
     }
@@ -110,8 +112,14 @@ public class Dungeon extends MetaLocation {
         ObjectMapper mapper = new ObjectMapper();
         return mapper.readValue(dungeonJson, Dungeon.class);
     }
+    
+    public static Map<String, Monster> buildBeastiaryFromFile (String fileName) throws IOException {
+    	ObjectMapper mapper = new ObjectMapper();
+    	Map<String, Monster> testmap = new HashMap<>();
+    	return mapper.readValue(readFromFile(fileName), testmap.getClass());
+    }
 
-    private static String readDungeonFromFile (String fileName) {
+    private static String readFromFile (String fileName) {
         try (Scanner fileScanner = new Scanner(new File(fileName))) {
             StringBuilder stringBuilder = new StringBuilder(fileScanner.nextLine());
             while (fileScanner.hasNext()) {
@@ -242,7 +250,32 @@ public class Dungeon extends MetaLocation {
     	roomsByName.put(room.getName(), room);
     }
     
-    public Map<String, Integer> getDungeonValues () {
+    
+    
+    public List<String> getBeastiaries() {
+		return beastiaries;
+	}
+
+	public void setBeastiaries(List<String> beastiaries) {
+		this.beastiaries = beastiaries;
+		
+		for (String fileName : beastiaries) {
+			try {
+				Map<String, Monster> monsterMap = buildBeastiaryFromFile(fileName);
+				for (String key : monsterMap.keySet()) {
+					if (monsterLibrary.containsKey(key)) {
+						throw new AssertionError("Namespace conflict. Can't have two monsters named " +
+								key + ". Duplicate comes from " + fileName + ".");
+					}
+					monsterLibrary.put(key, monsterMap.get(key));
+				}
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+
+	public Map<String, Integer> getDungeonValues () {
     	return dungeonValues;
     }
     

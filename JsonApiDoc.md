@@ -245,7 +245,7 @@ Triggers (all Optional)
 * description - A custom description for the monster (i.e. perhaps describing their manner, position in the room, etc). Will be displayed *instead of* the monster's name. Optional
 * behavior - can be used to define more interesting behaviors for a monster. Optional
 * patrolRoute - can be used to define a patrol route for the monster (you will need to use TickTock or some system of events to actually trigger the patrolling). Optional. Properties:
-	* patrolRoute - the IDs of the rooms that the monster visits in order. To have a monster return to the same room or stay in the same room, just use the ID multiple times: [1, 1, 1, 3, 1, 4] this monster would stay in Room 1 for 3 patrol commands, then move to 3, then back to 1, then to 4, before starting over and cycling back
+	* patrolRoute - the IDs of the rooms that the monster visits in order. To have a monster return to the same room or stay in the same room, just use the ID multiple times: [1, 1, 1, 3, 1, 4] this monster would stay in Room 1 for 3 patrol commands, then move to 3, then back to 1, then to 4, before starting over and cycling back. You can also use multiple copies of the same ID with a random patrol to change the likelihood: [1, 1, 1, 2] would be a monster that spends 75% of its time in Room 1 and 25 in Room 2.
 	* loops - not yet implemented (concept to cover snaking back instead of looping. Can be implemented like this for now: [1, 2, 3, 4, 3, 2]
 	* patrollerId - each monster that patrols needs a unique ID. This ID is then referenced when you run the patrol event: `patrol <id>`. **Note**: I highly recommend not trying to get smart with this (i.e. having monsters that patrol other monsters, having dynamic patrol IDs.
 
@@ -260,10 +260,14 @@ Triggers (all Optional)
 * name - Item's name. **Required**. Note that some item names have special meaning that does not need to be added. For example just naming an item "Potion" is enough to make a drinkable healing potion that will restore 9 health.
 * darklight - A special property for the Darklight Dungeon - item is only visible in complete darkness. Optional
 * value - monetary value of this item. Optional (default 0)
+* isQuestItem - indicating whether the given item is related to a quest (i.e. plot-important). Optional (default false).
+* undroppable - indicating if the item can be dropped by the player. You can use this to make sure the player doesn't lose track of important items. Optional (default false).
+* description - an optional description that will be used instead of the item just being listed. Only affects how the room is described - once the item is in the player's backpack, it will just be listed with its name.
 
 Triggers (all Optional)
 * onPickup - a trigger for an event to happen when the item is picked up (looted) by the player.
 * onDrop - a trigger to happen when the item is dropped by the player
+* onUse - a trigger for when the item is used by the player
 
 There's not a lot you can currently do with items. We'll work on this!
 

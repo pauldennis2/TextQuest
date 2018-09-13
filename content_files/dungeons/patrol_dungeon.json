@@ -1,7 +1,19 @@
 {
   "dungeonName":"Patrol Dungeon",
+  "beastiaries":
+  [
+  	"shadow_beastiary.json"
+  ],
+  "monsterLibrary":
+  {
+  	"BlueGoblin":
+  	{
+  		"name":"Blue Goblin"
+  		"health":5
+  	}
+  },
   "description":"",
-	"entranceRoomId":0,
+  "entranceRoomId":0,
   "template":
   {
   	"name":"Dungeon Template",

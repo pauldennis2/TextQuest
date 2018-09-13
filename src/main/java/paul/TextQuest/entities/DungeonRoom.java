@@ -788,12 +788,18 @@ public class DungeonRoom extends UserInterfaceClass {
         }
         
         //6. Visible items
-        List<BackpackItem> visibleItems = items.stream().filter(item -> item.isVisible(lighting)).collect(Collectors.toList());
+        items.stream()
+        		.filter(item -> item.isVisible(lighting) && item.getDescription() != null)
+        		.forEach(item -> textOut.println(item.getDescription()));
+        
+        List<BackpackItem> visibleItemsNoDescription = items.stream()
+        		.filter(item -> item.isVisible(lighting) && item.getDescription() == null)
+        		.collect(Collectors.toList());
 
-        if (visibleItems.size() > 1) {
-        	textOut.println("You can see the following items: " + StringUtils.prettyPrintList(visibleItems));
-        } else if (visibleItems.size() == 1) {
-        	textOut.println("You can see " + StringUtils.addAOrAn(visibleItems.get(0).getName()) + ".");
+        if (visibleItemsNoDescription.size() > 1) {
+        	textOut.println("You can see the following items: " + StringUtils.prettyPrintList(visibleItemsNoDescription));
+        } else if (visibleItemsNoDescription.size() == 1) {
+        	textOut.println("You can see " + StringUtils.addAOrAn(visibleItemsNoDescription.get(0).getName()) + ".");
         }
 	    
         //7. Features with a description
