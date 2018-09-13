@@ -243,8 +243,11 @@ Triggers (all Optional)
 * health, might, defense - the monster's stats. Might increases the power and accuracy of physical attacks. Defense reduces damage and increases chance to dodge. Health is how much damage the monster can take before death. **Required**
 * isMiniboss - a flag indicating if the monster is a miniboss. Optional
 * description - A custom description for the monster (i.e. perhaps describing their manner, position in the room, etc). Will be displayed *instead of* the monster's name. Optional
-* abilities Optional Together with the behavior property, can be used to define more interesting behaviors for a monster.
-* behavior Optional
+* behavior - can be used to define more interesting behaviors for a monster. Optional
+* patrolRoute - can be used to define a patrol route for the monster (you will need to use TickTock or some system of events to actually trigger the patrolling). Optional. Properties:
+	* patrolRoute - the IDs of the rooms that the monster visits in order. To have a monster return to the same room or stay in the same room, just use the ID multiple times: [1, 1, 1, 3, 1, 4] this monster would stay in Room 1 for 3 patrol commands, then move to 3, then back to 1, then to 4, before starting over and cycling back
+	* loops - not yet implemented (concept to cover snaking back instead of looping. Can be implemented like this for now: [1, 2, 3, 4, 3, 2]
+	* patrollerId - each monster that patrols needs a unique ID. This ID is then referenced when you run the patrol event: `patrol <id>`. **Note**: I highly recommend not trying to get smart with this (i.e. having monsters that patrol other monsters, having dynamic patrol IDs.
 
 Triggers (all Optional)
 * onDeath - when a monster dies
@@ -323,6 +326,8 @@ These events need an extra bit of information, often a number. For example if yo
 * doTicks (number of ticks) - performs the given number of ticks. Use with caution. See "Tick Tock Goes the Clock" for info.
 * doTocks (number of tocks) - performs the given number of tocks. Use with caution.
 * removeMonster (monster name) - removes all monsters with the given name from the room.
+* patrol (monster's patroller id) - moves the monster to the next room in its patrol route.
+* randomPatrol (monster's patroller id) - moves the monster to a random place in its patrol route.
 
 #### MultiParam Events
 

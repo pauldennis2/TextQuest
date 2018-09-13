@@ -366,6 +366,26 @@ public class DungeonRoom extends UserInterfaceClass {
         	room.removeMonster(param);
         });
         
+        paramActionMap.put("patrol", (room, param) -> {
+        	int monsterId = Integer.parseInt(param);
+        	Monster monster = room.getMonsterByPatrolId(monsterId);
+        	int roomId = monster.getPatrolRoute().getNextRoomIdAndUpdateIndex();
+        	DungeonRoom nextRoom = room.getDungeon().getRoom(roomId);
+        	room.removeMonster(monster);
+        	nextRoom.addMonster(monster);
+        	room.textOut.debug("Moved " + monster.getName() + " from " + room.getName() + " to " + nextRoom.getName());
+        });
+        
+        paramActionMap.put("randomPatrol", (room, param) -> {
+        	int monsterId = Integer.parseInt(param);
+        	Monster monster = room.getMonsterByPatrolId(monsterId);
+        	int roomId = monster.getPatrolRoute().getRandomRoomId();
+        	DungeonRoom nextRoom = room.getDungeon().getRoom(roomId);
+        	room.removeMonster(monster);
+        	nextRoom.addMonster(monster);
+        	room.textOut.debug("Randomly moved " + monster.getName() + " from " + room.getName() + " to " + nextRoom.getName());
+        });
+        
         //MultiParam Actions\\
         multiParamActionMap.put("modStat", (room, args) -> {
         	/*
@@ -602,6 +622,13 @@ public class DungeonRoom extends UserInterfaceClass {
     			tickTocks.remove(monster);
     		}
     	});
+    }
+    
+    public void removeMonster (Monster monster) {
+    	monsters.remove(monster);
+    	if (monster.tickTocks()) {
+    		tickTocks.remove(monster);
+    	}
     }
 
     public List<Monster> removeMonsters () {
@@ -1293,6 +1320,15 @@ public class DungeonRoom extends UserInterfaceClass {
     	if (onHeroEnter == null) {
     		onHeroEnter = template.onHeroEnter;
     	}
+    }
+    
+    public Monster getMonsterByPatrolId (int patrollerId) {
+    	for (Monster monster : monsters) {
+    		if (monster.getPatrollerId() == patrollerId) {
+    			return monster;
+    		}
+    	}
+    	return null;
     }
 
     public boolean isCleared () {
