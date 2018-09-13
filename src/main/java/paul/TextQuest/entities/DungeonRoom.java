@@ -254,7 +254,12 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         
         paramActionMap.put("teleportHero", (room, param) -> {
-        	DungeonRoom otherRoom = room.getDungeon().getRoom(param);
+        	DungeonRoom otherRoom;
+        	try {
+        		otherRoom = room.getDungeon().getRoom(Integer.parseInt(param));
+        	} catch (NumberFormatException ex) {
+        		otherRoom = room.getDungeon().getRoom(param);
+        	}
         	if (otherRoom != null) {
         		room.textOut.debug("Attempting to move hero to " + otherRoom.name);
         		Hero hero = room.getHero();
