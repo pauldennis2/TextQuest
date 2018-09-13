@@ -8,7 +8,13 @@ This document is intended for people with some degree of technical proficiency. 
 
 ### JSON
 
-JSON (JavaScript Object Notation) is basically just a way to store data - in our case, all the data associated with a dungeon. If you're unfamiliar with JSON, you can read about it [here](https://www.w3schools.com/js/js_json_intro.asp). Rest assured, even if you're not a programmer it is fairly easy to pick up.
+JSON (JavaScript Object Notation) is basically just a way to store data - in our case, all the data associated with a dungeon. If you're unfamiliar with JSON, you can read about it [here](https://www.w3schools.com/js/js_json_intro.asp). Rest assured, even if you're not a programmer it is fairly easy to pick up. One note is that JSON does not enforce any ordering on the properties; it's just as happy with `"name","description","items"` as with `"items", "description", "name"`. I recommend trying to stick with an order when you're creating your dungeon in order to keep things organized; see existing dungeons for examples/suggested order.
+
+### A Note on Conventions
+
+A convention in this case just means a general agreement (not a fun gathering of people who share a passion for something nerdy). First, I'd like to briefly describe some of the conventions I've used:
+
+* Events are all named with `lowerCamelCase` meaning the words are squished together with no spaces, with each word capitalized except the first. Example: `addMonster`. You have to use these event names to access events. If you tried `AddMonster` or `add_monster` the game wouldn't know what to do.
 
 ### Triggers, Events and Mapping
 
@@ -164,6 +170,8 @@ At some point there will be an additional JSON file to define a group of dungeon
 In version 0.0.9, you can now define a "clock" for your dungeon. Nearly ever component now has two new properties: "onTick" and "onTock" (these properties won't be listed below since they are near-universal). You have access to two new events: `doTick` and `doTock`. These events will trigger the appropriate events for all the components. It's your job as the dungeon designer to decide what "advances the clock" in your dungeon. You could do a tick every time the hero moves, every time they cast a spell, etc. "tick" and "tock" just represent two different time-based events. You can use them however you want; by convention, I'd suggest that if one is more common, it should be ticks (ticks happen more than tocks). You could use both together to represent something like seconds/minutes. For example, every time the hero moves, do a tick. Every time a `tick` happens, we advance a dungeon variable called `time`, and if `time = 10` we reset time and do a `tock` (this then triggers whatever `onTock` events you've assigned.
 
 **Note**: You **will** get stuck in an infinite loop if you do something like `"onTick":"doTick"` (it keeps triggering itself over and over). This might seem obvious, particular if you have experience programming. But it's also possible to get stuck in a less obvious way: `"onTick":"light" [...] "onLightingChange:{"WELL_LIT":"doTick"}` would have the same effect.
+
+**Note 2**: If you have multiple tick/tock actions, it's hard to specify the order in which they will happen. In general, you should assume that tick/tock events will happen in a random order. (If A, B, and C all have `tick` events, then the actual order in which those events happen could be A, B, C; B, C, A; C, B, A - etc). 
 
 ## Creating A Dungeon
 

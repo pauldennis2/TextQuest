@@ -2,6 +2,7 @@ package paul.TextQuest.entities;
 
 import paul.TextQuest.enums.BehaviorTiming;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -29,6 +30,9 @@ public class Monster extends DungeonRoomEntity {
     private String onDealDamage;
     private String onDeath;
     private String onDisable;
+    
+    private List<Integer> patrolRoute;
+    private transient int patrolIndex;
     
     private transient DungeonRoom location;
 
@@ -221,5 +225,21 @@ public class Monster extends DungeonRoomEntity {
     
     public boolean hasDescription () {
     	return description != null && !description.trim().equals("");
+    }
+
+	public List<Integer> getPatrolRoute() {
+		return patrolRoute;
+	}
+
+	public void setPatrolRoute(List<Integer> patrolRoute) {
+		this.patrolRoute = patrolRoute;
+	}
+    
+    public int getNextRoomIdAndUpdateIndex () {
+    	patrolIndex++;
+    	if (patrolIndex >= patrolRoute.size()) {
+    		patrolIndex = 0;
+    	}
+    	return patrolRoute.get(patrolIndex);
     }
 }

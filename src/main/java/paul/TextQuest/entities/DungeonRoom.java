@@ -109,14 +109,6 @@ public class DungeonRoom extends UserInterfaceClass {
         metaMap.put("onSearch", onSearch);
         metaMap.put("onHeroAction", onHeroAction);
     }
-    
-    public void doTick () {
-    	
-    }
-    
-    public void doTock () {
-    	
-    }
 
     private static void initActionMaps () {
         voidActionMap = new HashMap<>();
@@ -167,6 +159,9 @@ public class DungeonRoom extends UserInterfaceClass {
         
         voidActionMap.put("doTick", room -> {
         	room.textOut.debug("Doing tick");
+        	if (room.getOnTick() != null) {
+        		room.doAction(room.getOnTick());
+        	}
         	Dungeon dungeon = room.getDungeon();
         	if (dungeon.getOnTick() != null) {
         		room.doAction(dungeon.getOnTick());
@@ -176,11 +171,14 @@ public class DungeonRoom extends UserInterfaceClass {
         
         voidActionMap.put("doTock", room -> {
         	room.textOut.debug("Doing tock");
+        	if (room.getOnTock() != null) {
+        		room.doAction(room.getOnTock());
+        	}
         	Dungeon dungeon = room.getDungeon();
         	if (dungeon.getOnTock() != null) {
         		room.doAction(dungeon.getOnTock());
         	}
-        	room.getDungeon().doTock();
+        	dungeon.doTock();
         });
         
         voidActionMap.put("removeMonsters", room -> room.removeMonsters());
@@ -968,27 +966,8 @@ public class DungeonRoom extends UserInterfaceClass {
         }
     }
     
-    public static String replaceVariables (String input, Map<String, String> variables, Map<String, Integer> values) {
-    	while (input.contains("{")) {
-    		int openIndex = input.indexOf("{");
-    		int closeIndex = input.indexOf("}");
-    		String varString = input.substring(openIndex + 1, closeIndex);
-    		
-    		String mappedValue;
-    		if (values.containsKey(varString)) {
-    			mappedValue = "" + values.get(varString);
-    		} else if (variables.containsKey(varString)) {
-    			mappedValue = variables.get(varString);
-    		} else {
-    			throw new AssertionError("Could not find the variable in any map. Input: " + input);
-    		}
-    		
-    		input = input.substring(0, openIndex) + mappedValue + input.substring(closeIndex + 1);
-    	}
-    	return input;
-    }
-    
     private String replaceVariables (String input) {
+    	System.out.println("Replacing variables for input: " + input);
     	Map<String, String> variables = getDungeon().getDungeonVariables();
     	Map<String, Integer> values = getDungeon().getDungeonValues();
     	while (input.contains("{")) {
@@ -1036,6 +1015,7 @@ public class DungeonRoom extends UserInterfaceClass {
     		
     		input = input.substring(0, openIndex) + value + input.substring(closeIndex + 1);
     	}
+    	System.out.println("Returning: " + input);
     	return input;
     }
     

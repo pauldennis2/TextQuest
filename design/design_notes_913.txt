@@ -1,0 +1,24 @@
+Four Main Elements
+
+Air
+Ice
+Earth
+Fire
+
+Additional Possible Elements/Fundamentals:
+Lightning
+Water
+Darkness/Shadow
+Light
+Body/Spirit
+Might/Magic
+Arcane/Nature/Holy
+
+Reagent spell concept (prototyped in Hero.java)
+
+Combos:
+
+Air + Lightning + Water -> Storm
+Fire + Water -> Steam
+
+Concept: a "pet" dungeon item ("Viney" the vine creature. Rover the dog. Whatever). That you can give instructions to using say.
