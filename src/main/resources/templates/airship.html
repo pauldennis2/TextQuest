@@ -54,6 +54,16 @@
                             {{.}}
                         </li>
                     {{/clearedDungeons}}
+                    {{#availableDungeons}}
+                    	<li>
+                    		<a href="startDungeon/?dungeonName={{.}}">{{.}}</a>
+                    	</li>
+                    {{/availableDungeons}}
+                    {{#unavailableDungeons}}
+                    	<li>
+                    		{{.}}
+                    	</li>
+                    {{/unavailableDungeons}}
                 </div>
             </div>
         </main>

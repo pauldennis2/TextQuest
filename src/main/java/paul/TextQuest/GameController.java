@@ -134,25 +134,29 @@ public class GameController {
         	model.addAttribute("hero", hero);
         	
         	
-        	List<String> dungeonStatus = new ArrayList<>();
+        	List<String> clearedDungeons = new ArrayList<>();
+        	List<String> availableDungeons = new ArrayList<>();
+        	List<String> unavailableDungeons = new ArrayList<>();
     		
         	Map<String, DungeonInfo> dungeonInfo = dungeonGroup.getDungeonInfo();
         	List<String> heroClearedDungeons = hero.getClearedDungeons();
         	for (String name : dungeonInfo.keySet()) {
         		if (heroClearedDungeons.contains(name)) {
-        			dungeonStatus.add(name + " - Cleared");
+        			clearedDungeons.add(name + " - Cleared");
         		} else {
         			DungeonInfo info = dungeonInfo.get(name);
         			List<String> prereqs = info.getPrereqs();
         			if (heroClearedDungeons.containsAll(prereqs)) {
-        				dungeonStatus.add(name);
+        				availableDungeons.add(name);
         			} else {
-        				dungeonStatus.add("?????");
+        				unavailableDungeons.add("?????");
         			}
         		}
         	}
         	
-    		model.addAttribute("clearedDungeons", dungeonStatus);
+    		model.addAttribute("clearedDungeons", clearedDungeons);
+    		model.addAttribute("availableDungeons", availableDungeons);
+    		model.addAttribute("unavailableDungeons", unavailableDungeons);
         	
         	return "airship";
     	} catch (IOException ex) {
@@ -215,6 +219,12 @@ public class GameController {
     	}
     	session.setAttribute("hero", hero);
     	return "redirect:/game";
+    }
+    
+    @RequestMapping(path = "/startDungeon", method = RequestMethod.GET)
+    public String startDungeon (@RequestParam String dungeonName) {
+    	System.out.println("Attempting to start dungeon with name: " + dungeonName);
+    	return "null";
     }
 
     @ExceptionHandler(Exception.class)
