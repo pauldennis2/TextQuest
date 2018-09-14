@@ -10,13 +10,11 @@ import java.util.stream.Stream;
  */
 public class Backpack extends Location {
 
-
     private List<BackpackItem> items;
 
     public Backpack () {
         items = new ArrayList<>();
     }
-
 
     public Stream<BackpackItem> stream () {
         return items.stream();

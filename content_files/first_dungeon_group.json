@@ -1,34 +1,34 @@
 {
 	"name":"First Group of Dungeons",
-	"dungeonInfoList":
-	[
+	"dungeonInfo":
+	{
+		"Lair of Pihop-pi":
 		{
-			"name":"Lair of Pihop-pi",
 			"fileLocation":"content_files/dungeons/first_dungeon.json"
 		},
+		"Darklight Dungeon":
 		{
-			"name":"Darklight Dungeon",
 			"fileLocation":"content_files/dungeons/darklight_dungeon.json",
 			"prereqs":
 			[
 				"Lair of Pihop-pi"
 			]
 		},
+		"Four Elements Dungeon":
 		{
-			"name":"Four Elements Dungeon",
 			"fileLocation":"content_files/dungeons/four_elements_dungeon.json",
 			"prereqs":
 			[
 				"Lair of Pihop-pi"
 			]
 		},
+		"Steampunk Dungeon":
 		{
-			"name":"Steampunk Dungeon",
 			"fileLocation":"content_files/dungeons/steampunk_dungeon.json",
 			"prereqs":
 			[
 				"Darklight Dungeon", "Four Elements Dungeon"
 			]
 		}
-	]
+	}
 }

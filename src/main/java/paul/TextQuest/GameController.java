@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import paul.TextQuest.entities.Dungeon;
+import paul.TextQuest.entities.DungeonGroup;
+import paul.TextQuest.entities.DungeonInfo;
 import paul.TextQuest.entities.Hero;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.TextInterface;
@@ -24,6 +26,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -116,12 +119,47 @@ public class GameController {
     
     @RequestMapping(path = "/airship", method = RequestMethod.GET)
     public String airship (Model model, HttpSession session) {
+    	
+    	
     	TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
-    	String username = (String) session.getAttribute("username");
-    	Hero hero = textOut.getRunner().getHero();
-    	model.addAttribute("username", username);
-    	model.addAttribute("hero", hero);
-    	return "airship";
+    	try {
+    		DungeonGroup dungeonGroup = DungeonGroup.buildGroupFromFile("content_files/first_dungeon_group.json");
+    		
+    		
+    		
+    		
+    		String username = (String) session.getAttribute("username");
+        	Hero hero = textOut.getRunner().getHero();
+        	model.addAttribute("username", username);
+        	model.addAttribute("hero", hero);
+        	
+        	
+        	List<String> dungeonStatus = new ArrayList<>();
+    		
+        	Map<String, DungeonInfo> dungeonInfo = dungeonGroup.getDungeonInfo();
+        	List<String> heroClearedDungeons = hero.getClearedDungeons();
+        	for (String name : dungeonInfo.keySet()) {
+        		if (heroClearedDungeons.contains(name)) {
+        			dungeonStatus.add(name + " - Cleared");
+        		} else {
+        			DungeonInfo info = dungeonInfo.get(name);
+        			List<String> prereqs = info.getPrereqs();
+        			if (heroClearedDungeons.containsAll(prereqs)) {
+        				dungeonStatus.add(name);
+        			} else {
+        				dungeonStatus.add("?????");
+        			}
+        		}
+        	}
+        	
+    		model.addAttribute("clearedDungeons", dungeonStatus);
+        	
+        	return "airship";
+    	} catch (IOException ex) {
+    		textOut.debug("Failed to load dungeon group.");
+    		System.err.println(ex);
+    		return "game";
+    	}
     }
 
     @RequestMapping(path = "/submit-action", method = RequestMethod.POST)
