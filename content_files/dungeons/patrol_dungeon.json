@@ -8,7 +8,7 @@
   {
   	"BlueGoblin":
   	{
-  		"name":"Blue Goblin"
+  		"name":"Blue Goblin",
   		"health":5
   	}
   },
@@ -20,7 +20,7 @@
   	"specialRoomActions":
   	{
   		"tick":"doTick",
-  		"tock":"doTock"
+  		"tock":"createMonster MiniShadow"
   	}
   },
   "rooms":

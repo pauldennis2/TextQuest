@@ -113,10 +113,10 @@ public class Dungeon extends MetaLocation {
         return mapper.readValue(dungeonJson, Dungeon.class);
     }
     
-    public static Map<String, Monster> buildBeastiaryFromFile (String fileName) throws IOException {
+    public static final String BEASTIARY_PATH = "content_files/beastiaries/";
+    public static Beastiary buildBeastiaryFromFile (String fileName) throws IOException {
     	ObjectMapper mapper = new ObjectMapper();
-    	Map<String, Monster> testmap = new HashMap<>();
-    	return mapper.readValue(readFromFile(fileName), testmap.getClass());
+    	return mapper.readValue(readFromFile(BEASTIARY_PATH + fileName), Beastiary.class);
     }
 
     private static String readFromFile (String fileName) {
@@ -164,9 +164,12 @@ public class Dungeon extends MetaLocation {
     }
     
     public static void main(String[] args) throws Exception {
+    	/*
 		System.out.println("Testing dungeon evaluater.");
 		Dungeon test = buildDungeonFromFile("content_files/dungeons/evaluate_dungeon_test.json");
 		test.evaluateDungeon();
+		*/
+    	buildDungeonFromFile("content_files/dungeons/patrol_dungeon.json");
 	}
     
     public void evaluateDungeon () throws Exception {
@@ -259,14 +262,21 @@ public class Dungeon extends MetaLocation {
 	public void setBeastiaries(List<String> beastiaries) {
 		this.beastiaries = beastiaries;
 		
+		if (monsterLibrary == null) {
+			monsterLibrary = new HashMap<>();
+		}
+		
 		for (String fileName : beastiaries) {
 			try {
-				Map<String, Monster> monsterMap = buildBeastiaryFromFile(fileName);
+				Beastiary beastiary = buildBeastiaryFromFile(fileName);
+				Map<String, Monster> monsterMap = beastiary.getMonsterMap();
+				System.out.println(monsterMap);
 				for (String key : monsterMap.keySet()) {
-					if (monsterLibrary.containsKey(key)) {
+					if (monsterLibrary != null && monsterLibrary.containsKey(key)) {
 						throw new AssertionError("Namespace conflict. Can't have two monsters named " +
 								key + ". Duplicate comes from " + fileName + ".");
 					}
+					
 					monsterLibrary.put(key, monsterMap.get(key));
 				}
 			} catch (IOException ex) {
@@ -348,7 +358,11 @@ public class Dungeon extends MetaLocation {
     }
     
     public void setMonsterLibrary (Map<String, Monster> monsterLibrary) {
-    	this.monsterLibrary = monsterLibrary;
+    	if (this.monsterLibrary != null) {
+    		this.monsterLibrary.putAll(monsterLibrary);
+    	} else {
+    		this.monsterLibrary = monsterLibrary;
+    	}
     }
     
     public Map<String, Monster> getMonsterLibrary () {
