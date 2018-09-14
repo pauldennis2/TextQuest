@@ -21,7 +21,6 @@ public class TextInterface extends UserInterfaceClass {
     
     private static TextInterface instance;
     
-
     @Override
     public void start (TextInterface textOut) {
         children.forEach(child -> child.start(this));
@@ -38,6 +37,7 @@ public class TextInterface extends UserInterfaceClass {
     	return instance;
     }
 
+    @Deprecated
     private TextInterface(Hero hero) throws IOException {
         buffer = new ArrayList<>();
         debug = new ArrayList<>();
@@ -46,6 +46,21 @@ public class TextInterface extends UserInterfaceClass {
         runner = new DungeonRunner(hero);
         children.add(runner);
         defaultRequester = runner;
+    }
+    
+    private TextInterface (Hero hero, String fileName) throws IOException {
+        buffer = new ArrayList<>();
+        debug = new ArrayList<>();
+        tutorial = new ArrayList<>();
+        children = new ArrayList<>();
+        runner = new DungeonRunner(hero, fileName);
+        children.add(runner);
+        defaultRequester = runner;
+    }
+    
+    public void newDungeon (String fileName) throws IOException {
+    	Hero hero = runner.getHero();
+    	runner = new DungeonRunner(hero, fileName);
     }
 
     //"Please make me your child"

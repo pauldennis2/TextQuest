@@ -14,8 +14,6 @@ import paul.TextQuest.entities.DungeonInfo;
 import paul.TextQuest.entities.Hero;
 import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.TextInterface;
-import paul.TextQuest.utils.DefeatException;
-import paul.TextQuest.utils.VictoryException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -114,56 +112,54 @@ public class GameController {
         }
         model.addAttribute("location", textOut.getRunner().getDungeon().getDungeonName());
         model.addAttribute("roomName", "  " + textOut.getRunner().getHero().getLocation().getName());
+        System.err.println(textOut.getRunner().getHero().getLocation());
         return "game";
     }
     
     @RequestMapping(path = "/airship", method = RequestMethod.GET)
     public String airship (Model model, HttpSession session) {
-    	
-    	
     	TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
-    	try {
-    		DungeonGroup dungeonGroup = DungeonGroup.buildGroupFromFile("content_files/first_dungeon_group.json");
-    		
-    		
-    		
-    		
-    		String username = (String) session.getAttribute("username");
-        	Hero hero = textOut.getRunner().getHero();
-        	model.addAttribute("username", username);
-        	model.addAttribute("hero", hero);
-        	
-        	
-        	List<String> clearedDungeons = new ArrayList<>();
-        	List<String> availableDungeons = new ArrayList<>();
-        	List<String> unavailableDungeons = new ArrayList<>();
-    		
-        	Map<String, DungeonInfo> dungeonInfo = dungeonGroup.getDungeonInfo();
-        	List<String> heroClearedDungeons = hero.getClearedDungeons();
-        	for (String name : dungeonInfo.keySet()) {
-        		if (heroClearedDungeons.contains(name)) {
-        			clearedDungeons.add(name + " - Cleared");
-        		} else {
-        			DungeonInfo info = dungeonInfo.get(name);
-        			List<String> prereqs = info.getPrereqs();
-        			if (heroClearedDungeons.containsAll(prereqs)) {
-        				availableDungeons.add(name);
-        			} else {
-        				unavailableDungeons.add("?????");
-        			}
-        		}
-        	}
-        	
-    		model.addAttribute("clearedDungeons", clearedDungeons);
-    		model.addAttribute("availableDungeons", availableDungeons);
-    		model.addAttribute("unavailableDungeons", unavailableDungeons);
-        	
-        	return "airship";
-    	} catch (IOException ex) {
-    		textOut.debug("Failed to load dungeon group.");
-    		System.err.println(ex);
-    		return "game";
+        if (textOut == null) {
+        	Hero hero = (Hero) session.getAttribute("hero");
+            textOut = TextInterface.getInstance(hero);
+            textOut.start(null);
+            session.setAttribute("textInterface", textOut);
+            DungeonGroup dungeonGroup = buildDungeonGroup();
+            session.setAttribute("dungeonGroup", dungeonGroup);
+        }
+		
+		String username = (String) session.getAttribute("username");
+    	Hero hero = textOut.getRunner().getHero();
+    	model.addAttribute("username", username);
+    	model.addAttribute("hero", hero);
+    	
+    	
+    	List<String> clearedDungeons = new ArrayList<>();
+    	List<String> availableDungeons = new ArrayList<>();
+    	List<String> unavailableDungeons = new ArrayList<>();
+		
+    	DungeonGroup dungeonGroup = (DungeonGroup) session.getAttribute("dungeonGroup");
+    	Map<String, DungeonInfo> dungeonInfo = dungeonGroup.getDungeonInfo();
+    	List<String> heroClearedDungeons = hero.getClearedDungeons();
+    	for (String name : dungeonInfo.keySet()) {
+    		if (heroClearedDungeons.contains(name)) {
+    			clearedDungeons.add(name + " - Cleared");
+    		} else {
+    			DungeonInfo info = dungeonInfo.get(name);
+    			List<String> prereqs = info.getPrereqs();
+    			if (heroClearedDungeons.containsAll(prereqs)) {
+    				availableDungeons.add(name);
+    			} else {
+    				unavailableDungeons.add("?????");
+    			}
+    		}
     	}
+    	
+		model.addAttribute("clearedDungeons", clearedDungeons);
+		model.addAttribute("availableDungeons", availableDungeons);
+		model.addAttribute("unavailableDungeons", unavailableDungeons);
+    	
+    	return "airship";
     }
 
     @RequestMapping(path = "/submit-action", method = RequestMethod.POST)
@@ -179,6 +175,24 @@ public class GameController {
         if (!userInput.equals("")) {
             textOut.debug("You entered: \"" + userInput + "\"");
         }
+        if (userInput.equals("leave")) {
+        	textOut.debug("~Leave command detected.");
+        	Dungeon dungeon = textOut.getRunner().getDungeon();
+        	System.err.println(dungeon);
+        	System.err.println("dungeon.isCleared() = " + dungeon.isCleared());
+        	if (textOut.getRunner().getDungeon().isCleared()) {
+        		textOut.debug("~And dungeon is cleared.");
+        		Hero hero = textOut.getRunner().getHero();
+        		String username = (String) session.getAttribute("username");
+        		Hero.saveHeroToFile(username, hero);
+        		return "airship";
+        	} else {
+        		textOut.debug("~But dungeon isn't cleared.");
+        	}
+        }
+        
+        textOut.processResponse(userInput);
+        /* Old impl 9/14
         try {
             textOut.processResponse(userInput);
         } catch (DefeatException ex) {
@@ -197,6 +211,7 @@ public class GameController {
             Hero.saveHeroToFile(username, hero);
             requestedInputType = InputType.NONE;
         }
+        */
          
         return "redirect:/game";
     }
@@ -218,13 +233,23 @@ public class GameController {
     		hero = new Hero(heroName);
     	}
     	session.setAttribute("hero", hero);
-    	return "redirect:/game";
+    	return "redirect:/airship";
     }
     
     @RequestMapping(path = "/startDungeon", method = RequestMethod.GET)
-    public String startDungeon (@RequestParam String dungeonName) {
+    public String startDungeon (@RequestParam String dungeonName, HttpSession session) {
     	System.out.println("Attempting to start dungeon with name: " + dungeonName);
-    	return "null";
+    	TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
+    	
+    	DungeonGroup dungeonGroup = (DungeonGroup) session.getAttribute("dungeonGroup");
+    	Map<String, DungeonInfo> dungeonInfo = dungeonGroup.getDungeonInfo();
+    	String fileName = dungeonInfo.get(dungeonName).getFileLocation();
+    	try {
+    		textOut.newDungeon(fileName);
+    		return "redirect:/game";
+    	} catch (IOException ex) {
+    		throw new AssertionError(ex);
+    	}
     }
 
     @ExceptionHandler(Exception.class)
@@ -258,6 +283,15 @@ public class GameController {
     		Files.write(Paths.get(USERS_FILE), ("\n" + username + " " + password).getBytes(), StandardOpenOption.APPEND);
     	} catch (FileNotFoundException ex) {
     		throw new AssertionError("User data missing");
+    	} catch (IOException ex) {
+    		throw new AssertionError(ex);
+    	}
+    }
+    
+    public static final String DUNGEON_GROUP_LOCATION = "content_files/test_dungeon_group.json";
+    private static DungeonGroup buildDungeonGroup () {
+    	try {
+    		return DungeonGroup.buildGroupFromFile(DUNGEON_GROUP_LOCATION);
     	} catch (IOException ex) {
     		throw new AssertionError(ex);
     	}

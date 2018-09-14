@@ -154,7 +154,10 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         
         voidActionMap.put("setDungeonCleared", room -> {
+        	Dungeon dungeon = room.getDungeon();
         	room.getDungeon().setCleared(true);
+        	System.err.println("dungeon.isCleared() = " + dungeon.isCleared());
+        	System.err.println(dungeon);
         });
         
         voidActionMap.put("doTick", room -> {
@@ -319,6 +322,7 @@ public class DungeonRoom extends UserInterfaceClass {
         	String oldName = room.getName();
         	room.setName(param);
         	room.getDungeon().updateRoomName(room, oldName);
+        	System.err.println(room);
         });
         
         paramActionMap.put("removePassage", (room, param) -> {
@@ -389,6 +393,11 @@ public class DungeonRoom extends UserInterfaceClass {
         	room.removeMonster(monster);
         	nextRoom.addMonster(monster);
         	room.textOut.debug("Randomly moved " + monster.getName() + " from " + room.getName() + " to " + nextRoom.getName());
+        });
+        
+        paramActionMap.put("setDungeonName", (room, param) -> {
+        	room.getDungeon().setDungeonName(param);
+        	System.err.println("set name to " + param);
         });
         
         //MultiParam Actions\\

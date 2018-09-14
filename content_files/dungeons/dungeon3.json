@@ -1,0 +1,15 @@
+{
+	"dungeonName":"Dungeon 3",
+	"description":"Final dungeon",
+	"rooms":
+	[
+		{
+			"name":"Entryway",
+			"id":1,
+			"specialRoomActions":
+			{
+				"win":"setDungeonCleared"
+			}
+		}
+	]
+}

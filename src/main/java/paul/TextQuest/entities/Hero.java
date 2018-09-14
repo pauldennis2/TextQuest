@@ -396,7 +396,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
     	
     	//TODO remove this when no longer needed
     	heroVoidActions.put("save", room -> {
-    		saveHeroToFile("paul" , this);
+    		saveHeroToFile("paul", this);
     	});
 
         heroVoidActions.put("describe", DungeonRoom::describe);
@@ -797,7 +797,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
         });
     }
     
-    private static void reagentSpells () {
+    public static void reagentSpells () {
+    	//TODO: use
     	possibleSpellMap.put("flight", hero -> {
     		String reagentName = "Swan Feather";
     		if (hero.getBackpack().contains(reagentName) && hero.spellbook.contains("air")) {

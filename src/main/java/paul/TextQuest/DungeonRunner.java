@@ -33,12 +33,19 @@ public class DungeonRunner extends UserInterfaceClass {
 
     //public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "trigger_dungeon.json";//"first_dungeon.json";
     //public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "four_elements_dungeon.json";//"first_dungeon.json";
-    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "patrol_dungeon.json";//"first_dungeon.json";
+    public static final String DUNGEON_FILE_PATH = "content_files/dungeons/" + "dungeon1.json";//"first_dungeon.json";
 
+    @Deprecated
     public DungeonRunner (Hero hero) throws IOException {
         this.hero = hero;
         analyzer = StatementAnalyzer.getInstance();
         dungeon = Dungeon.buildDungeonFromFile(DUNGEON_FILE_PATH);
+    }
+    
+    public DungeonRunner(Hero hero, String fileName) throws IOException {
+    	this.hero = hero;
+    	analyzer = StatementAnalyzer.getInstance();
+    	dungeon = Dungeon.buildDungeonFromFile(fileName);
     }
 
     @Override
