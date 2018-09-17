@@ -1,0 +1,29 @@
+{
+	"spellbook":
+	{
+		"push":
+		{
+			"name":"Force Push",
+			"key":"push",
+			"targetType":"RANDOM_ENEMY",
+			"actions":["disable 2"]
+		},
+		"lightning":
+		{
+			"name":"Force Lightning",
+			"key": "lightning",
+			"targetType":"RANDOM_ENEMY",
+			"actions":["dealDamage 10"],
+			"prereqs":["darkside"],
+		},
+		"storm":
+		{
+			"name":"Force Storm",
+			"key":"storm",
+			"targetType":"ALL_ENEMIES",
+			"actions":["dealDamage 15"],
+			"prereqs":["darkside"]
+		}
+		
+	}
+}
