@@ -1,0 +1,182 @@
+{
+	"spellbook": 
+	{
+		"fireblast":
+		{
+			"name":"Fireblast",
+			"key":"fireblast",
+			"targetType":"ALL_ENEMIES",
+			"actions":
+			[
+				"dealDamage 5"
+			],
+			"prereqs":
+			[
+				"fire"
+			]
+		},
+		"flight":
+		{
+			"name":"Flight",
+			"key":"flight",
+			"targetType":"SELF"
+			"actions":
+			[
+				"print \"You're flying now!\""
+			],
+			"prereqs":
+			[
+				"air"
+			],
+			"reagents":
+			[
+				"Swan Feather"
+			]
+		},
+		"aegis":
+		{
+			"name":"Minor Aegis",
+			"key":"aegis",
+			"targetType":"SELF",
+			"actions":
+			[
+				"modStat defense +5"
+			],
+			"prereqs":
+			[
+				"shielding"
+			]
+		},
+		"heal":
+		{
+			"name":"Minor Healing",
+			"key":"heal",
+			"targetType":"SELF",
+			"actions":
+			[
+				"heal 10"
+			]
+		},
+		"iceblast":
+		{
+			"name":"Iceblast",
+			"key":"iceblast",
+			"targetType":"RANDOM_ENEMY",
+			"actions":
+			[
+				"dealDamage 8", "disable 1"
+			],
+			"prereqs":
+			[
+				"ice"
+			]
+		},
+		"lightningblast":
+		{
+			"name":"Lightningblast",
+			"key":"lightningblast",
+			"targetType":"RANDOM_ENEMY",
+			"actions":
+			[
+				"dealDamage 12"
+			],
+			"prereqs":
+			[
+				"lightning"
+			]
+		},
+		"push":
+		{
+			"name":"Telekinetic Push",
+			"key":"push",
+			"targetType":"ALL_ENEMIES",
+			"actions":
+			[
+				"dealDamage 2", "disable 1"
+			],
+			"prereqs":
+			[
+				"force"
+			]
+		},
+		"weaken":
+		{
+			"name":"Weaken",
+			"key":"weaken",
+			"targetType":"ALL_ENEMIES",
+			"actions":
+			[
+				"modStat might -1"
+			],
+			"prereqs":
+			[
+				"weakening?"
+			]
+		},
+		"light":
+		{
+			"name":"Illuminate",
+			"key":"light",
+			"targetType":"NONE",
+			"actions":
+			[
+				"light"
+			],
+			"prereqs":
+			[
+				"light"
+			]
+		},
+		"shadow":
+		{
+			"name":"Shadow Cloak",
+			"key":"shadowcloak",
+			"targetType":"SELF",
+			"actions":
+			[
+				"modStat stealth +5"
+			],
+			"prereqs":
+			[
+				"shadow"
+			]
+		},
+		"fireshield":
+		{
+			"name":"Fireshield",
+			"key":"fireshield",
+			"targetType":"SELF",
+			"actions":
+			[
+				"print \"You're protected from fire.\""
+			],
+			"prereqs":
+			[
+				"fire", "shielding"
+			],
+			"reagents":
+			[
+				"Copper Shield"
+			]
+		},
+		"dig":
+		{
+			"name":"Excavate",
+			"key":"dig",
+			"targetType":"NONE",
+			"actions":
+			[
+				"print \"Digging around...\""
+			],
+			"prereqs":
+			[
+				"earth"
+			],
+			"reagents":
+			[
+				"Monster Claw"
+			]
+		}
+		
+	}
+}
