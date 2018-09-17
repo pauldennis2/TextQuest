@@ -4,7 +4,10 @@
  */
 package paul.TextQuest.utils;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.List;
+import java.util.Scanner;
 
 public class StringUtils {
 
@@ -59,5 +62,17 @@ public class StringUtils {
 		input = input.toLowerCase();
 		return input.startsWith("a") || input.startsWith("e") || input.startsWith("i")
 				|| input.startsWith("o") || input.startsWith("u") || input.startsWith("h");
+	}
+	
+	public static String readFile (String fileName) {
+		try (Scanner fileScanner = new Scanner(new File(fileName))) {
+			StringBuilder stringBuilder = new StringBuilder();
+			while(fileScanner.hasNext()) {
+				stringBuilder.append(fileScanner.nextLine());
+			}
+			return stringBuilder.toString();
+		} catch (FileNotFoundException ex) {
+			throw new AssertionError(ex);
+		}
 	}
 }

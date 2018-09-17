@@ -30,4 +30,22 @@ Coming Eventually: the ability to define custom level up actions and operations 
 
 TextQuest is organized around "dungeons". A dungeon is a self-contained unit of adventure for the player to explore. You can only save your game between dungeons. The dungeon is divided into rooms, which are connected to each other by passages. When you enter a room, you'll see a description of the room's features and a list of the ways out. The hero has no physical coordinates within a room; they're basically considered to be standing at the entrance of the room, and (unless scripts intervene) they have a choice about whether to engage in combat, loot items, etc.
 
-Dungeons can be designed in a lot of different ways. The dungeons I've created are generally modeled after Legend of Zelda (albeit much smaller). That is, at some point roughly halfway through you'll find a special item in the dungeon that is required to solve crucial puzzles and beat the boss. Again, it's pretty important for dungeons to be small because the player can't save during a dungeon. If you want to create a bigger dungeon, you could break it up into a few smaller contained dungeons. (You **can** have a dungeon be as big as you want, but again, no saving). 
+Dungeons can be designed in a lot of different ways. The dungeons I've created are generally modeled after Legend of Zelda (albeit much smaller). That is, at some point roughly halfway through you'll find a special item in the dungeon that is required to solve crucial puzzles and beat the boss. Again, it's pretty important for dungeons to be small because the player can't save during a dungeon. If you want to create a bigger dungeon, you could break it up into a few smaller contained dungeons. (You **can** have a dungeon be as big as you want, but again, no saving).
+
+## Magic - Or Whatever You Want to Call It
+
+TextQuest is based on a swords and sorcery dungeon crawling concept. And even though you can "paint" it however you want (like making a Star Wars/Jedi-themed adventure) it wouldn't be missing something if it didn't have magic. Here's how magic works:
+
+The hero has a `magic` stat that does nothing.
+
+The hero can have knowledge of various areas of magic (defined by the designer). These could be traditional elements like fire magic, earth magic, whatever, or whatever categories you want to come up with.
+
+Spells are defined in JSON like dungeons and make use of the same library of events.
+
+Properties:
+* prereqs - The areas of magic the hero must know in order to cast the spell. Optionally can be specified with a number like "fire 2" meaning the hero needs a 2nd level of fire mastery to cast the spell.
+* reagents - any items that are required for and consumed by the spell. If missing, spell will fail. If present they'll be consumed.
+* requiredItems - any items that are required for the spell. If missing, spell will fail. If present spell will be cast without consuming the item.
+* actions - the actual effects of thespell.
+
+The hero will be offered opportunities on levelup to learn new areas of magic or perhaps to advance in an area in which they already have some skill.

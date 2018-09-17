@@ -97,6 +97,11 @@ public class Hero extends UserInterfaceClass implements Serializable {
     
     private transient Map<String, SpellAction> spellMap;
     
+    //TODO concept:
+    //Hero has a list of statuses the dungeon can modify (poisoned, diseased, buffed, etc)
+    //Buffs and debuffs
+    private transient List<String> statusEffects;
+    
     private Map<EquipSlot, EquipableItem> equippedItems;
     
     private static Map<String, SpellAction> possibleSpellMap;
@@ -241,8 +246,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
     }
 
     private static Map<Integer, ArrayList<LevelUpCategory>> levelUpActions;
-
     //Defines what we can do at each level (i.e. what new skills, stat increases, etc are possible)
+    //TODO: Move this into a JSON file so the designer can decide
     private static void initLevelUpActionMap () {
         levelUpActions = new HashMap<>();
         ArrayList<LevelUpCategory> level1List = new ArrayList<>();
