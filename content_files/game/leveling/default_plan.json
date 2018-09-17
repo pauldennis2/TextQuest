@@ -1,0 +1,9 @@
+{
+	"expAmounts": [250, 1000, 2500, 4500, 6500, 9000, 12000, 15000, 18500, 21500, 25000, 35000, 50000],
+	"levelUpActions":
+	{
+		"1":["NEW_SKILL", "NEW_SPELL", "INC_STATS"],
+		"2":["INC_STATS", "INC_STATS"],
+		"3":["INC_STATS", "INC_STATS"]
+	}
+}

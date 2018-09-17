@@ -1,5 +1,5 @@
 /**
- * @author Paul Dennis (pd236m)
+ * @author Paul Dennis
  * Sep 17, 2018
  */
 package paul.TextQuest.entities;
