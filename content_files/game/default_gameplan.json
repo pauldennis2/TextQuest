@@ -1,6 +1,7 @@
 {	
 	"levelingPlanLocation":"content_files/game/leveling/default_plan.json",
 	"lookAndFeelLocation":"content_files/game/lookfeel/default_lookfeel.json",
+	"heroStartingInfoLocation":"content_files/game/default_starting_info.json",
 	"dungeonGroupLocations":
 	[
 		"content_files/first_dungeon_group.json"

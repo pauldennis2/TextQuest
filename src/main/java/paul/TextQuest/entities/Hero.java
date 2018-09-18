@@ -284,8 +284,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
     	}
     }
     
-    public static Hero loadHeroFromFile (String username, String heroName) {
-    	String fileName = SAVE_PATH + username + "/" + heroName + ".json";
+    public static Hero loadHeroFromFile (String fileName) {
     	try (Scanner fileScanner = new Scanner(new File(fileName))) {
     		String json = fileScanner.nextLine();
     		return jsonRestore(json);
@@ -295,6 +294,11 @@ public class Hero extends UserInterfaceClass implements Serializable {
     	} catch (IOException ex) {
     		throw new AssertionError(ex);
     	}
+    }
+    
+    public static Hero loadHeroFromFile (String username, String heroName) {
+    	String fileName = SAVE_PATH + username + "/" + heroName + ".json";
+    	return loadHeroFromFile(fileName);
     }
     
     public static List<String> getHeroListForUser (String username) {

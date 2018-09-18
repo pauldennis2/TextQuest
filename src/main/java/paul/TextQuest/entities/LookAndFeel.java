@@ -14,6 +14,8 @@ import paul.TextQuest.utils.StringUtils;
  * A class to provide some customization for the 
  * "Look and Feel" of the game. Like, do we refer to
  * "magic" or "Force Powers" or "aether abilities".
+ * 
+ * This is currently just a template/placeholder.
  */
 public class LookAndFeel {
 	

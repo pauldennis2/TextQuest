@@ -20,7 +20,8 @@
   	"specialRoomActions":
   	{
   		"tick":"doTick",
-  		"tock":"createMonster MiniShadow"
+  		"tock":"createMonster MiniShadow",
+  		"exp":"giveExp 250"
   	}
   },
   "rooms":
