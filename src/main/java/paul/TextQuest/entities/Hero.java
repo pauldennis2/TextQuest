@@ -20,8 +20,6 @@ import paul.TextQuest.parsing.TextInterface;
 import paul.TextQuest.parsing.UserInterfaceClass;
 import paul.TextQuest.utils.*;
 
-import static paul.TextQuest.enums.LevelUpCategory.*;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
@@ -245,26 +243,16 @@ public class Hero extends UserInterfaceClass implements Serializable {
         return InputType.LEVEL_UP;
     }
 
-    private static Map<Integer, ArrayList<LevelUpCategory>> levelUpActions;
+    private static Map<Integer, List<LevelUpCategory>> levelUpActions;
+    public static final String LEVEL_UP_PLAN_LOCATION = "content_files/game/leveling/default_plan.json";
     //Defines what we can do at each level (i.e. what new skills, stat increases, etc are possible)
-    //TODO: Move this into a JSON file so the designer can decide
     private static void initLevelUpActionMap () {
-        levelUpActions = new HashMap<>();
-        ArrayList<LevelUpCategory> level1List = new ArrayList<>();
-        level1List.add(NEW_SPELL);
-        level1List.add(NEW_SKILL);
-        level1List.add(INC_STATS);
-        levelUpActions.put(1, level1List);
-        
-        ArrayList<LevelUpCategory> level2List = new ArrayList<>();
-        level2List.add(INC_STATS);
-        level2List.add(INC_STATS);
-        levelUpActions.put(2, level2List);
-        
-        ArrayList<LevelUpCategory> level3List = new ArrayList<>();
-        level3List.add(INC_STATS);
-        level3List.add(INC_STATS);
-        levelUpActions.put(3, level3List);
+    	try {
+    		LevelUpPlan levelUpPlan = LevelUpPlan.buildFromFile(LEVEL_UP_PLAN_LOCATION);
+    		levelUpActions = levelUpPlan.getLevelUpActions();
+    	} catch (IOException ex) {
+    		throw new AssertionError(ex);
+    	}
     }
 
     private static Hero jsonRestore(String heroJson) throws IOException {
@@ -981,7 +969,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
             textOut.println("You took " + damage + " damage.");
             if (health <= 0) {
                 health = 0;
-                throw new DefeatException("Died from damage. Or perhaps dafighter. Har har.");
+                //TODO : fix
+                throw new AssertionError("Died from damage. Or perhaps dafighter. Har har.");
             }
         }
     }
@@ -990,7 +979,8 @@ public class Hero extends UserInterfaceClass implements Serializable {
         health -= damage;
         textOut.println("You took " + damage + " damage.");
         if (health <= 0) {
-            throw new DefeatException("Died from non-combat damage.");
+        	//TODO : fix
+            throw new AssertionError("Died from non-combat damage.");
         }
     }
     
