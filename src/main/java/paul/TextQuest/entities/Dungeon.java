@@ -102,7 +102,9 @@ public class Dungeon extends MetaLocation {
     	});
     }
 
-    public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
+   public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
+	   	System.err.println("Building from file: " + fileName);
+	   	new AssertionError().printStackTrace();
         Dungeon restored = jsonRestore(readFromFile(fileName));
         restored.connectRooms();
         return restored;
@@ -189,7 +191,7 @@ public class Dungeon extends MetaLocation {
     		//Check triggers
     		Map<String, Map<String, String>> metaMap = room.getMetaMap();
     		Hero hero = new Hero("Tester");
-    		TextInterface textOut = TextInterface.getInstance(hero);
+    		TextInterface textOut = TextInterface.getInstance();
     		hero.setTextOut(textOut);
     		room.setHero(hero);
     		for (String mapName : metaMap.keySet()) {

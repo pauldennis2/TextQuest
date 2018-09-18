@@ -400,6 +400,16 @@ public class DungeonRoom extends UserInterfaceClass {
         	System.err.println("set name to " + param);
         });
         
+        paramActionMap.put("setHeroStatus", (room, param) -> {
+        	room.getHero().addStatus(param);
+        	room.textOut.debug("Added status " + param + " to hero.");
+        });
+        
+        paramActionMap.put("removeHeroStatus", (room, param) -> {
+        	room.getHero().removeStatus(param);
+        	room.textOut.debug("Removed status " + param + " from hero.");
+        });
+        
         //MultiParam Actions\\
         multiParamActionMap.put("modStat", (room, args) -> {
         	/*
@@ -1013,6 +1023,30 @@ public class DungeonRoom extends UserInterfaceClass {
         }
     }
     
+    private String invokeMethods (String input) {
+    	System.out.println("Invoking methods for input: " + input);
+    	while (input.contains("->")) {
+    		int openIndex = input.indexOf("->");
+    		int closeIndex = input.indexOf(")");
+    		String methodNameAndArgs = input.split("->")[1];
+    		String methodName = methodNameAndArgs.substring(0, methodNameAndArgs.indexOf("("));
+    		String arg = methodNameAndArgs.substring(methodNameAndArgs.indexOf("(") + 1, methodNameAndArgs.indexOf(")"));
+
+    		
+    		boolean response = hero.getHasField(methodName, arg);
+    		
+    		input = input.substring(0, openIndex) + response + input.substring(closeIndex + 1);
+    		System.out.println("return = " + input);
+    	}
+    	
+    	return input;
+    }
+    
+    public static void main(String[] args) {
+		DungeonRoom room = new DungeonRoom();
+		room.invokeMethods("hero->hasStatus(poisoned)");
+	}
+    
     private String replaceVariables (String input) {
     	System.out.println("Replacing variables for input: " + input);
     	Map<String, String> variables = getDungeon().getDungeonVariables();
@@ -1067,6 +1101,12 @@ public class DungeonRoom extends UserInterfaceClass {
     }
     
     private static boolean evaluateCondition (String condition) {
+    	if (condition.trim().equals("true")) {
+    		return true;
+    	}
+    	if (condition.trim().equals("false")) {
+    		return false;
+    	}
     	String[] tokens = condition.split(" ");
     	String first = tokens[0];
     	String second = tokens[2];

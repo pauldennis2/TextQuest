@@ -42,7 +42,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
 
     private int might;
     private int magic;
-    private int sneak;
     private int defense;
     private int maxSpellsPerDay;
 
@@ -74,10 +73,13 @@ public class Hero extends UserInterfaceClass implements Serializable {
     private List<String> spellbook;
     
     private List<String> clearedDungeons;
+    
+    private SkillMap skillMap;
+    
+    private transient SkillMap skillMods;
 
     private transient int mightMod;
     private transient int magicMod;
-    private transient int sneakMod;
     private transient int defenseMod;
     private transient int numSpellsAvailable;
     
@@ -119,6 +121,10 @@ public class Hero extends UserInterfaceClass implements Serializable {
         spellbook = new ArrayList<>();
         clearedDungeons = new ArrayList<>();
         equippedItems = new HashMap<>();
+        skillMap = new SkillMap();
+        skillMods = new SkillMap();
+        
+        statusEffects = new ArrayList<>();
         initMaps();
     }
     
@@ -132,7 +138,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         maxHealth = startingInfo.maxHealth;
         might = startingInfo.might;
         magic = startingInfo.magic;
-        sneak = startingInfo.sneak;
+        skillMap = startingInfo.skillMap;
         level = startingInfo.level;
         exp = startingInfo.exp;
         maxSpellsPerDay = startingInfo.maxSpellsPerDay;
@@ -149,7 +155,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         maxHealth = 50;
         might = 4;
         magic = 2;
-        sneak = 0;
+        skillMap.put("sneak", 0);
 
         level = 0;
         exp = 0;
@@ -176,12 +182,13 @@ public class Hero extends UserInterfaceClass implements Serializable {
     @Override
     //This is for level-up
     public InputType show () {
-        if (levelUpActions == null) {
+        if (levelUpPlan == null) {
             initLevelUpActionMap();
         }
-        if (LEVEL_AMTS[level] < exp) {
+        List<Integer> levelAmts = levelUpPlan.getExpAmounts();
+        if (levelAmts.get(level) < exp) {
             level++;
-            levelUpTodo = levelUpActions.get(level);
+            levelUpTodo = levelUpPlan.getLevelUpActions().get(level);
             textOut.println("You are now level " + level + ". You can:");
             levelUpTodo.stream()
                     .map(LevelUpCategory::getPrettyName)
@@ -226,7 +233,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
 
             case NEW_SKILL:
                 if (response.contains("sneak") || response.contains("stealth")) {
-                    sneak++;
+                    skillMap.put("sneak", skillMap.get("sneak") + 1);
                     textOut.println("You've learned basic sneaking.");
                     levelUpTodo.remove(0);
                 } else {
@@ -258,13 +265,12 @@ public class Hero extends UserInterfaceClass implements Serializable {
         return InputType.LEVEL_UP;
     }
 
-    private static Map<Integer, List<LevelUpCategory>> levelUpActions;
+    private static LevelUpPlan levelUpPlan;
     public static final String LEVEL_UP_PLAN_LOCATION = "content_files/game/leveling/default_plan.json";
     //Defines what we can do at each level (i.e. what new skills, stat increases, etc are possible)
     private static void initLevelUpActionMap () {
     	try {
-    		LevelUpPlan levelUpPlan = LevelUpPlan.buildFromFile(LEVEL_UP_PLAN_LOCATION);
-    		levelUpActions = levelUpPlan.getLevelUpActions();
+    		levelUpPlan = LevelUpPlan.buildFromFile(LEVEL_UP_PLAN_LOCATION);
     	} catch (IOException ex) {
     		throw new AssertionError(ex);
     	}
@@ -492,6 +498,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         
         heroVoidActions.put("retreat", room -> room.getHero().retreat());
         heroVoidActions.put("sneak", room -> {
+        	int sneak = skillMap.get("sneak");
             switch (sneak) {
                 case 0:
                     textOut.println("You don't know how to sneak yet.");
@@ -751,7 +758,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
             hero.textOut.println("You are healed for 15 health.");
         });
         possibleSpellMap.put("shadow", hero -> {
-            hero.sneakMod = 5;
+            hero.skillMods.put("sneak", hero.skillMods.get("sneak") + 5);
             hero.textOut.println("The shadows surround you.");
         });
         possibleSpellMap.put("fire", hero -> {
@@ -789,9 +796,14 @@ public class Hero extends UserInterfaceClass implements Serializable {
             hero.getLocation().setLighting(TORCH_LIGHT);
         });
         possibleSpellMap.put("aegis", hero -> {
-            hero.defenseMod = 5;
-            hero.textOut.debug("Aegis lasts forever.");
-            hero.textOut.println("A magic shield surrounds you.");
+        	if (!hero.hasStatus("aegis")) {
+        	    hero.defenseMod = 5;
+	            hero.addStatus("aegis");
+	            hero.textOut.debug("Aegis lasts forever.");
+	            hero.textOut.println("A magic shield surrounds you.");
+        	} else {
+        		hero.textOut.println("You are already affected by that spell.");
+        	}
         });
         possibleSpellMap.put("push", hero -> {
             List<Monster> monsters = hero.getLocation().getMonsters();
@@ -847,10 +859,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
     	});
     }
 
-    public void rescuePrince () {
-        throw new VictoryException("Rescued the handsome Prince Charming.");
-    }
-
     public void removeItem (String itemName) {
         backpack.stream()
                 .filter(e -> e.getName().equals(itemName))
@@ -862,7 +870,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
     	
     	mightMod += item.getMightMod();
     	magicMod += item.getMagicMod();
-    	sneakMod += item.getSneakMod();
+    	skillMods.put("sneak", skillMods.get("sneak") + item.getSneakMod());
     	defenseMod += item.getDefenseMod();
     	
     	if (item.getOnEquip() != null) {
@@ -876,7 +884,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
     		EquipableItem item = equippedItems.get(slot);
     		mightMod -= item.getMightMod();
     		magicMod -= item.getMagicMod();
-    		sneakMod -= item.getSneakMod();
+    		skillMods.put("sneak", skillMods.get("sneak") - item.getSneakMod());
     		defenseMod -= item.getDefenseMod();
     		
     		if (item.getOnUnequip() != null) {
@@ -954,7 +962,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
         }
     }
 
-    public static final int[] LEVEL_AMTS = {250, 1000, 2500, 4500, 6500, 9000, 12000, 15000, 18500, 21500, 25000, 35000, 50000};
     //Max level 12
     public void addExp (int expToAdd) {
         if (expToAdd < 0) {
@@ -962,7 +969,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         }
         this.exp += expToAdd;
         textOut.println("Gained " + expToAdd + " exp.");
-        if (LEVEL_AMTS[level] < exp) {
+        if (levelUpPlan.getExpAmounts().get(level) < exp) {
             textOut.println("***Ding! Level up.");
             textOut.request(this);
         }
@@ -991,14 +998,14 @@ public class Hero extends UserInterfaceClass implements Serializable {
             throw new AssertionError("Died from non-combat damage.");
         }
     }
-    
-    
 
-    @Override
+    
+	@Override
 	public String toString() {
 		return "Hero [name=" + name + ", health=" + health + ", maxHealth=" + maxHealth + ", might=" + might
-				+ ", magic=" + magic + ", sneak=" + sneak + ", defense=" + defense + ", maxSpellsPerDay="
-				+ maxSpellsPerDay + ", level=" + level + ", exp=" + exp + ", backpack=" + backpack + "]";
+				+ ", magic=" + magic + ", defense=" + defense + ", maxSpellsPerDay=" + maxSpellsPerDay + ", level="
+				+ level + ", exp=" + exp + ", backpack=" + backpack + ", spellbook=" + spellbook + ", clearedDungeons="
+				+ clearedDungeons + ", skillMap=" + skillMap + ", equippedItems=" + equippedItems + "]";
 	}
 
 	public int getHealth() {
@@ -1024,7 +1031,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
     }
 
     public int getSneak() {
-        return sneak + sneakMod;
+        return skillMap.get("sneak") + skillMods.get("sneak");
     }
     
     public int getDefense() {
@@ -1076,10 +1083,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
         this.magic = magic;
     }
 
-    public void setSneak(int sneak) {
-        this.sneak = sneak;
-    }
-
     public int getMaxSpellsPerDay() {
         return maxSpellsPerDay;
     }
@@ -1126,10 +1129,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
     
     public void setDefenseMod (int defenseMod) {
     	this.defenseMod = defenseMod;
-    }
-    
-    public void setSneakMod (int sneakMod) {
-    	this.sneakMod = sneakMod;
     }
     
     public void setMagicMod (int magicMod) {
@@ -1227,15 +1226,43 @@ public class Hero extends UserInterfaceClass implements Serializable {
 		}
 	}
 	
+	public void addStatus (String status) {
+		statusEffects.add(status);
+	}
+	
+	public void removeStatus (String toRemove) {
+		statusEffects.removeIf(status -> status.equals(toRemove));
+	}
+	
+	public boolean hasItem (String itemName) {
+		return backpack.contains(itemName);
+	}
+	
+	public boolean hasStatus (String status) {
+		return statusEffects.contains(status);
+	}
+	
 	public Integer getIntField (String fieldName) {
-		Class <? extends Hero> heroClass = getClass();
 		try {
 			String methodName = "get" + StringUtils.capitalize(fieldName);
-			Method method = heroClass.getDeclaredMethod(methodName);
+			Method method = getClass().getDeclaredMethod(methodName);
 			Object response = method.invoke(this);
 			return (Integer) response;
-		} catch (Exception ex) {
-			return null;
+		} catch (ReflectiveOperationException ex) {
+			throw new AssertionError(ex);
+		}
+	}
+	
+	public boolean getHasField (String methodName, String arg) {
+		System.out.println("In getHasField(). Params: methodName = " + methodName + ", arg = " + arg + ".");
+		try {
+			Arrays.stream(getClass().getMethods())
+				.map(method -> method.getName())
+				.forEach(System.out::println);
+			Method method = getClass().getDeclaredMethod(methodName, String.class);
+			return (boolean) method.invoke(this, arg);
+		} catch (ReflectiveOperationException ex) {
+			throw new AssertionError(ex);
 		}
 	}
 }

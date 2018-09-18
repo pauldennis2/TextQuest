@@ -26,34 +26,27 @@ public class TextInterface extends UserInterfaceClass {
         children.forEach(child -> child.start(this));
     }
     
-    public static TextInterface getInstance (Hero hero) {
+    public static TextInterface getInstance () {
     	if (instance == null) {
-    		try {
-    			instance = new TextInterface(hero);
-    		} catch (IOException ex) {
-    			ex.printStackTrace();
-    		}
+    		instance = new TextInterface();
     	}
     	return instance;
     }
-
-    @Deprecated
-    private TextInterface(Hero hero) throws IOException {
-        buffer = new ArrayList<>();
+    
+    private TextInterface () {
+    	buffer = new ArrayList<>();
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();
         children = new ArrayList<>();
-        runner = new DungeonRunner(hero);
-        children.add(runner);
-        defaultRequester = runner;
     }
     
-    private TextInterface (Hero hero, String fileName) throws IOException {
-        buffer = new ArrayList<>();
-        debug = new ArrayList<>();
-        tutorial = new ArrayList<>();
-        children = new ArrayList<>();
-        runner = new DungeonRunner(hero, fileName);
+    private TextInterface (Hero hero, String fileName) {
+    	this();
+    	try {
+    		runner = new DungeonRunner(hero, fileName);
+    	} catch (IOException ex) {
+    		throw new AssertionError(ex);
+    	}
         children.add(runner);
         defaultRequester = runner;
     }

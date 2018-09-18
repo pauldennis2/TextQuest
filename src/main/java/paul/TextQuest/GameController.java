@@ -83,8 +83,7 @@ public class GameController {
     	}
         TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
         if (textOut == null) {
-        	Hero hero = (Hero) session.getAttribute("hero");
-            textOut = TextInterface.getInstance(hero);
+            textOut = TextInterface.getInstance();
             textOut.start(null);
             session.setAttribute("textInterface", textOut);
         }
@@ -118,18 +117,9 @@ public class GameController {
     
     @RequestMapping(path = "/airship", method = RequestMethod.GET)
     public String airship (Model model, HttpSession session) {
-    	TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
-        if (textOut == null) {
-        	Hero hero = (Hero) session.getAttribute("hero");
-            textOut = TextInterface.getInstance(hero);
-            textOut.start(null);
-            session.setAttribute("textInterface", textOut);
-            DungeonGroup dungeonGroup = buildDungeonGroup();
-            session.setAttribute("dungeonGroup", dungeonGroup);
-        }
 		
 		String username = (String) session.getAttribute("username");
-    	Hero hero = textOut.getRunner().getHero();
+    	Hero hero = (Hero) session.getAttribute("hero");
     	model.addAttribute("username", username);
     	model.addAttribute("hero", hero);
     	
@@ -139,6 +129,10 @@ public class GameController {
     	List<String> unavailableDungeons = new ArrayList<>();
 		
     	DungeonGroup dungeonGroup = (DungeonGroup) session.getAttribute("dungeonGroup");
+    	if (dungeonGroup == null) {
+    		dungeonGroup = buildDungeonGroup();
+    		session.setAttribute("dungeonGroup", dungeonGroup);
+    	}
     	Map<String, DungeonInfo> dungeonInfo = dungeonGroup.getDungeonInfo();
     	List<String> heroClearedDungeons = hero.getClearedDungeons();
     	for (String name : dungeonInfo.keySet()) {
@@ -192,26 +186,6 @@ public class GameController {
         }
         
         textOut.processResponse(userInput);
-        /* Old impl 9/14
-        try {
-            textOut.processResponse(userInput);
-        } catch (DefeatException ex) {
-            textOut.println(ex.getMessage());
-            textOut.println("You died. GAME OVER.");
-        } catch (VictoryException ex) {
-            textOut.println("You won! Awesome!");
-            String username = (String) session.getAttribute("username");
-            textOut.println("Saving hero data for user " + username);
-            textOut.println(ex.getMessage());
-            
-            Dungeon dungeon = textOut.getRunner().getDungeon();
-            Hero hero = textOut.getRunner().getHero();
-            dungeon.setCleared(true);
-            hero.addClearedDungeon(dungeon.getDungeonName());
-            Hero.saveHeroToFile(username, hero);
-            requestedInputType = InputType.NONE;
-        }
-        */
          
         return "redirect:/game";
     }
@@ -242,6 +216,7 @@ public class GameController {
     	TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
     	
     	DungeonGroup dungeonGroup = (DungeonGroup) session.getAttribute("dungeonGroup");
+    	System.out.println(dungeonGroup);
     	Map<String, DungeonInfo> dungeonInfo = dungeonGroup.getDungeonInfo();
     	String fileName = dungeonInfo.get(dungeonName).getFileLocation();
     	try {
