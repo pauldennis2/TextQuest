@@ -104,7 +104,6 @@ public class Dungeon extends MetaLocation {
 
    public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
 	   	System.err.println("Building from file: " + fileName);
-	   	new AssertionError().printStackTrace();
         Dungeon restored = jsonRestore(readFromFile(fileName));
         restored.connectRooms();
         return restored;

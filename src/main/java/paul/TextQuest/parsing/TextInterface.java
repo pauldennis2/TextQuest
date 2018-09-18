@@ -51,9 +51,11 @@ public class TextInterface extends UserInterfaceClass {
         defaultRequester = runner;
     }
     
-    public void newDungeon (String fileName) throws IOException {
-    	Hero hero = runner.getHero();
+    public void newDungeon (Hero hero, String fileName) throws IOException {
     	runner = new DungeonRunner(hero, fileName);
+    	
+    	requester = runner;
+    	runner.start(this);
     }
 
     //"Please make me your child"
@@ -82,7 +84,11 @@ public class TextInterface extends UserInterfaceClass {
         }
         return requester.show();
     }
-
+    /**
+     * Adds the given string to the debug buffer.
+     * It will be printed in the debug window next time the buffer is flushed.
+     * @param s
+     */
     public void debug (String s) {
         debug.add(s);
     }

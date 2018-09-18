@@ -1023,28 +1023,21 @@ public class DungeonRoom extends UserInterfaceClass {
         }
     }
     
-    private String invokeMethods (String input) {
-    	System.out.println("Invoking methods for input: " + input);
-    	while (input.contains("->")) {
-    		int openIndex = input.indexOf("->");
-    		int closeIndex = input.indexOf(")");
-    		String methodNameAndArgs = input.split("->")[1];
-    		String methodName = methodNameAndArgs.substring(0, methodNameAndArgs.indexOf("("));
-    		String arg = methodNameAndArgs.substring(methodNameAndArgs.indexOf("(") + 1, methodNameAndArgs.indexOf(")"));
+    private boolean callHasMethod (String methodString) {
+		String methodNameAndArgs = methodString.split("->")[1];
+		String methodName = methodNameAndArgs.substring(0, methodNameAndArgs.indexOf("("));
+		String arg = methodNameAndArgs.substring(methodNameAndArgs.indexOf("(") + 1, methodNameAndArgs.indexOf(")"));
 
-    		
-    		boolean response = hero.getHasField(methodName, arg);
-    		
-    		input = input.substring(0, openIndex) + response + input.substring(closeIndex + 1);
-    		System.out.println("return = " + input);
-    	}
-    	
-    	return input;
+		
+		return hero.getHasField(methodName, arg);
     }
     
     public static void main(String[] args) {
 		DungeonRoom room = new DungeonRoom();
-		room.invokeMethods("hero->hasStatus(poisoned)");
+		room.hero = new Hero();
+		room.hero.addStatus("poisoned");
+		boolean result = room.callHasMethod("hero->hasStatus(poisoned)");
+		System.out.println(result);
 	}
     
     private String replaceVariables (String input) {
@@ -1101,6 +1094,7 @@ public class DungeonRoom extends UserInterfaceClass {
     }
     
     private static boolean evaluateCondition (String condition) {
+    	System.out.println("Evaluating condition:" + condition);
     	if (condition.trim().equals("true")) {
     		return true;
     	}
@@ -1171,6 +1165,17 @@ public class DungeonRoom extends UserInterfaceClass {
             	action = replaceVariables(action);
             }
         	String condition = action.substring(action.indexOf("[") + 1, action.indexOf("]"));
+        	
+        	//Invoke methods. This is a bit hacky for the moment
+        	if (condition.contains("->")) {
+        		boolean response = callHasMethod(condition);
+        		if (response) {
+        			condition = "true";
+        		} else {
+        			condition = "false";
+        		}
+        	}
+        	
         	boolean proceed = evaluateConditionForBoolean(condition);
         	if (proceed) {
         		action = action.substring(action.indexOf("]") + 2);
@@ -1267,7 +1272,6 @@ public class DungeonRoom extends UserInterfaceClass {
      * 
      * Fields skipped:
      * id - shouldn't be filled by templates.
-     * bossFight - same
      * connectedRoomIds - same
      * lighting - problem with simple/complex types
      * (all transient fields)

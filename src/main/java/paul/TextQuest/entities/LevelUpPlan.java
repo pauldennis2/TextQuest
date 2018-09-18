@@ -38,6 +38,11 @@ public class LevelUpPlan {
 
 	public void setExpAmounts(List<Integer> expAmounts) {
 		this.expAmounts = expAmounts;
+		for (int i = 1; i < expAmounts.size(); i++) {
+			if (expAmounts.get(i) < expAmounts.get(i - 1)) {
+				throw new AssertionError("Exp amounts must increase");
+			}
+		}
 	}
 
 	public Map<Integer, List<LevelUpCategory>> getLevelUpActions() {

@@ -20,7 +20,7 @@
   	"specialRoomActions":
   	{
   		"tick":"doTick",
-  		"exp":"giveExp 250"
+  		"exp":"giveExp 125"
   	}
   },
   "rooms":

@@ -213,14 +213,20 @@ public class GameController {
     @RequestMapping(path = "/startDungeon", method = RequestMethod.GET)
     public String startDungeon (@RequestParam String dungeonName, HttpSession session) {
     	System.out.println("Attempting to start dungeon with name: " + dungeonName);
-    	TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
+    	
     	
     	DungeonGroup dungeonGroup = (DungeonGroup) session.getAttribute("dungeonGroup");
     	System.out.println(dungeonGroup);
     	Map<String, DungeonInfo> dungeonInfo = dungeonGroup.getDungeonInfo();
     	String fileName = dungeonInfo.get(dungeonName).getFileLocation();
+    	TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
+    	Hero hero = (Hero) session.getAttribute("hero");
+    	if (textOut == null) {
+    		textOut = TextInterface.getInstance();
+    		session.setAttribute("textInterface", textOut);
+    	}
     	try {
-    		textOut.newDungeon(fileName);
+    		textOut.newDungeon(hero, fileName);
     		return "redirect:/game";
     	} catch (IOException ex) {
     		throw new AssertionError(ex);

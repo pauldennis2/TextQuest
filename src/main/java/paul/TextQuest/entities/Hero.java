@@ -183,10 +183,10 @@ public class Hero extends UserInterfaceClass implements Serializable {
     //This is for level-up
     public InputType show () {
         if (levelUpPlan == null) {
-            initLevelUpActionMap();
+            initLevelUpPlan();
         }
         List<Integer> levelAmts = levelUpPlan.getExpAmounts();
-        if (levelAmts.get(level) < exp) {
+        if (levelAmts.get(level) <= exp) {
             level++;
             levelUpTodo = levelUpPlan.getLevelUpActions().get(level);
             textOut.println("You are now level " + level + ". You can:");
@@ -260,6 +260,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
 
         }
         if (levelUpTodo.size() == 0) {
+        	System.out.println("returning finihsed");
             return InputType.FINISHED;
         }
         return InputType.LEVEL_UP;
@@ -268,12 +269,27 @@ public class Hero extends UserInterfaceClass implements Serializable {
     private static LevelUpPlan levelUpPlan;
     public static final String LEVEL_UP_PLAN_LOCATION = "content_files/game/leveling/default_plan.json";
     //Defines what we can do at each level (i.e. what new skills, stat increases, etc are possible)
-    private static void initLevelUpActionMap () {
+    private static void initLevelUpPlan () {
     	try {
     		levelUpPlan = LevelUpPlan.buildFromFile(LEVEL_UP_PLAN_LOCATION);
     	} catch (IOException ex) {
     		throw new AssertionError(ex);
     	}
+    }
+    
+    public void addExp (int expToAdd) {
+        if (expToAdd < 0) {
+            throw new AssertionError();
+        }
+        this.exp += expToAdd;
+        textOut.println("Gained " + expToAdd + " exp.");
+        if (levelUpPlan == null) {
+        	initLevelUpPlan();
+        }
+        if (levelUpPlan.getExpAmounts().get(level) <= exp) {
+            textOut.println("***Ding! Level up.");
+            textOut.request(this);
+        }
     }
 
     private static Hero jsonRestore(String heroJson) throws IOException {
@@ -962,19 +978,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
         }
     }
 
-    //Max level 12
-    public void addExp (int expToAdd) {
-        if (expToAdd < 0) {
-            throw new AssertionError();
-        }
-        this.exp += expToAdd;
-        textOut.println("Gained " + expToAdd + " exp.");
-        if (levelUpPlan.getExpAmounts().get(level) < exp) {
-            textOut.println("***Ding! Level up.");
-            textOut.request(this);
-        }
-    }
-
     public void takeDamage (int damage) {
         damage -= (defense / 5) * 2;
         if (damage <= 0) {
@@ -1256,9 +1259,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
 	public boolean getHasField (String methodName, String arg) {
 		System.out.println("In getHasField(). Params: methodName = " + methodName + ", arg = " + arg + ".");
 		try {
-			Arrays.stream(getClass().getMethods())
-				.map(method -> method.getName())
-				.forEach(System.out::println);
 			Method method = getClass().getDeclaredMethod(methodName, String.class);
 			return (boolean) method.invoke(this, arg);
 		} catch (ReflectiveOperationException ex) {
