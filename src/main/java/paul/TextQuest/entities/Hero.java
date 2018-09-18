@@ -121,6 +121,23 @@ public class Hero extends UserInterfaceClass implements Serializable {
         equippedItems = new HashMap<>();
         initMaps();
     }
+    
+    public Hero (Hero startingInfo, String name) {
+    	this();
+    	if (name.contains(" ") || name.contains("/")) {
+    		throw new AssertionError("Hero names cannot contain spaces or slashes. Name was: " + name);
+    	}
+    	this.name = name;
+        health = startingInfo.health;
+        maxHealth = startingInfo.maxHealth;
+        might = startingInfo.might;
+        magic = startingInfo.magic;
+        sneak = startingInfo.sneak;
+        level = startingInfo.level;
+        exp = startingInfo.exp;
+        maxSpellsPerDay = startingInfo.maxSpellsPerDay;
+        backpack = startingInfo.backpack;
+    }
 
     public Hero (String name) {
     	this();
@@ -148,8 +165,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
         noiseHelm.setOnEquip("print HELM_ON");
         noiseHelm.setOnUnequip("print HELM_OFF");
         backpack.add(noiseHelm);
-
-        initMaps();
     }
 
     @Override
@@ -387,7 +402,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
             }
         });
     }
-
 
     private void initActionMap () {
     	
@@ -748,7 +762,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         });
         possibleSpellMap.put("lightning", hero -> {
             DungeonRoom room = hero.getLocation();
-            Monster target = getRandomTarget(room.getMonsters());
+            Monster target = CollectionUtils.getRandom(room.getMonsters());
             if (target != null) {
             	hero.textOut.println(target.getName() + " took 10 lightning damage.");
                 target.takeDamage(10);
@@ -759,7 +773,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         });
         possibleSpellMap.put("ice", hero -> {
             DungeonRoom room = hero.getLocation();
-            Monster target = getRandomTarget(room.getMonsters());
+            Monster target = CollectionUtils.getRandom(room.getMonsters());
             if (target != null) {
             	hero.textOut.println(target.getName() + " took 8 cold damage and is disabled 1 round.");
                 target.takeDamage(8);
@@ -831,16 +845,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
     			hero.textOut.println("You're missing the reagent (" + reagentName + ").");
     		}
     	});
-    }
-
-    private static Monster getRandomTarget (List<Monster> monsters) {
-        if (monsters != null && monsters.size() > 1) {
-            return monsters.get(new Random().nextInt(monsters.size() - 1));
-        } else if (monsters != null && monsters.size() == 1) {
-            return monsters.get(0);
-        } else {
-            return null;
-        }
     }
 
     public void rescuePrince () {
