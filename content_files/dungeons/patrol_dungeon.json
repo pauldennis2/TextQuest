@@ -20,7 +20,8 @@
   	"specialRoomActions":
   	{
   		"tick":"doTick",
-  		"exp":"giveExp 125"
+  		"exp":"giveExp 250",
+  		"meditate":"modStat numSpellsAvailable 2"
   	}
   },
   "rooms":

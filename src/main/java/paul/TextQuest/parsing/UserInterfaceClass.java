@@ -32,6 +32,9 @@ public abstract class UserInterfaceClass extends TickTock {
     }
 
     protected InputType handleResponse (String response) {
+    	System.out.println("===");
+    	System.out.println(this);
+    	System.out.println("===");
         throw new AssertionError("This class doesn't handle responses. Method called in error");
     }
 }

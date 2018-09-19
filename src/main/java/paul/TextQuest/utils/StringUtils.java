@@ -77,6 +77,7 @@ public class StringUtils {
 	}
 	
 	public static boolean startsWithVowel (String input) {
+		input = input.toLowerCase(); //Don't try to economize this line, dummy
 		return input.toLowerCase().startsWith("a") || input.startsWith("e") || input.startsWith("i")
 				|| input.startsWith("o") || input.startsWith("u") || input.startsWith("h"); //"an historic event"
 	}

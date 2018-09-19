@@ -154,11 +154,11 @@ public class Hero extends UserInterfaceClass implements Serializable {
         maxHealth = 50;
         might = 4;
         magic = 2;
-        skillMap.put("sneak", 0);
+        skillMap.put("sneak", 0); //Kind of meaningless since it returns 0 by default...
 
         level = 0;
         exp = 0;
-        numSpellsAvailable = 5;
+        numSpellsAvailable = 1;
         maxSpellsPerDay = 1;
         EquipableItem sword = new EquipableItem("Sword");
         sword.setMightMod(1);
@@ -182,6 +182,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
     @Override
     //This is for level-up
     public InputType show () {
+    	System.err.println("**In hero.show()");
         if (levelUpPlan == null) {
             initLevelUpPlan();
         }
@@ -201,20 +202,27 @@ public class Hero extends UserInterfaceClass implements Serializable {
                     .forEach(e -> textOut.println(e));
             //Else if there are remaining level up actions to take
             //return show();
+
+            System.err.println("Leaving hero.show(), returning LEVEL UP");
             return InputType.LEVEL_UP;
         } else if (levelUpTodo != null && levelUpTodo.size() > 0) {
             LevelUpCategory category = levelUpTodo.get(0);
             textOut.println("Right now you can: " + LevelUpCategory.getPrettyName(category));
             textOut.println(LevelUpCategory.getPrompt(category));
+
+            System.err.println("Leaving hero.show(), returning LEVEL UP (else if block)");
             return InputType.LEVEL_UP;
+            
         } else {
             textOut.release(this);
+            System.err.println("Leaving hero.show(), returning FINISHED");
             return InputType.FINISHED;
         }
     }
 
     @Override
     public InputType handleResponse (String response) {
+    	System.err.println("**In hero.handleResponse() with input " + response);
         LevelUpCategory category = levelUpTodo.get(0);
         response = response.trim().toLowerCase();
         switch (category) {
@@ -1015,6 +1023,28 @@ public class Hero extends UserInterfaceClass implements Serializable {
         	//TODO : fix
             throw new AssertionError("Died from non-combat damage.");
         }
+    }
+    
+    public void modStat (String statName, int amount) {
+    	switch (statName.toLowerCase()) {
+    	case "might":
+    		mightMod += amount;
+    		break;
+    	case "defense":
+    		defenseMod += amount;
+    		break;
+    	case "magic":
+    		magicMod += amount;
+    		break;
+    	case "numSpellsAvailable":
+    		numSpellsAvailable += amount;
+    		if (numSpellsAvailable < 0) {
+    			numSpellsAvailable = 0;
+    		}
+    		break;
+		default:
+			throw new AssertionError("Stat not recognized: " + statName);
+    	}
     }
 
     

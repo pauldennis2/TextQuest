@@ -410,23 +410,11 @@ public class DungeonRoom extends UserInterfaceClass {
         
         //MultiParam Actions\\
         multiParamActionMap.put("modStat", (room, args) -> {
-        	/*
-        	room.textOut.debug("Not yet implemented");
-        	String statName = args[1];
-        	String action = args[2];
         	
-        	if (action.startsWith("+")) { //Add the amount
-        		
-        	} else if (action.startsWith("-")) { //Subtract the amount
-        		
-        	} else if (action.startsWith(":")) { //Set to this amount
-        		
-        	} else if (action.startsWith("?")) { //Randomize from 50% to 150%
-        		
-        	}*/
-        	//TODO: fix/impl
-        	room.textOut.debug("Gave hero 2 spells to work with");
-        	room.getHero().setNumSpellsAvailable(2);
+        	String statName = args[1];
+        	int amount = Integer.parseInt(args[2]);
+        	
+        	room.getHero().modStat(statName, amount);
         });
         
         multiParamActionMap.put("createHiddenItem", (room, args) -> {
