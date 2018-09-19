@@ -1,7 +1,5 @@
 package paul.TextQuest.entities;
 
-import paul.TextQuest.EnteringRoomAction;
-import paul.TextQuest.LeavingRoomAction;
 import paul.TextQuest.entities.obstacles.Chasm;
 import paul.TextQuest.entities.obstacles.Obstacle;
 import paul.TextQuest.entities.obstacles.RiddleObstacle;
