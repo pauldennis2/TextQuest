@@ -149,8 +149,8 @@ public class DungeonRoom extends UserInterfaceClass {
         });
         
         voidActionMap.put("removeChest", room -> {
+        	room.textOut.println("The " + room.chest.getName() + " vanished.");
         	room.chest = null;
-        	room.textOut.println("The chest vanished.");
         });
         
         voidActionMap.put("setDungeonCleared", room -> {
@@ -239,7 +239,7 @@ public class DungeonRoom extends UserInterfaceClass {
         paramActionMap.put("teachSpell", (room, param) -> {
         	boolean success = room.getHero().addSpell(param);
         	if (success) {
-        		room.textOut.println("Hero learned a new spell: " + param);
+        		room.textOut.println("You learned " + StringUtils.addAOrAn(StringUtils.capitalize(param)) + " spell.");
         	} else {
         		room.textOut.debug("Attempted to teach spell: " + param);
         	}

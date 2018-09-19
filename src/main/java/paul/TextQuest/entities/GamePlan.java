@@ -82,8 +82,6 @@ public class GamePlan {
 		System.out.println(plan);
 	}
 	
-	
-	
 	@Override
 	public String toString() {
 		return "GamePlan ["

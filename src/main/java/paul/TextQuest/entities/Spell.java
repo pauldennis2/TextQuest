@@ -17,6 +17,8 @@ public class Spell {
 	private String name;
 	private String key;
 	
+	private String statusString;
+	
 	private List<String> actions;
 	private List<String> reagents;
 	private List<String> prereqs;
@@ -92,6 +94,16 @@ public class Spell {
 				hero.getBackpack().remove(reagent);
 			}
 		});
+		
+		//Check status string
+		if (spell.statusString != null) {
+			if (hero.hasStatus(spell.statusString)) {
+				textOut.println("You are already affected by that spell.");
+				return;
+			} else {
+				hero.addStatus(spell.statusString);
+			}
+		}
 		
 		//Do spell actions
 		spell.getActions().forEach(location::doAction);

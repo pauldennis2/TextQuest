@@ -159,6 +159,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
 
         level = 0;
         exp = 0;
+        numSpellsAvailable = 5;
         maxSpellsPerDay = 1;
         EquipableItem sword = new EquipableItem("Sword");
         sword.setMightMod(1);
@@ -188,6 +189,12 @@ public class Hero extends UserInterfaceClass implements Serializable {
         List<Integer> levelAmts = levelUpPlan.getExpAmounts();
         if (levelAmts.get(level) <= exp) {
             level++;
+            if (levelUpPlan.levelingRestoresHealth()) {
+            	health = maxHealth;
+            }
+            if (levelUpPlan.levelingRestoresSpells()) {
+            	numSpellsAvailable = maxSpellsPerDay;
+            }
             levelUpTodo = levelUpPlan.getLevelUpActions().get(level);
             textOut.println("You are now level " + level + ". You can:");
             levelUpTodo.stream()
@@ -248,7 +255,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 String spellMatch = magicUniversity.getSpellMatch(response);
                 if (spellMatch != null) {
                     spellMap.put(spellMatch, possibleSpellMap.get(spellMatch));
-                    textOut.println("You've learned a " + spellMatch + " spell.");
+                    textOut.println("You've learned " + StringUtils.addAOrAn(StringUtils.capitalize(spellMatch)) + " spell.");
                     spellbook.add(spellMatch);
                     levelUpTodo.remove(0);
                     maxSpellsPerDay++;
@@ -923,8 +930,17 @@ public class Hero extends UserInterfaceClass implements Serializable {
     }
 
     public void printStats () {
-        textOut.println("Hero: " + name + "\nHealth: " + health + "/" + maxHealth + "  (Might, Magic, Defense) (" +
-                might + ", " + magic + ", " + defense + ") Level: " + level + ", Exp: " + exp);
+        //textOut.println("Hero: " + name + "\nHealth: " + health + "/" + maxHealth + "  (Might, Magic, Defense) (" +
+        //        might + ", " + magic + ", " + defense + ") Level: " + level + ", Exp: " + exp);
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("Hero: " + name + "\nHealth: " + health + "/" + maxHealth);
+        stringBuilder.append("\nMight: " + might);
+        stringBuilder.append(StringUtils.appendModifierWithSignInParens(mightMod));
+        stringBuilder.append("\nDefense: " + defense);
+        stringBuilder.append(StringUtils.appendModifierWithSignInParens(defenseMod));
+        stringBuilder.append("\nMagic: " + magic);
+        stringBuilder.append(StringUtils.appendModifierWithSignInParens(magicMod));
+        stringBuilder.append("\nLevel: " + level + ", Exp: " + exp);
     }
 
     private void proceed (Direction direction) {
@@ -1024,21 +1040,32 @@ public class Hero extends UserInterfaceClass implements Serializable {
         return isSneaking;
     }
 
-    //TODO: investigate. This could cause problems in serialization
-    public int getMight() {
+    public int getModdedMight() {
         return might + mightMod;
     }
 
-    public int getMagic() {
+    public int getModdedMagic() {
         return magic + magicMod;
     }
 
-    public int getSneak() {
-        return skillMap.get("sneak") + skillMods.get("sneak");
+    public int getModdedDefense() {
+        return defense + defenseMod;
     }
     
-    public int getDefense() {
-        return defense + defenseMod;
+    public int getMight() {
+		return might;
+	}
+
+	public int getMagic() {
+		return magic;
+	}
+
+	public int getDefense() {
+		return defense;
+	}
+
+	public int getSkill (String skillName) {
+    	return skillMap.get(skillName) + skillMods.get(skillName);
     }
 
     public void setDefense(int defense) {

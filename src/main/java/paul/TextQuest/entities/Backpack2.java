@@ -9,6 +9,13 @@ import java.util.List;
 
 import paul.TextQuest.utils.CountMap;
 
+/**
+ * Alternate version of the Backpack class backed with a countmap.
+ * Not yet ready for primetime.
+ * 
+ * Might be easier/better to just modify how the backpack is displayed.
+ * OK, that's *definitely* easier.
+ */
 public class Backpack2 {
 	
 	private CountMap<BackpackItem> items;

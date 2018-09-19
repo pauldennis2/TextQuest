@@ -68,7 +68,7 @@ public class NormalCombat extends UserInterfaceClass {
         if (monsters.size() > 0) {
             //Hero attacks the first monster in the list
         	if (!hero.isDisabled()) {
-	            int might = hero.getMight();
+	            int might = hero.getModdedMight();
 	            int damageRoll = random.nextInt(might + 1) + might;
 	            Monster firstMonster = monsters.get(0);
 	            double chance = calcAccuracy(might, firstMonster.getDefense());
@@ -101,7 +101,7 @@ public class NormalCombat extends UserInterfaceClass {
                 	//Monster attack
                     int monsterMight = monster.getMight();
                     int monsterDamageRoll = random.nextInt(monsterMight + 1) + monsterMight;
-                    double mChance = calcAccuracy(monsterMight, hero.getDefense());
+                    double mChance = calcAccuracy(monsterMight, hero.getModdedDefense());
                     double mRoll = Math.random();
                     if (mChance > mRoll) {
                         hero.takeDamage(monsterDamageRoll);

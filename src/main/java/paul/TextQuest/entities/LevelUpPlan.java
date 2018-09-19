@@ -16,11 +16,16 @@ import paul.TextQuest.utils.StringUtils;
 
 public class LevelUpPlan {
 	
+	private boolean levelingRestoresHealth;
+	private boolean levelingRestoresSpells;
+	
 	private List<Integer> expAmounts;
 	private Map<Integer, List<LevelUpCategory>> levelUpActions;
 	
 	public LevelUpPlan () {
 		levelUpActions = new HashMap<>();
+		levelingRestoresHealth = true;
+		levelingRestoresSpells = true;
 	}
 	
 	private static LevelUpPlan jsonRestore(String levelUpJson) throws IOException {
@@ -53,6 +58,22 @@ public class LevelUpPlan {
 		this.levelUpActions = levelUpActions;
 	}
 	
+	public boolean levelingRestoresHealth () {
+		return levelingRestoresHealth;
+	}
+	
+	public boolean levelingRestoresSpells () {
+		return levelingRestoresSpells;
+	}
+	
+	public void setLevelingRestoresHealth(boolean levelingRestoresHealth) {
+		this.levelingRestoresHealth = levelingRestoresHealth;
+	}
+
+	public void setLevelingRestoresSpells(boolean levelingRestoresSpells) {
+		this.levelingRestoresSpells = levelingRestoresSpells;
+	}
+
 	public static void main(String[] args) throws IOException {
 		System.out.println(buildFromFile("content_files/game/leveling/default_plan.json"));
 	}
