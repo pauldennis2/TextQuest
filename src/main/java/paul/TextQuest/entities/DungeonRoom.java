@@ -10,9 +10,7 @@ import paul.TextQuest.interfaces.MultiParamAction;
 import paul.TextQuest.interfaces.ParamAction;
 import paul.TextQuest.interfaces.VoidAction;
 import paul.TextQuest.interfaces.SpeechListener;
-import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.TextInterface;
-import paul.TextQuest.parsing.UserInterfaceClass;
 import paul.TextQuest.utils.StringUtils;
 import paul.TextQuest.utils.VictoryException;
 
@@ -22,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRoom extends UserInterfaceClass {
+public class DungeonRoom extends TickTock {
 
     private String name;
     private String description;
@@ -82,7 +80,6 @@ public class DungeonRoom extends UserInterfaceClass {
         hiddenItems = new HashMap<>();
         speechListeners = new ArrayList<>();
         specialRoomActions = new HashMap<>();
-        children = new ArrayList<>();
         features = new ArrayList<>();
         initUniversalSpeechListeners();
         
@@ -695,18 +692,14 @@ public class DungeonRoom extends UserInterfaceClass {
     public Set<Direction> getTravelDirections () {
         return connectedRooms.keySet();
     }
-    
-    @Override
+
     public void start (TextInterface textOut) {
-        this.textOut = textOut;
-        children = new ArrayList<>();    
+        this.textOut = textOut; 
     }
 
-    @Override
-    public InputType show () {
+    public void show () {
     	monsters.forEach(monster -> monster.addRoomReference(this));
 		describe();
-    	return InputType.NONE;
     }
 
     public void describe () {

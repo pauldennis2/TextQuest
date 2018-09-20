@@ -11,7 +11,7 @@ import paul.TextQuest.utils.StringUtils;
 /**
  * Created by pauldennis on 8/21/17.
  */
-public class NormalCombat extends UserInterfaceClass {
+public class NormalCombat {
 
     private TextInterface textOut;
     private DungeonRoom room;
@@ -38,26 +38,24 @@ public class NormalCombat extends UserInterfaceClass {
         roundNum = 1;
     }
 
-    @Override
     public void start (TextInterface textOut) {
         this.textOut = textOut;
         textOut.println("Combat started with " + StringUtils.prettyPrintList(room.getMonsters()));
     }
 
-    public InputType handleResponse (String response) {
+    public void handleResponse (String response) {
         StatementAnalysis analysis = analyzer.analyzeStatement(response);
         textOut.getRunner().doActionFromAnalysis(analysis);
 
         //If monsters remain do another combat round
         if (room.getMonsters().size() > 0) {
-            return show();
+            show();
         } else {
             endCombat();
-            return InputType.FINISHED;
         }
     }
 
-    public InputType show () {
+    public void show () {
         if (finished) {
             throw new AssertionError("Fight is over");
         }
@@ -91,7 +89,6 @@ public class NormalCombat extends UserInterfaceClass {
 
             if (monsters.size() == 0) {
                 endCombat();
-                return InputType.FINISHED;
             }
             monsters.forEach(monster -> {
                 if (monster.isDisabled()) {
@@ -129,10 +126,8 @@ public class NormalCombat extends UserInterfaceClass {
             roundNum++;
         } else {
             endCombat();
-            return InputType.FINISHED;
         }
         textOut.println("End of combat round. Take an action? Enter to proceed with no special action.");
-        return InputType.COMBAT;
     }
 
     private void endCombat () {

@@ -13,10 +13,8 @@ import paul.TextQuest.enums.LevelUpCategory;
 import paul.TextQuest.enums.SpeakingVolume;
 import paul.TextQuest.interfaces.*;
 import paul.TextQuest.new_interfaces.EquipableItem;
-import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.MagicUniversity;
 import paul.TextQuest.parsing.TextInterface;
-import paul.TextQuest.parsing.UserInterfaceClass;
 import paul.TextQuest.utils.*;
 
 import java.io.File;
@@ -32,7 +30,7 @@ import java.util.stream.Collectors;
  * Created by Paul Dennis on 8/8/2017.
  */
 
-public class Hero extends UserInterfaceClass implements Serializable {
+public class Hero implements Serializable {
 
     private String name;
 
@@ -173,15 +171,9 @@ public class Hero extends UserInterfaceClass implements Serializable {
         backpack.add(noiseHelm);
     }
 
-    @Override
-    public void start (TextInterface textOut) {
-        this.textOut = textOut;
-    }
-
     private transient List<LevelUpCategory> levelUpTodo;
-    @Override
     //This is for level-up
-    public InputType show () {
+    public void show () {
     	System.err.println("**In hero.show()");
         if (levelUpPlan == null) {
             initLevelUpPlan();
@@ -203,25 +195,18 @@ public class Hero extends UserInterfaceClass implements Serializable {
             //Else if there are remaining level up actions to take
             //return show();
 
-            System.err.println("Leaving hero.show(), returning LEVEL UP");
-            return InputType.LEVEL_UP;
         } else if (levelUpTodo != null && levelUpTodo.size() > 0) {
             LevelUpCategory category = levelUpTodo.get(0);
             textOut.println("Right now you can: " + LevelUpCategory.getPrettyName(category));
             textOut.println(LevelUpCategory.getPrompt(category));
 
-            System.err.println("Leaving hero.show(), returning LEVEL UP (else if block)");
-            return InputType.LEVEL_UP;
             
         } else {
-            textOut.release(this);
             System.err.println("Leaving hero.show(), returning FINISHED");
-            return InputType.FINISHED;
         }
     }
 
-    @Override
-    public InputType handleResponse (String response) {
+    public void handleResponse (String response) {
     	System.err.println("**In hero.handleResponse() with input " + response);
         LevelUpCategory category = levelUpTodo.get(0);
         response = response.trim().toLowerCase();
@@ -252,7 +237,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
                     levelUpTodo.remove(0);
                 } else {
                     textOut.println("Could not find a skill (only one available is sneak - try that).");
-                    return InputType.LEVEL_UP;
                 }
                 break;
 
@@ -273,11 +257,6 @@ public class Hero extends UserInterfaceClass implements Serializable {
                 break;
 
         }
-        if (levelUpTodo.size() == 0) {
-        	System.out.println("returning finihsed");
-            return InputType.FINISHED;
-        }
-        return InputType.LEVEL_UP;
     }
 
     private static LevelUpPlan levelUpPlan;
@@ -302,7 +281,7 @@ public class Hero extends UserInterfaceClass implements Serializable {
         }
         if (levelUpPlan.getExpAmounts().get(level) <= exp) {
             textOut.println("***Ding! Level up.");
-            textOut.request(this);
+            textOut.println("After the dungeon is complete you'll be able to level up");
         }
     }
 

@@ -11,7 +11,7 @@ import paul.TextQuest.entities.Hero;
  * Created by Paul Dennis on 8/16/2017.
  */
 
-public class TextInterface extends UserInterfaceClass {
+public class TextInterface {
 
     private List<String> buffer;
     private List<String> debug;
@@ -21,10 +21,6 @@ public class TextInterface extends UserInterfaceClass {
     
     private static TextInterface instance;
     
-    @Override
-    public void start (TextInterface textOut) {
-        children.forEach(child -> child.start(this));
-    }
     
     public static TextInterface getInstance () {
     	if (instance == null) {
@@ -37,7 +33,6 @@ public class TextInterface extends UserInterfaceClass {
     	buffer = new ArrayList<>();
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();
-        children = new ArrayList<>();
     }
     
     private TextInterface (Hero hero, String fileName) {
@@ -47,43 +42,14 @@ public class TextInterface extends UserInterfaceClass {
     	} catch (IOException ex) {
     		throw new AssertionError(ex);
     	}
-        children.add(runner);
-        defaultRequester = runner;
     }
     
     public void newDungeon (Hero hero, String fileName) throws IOException {
     	runner = new DungeonRunner(hero, fileName);
     	
-    	requester = runner;
     	runner.start(this);
     }
 
-    //"Please make me your child"
-    public void request (UserInterfaceClass newChild) {
-    	//textOut.debug("New request from " + newChild + " to " + this + " (me)");
-        children.add(newChild);
-        newChild.start(this);
-        requester = newChild;
-        newChild.show();
-    }
-
-    //"Please cast me adrift"
-    public void release (UserInterfaceClass orphan) {
-        boolean response = children.remove(orphan);
-        if (!response) { //If it wasn't a child, why is it asking to be released?
-            debug(orphan + " weird release request.");
-        }
-        requester = defaultRequester;
-    }
-
-
-    @Override
-    public InputType show () {
-        if (requester == null) {
-            requester = defaultRequester;
-        }
-        return requester.show();
-    }
     /**
      * Adds the given string to the debug buffer.
      * It will be printed in the debug window next time the buffer is flushed.
