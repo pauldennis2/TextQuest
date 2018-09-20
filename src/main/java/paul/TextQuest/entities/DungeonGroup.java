@@ -7,8 +7,8 @@ package paul.TextQuest.entities;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,10 +16,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 public class DungeonGroup {
 	
 	private String name;
-	private List<DungeonInfo> dungeonInfoList;
+	private Map<String, DungeonInfo> dungeonInfo;
 	
 	public DungeonGroup () {
-		dungeonInfoList = new ArrayList<>();
+		//Order matters (want to present the dungeons consistently first to last)
+		dungeonInfo = new LinkedHashMap<>();
 	}
 
 	public String getName() {
@@ -30,17 +31,12 @@ public class DungeonGroup {
 		this.name = name;
 	}
 
-	public List<DungeonInfo> getDungeonInfoList() {
-		return dungeonInfoList;
+	public Map<String, DungeonInfo> getDungeonInfo() {
+		return dungeonInfo;
 	}
 
-	public void setDungeonInfoList(List<DungeonInfo> dungeonInfoList) {
-		this.dungeonInfoList = dungeonInfoList;
-	}
-	
-	@Override
-	public String toString() {
-		return "DungeonGroup [name=" + name + ", dungeonInfoList=" + dungeonInfoList + "]";
+	public void setDungeonInfo(Map<String, DungeonInfo> dungeonInfo) {
+		this.dungeonInfo = dungeonInfo;
 	}
 
 	public static DungeonGroup buildGroupFromFile (String fileName) throws IOException {
@@ -64,55 +60,16 @@ public class DungeonGroup {
         }
     }
 	
+	
+	
+	@Override
+	public String toString() {
+		return "DungeonGroup [name=" + name + ", dungeonInfo=" + dungeonInfo + "]";
+	}
+
 	public static void main(String[] args) throws Exception {
 		DungeonGroup group = buildGroupFromFile("content_files/first_dungeon_group.json");
 		System.out.println(group);
 	}
 	
-}
-
-class DungeonInfo {
-	
-	private String name;
-	private String fileLocation;
-	private List<String> prereqs;
-	
-	public DungeonInfo () {
-		prereqs = new ArrayList<>();
-	}
-
-	public DungeonInfo(String name, String fileLocation) {
-		super();
-		this.name = name;
-		this.fileLocation = fileLocation;
-	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-
-	public String getFileLocation() {
-		return fileLocation;
-	}
-
-	public void setFileLocation(String fileLocation) {
-		this.fileLocation = fileLocation;
-	}
-
-	public List<String> getPrereqs() {
-		return prereqs;
-	}
-
-	public void setPrereqs(List<String> prereqs) {
-		this.prereqs = prereqs;
-	}
-
-	@Override
-	public String toString() {
-		return "DungeonInfo [name=" + name + ", fileLocation=" + fileLocation + ", prereqs=" + prereqs + "]";
-	}
 }

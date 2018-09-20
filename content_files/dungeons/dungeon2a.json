@@ -1,0 +1,15 @@
+{
+	"dungeonName":"Dungeon 2A",
+	"description":"First of two available dungeons after first",
+	"rooms":
+	[
+		{
+			"name":"Entryway",
+			"id":1,
+			"specialRoomActions":
+			{
+				"win":"setDungeonCleared"
+			}
+		}
+	]
+}

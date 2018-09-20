@@ -2,9 +2,9 @@ package paul.TextQuest.entities.obstacles;
 
 import java.util.List;
 
+import paul.TextQuest.TextInterface;
 import paul.TextQuest.entities.Feature;
 import paul.TextQuest.entities.Hero;
-import paul.TextQuest.parsing.TextInterface;
 
 /**
  * Created by Paul Dennis on 9/5/2017.

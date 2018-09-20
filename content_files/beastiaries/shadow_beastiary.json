@@ -1,0 +1,20 @@
+{
+	"monsterMap":
+	{
+		"Shadow":
+	  	{
+	  		"name":"Shadow",
+	  		"health": 8,
+	  		"might":2,
+	  		"defense":1,
+	  		"onDeath":"addToDungeonValue numShadowsKilled 1;print \"You feel a barrier weakening.\""
+	  	},
+	  	"MiniShadow":
+	  	{
+	  		"name":"Small Shadow",
+	  		"health":4,
+	  		"might":1,
+	  		"defense":0
+	  	}
+	}
+}

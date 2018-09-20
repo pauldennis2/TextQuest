@@ -35,6 +35,8 @@ public class BackpackItem extends DungeonRoomEntity {
     
     private int numCharges;
     private String onUse;
+    
+    private String description;
 
     public BackpackItem () {
 
@@ -153,6 +155,14 @@ public class BackpackItem extends DungeonRoomEntity {
 
 	public void setOnUse(String onUse) {
 		this.onUse = onUse;
+	}
+
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
     
     

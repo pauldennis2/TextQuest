@@ -29,7 +29,7 @@ public class SmashableObstacle extends Obstacle {
     public boolean attempt (String input, Hero hero) {
         DungeonRoom room = hero.getLocation();
         //assert: input should = "smash"
-        if (hero.getMight() >= requiredMight) {
+        if (hero.getModdedMight() >= requiredMight) {
             this.setCleared(true);
             if (onSmash != null) {
                 room.doAction(onSmash);

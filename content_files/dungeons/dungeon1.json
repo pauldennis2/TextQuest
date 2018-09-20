@@ -1,0 +1,29 @@
+{
+	"dungeonName":"WTF Dungeon 1",
+	"description":"First dungeon",
+	"rooms":
+	[
+		{
+			"name":"Entryway",
+			"id":1,
+			"specialRoomActions":
+			{
+				"win":"setDungeonCleared",
+				"rename":"setDungeonName {hero.name}",
+				"stamp":"changeRoomName {hero.name}"
+			},
+			"connectedRoomIds":
+			{
+				"EAST":2
+			}
+		},
+		{
+			"name":"{hero.name}'s Bedroom",
+			"id":2,
+			"connectedRoomIds":
+			{
+				"WEST":1
+			}
+		}
+	]
+}

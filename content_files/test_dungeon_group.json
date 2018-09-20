@@ -1,0 +1,34 @@
+{
+	"name":"Test Group of Dungeons",
+	"dungeonInfo":
+	{
+		"Patrol Dungeon":
+		{
+			"fileLocation":"content_files/dungeons/patrol_dungeon.json"
+		},
+		"Dungeon 2A":
+		{
+			"fileLocation":"content_files/dungeons/dungeon2a.json",
+			"prereqs":
+			[
+				"Dungeon 1"
+			]
+		},
+		"Dungeon 2B":
+		{
+			"fileLocation":"content_files/dungeons/dungeon2b.json",
+			"prereqs":
+			[
+				"Dungeon 1"
+			]
+		},
+		"Dungeon 3":
+		{
+			"fileLocation":"content_files/dungeons/dungeon3.json",
+			"prereqs":
+			[
+				"Dungeon 2A", "Dungeon 2B"
+			]
+		}
+	}
+}
