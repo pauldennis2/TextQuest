@@ -22,6 +22,7 @@
 		{
 			"name":"Minor Aegis",
 			"key":"aegis",
+			"statusString":"aegis",
 			"targetType":"SELF",
 			"actions":["modStat defense +5"],
 			"prereqs":["shielding"]
@@ -77,6 +78,7 @@
 		{
 			"name":"Shadow Cloak",
 			"key":"shadowcloak",
+			"statusString":"shadowcloak",
 			"targetType":"SELF",
 			"actions":["modStat stealth +5"],
 			"prereqs":["shadow"]
@@ -85,6 +87,7 @@
 		{
 			"name":"Fireshield",
 			"key":"fireshield",
+			"statusString":"fireshield",
 			"targetType":"SELF",
 			"actions":["print \"You're protected from fire.\""],
 			"prereqs":["fire", "shielding"],

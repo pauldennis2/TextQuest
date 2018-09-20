@@ -2,8 +2,9 @@ package paul.TextQuest.entities;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import paul.TextQuest.DungeonRunner;
+import paul.TextQuest.TextInterface;
 import paul.TextQuest.enums.Direction;
-import paul.TextQuest.parsing.TextInterface;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,6 +33,9 @@ public class Dungeon extends MetaLocation {
     
     private Integer entranceRoomId;
 
+    private DungeonRoom template;
+    
+    
     private transient boolean cleared;
     private transient DungeonRoom entrance;
     private Map<String, Integer> levels;
@@ -42,7 +46,8 @@ public class Dungeon extends MetaLocation {
     private transient Map<String, String> dungeonVariables;
     private transient Map<String, Integer> dungeonValues;
     
-    private DungeonRoom template;
+    
+    private transient DungeonRunner dungeonRunner; 
 
     public Dungeon () {
         rooms = new ArrayList<>();
@@ -102,7 +107,8 @@ public class Dungeon extends MetaLocation {
     	});
     }
 
-    public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
+   public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
+	   	System.err.println("Building from file: " + fileName);
         Dungeon restored = jsonRestore(readFromFile(fileName));
         restored.connectRooms();
         return restored;
@@ -189,7 +195,7 @@ public class Dungeon extends MetaLocation {
     		//Check triggers
     		Map<String, Map<String, String>> metaMap = room.getMetaMap();
     		Hero hero = new Hero("Tester");
-    		TextInterface textOut = TextInterface.getInstance(hero);
+    		TextInterface textOut = TextInterface.getInstance();
     		hero.setTextOut(textOut);
     		room.setHero(hero);
     		for (String mapName : metaMap.keySet()) {
@@ -199,7 +205,7 @@ public class Dungeon extends MetaLocation {
     			}
     			for (String trigger : triggers.keySet()) {
     				try {
-    					room.start(textOut);
+    					room.setTextOut(textOut);
     					room.doAction(triggers.get(trigger));
     				} catch (Throwable t) {
     					triggerWarnings.add("Warning: exception on trigger " + trigger + " in " + mapName + ". " +
@@ -228,7 +234,7 @@ public class Dungeon extends MetaLocation {
     	messages.forEach(System.out::println);
     }
     
-    public void setDungeonVar (String name, String variable) {
+    public void setDungeonVariable (String name, String variable) {
     	try {
     		Integer val = Integer.parseInt(variable);
     		dungeonValues.put(name, val);
@@ -237,7 +243,7 @@ public class Dungeon extends MetaLocation {
     	}
     }
     
-    public void addToDungeonVal (String name, int amount) {
+    public void addToDungeonValue (String name, int amount) {
     	if (dungeonValues.containsKey(name)) {
     		dungeonValues.put(name, dungeonValues.get(name) + amount);
     	} else {
@@ -391,5 +397,13 @@ public class Dungeon extends MetaLocation {
 	public void setEntranceRoomId (int entranceRoomId) {
 		this.entranceRoomId = entranceRoomId;
 	}
-    
+
+	public DungeonRunner getDungeonRunner() {
+		return dungeonRunner;
+	}
+
+	public void setDungeonRunner(DungeonRunner dungeonRunner) {
+		this.dungeonRunner = dungeonRunner;
+	}
+	
 }

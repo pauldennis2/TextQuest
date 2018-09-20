@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import paul.TextQuest.DungeonRunner;
+import paul.TextQuest.TextInterface;
 import paul.TextQuest.enums.BehaviorTiming;
 import paul.TextQuest.parsing.*;
 import paul.TextQuest.utils.StringUtils;
@@ -11,9 +13,10 @@ import paul.TextQuest.utils.StringUtils;
 /**
  * Created by pauldennis on 8/21/17.
  */
-public class NormalCombat extends UserInterfaceClass {
+public class NormalCombat {
 
     private TextInterface textOut;
+    private DungeonRunner dungeonRunner;
     private DungeonRoom room;
     private Random random;
     private StatementAnalyzer analyzer;
@@ -28,7 +31,7 @@ public class NormalCombat extends UserInterfaceClass {
     
     private int roundNum;
 
-    public NormalCombat (DungeonRoom room) {
+    public NormalCombat (DungeonRunner dungeonRunner, DungeonRoom room) {
         this.room = room;
         random = new Random();
         analyzer = StatementAnalyzer.getInstance();
@@ -36,28 +39,25 @@ public class NormalCombat extends UserInterfaceClass {
                 .mapToInt(Monster::getExp)
                 .sum();
         roundNum = 1;
-    }
-
-    @Override
-    public void start (TextInterface textOut) {
-        this.textOut = textOut;
+        this.dungeonRunner = dungeonRunner;
+        this.textOut = dungeonRunner.getTextOut();
         textOut.println("Combat started with " + StringUtils.prettyPrintList(room.getMonsters()));
     }
 
-    public InputType handleResponse (String response) {
+
+    public void handleResponse (String response) {
         StatementAnalysis analysis = analyzer.analyzeStatement(response);
-        textOut.getRunner().doActionFromAnalysis(analysis);
+        dungeonRunner.doActionFromAnalysis(analysis);
 
         //If monsters remain do another combat round
         if (room.getMonsters().size() > 0) {
-            return show();
+            show();
         } else {
             endCombat();
-            return InputType.FINISHED;
         }
     }
 
-    public InputType show () {
+    public void show () {
         if (finished) {
             throw new AssertionError("Fight is over");
         }
@@ -68,7 +68,7 @@ public class NormalCombat extends UserInterfaceClass {
         if (monsters.size() > 0) {
             //Hero attacks the first monster in the list
         	if (!hero.isDisabled()) {
-	            int might = hero.getMight();
+	            int might = hero.getModdedMight();
 	            int damageRoll = random.nextInt(might + 1) + might;
 	            Monster firstMonster = monsters.get(0);
 	            double chance = calcAccuracy(might, firstMonster.getDefense());
@@ -91,7 +91,6 @@ public class NormalCombat extends UserInterfaceClass {
 
             if (monsters.size() == 0) {
                 endCombat();
-                return InputType.FINISHED;
             }
             monsters.forEach(monster -> {
                 if (monster.isDisabled()) {
@@ -101,7 +100,7 @@ public class NormalCombat extends UserInterfaceClass {
                 	//Monster attack
                     int monsterMight = monster.getMight();
                     int monsterDamageRoll = random.nextInt(monsterMight + 1) + monsterMight;
-                    double mChance = calcAccuracy(monsterMight, hero.getDefense());
+                    double mChance = calcAccuracy(monsterMight, hero.getModdedDefense());
                     double mRoll = Math.random();
                     if (mChance > mRoll) {
                         hero.takeDamage(monsterDamageRoll);
@@ -129,10 +128,8 @@ public class NormalCombat extends UserInterfaceClass {
             roundNum++;
         } else {
             endCombat();
-            return InputType.FINISHED;
         }
         textOut.println("End of combat round. Take an action? Enter to proceed with no special action.");
-        return InputType.COMBAT;
     }
 
     private void endCombat () {
@@ -146,6 +143,7 @@ public class NormalCombat extends UserInterfaceClass {
         room.doAction("print Health:{hero.health}/{hero.maxHealth}"); //This is a cute wiring workaround
         expCalc = 0;
         finished = true;
+        dungeonRunner.endCombat();
     }
 
     public static final double BASE_ACCURACY = 0.8;
@@ -159,5 +157,9 @@ public class NormalCombat extends UserInterfaceClass {
     
     public void setOnCombatEnd (String onCombatEnd) {
     	this.onCombatEnd = onCombatEnd;
+    }
+    
+    public boolean isFinished () {
+    	return finished;
     }
 }

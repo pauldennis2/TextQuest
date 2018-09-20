@@ -2,6 +2,7 @@ package paul.TextQuest.entities;
 
 import paul.TextQuest.enums.BehaviorTiming;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
@@ -36,12 +37,15 @@ public class Monster extends DungeonRoomEntity {
 
     public Monster () {
         name = "Biff the Understudy";
+        behavior = new HashMap<>();
     }
 
     public Monster(int health, int might, String name) {
         this.health = health;
         this.might = might;
         this.name = name;
+        
+        behavior = new HashMap<>();
     }
     
     /**
@@ -64,6 +68,8 @@ public class Monster extends DungeonRoomEntity {
     	might = getModdedStat(might, 0);
     	health = getModdedStat(health, 1);
     	defense = getModdedStat(defense, 0);
+    	
+    	behavior = new HashMap<>();
     }
     
     /**

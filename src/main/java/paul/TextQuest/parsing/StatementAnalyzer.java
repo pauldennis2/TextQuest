@@ -141,7 +141,7 @@ public class StatementAnalyzer {
                 }
             } else if (actionWord.equals("use")) {
             	String[] tokens = analysis.getTokens();
-            	List<String> itemNames = location.getHero().getBackpack().getItems().stream()
+            	List<String> itemNames = location.getHero().getBackpack().stream()
             			.map(item -> item.getName().toLowerCase())
             			.collect(Collectors.toList());
             	List<String> matches = Arrays.stream(tokens)

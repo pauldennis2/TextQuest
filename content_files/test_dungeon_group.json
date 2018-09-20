@@ -2,9 +2,9 @@
 	"name":"Test Group of Dungeons",
 	"dungeonInfo":
 	{
-		"Dungeon 1":
+		"Patrol Dungeon":
 		{
-			"fileLocation":"content_files/dungeons/dungeon1.json"
+			"fileLocation":"content_files/dungeons/patrol_dungeon.json"
 		},
 		"Dungeon 2A":
 		{

@@ -9,13 +9,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import paul.TextQuest.TextInterface;
 import paul.TextQuest.enums.SpellTargetType;
-import paul.TextQuest.parsing.TextInterface;
 
 public class Spell {
 	
 	private String name;
 	private String key;
+	
+	private String statusString;
 	
 	private List<String> actions;
 	private List<String> reagents;
@@ -93,6 +95,16 @@ public class Spell {
 			}
 		});
 		
+		//Check status string
+		if (spell.statusString != null) {
+			if (hero.hasStatus(spell.statusString)) {
+				textOut.println("You are already affected by that spell.");
+				return;
+			} else {
+				hero.addStatus(spell.statusString);
+			}
+		}
+		
 		//Do spell actions
 		spell.getActions().forEach(location::doAction);
 	}
@@ -152,6 +164,10 @@ public class Spell {
 
 	public void setRequiredItems(List<String> requiredItems) {
 		this.requiredItems = requiredItems;
+	}
+	
+	public void setStatusString (String statusString) {
+		this.statusString = statusString;
 	}
 
 	@Override

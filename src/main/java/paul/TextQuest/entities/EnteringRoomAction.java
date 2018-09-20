@@ -2,7 +2,7 @@
  * @author Paul Dennis
  * Aug 28, 2018
  */
-package paul.TextQuest;
+package paul.TextQuest.entities;
 
 public class EnteringRoomAction {
 	

@@ -1,4 +1,4 @@
-package paul.TextQuest;
+package paul.TextQuest.entities;
 
 
 /**
