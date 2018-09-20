@@ -1,5 +1,6 @@
 package paul.TextQuest.entities;
 
+import paul.TextQuest.TextInterface;
 import paul.TextQuest.entities.obstacles.Chasm;
 import paul.TextQuest.entities.obstacles.Obstacle;
 import paul.TextQuest.entities.obstacles.RiddleObstacle;
@@ -10,7 +11,6 @@ import paul.TextQuest.interfaces.MultiParamAction;
 import paul.TextQuest.interfaces.ParamAction;
 import paul.TextQuest.interfaces.VoidAction;
 import paul.TextQuest.interfaces.SpeechListener;
-import paul.TextQuest.parsing.TextInterface;
 import paul.TextQuest.utils.StringUtils;
 import paul.TextQuest.utils.VictoryException;
 

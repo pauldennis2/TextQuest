@@ -12,7 +12,6 @@ import paul.TextQuest.entities.Dungeon;
 import paul.TextQuest.entities.DungeonGroup;
 import paul.TextQuest.entities.DungeonInfo;
 import paul.TextQuest.entities.Hero;
-import paul.TextQuest.parsing.TextInterface;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -79,8 +78,8 @@ public class GameController {
     	model.addAttribute("username", username);
     	
     	DungeonRunner dungeonRunner = (DungeonRunner) session.getAttribute("dungeonRunner");
-    	TextInterface textOut = dungeonRunner.getTextOut();
-    	addOutputTextToModel(model, textOut);
+    	dungeonRunner.show();
+    	addOutputTextToModel(model, dungeonRunner.getTextOut());
     	
         model.addAttribute("location", dungeonRunner.getDungeon().getDungeonName());
         model.addAttribute("roomName", "  " + dungeonRunner.getHero().getLocation().getName());

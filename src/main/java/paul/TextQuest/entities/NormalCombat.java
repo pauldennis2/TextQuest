@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Random;
 
 import paul.TextQuest.DungeonRunner;
+import paul.TextQuest.TextInterface;
 import paul.TextQuest.enums.BehaviorTiming;
 import paul.TextQuest.parsing.*;
 import paul.TextQuest.utils.StringUtils;
@@ -142,6 +143,7 @@ public class NormalCombat {
         room.doAction("print Health:{hero.health}/{hero.maxHealth}"); //This is a cute wiring workaround
         expCalc = 0;
         finished = true;
+        dungeonRunner.endCombat();
     }
 
     public static final double BASE_ACCURACY = 0.8;
@@ -155,5 +157,9 @@ public class NormalCombat {
     
     public void setOnCombatEnd (String onCombatEnd) {
     	this.onCombatEnd = onCombatEnd;
+    }
+    
+    public boolean isFinished () {
+    	return finished;
     }
 }

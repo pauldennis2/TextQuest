@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import paul.TextQuest.TextInterface;
 import paul.TextQuest.entities.obstacles.Obstacle;
 import paul.TextQuest.entities.obstacles.SmashableObstacle;
 import paul.TextQuest.enums.Direction;
@@ -14,7 +15,6 @@ import paul.TextQuest.enums.SpeakingVolume;
 import paul.TextQuest.interfaces.*;
 import paul.TextQuest.new_interfaces.EquipableItem;
 import paul.TextQuest.parsing.MagicUniversity;
-import paul.TextQuest.parsing.TextInterface;
 import paul.TextQuest.utils.*;
 
 import java.io.File;
@@ -613,7 +613,7 @@ public class Hero implements Serializable {
                     action.doAction(this);
                     numSpellsAvailable--;
                 } else {
-                    textOut.println("You do not know a " + param + " spell.");
+                    textOut.println("You do not know " + StringUtils.addAOrAn(StringUtils.capitalize(param)) + " spell.");
                 }
             }
         });

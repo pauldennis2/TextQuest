@@ -3,8 +3,8 @@ package paul.TextQuest.entities;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import paul.TextQuest.DungeonRunner;
+import paul.TextQuest.TextInterface;
 import paul.TextQuest.enums.Direction;
-import paul.TextQuest.parsing.TextInterface;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -1,4 +1,4 @@
-package paul.TextQuest.parsing;
+package paul.TextQuest;
 
 import java.util.ArrayList;
 import java.util.List;

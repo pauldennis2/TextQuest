@@ -7,7 +7,6 @@ import paul.TextQuest.entities.Hero;
 import paul.TextQuest.entities.NormalCombat;
 import paul.TextQuest.parsing.StatementAnalysis;
 import paul.TextQuest.parsing.StatementAnalyzer;
-import paul.TextQuest.parsing.TextInterface;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -39,6 +38,7 @@ public class DungeonRunner  {
     	textOut = TextInterface.getInstance();
         currentRoom = dungeon.getEntrance();
         textOut.println(dungeon.getDescription());
+        hero.setTextOut(textOut);
 
         hero.setLocation(currentRoom);
          
@@ -115,6 +115,17 @@ public class DungeonRunner  {
         if (currentRoom.getOnCombatEnd() != null) {
         	normalCombat.setOnCombatEnd(currentRoom.getOnCombatEnd());
         }
+    }
+    
+    public void endCombat () {
+    	if (normalCombat == null) {
+    		throw new AssertionError("No combat to end");
+    	}
+    	if (normalCombat.isFinished()) {
+    		normalCombat = null;
+    	} else {
+    		throw new AssertionError("Combat didn't think it was finished");
+    	}
     }
 
 }
