@@ -5,21 +5,17 @@ import paul.TextQuest.entities.Dungeon;
 import paul.TextQuest.entities.DungeonRoom;
 import paul.TextQuest.entities.Hero;
 import paul.TextQuest.entities.NormalCombat;
-import paul.TextQuest.parsing.InputType;
 import paul.TextQuest.parsing.StatementAnalysis;
 import paul.TextQuest.parsing.StatementAnalyzer;
-import paul.TextQuest.parsing.TextInterface;
-import paul.TextQuest.parsing.UserInterfaceClass;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRunner extends UserInterfaceClass {
+public class DungeonRunner  {
 
     private Dungeon dungeon;
     private Hero hero;
@@ -31,29 +27,26 @@ public class DungeonRunner extends UserInterfaceClass {
 
     private static final List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue", "search");
     
+    private TextInterface textOut;
+    
     public DungeonRunner(Hero hero, String fileName) throws IOException {
     	this.hero = hero;
     	analyzer = StatementAnalyzer.getInstance();
     	dungeon = Dungeon.buildDungeonFromFile(fileName);
-    }
-
-    @Override
-    public void start (TextInterface textOut) {
-        this.textOut = textOut;
+    	dungeon.setDungeonRunner(this);
+    	
+    	textOut = TextInterface.getInstance();
         currentRoom = dungeon.getEntrance();
         textOut.println(dungeon.getDescription());
-        children = new ArrayList<>(dungeon.getRooms());
-        children.add(hero);
-        children.forEach(child -> child.start(textOut));
+        hero.setTextOut(textOut);
 
         hero.setLocation(currentRoom);
-        
+         
         //Temporary
         hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
     }
 
-    @Override
-    protected InputType handleResponse (String response) {
+    protected void handleResponse (String response) {
         StatementAnalysis analysis = analyzer.analyzeStatement(response, currentRoom);
         doActionFromAnalysis(analysis);
         if (analysis.hasAnd() && analysis.isSecondActionable()) {
@@ -65,43 +58,14 @@ public class DungeonRunner extends UserInterfaceClass {
             textOut.debug(analysis);
             doActionFromAnalysis(analysis);
         }
-        return InputType.NONE;
     }
 
-    @Override
-    public InputType show () {
+    public void show () {
         if (normalCombat == null) {
-            InputType type = currentRoom.show();
-
-            if (type != InputType.NONE) {
-                switch (type) {
-                    case STD:
-                        textOut.println("What would you like to do?");
-                        break;
-                    case NUMBER:
-                        textOut.println("Please enter a number.");
-                        break;
-                    case SOLUTION_STRING:
-                        textOut.println("Please enter your solution.");
-                        textOut.tutorial("Try \"jump before\"!");
-                        break;
-                    default:
-                    	textOut.debug("Encountered a problem. Unexpected input type: " + type);
-                    	break;
-                }
-                requester = currentRoom;
-            }
-            return type;
+        	currentRoom.setTextOut(textOut);
+            currentRoom.show();
         } else {
-            InputType type = normalCombat.show();
-            if (type == InputType.FINISHED) {
-                normalCombat = null;
-                return InputType.STD;
-            } else if (type == InputType.COMBAT) {
-                return type;
-            } else {
-                throw new AssertionError("Type should be one of two above cases.");
-            }
+            normalCombat.show();
         }
     }
 
@@ -143,7 +107,7 @@ public class DungeonRunner extends UserInterfaceClass {
     }
 
     public void startCombat () {
-        normalCombat = new NormalCombat(currentRoom);
+        normalCombat = new NormalCombat(this, currentRoom);
         if (currentRoom.getOnCombatStart() != null) {
         	String action = currentRoom.getOnCombatStart();
         	currentRoom.doAction(action);
@@ -151,7 +115,17 @@ public class DungeonRunner extends UserInterfaceClass {
         if (currentRoom.getOnCombatEnd() != null) {
         	normalCombat.setOnCombatEnd(currentRoom.getOnCombatEnd());
         }
-        normalCombat.start(textOut);
+    }
+    
+    public void endCombat () {
+    	if (normalCombat == null) {
+    		throw new AssertionError("No combat to end");
+    	}
+    	if (normalCombat.isFinished()) {
+    		normalCombat = null;
+    	} else {
+    		throw new AssertionError("Combat didn't think it was finished");
+    	}
     }
 
 }

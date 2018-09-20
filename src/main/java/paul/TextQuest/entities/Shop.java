@@ -1,6 +1,6 @@
 package paul.TextQuest.entities;
 
-import paul.TextQuest.parsing.TextInterface;
+import paul.TextQuest.TextInterface;
 import paul.TextQuest.utils.SafeNumScanner;
 
 import java.util.ArrayList;

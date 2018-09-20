@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import paul.TextQuest.TextInterface;
 import paul.TextQuest.enums.SpellTargetType;
-import paul.TextQuest.parsing.TextInterface;
 
 public class Spell {
 	
