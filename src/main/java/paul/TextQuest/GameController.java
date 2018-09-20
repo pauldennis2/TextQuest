@@ -24,7 +24,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,9 +38,8 @@ public class GameController {
     private Map<String, String> userMap;
     
     public static final String USERS_FILE = "save_data/users.txt";
+    public static final String DUNGEON_GROUP_LOCATION = "content_files/test_dungeon_group.json";
     
-    public static final List<String> DUNGEON_NAMES = Arrays.asList("Lair of Pihop-pi", "Darklight Dungeon", "The Third Dungeon");
-
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public String home () {
         return "index";
@@ -78,30 +76,12 @@ public class GameController {
     	if (username == null) {
     		return "redirect:/login";
     	}
+    	model.addAttribute("username", username);
     	
     	DungeonRunner dungeonRunner = (DungeonRunner) session.getAttribute("dungeonRunner");
     	TextInterface textOut = dungeonRunner.getTextOut();
-
-        List<String> output = textOut.flush();
-        List<String> debug = textOut.flushDebug();
-        if (output.size() == 0) {
-            debug.add("There was no content in the buffer");
-        }
-        List<String> tutorial = textOut.flushTutorial();
-        if (tutorial.size() > 0 && tutorial.get(0) == null) {
-            tutorial = null;
-        }
-
-        model.addAttribute("outputText", output);
-        model.addAttribute("username", session.getAttribute("username"));
-
-        if (tutorial != null && tutorial.size() > 0) {
-            model.addAttribute("tutorial", tutorial);
-        }
-
-        if (debug != null && debug.size() > 0) {
-            model.addAttribute("debugText", debug);
-        }
+    	addOutputTextToModel(model, textOut);
+    	
         model.addAttribute("location", dungeonRunner.getDungeon().getDungeonName());
         model.addAttribute("roomName", "  " + dungeonRunner.getHero().getLocation().getName());
         return "game";
@@ -136,6 +116,7 @@ public class GameController {
         if (!userInput.equals("")) {
             textOut.debug("You entered: \"" + userInput + "\"");
         }
+        //TODO - temporary code. Change/remove
         if (userInput.equals("leave")) {
         	textOut.debug("~Leave command detected.");
         	Dungeon dungeon = runner.getDungeon();
@@ -230,7 +211,6 @@ public class GameController {
     	}
     }
     
-    public static final String DUNGEON_GROUP_LOCATION = "content_files/test_dungeon_group.json";
     private static DungeonGroup buildDungeonGroup () {
     	try {
     		return DungeonGroup.buildGroupFromFile(DUNGEON_GROUP_LOCATION);
@@ -262,5 +242,28 @@ public class GameController {
 		model.addAttribute("clearedDungeons", clearedDungeons);
 		model.addAttribute("availableDungeons", availableDungeons);
 		model.addAttribute("unavailableDungeons", unavailableDungeons);
+    }
+    
+    private static void addOutputTextToModel (Model model, TextInterface textOut) {
+    	List<String> output = textOut.flush();
+        List<String> debug = textOut.flushDebug();
+        if (output.size() == 0) {
+            debug.add("There was no content in the buffer");
+        }
+        List<String> tutorial = textOut.flushTutorial();
+        if (tutorial.size() > 0 && tutorial.get(0) == null) {
+            tutorial = null;
+        }
+
+        model.addAttribute("outputText", output);
+        
+
+        if (tutorial != null && tutorial.size() > 0) {
+            model.addAttribute("tutorial", tutorial);
+        }
+
+        if (debug != null && debug.size() > 0) {
+            model.addAttribute("debugText", debug);
+        }
     }
 }

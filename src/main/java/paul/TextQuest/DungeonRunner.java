@@ -34,6 +34,7 @@ public class DungeonRunner  {
     	this.hero = hero;
     	analyzer = StatementAnalyzer.getInstance();
     	dungeon = Dungeon.buildDungeonFromFile(fileName);
+    	dungeon.setDungeonRunner(this);
     	
     	textOut = TextInterface.getInstance();
         currentRoom = dungeon.getEntrance();
@@ -61,6 +62,7 @@ public class DungeonRunner  {
 
     public void show () {
         if (normalCombat == null) {
+        	currentRoom.setTextOut(textOut);
             currentRoom.show();
         } else {
             normalCombat.show();

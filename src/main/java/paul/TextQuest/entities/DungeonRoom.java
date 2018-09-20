@@ -130,7 +130,9 @@ public class DungeonRoom extends TickTock {
                     miniboss.setDefense(12);
                 });
         });
-        voidActionMap.put("startFight", room -> room.getHero().takeAction("fight"));
+        voidActionMap.put("startFight", room -> {
+        	room.getDungeon().getDungeonRunner().startCombat();
+        });
         voidActionMap.put("victory", room -> {
             throw new VictoryException("You win!");
         });
@@ -490,7 +492,7 @@ public class DungeonRoom extends TickTock {
         
         multiParamActionMap.put("setDungeonVariable", (room, args) -> {
         	Dungeon dungeon = room.getDungeon();
-        	dungeon.setDungeonVar(args[1], args[2]);
+        	dungeon.setDungeonVariable(args[1], args[2]);
         	room.textOut.debug("Vars: Set " + args[1] + " to " + args[2]);
         	if (dungeon.getOnVariableSet().get(args[1]) != null) {
         		room.doAction(dungeon.getOnVariableSet().get(args[1]));
@@ -499,7 +501,7 @@ public class DungeonRoom extends TickTock {
         
         multiParamActionMap.put("setDungeonValue", (room, args) -> {
         	Dungeon dungeon = room.getDungeon();
-        	dungeon.setDungeonVar(args[1], args[2]);
+        	dungeon.setDungeonVariable(args[1], args[2]);
         	room.textOut.debug("Vars: Set " + args[1] + " to " + args[2]);
         	if (dungeon.getOnVariableSet().get(args[1]) != null) {
         		room.doAction(dungeon.getOnVariableSet().get(args[1]));
@@ -508,7 +510,7 @@ public class DungeonRoom extends TickTock {
         
         multiParamActionMap.put("addToDungeonValue", (room, args) -> {
         	Dungeon dungeon = room.getDungeon();
-        	dungeon.addToDungeonVal(args[1], Integer.parseInt(args[2]));
+        	dungeon.addToDungeonValue(args[1], Integer.parseInt(args[2]));
         	room.textOut.debug("Vars: Added " + args[2] + " to " + args[1]);
         	if (room.getDungeon().getOnVariableSet().get(args[1]) != null) {
         		room.doAction(dungeon.getOnVariableSet().get(args[1]));
@@ -693,7 +695,7 @@ public class DungeonRoom extends TickTock {
         return connectedRooms.keySet();
     }
 
-    public void start (TextInterface textOut) {
+    public void setTextOut (TextInterface textOut) {
         this.textOut = textOut; 
     }
 
