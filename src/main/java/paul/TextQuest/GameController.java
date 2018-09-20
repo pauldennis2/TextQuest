@@ -102,9 +102,8 @@ public class GameController {
         if (debug != null && debug.size() > 0) {
             model.addAttribute("debugText", debug);
         }
-        model.addAttribute("location", textOut.getRunner().getDungeon().getDungeonName());
-        model.addAttribute("roomName", "  " + textOut.getRunner().getHero().getLocation().getName());
-        System.err.println(textOut.getRunner().getHero().getLocation());
+        model.addAttribute("location", dungeonRunner.getDungeon().getDungeonName());
+        model.addAttribute("roomName", "  " + dungeonRunner.getHero().getLocation().getName());
         return "game";
     }
     
@@ -142,9 +141,9 @@ public class GameController {
         	Dungeon dungeon = runner.getDungeon();
         	System.err.println(dungeon);
         	System.err.println("dungeon.isCleared() = " + dungeon.isCleared());
-        	if (textOut.getRunner().getDungeon().isCleared()) {
+        	if (runner.getDungeon().isCleared()) {
         		textOut.debug("~And dungeon is cleared.");
-        		Hero hero = textOut.getRunner().getHero();
+        		Hero hero = runner.getHero();
         		String username = (String) session.getAttribute("username");
         		Hero.saveHeroToFile(username, hero);
         		return "airship";
@@ -182,19 +181,13 @@ public class GameController {
     public String startDungeon (@RequestParam String dungeonName, HttpSession session) {
     	System.out.println("Attempting to start dungeon with name: " + dungeonName);
     	
-    	
     	DungeonGroup dungeonGroup = (DungeonGroup) session.getAttribute("dungeonGroup");
-    	System.out.println(dungeonGroup);
-    	Map<String, DungeonInfo> dungeonInfo = dungeonGroup.getDungeonInfo();
-    	String fileName = dungeonInfo.get(dungeonName).getFileLocation();
-    	TextInterface textOut = (TextInterface) session.getAttribute("textInterface");
+    	String fileName = dungeonGroup.getDungeonInfo().get(dungeonName).getFileLocation();
     	Hero hero = (Hero) session.getAttribute("hero");
-    	if (textOut == null) {
-    		textOut = TextInterface.getInstance();
-    		session.setAttribute("textInterface", textOut);
-    	}
+
     	try {
-    		textOut.newDungeon(hero, fileName);
+    		DungeonRunner dungeonRunner = new DungeonRunner(hero, fileName);
+    		session.setAttribute("dungeonRunner", dungeonRunner);
     		return "redirect:/game";
     	} catch (IOException ex) {
     		throw new AssertionError(ex);

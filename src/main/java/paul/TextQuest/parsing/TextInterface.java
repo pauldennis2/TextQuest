@@ -1,11 +1,8 @@
 package paul.TextQuest.parsing;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import paul.TextQuest.DungeonRunner;
-import paul.TextQuest.entities.Hero;
 
 /**
  * Created by Paul Dennis on 8/16/2017.
@@ -16,8 +13,6 @@ public class TextInterface {
     private List<String> buffer;
     private List<String> debug;
     private List<String> tutorial;
-
-    private DungeonRunner runner;
     
     private static TextInterface instance;
     
@@ -35,21 +30,6 @@ public class TextInterface {
         tutorial = new ArrayList<>();
     }
     
-    private TextInterface (Hero hero, String fileName) {
-    	this();
-    	try {
-    		runner = new DungeonRunner(hero, fileName);
-    	} catch (IOException ex) {
-    		throw new AssertionError(ex);
-    	}
-    }
-    
-    public void newDungeon (Hero hero, String fileName) throws IOException {
-    	runner = new DungeonRunner(hero, fileName);
-    	
-    	runner.start(this);
-    }
-
     /**
      * Adds the given string to the debug buffer.
      * It will be printed in the debug window next time the buffer is flushed.
@@ -95,9 +75,5 @@ public class TextInterface {
 
     public void tutorial (String tutorialString) {
         tutorial.add(tutorialString);
-    }
-
-    public DungeonRunner getRunner() {
-        return runner;
     }
 }

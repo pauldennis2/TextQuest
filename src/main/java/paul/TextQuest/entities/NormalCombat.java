@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import paul.TextQuest.DungeonRunner;
 import paul.TextQuest.enums.BehaviorTiming;
 import paul.TextQuest.parsing.*;
 import paul.TextQuest.utils.StringUtils;
@@ -14,6 +15,7 @@ import paul.TextQuest.utils.StringUtils;
 public class NormalCombat {
 
     private TextInterface textOut;
+    private DungeonRunner dungeonRunner;
     private DungeonRoom room;
     private Random random;
     private StatementAnalyzer analyzer;
@@ -28,7 +30,7 @@ public class NormalCombat {
     
     private int roundNum;
 
-    public NormalCombat (DungeonRoom room) {
+    public NormalCombat (DungeonRunner dungeonRunner, DungeonRoom room) {
         this.room = room;
         random = new Random();
         analyzer = StatementAnalyzer.getInstance();
@@ -36,16 +38,15 @@ public class NormalCombat {
                 .mapToInt(Monster::getExp)
                 .sum();
         roundNum = 1;
-    }
-
-    public void start (TextInterface textOut) {
-        this.textOut = textOut;
+        this.dungeonRunner = dungeonRunner;
+        this.textOut = dungeonRunner.getTextOut();
         textOut.println("Combat started with " + StringUtils.prettyPrintList(room.getMonsters()));
     }
 
+
     public void handleResponse (String response) {
         StatementAnalysis analysis = analyzer.analyzeStatement(response);
-        textOut.getRunner().doActionFromAnalysis(analysis);
+        dungeonRunner.doActionFromAnalysis(analysis);
 
         //If monsters remain do another combat round
         if (room.getMonsters().size() > 0) {

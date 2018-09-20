@@ -34,14 +34,13 @@ public class DungeonRunner  {
     	this.hero = hero;
     	analyzer = StatementAnalyzer.getInstance();
     	dungeon = Dungeon.buildDungeonFromFile(fileName);
-    }
-    public void start (TextInterface textOut) {
-        this.textOut = textOut;
+    	
+    	textOut = TextInterface.getInstance();
         currentRoom = dungeon.getEntrance();
         textOut.println(dungeon.getDescription());
 
         hero.setLocation(currentRoom);
-        
+         
         //Temporary
         hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
     }
@@ -106,7 +105,7 @@ public class DungeonRunner  {
     }
 
     public void startCombat () {
-        normalCombat = new NormalCombat(currentRoom);
+        normalCombat = new NormalCombat(this, currentRoom);
         if (currentRoom.getOnCombatStart() != null) {
         	String action = currentRoom.getOnCombatStart();
         	currentRoom.doAction(action);
@@ -114,7 +113,6 @@ public class DungeonRunner  {
         if (currentRoom.getOnCombatEnd() != null) {
         	normalCombat.setOnCombatEnd(currentRoom.getOnCombatEnd());
         }
-        normalCombat.start(textOut);
     }
 
 }

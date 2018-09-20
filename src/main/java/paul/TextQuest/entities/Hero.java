@@ -525,7 +525,7 @@ public class Hero implements Serializable {
         });
         heroVoidActions.put("learn", room -> textOut.println("That function is not available at this time."));
 
-        heroVoidActions.put("fight", room -> textOut.getRunner().startCombat());
+        heroVoidActions.put("fight", room -> room.doAction("startFight"));
 
         heroVoidActions.put("rescue", room -> textOut.println("No princes to rescue right now."));
         
