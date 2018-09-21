@@ -14,7 +14,6 @@ import paul.TextQuest.enums.LevelUpCategory;
 import paul.TextQuest.enums.SpeakingVolume;
 import paul.TextQuest.interfaces.*;
 import paul.TextQuest.new_interfaces.EquipableItem;
-import paul.TextQuest.parsing.MagicUniversity;
 import paul.TextQuest.utils.*;
 
 import java.io.File;
@@ -73,6 +72,8 @@ public class Hero implements Serializable {
     
     private SkillMap skillMap;
     
+    private List<LevelUpCategory> levelUpTodo;
+    
     private transient SkillMap skillMods;
 
     private transient int mightMod;
@@ -97,7 +98,8 @@ public class Hero implements Serializable {
     //TODO concept:
     //Hero has a list of statuses the dungeon can modify (poisoned, diseased, buffed, etc)
     //Buffs and debuffs
-    private transient List<String> statusEffects;
+    private transient List<String> buffs;
+    private transient List<String> debuffs;
     
     private Map<EquipSlot, EquipableItem> equippedItems;
     
@@ -111,6 +113,9 @@ public class Hero implements Serializable {
     
     public static final String SAVE_PATH = "save_data/";
 
+    private static LevelUpPlan levelUpPlan;
+    public static final String LEVEL_UP_PLAN_LOCATION = "content_files/game/leveling/default_plan.json";
+
 
     public Hero () {
         random = new Random();
@@ -121,7 +126,8 @@ public class Hero implements Serializable {
         skillMap = new SkillMap();
         skillMods = new SkillMap();
         
-        statusEffects = new ArrayList<>();
+        buffs = new ArrayList<>();
+        debuffs = new ArrayList<>();
         initMaps();
     }
     
@@ -171,10 +177,7 @@ public class Hero implements Serializable {
         backpack.add(noiseHelm);
     }
 
-    private transient List<LevelUpCategory> levelUpTodo;
-
-    private static LevelUpPlan levelUpPlan;
-    public static final String LEVEL_UP_PLAN_LOCATION = "content_files/game/leveling/default_plan.json";
+    
     //Defines what we can do at each level (i.e. what new skills, stat increases, etc are possible)
     private static void initLevelUpPlan () {
     	try {
@@ -719,7 +722,7 @@ public class Hero implements Serializable {
         possibleSpellMap.put("aegis", hero -> {
         	if (!hero.hasStatus("aegis")) {
         	    hero.defenseMod = 5;
-	            hero.addStatus("aegis");
+	            hero.addStatus("+aegis");
 	            hero.textOut.debug("Aegis lasts forever.");
 	            hero.textOut.println("A magic shield surrounds you.");
         	} else {
@@ -772,7 +775,7 @@ public class Hero implements Serializable {
     		if (hero.getBackpack().contains(reagentName) && hero.spellbook.contains("fire")) {
     			hero.getBackpack().remove(reagentName);
     			hero.textOut.println("You're protected from heat!");
-    		} else if (!hero.spellbook.contains("air")){
+    		} else if (!hero.spellbook.contains("fire")){
     			hero.textOut.println("You can't protect yourself from heat without fire magic.");
     		} else {
     			hero.textOut.println("You're missing the reagent (" + reagentName + ").");
@@ -828,17 +831,18 @@ public class Hero implements Serializable {
     }
 
     public void printStats () {
-        //textOut.println("Hero: " + name + "\nHealth: " + health + "/" + maxHealth + "  (Might, Magic, Defense) (" +
-        //        might + ", " + magic + ", " + defense + ") Level: " + level + ", Exp: " + exp);
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Hero: " + name + "\nHealth: " + health + "/" + maxHealth);
-        stringBuilder.append("\nMight: " + might);
-        stringBuilder.append(StringUtils.appendModifierWithSignInParens(mightMod));
-        stringBuilder.append("\nDefense: " + defense);
-        stringBuilder.append(StringUtils.appendModifierWithSignInParens(defenseMod));
-        stringBuilder.append("\nMagic: " + magic);
-        stringBuilder.append(StringUtils.appendModifierWithSignInParens(magicMod));
-        stringBuilder.append("\nLevel: " + level + ", Exp: " + exp);
+    	textOut.println("Hero: " + name + "\nHealth: " + health + "/" + maxHealth);
+    	textOut.println("Level: " + level + ", Exp: " + exp);
+        textOut.println("Might: " + might + StringUtils.appendModifierWithSignInParens(mightMod));
+        textOut.println("Defense: " + defense + StringUtils.appendModifierWithSignInParens(defenseMod));
+        textOut.println("Magic: " + magic + StringUtils.appendModifierWithSignInParens(magicMod));
+        
+        if (buffs.size() > 0) {
+        	textOut.println("You are affected by the following positive statuses: " + StringUtils.prettyPrintList(buffs));
+        }
+        if (debuffs.size() > 0) {
+        	textOut.println("You are affected by the following negative statuses: " + StringUtils.prettyPrintList(debuffs));
+        }
     }
 
     private void proceed (Direction direction) {
@@ -1150,6 +1154,14 @@ public class Hero implements Serializable {
 		this.textOut = textOut;
 	}
 	
+	public List<LevelUpCategory> getLevelUpTodo() {
+		return levelUpTodo;
+	}
+
+	public void setLevelUpTodo(List<LevelUpCategory> levelUpTodo) {
+		this.levelUpTodo = levelUpTodo;
+	}
+
 	//TODO: seems like there's some commonality between this and monster - shared base class?
 	public boolean isDisabled () {
 		return disabledForRounds > 0;
@@ -1173,11 +1185,18 @@ public class Hero implements Serializable {
 	}
 	
 	public void addStatus (String status) {
-		statusEffects.add(status);
+		if (status.startsWith("+")) {
+			buffs.add(status.substring(1));
+		} else if (status.startsWith("-")) {
+			debuffs.add(status.substring(1));
+		} else {
+			throw new AssertionError("Status must start with + or - to indicate buff/debuff.");
+		}
 	}
 	
 	public void removeStatus (String toRemove) {
-		statusEffects.removeIf(status -> status.equals(toRemove));
+		buffs.removeIf(status -> status.equals(toRemove));
+		debuffs.removeIf(status -> status.equals(toRemove));
 	}
 	
 	public boolean hasItem (String itemName) {
@@ -1185,7 +1204,7 @@ public class Hero implements Serializable {
 	}
 	
 	public boolean hasStatus (String status) {
-		return statusEffects.contains(status);
+		return buffs.contains(status) || debuffs.contains(status);
 	}
 	
 	public Integer getIntField (String fieldName) {

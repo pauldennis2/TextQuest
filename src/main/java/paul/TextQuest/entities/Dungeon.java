@@ -27,8 +27,6 @@ public class Dungeon extends MetaLocation {
     private Map<String, BackpackItem> itemLibrary;
     private Map<String, Monster> monsterLibrary;
     
-    //private String onVariableSet;
-    
     private Map<String, String> onVariableSet;
     
     private Integer entranceRoomId;

@@ -36,6 +36,9 @@ public class DungeonRoom extends TickTock {
     private List<Obstacle> obstacles;
     private Chest chest;
     private List<Feature> features;
+    
+    private List<String> itemKeys;
+    private List<String> monsterKeys;
 
     private Map<String, String> specialRoomActions;
     private Map<String, String> onLightingChange;
@@ -1526,8 +1529,21 @@ public class DungeonRoom extends TickTock {
         }
         obstacle.setLocation(this);
     }
+    
 
-    public String getTutorial() {
+	public void setItemKeys(List<String> itemKeys) {
+		this.itemKeys = itemKeys;
+	}
+
+	public void setMonsterKeys(List<String> monsterKeys) {
+		this.monsterKeys = monsterKeys;
+		
+		for (String key : monsterKeys) {
+			Monster monster = dungeon.getMonsterLibrary().get(key).copy();
+		}
+	}
+
+	public String getTutorial() {
         return tutorial;
     }
 

@@ -61,6 +61,10 @@ public class BackpackItem extends DungeonRoomEntity {
     	this.darklight = other.darklight;
     	this.undroppable = other.undroppable;
     }
+    
+    public BackpackItem copy () {
+    	return new BackpackItem(this);
+    }
 
     public String getName() {
         return name;

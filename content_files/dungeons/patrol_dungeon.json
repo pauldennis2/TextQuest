@@ -34,7 +34,7 @@
   		"description":"There's a fountain with murky weird looking water.",
   		"specialRoomActions":
   		{
-  			"drink":"setHeroStatus poisoned;print \"You've been poisoned, dummy\"",
+  			"drink":"setHeroStatus -poisoned;print \"You've been poisoned, dummy\"",
   			"think":"$if[true] print\"I think therefore I am.\"",
   			"check":"$if[hero->hasStatus(poisoned)] print \"You are poisoned.\"",
   			"shield":"teachSpell aegis",
