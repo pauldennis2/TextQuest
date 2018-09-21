@@ -97,6 +97,15 @@ public class GameController {
     	model.addAttribute("username", username);
     	model.addAttribute("hero", hero);
     	
+    	int level = hero.getLevel();
+    	int exp = hero.getExp();
+    	
+    	List<Integer> expAmounts = Hero.getLevelUpPlan().getExpAmounts();
+    	if (expAmounts.get(level) <= exp) {
+    		model.addAttribute("levelUpAvailable", true);
+    	}
+    	
+    	//Eventually this would be replaced by the GamePlan that contains a dungeongroup
     	DungeonGroup dungeonGroup = (DungeonGroup) session.getAttribute("dungeonGroup");
     	if (dungeonGroup == null) {
     		dungeonGroup = buildDungeonGroup();
@@ -172,6 +181,16 @@ public class GameController {
     	} catch (IOException ex) {
     		throw new AssertionError(ex);
     	}
+    }
+    
+    @RequestMapping(path = "/levelup", method = RequestMethod.GET)
+    public String levelUp (HttpSession session, Model model) {
+    	return "levelup";
+    }
+    
+    @RequestMapping(path = "/savegame", method = RequestMethod.POST)
+    public String saveGame (HttpSession session) {
+    	return "redirect:/airship";
     }
 
     @ExceptionHandler(Exception.class)

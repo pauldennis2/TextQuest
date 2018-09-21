@@ -186,6 +186,7 @@ public class Hero implements Serializable {
     	}
     }
     
+    private transient Map<Integer, Boolean> messagePrintedForLevel;
     public void addExp (int expToAdd) {
         if (expToAdd < 0) {
             throw new AssertionError();
@@ -195,9 +196,15 @@ public class Hero implements Serializable {
         if (levelUpPlan == null) {
         	initLevelUpPlan();
         }
+        if (messagePrintedForLevel == null) {
+        	messagePrintedForLevel = new HashMap<>();
+        }
         if (levelUpPlan.getExpAmounts().get(level) <= exp) {
-            textOut.println("***Ding! Level up.");
-            textOut.println("After the dungeon is complete you'll be able to level up");
+        	if (messagePrintedForLevel.get(level) == false) {
+	            textOut.println("***Ding! Level up.");
+	            textOut.println("After the dungeon is complete you'll be able to level up.");
+	            messagePrintedForLevel.put(level, true);
+        	}
         }
     }
 
@@ -299,20 +306,6 @@ public class Hero implements Serializable {
             throw new AssertionError();
         }
     }
-
-    /*
-    private void initItemActions () {
-        itemActions.put("torch", room -> {
-            room.setLighting(TORCH_LIGHT);
-            textOut.println("The room brightens up.");
-        });
-        itemActions.put("potion", room -> {
-            this.restoreHealth(POTION_VALUE);
-            this.removeItem("Potion");
-            textOut.println("Drank a potion.");
-        });
-        itemActions.put("bow", room -> textOut.println("You don't know how to use that yet."));
-    }*/
 
     private void initViews () {
         views.put("status", room -> printStats());
@@ -1243,5 +1236,12 @@ public class Hero implements Serializable {
 		} catch (ReflectiveOperationException ex) {
 			throw new AssertionError(ex);
 		}
+	}
+	
+	public static LevelUpPlan getLevelUpPlan () {
+		if (levelUpPlan == null) {
+        	initLevelUpPlan();
+        }
+		return levelUpPlan;
 	}
 }
