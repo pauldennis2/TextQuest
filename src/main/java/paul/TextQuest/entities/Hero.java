@@ -90,7 +90,6 @@ public class Hero implements Serializable {
 
     private transient Map<String, VoidAction> heroVoidActions;
     private transient Map<String, ParamAction> heroParamActions;
-    private transient ItemActionMap itemActions;
     private transient Map<String, VoidAction> views;
     
     private transient Map<String, SpellAction> spellMap;
@@ -259,11 +258,9 @@ public class Hero implements Serializable {
     private void initMaps () {
         heroVoidActions = new HashMap<>();
         heroParamActions = new HashMap<>();
-        itemActions = new ItemActionMap();
         views = new HashMap<>();
         spellMap = new HashMap<>();
         initActionMap();
-        initItemActions();
         initViews();
         initPossibleSpellMap();
     }
@@ -303,6 +300,7 @@ public class Hero implements Serializable {
         }
     }
 
+    /*
     private void initItemActions () {
         itemActions.put("torch", room -> {
             room.setLighting(TORCH_LIGHT);
@@ -314,7 +312,7 @@ public class Hero implements Serializable {
             textOut.println("Drank a potion.");
         });
         itemActions.put("bow", room -> textOut.println("You don't know how to use that yet."));
-    }
+    }*/
 
     private void initViews () {
         views.put("status", room -> printStats());
@@ -534,8 +532,19 @@ public class Hero implements Serializable {
         });
 
         heroParamActions.put("use", (room, param) -> {
-            if (room.getHero().getBackpack().contains(param)) {
-                itemActions.get(param).doAction(room);
+        	
+            if (getBackpack().contains(param)) {
+            	BackpackItem item = getBackpack().getItem(param);
+                String onUse = item.getOnUse();
+                if (onUse == null) {
+                	textOut.println("You can't use that item directly.");
+                } else {
+                	if (onUse.contains("!CONSUMES")) {
+                		onUse = onUse.replaceAll("!CONSUMES", "").trim();
+                		getBackpack().remove(item);
+                	}
+                	room.doAction(onUse);
+                }
                 if (room.getOnItemUse() != null) {
 	                if (room.getOnItemUse().containsKey("any")) {
 	                	room.doAction(room.getOnItemUse().get("any"));

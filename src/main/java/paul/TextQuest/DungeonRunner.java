@@ -35,9 +35,12 @@ public class DungeonRunner  {
     	dungeon = Dungeon.buildDungeonFromFile(fileName);
     	dungeon.setDungeonRunner(this);
     	
-    	  	
+    	
     	textOut = TextInterface.getInstance();
-    	dungeon.getRooms().forEach(room -> room.setTextOut(textOut));  
+    	dungeon.getRooms().forEach(room -> {
+    		room.setTextOut(textOut);
+    		room.buildObjectsFromKeys();
+    	});
         currentRoom = dungeon.getEntrance();
         textOut.println(dungeon.getDescription());
         hero.setTextOut(textOut);

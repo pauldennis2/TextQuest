@@ -25,7 +25,10 @@ public class Backpack extends Location {
     }
 
     public void remove (BackpackItem item) {
+    	System.out.println("attempting to remove: " + item);
         items.remove(item);
+        
+        System.out.println(items);
     }
     
     public void remove (String itemName) {
@@ -51,6 +54,20 @@ public class Backpack extends Location {
                 .map(e -> e.getName().toLowerCase())
                 .collect(Collectors.toList())
                 .contains(itemName.toLowerCase());
+    }
+    
+    /**
+     * Looks for the given item WITHOUT removing it.
+     * @param itemName
+     * @return
+     */
+    public BackpackItem getItem (String itemName) {
+    	for (BackpackItem item : items) {
+    		if (item.getName().equalsIgnoreCase(itemName)) {
+    			return item;
+    		}
+    	}
+    	return null;
     }
     
     public List<BackpackItem> getItems () {

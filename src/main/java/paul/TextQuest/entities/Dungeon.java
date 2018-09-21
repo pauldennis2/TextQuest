@@ -7,8 +7,6 @@ import paul.TextQuest.TextInterface;
 import paul.TextQuest.enums.Direction;
 import paul.TextQuest.utils.StringUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -122,16 +120,16 @@ public class Dungeon extends MetaLocation {
     	return mapper.readValue(StringUtils.readFile(BEASTIARY_PATH + fileName), Beastiary.class);
     }
     
-    
+    public static final String ITEM_LIBRARY_PATH = "content_files/items/";
     public static ItemLibrary buildItemLibraryFromFile (String fileName) throws IOException {
     	ObjectMapper mapper = new ObjectMapper();
     	return mapper.readValue(StringUtils.readFile(fileName), ItemLibrary.class);
     }
     
-    public static <E> E buildObjectFromFile (String fileName, Class E) throws IOException {
+    @SuppressWarnings("unchecked")
+	public static <E> E buildObjectFromFile (String fileName, Class<?> type) throws IOException {
     	ObjectMapper mapper = new ObjectMapper();
-    	mapper.readValue(StringUtils.readFile(fileName), E);
-    	return null;
+    	return (E)mapper.readValue(StringUtils.readFile(fileName), type);
     }
 
     private void connectRooms () {
@@ -255,11 +253,9 @@ public class Dungeon extends MetaLocation {
 		
 		for (String fileName : beastiaries) {
 			try {
-				Beastiary beastiary = buildBeastiaryFromFile(fileName);
-				Map<String, Monster> monsterMap = beastiary.getMonsterMap();
-				System.out.println(monsterMap);
+				Map<String, Monster> monsterMap = buildBeastiaryFromFile(fileName).getMonsterMap();
 				for (String key : monsterMap.keySet()) {
-					if (monsterLibrary != null && monsterLibrary.containsKey(key)) {
+					if (monsterLibrary.containsKey(key)) {
 						throw new AssertionError("Namespace conflict. Can't have two monsters named " +
 								key + ". Duplicate comes from " + fileName + ".");
 					}
@@ -273,17 +269,29 @@ public class Dungeon extends MetaLocation {
 	}
 	
 	public void setItemLibraries (List<String> itemLibraries) {
+		System.out.println("Initializing item libraries:" + itemLibraries);
 		if (itemLibrary == null) {
 			itemLibrary = new HashMap<>();
 		}
 		
 		for (String fileName : itemLibraries) {
 			try {
+				ItemLibrary lib = buildObjectFromFile(ITEM_LIBRARY_PATH + fileName, ItemLibrary.class);
+				Map<String, BackpackItem> itemMap = lib.getItemMap();
+				for (String key : itemMap.keySet()) {
+					if (itemLibrary.containsKey(key)) {
+						throw new AssertionError("Namespace conflict. Can't have two items named " + key
+								+ ". Duplicate comes from " + fileName + ".");
+					}
+					itemLibrary.put(key, itemMap.get(key));
+				}
+				
 				
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
 		}
+		System.out.println(itemLibrary);
 	}
 
 	public Map<String, Integer> getDungeonValues () {

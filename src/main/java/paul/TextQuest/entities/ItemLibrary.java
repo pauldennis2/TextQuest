@@ -1,5 +1,5 @@
 /**
- * @author Paul Dennis (pd236m)
+ * @author Paul Dennis
  * Sep 21, 2018
  */
 package paul.TextQuest.entities;
@@ -9,7 +9,7 @@ import java.util.Map;
 
 public class ItemLibrary {
 	
-	Map<String, BackpackItem> itemMap;
+	private Map<String, BackpackItem> itemMap;
 	
 	public ItemLibrary () {
 		itemMap = new HashMap<>();
@@ -21,5 +21,6 @@ public class ItemLibrary {
 
 	public void setItemMap(Map<String, BackpackItem> itemMap) {
 		this.itemMap = itemMap;
+		System.out.println(itemMap);
 	}
 }

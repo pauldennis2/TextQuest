@@ -1,5 +1,17 @@
 {
-	"Antidote":
+	"itemMap":
 	{
+		"Antidote":
+		{
+			"name":"Antidote",
+			"value":25,
+			"onPickup":"print HELP",
+			"onUse":"!CONSUMES removeHeroStatus poisoned"
+		},
+		"Potion":
+		{
+			"name":"Healing Potion",
+			"onUse":"!CONSUMES heal 9"
+		}
 	}
 }

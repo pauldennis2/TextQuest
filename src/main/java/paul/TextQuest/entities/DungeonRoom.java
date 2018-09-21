@@ -50,6 +50,9 @@ public class DungeonRoom extends TickTock {
     private String onCombatEnd;
     
     private EnteringRoomAction onHeroEnter;
+    
+    private List<String> itemKeys;
+    private List<String> monsterKeys;
 
     //Temporary variables for JSONification
     private Map<Direction, Integer> connectedRoomIds;
@@ -1022,14 +1025,6 @@ public class DungeonRoom extends TickTock {
 		return hero.getHasField(methodName, arg);
     }
     
-    public static void main(String[] args) {
-		DungeonRoom room = new DungeonRoom();
-		room.hero = new Hero();
-		room.hero.addStatus("poisoned");
-		boolean result = room.callHasMethod("hero->hasStatus(poisoned)");
-		System.out.println(result);
-	}
-    
     private String replaceVariables (String input) {
     	System.out.println("Replacing variables for input: " + input);
     	Map<String, String> variables = getDungeon().getDungeonVariables();
@@ -1533,23 +1528,36 @@ public class DungeonRoom extends TickTock {
     
 
 	public void setItemKeys(List<String> itemKeys) {
-		for (String key : itemKeys) {
-			BackpackItem item = dungeon.getItemLibrary().get(key).copy();
-			if (item == null) {
-				textOut.debug("Could not find item with key " + key + ". Creating blank/simple item.");
-				item = new BackpackItem(key);
-				addItem(item);
-			}
-		}
+		this.itemKeys = itemKeys;
 	}
 
 	public void setMonsterKeys(List<String> monsterKeys) {
-		for (String key : monsterKeys) {
-			Monster monster = dungeon.getMonsterLibrary().get(key).copy();
-			if (monster == null) {
-				throw new AssertionError("Could not find monster with key " + key);
+		this.monsterKeys = monsterKeys;
+	}
+	
+	public void buildObjectsFromKeys () {
+		System.out.println("in buildObjectsFromKeys()");
+		if (monsterKeys != null) {
+			for (String key : monsterKeys) {
+				Monster monster = dungeon.getMonsterLibrary().get(key).copy();
+				if (monster == null) {
+					throw new AssertionError("Could not find monster with key " + key);
+				}
+				addMonster(monster);
 			}
-			addMonster(monster);
+		}
+		
+		if (itemKeys != null) {
+			for (String key : itemKeys) {
+				BackpackItem item = dungeon.getItemLibrary().get(key).copy();
+				if (item == null) {
+					textOut.debug("Could not find item with key " + key + ". Creating blank/simple item.");
+					item = new BackpackItem(key);
+				}
+				addItem(item);
+
+            	System.out.println(item.toDetailedString());
+			}
 		}
 	}
 

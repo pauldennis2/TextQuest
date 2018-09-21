@@ -4,6 +4,10 @@
   [
   	"shadow_beastiary.json"
   ],
+  "itemLibraries":
+  [
+  	"potions.json"
+  ],
   "monsterLibrary":
   {
   	"BlueGoblin":
@@ -32,6 +36,7 @@
   		"name":"Entrance",
   		"id":0,
   		"description":"There's a fountain with murky weird looking water.",
+  		"itemKeys":["Antidote"],
   		"specialRoomActions":
   		{
   			"drink":"setHeroStatus -poisoned;print \"You've been poisoned, dummy\"",

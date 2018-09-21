@@ -60,6 +60,10 @@ public class BackpackItem extends DungeonRoomEntity {
     	this.onDrop = other.onDrop;
     	this.darklight = other.darklight;
     	this.undroppable = other.undroppable;
+    	
+    	this.numCharges = other.numCharges;
+    	this.onUse = other.onUse;
+    	this.description = other.description;
     }
     
     public BackpackItem copy () {
@@ -109,9 +113,22 @@ public class BackpackItem extends DungeonRoomEntity {
     public String toString () {
         return name;
     }
+    
 
     public static final double DEFAULT_VISIBILITY_THRESHHOLD = 0.6;
-    public boolean isVisible (double lighting) {
+	public String toDetailedString() {
+		return "BackpackItem [" + (name != null ? "name=" + name + ", " : "")
+				+ (isQuestItem != null ? "isQuestItem=" + isQuestItem + ", " : "") + "value=" + value + ", "
+				+ (onPickup != null ? "onPickup=" + onPickup + ", " : "")
+				+ (onDrop != null ? "onDrop=" + onDrop + ", " : "") 
+				+ "darklight=" + darklight 
+				+ ", undroppable=" + undroppable 
+				+ ", numCharges=" + numCharges + ", " 
+				+ (onUse != null ? "onUse=" + onUse + ", " : "")
+				+ (description != null ? "description=" + description : "") + "]";
+	}
+
+	public boolean isVisible (double lighting) {
         if (darklight) {
             return lighting == 0.0;
         }
@@ -159,6 +176,8 @@ public class BackpackItem extends DungeonRoomEntity {
 
 	public void setOnUse(String onUse) {
 		this.onUse = onUse;
+		System.err.println("setOnUse() called param = " + onUse);
+		System.err.println(this.toDetailedString());
 	}
 
 	public String getDescription() {
