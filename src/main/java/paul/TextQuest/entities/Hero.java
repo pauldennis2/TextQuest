@@ -1199,6 +1199,14 @@ public class Hero implements Serializable {
 		debuffs.removeIf(status -> status.equals(toRemove));
 	}
 	
+	public void removeAllBuffs () {
+		buffs = new ArrayList<>();
+	}
+	
+	public void removeAllDebuffs () {
+		debuffs = new ArrayList<>();
+	}
+	
 	public boolean hasItem (String itemName) {
 		return backpack.contains(itemName);
 	}

@@ -358,6 +358,8 @@ These events need an extra bit of information, often a number. For example if yo
 * removeMonster (monster name) - removes all monsters with the given name from the room.
 * patrol (monster's patroller id) - moves the monster to the next room in its patrol route.
 * randomPatrol (monster's patroller id) - moves the monster to a random place in its patrol route.
+* setHeroStatus (status name) - gives the Hero the given status. **NOTE**: This MUST be prefaced with a + to indicate a positive status or a - to indicate negative (i.e. "+shield", "-poisoned")
+* removeHeroStatus (status name) - attempts to remove the given status from the Hero. Do NOT include the +/- mentioned above.
 
 #### MultiParam Events
 
@@ -398,6 +400,8 @@ These events just happen, and they don't need any extra information.
 * doTick - does one tick (see "Tick Tock Goes the Clock")
 * doTock - does one tock
 * removeMonsters - removes ALL monsters from the room
+* removeAllBuffs - removes all positive status effects from the Hero. Probably a bad idea to use this, since their *actual* effects aren't removed. Explanation: When the hero casts "aegis", their defenseMod is increased by 5 and they get the status "aegis", preventing them from casting it again. Removing the status "aegis" doesn't change the defenseMod and would allow the hero to cast the spell again to double the effect.
+* removeAllDebuffs - removes all negative status effects from the Hero. This is probably a bit safer, since debuffs are determined by you, the dungeon designer (at the moment). But still, use with caution.
 
 Hopefully soon we'll add many more possible events, and even the ability to create custom events.
 

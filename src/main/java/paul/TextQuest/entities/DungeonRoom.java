@@ -37,9 +37,6 @@ public class DungeonRoom extends TickTock {
     private Chest chest;
     private List<Feature> features;
     
-    private List<String> itemKeys;
-    private List<String> monsterKeys;
-
     private Map<String, String> specialRoomActions;
     private Map<String, String> onLightingChange;
     private Map<Direction, LeavingRoomAction> onHeroLeave;
@@ -185,6 +182,10 @@ public class DungeonRoom extends TickTock {
         });
         
         voidActionMap.put("removeMonsters", room -> room.removeMonsters());
+        
+        voidActionMap.put("removeAllBuffs", room -> room.getHero().removeAllBuffs());
+        
+        voidActionMap.put("removeAllDebuffs", room -> room.getHero().removeAllBuffs());
         
         //Param Actions\\
         paramActionMap.put("createMonster", (room, param) -> {
@@ -1532,14 +1533,23 @@ public class DungeonRoom extends TickTock {
     
 
 	public void setItemKeys(List<String> itemKeys) {
-		this.itemKeys = itemKeys;
+		for (String key : itemKeys) {
+			BackpackItem item = dungeon.getItemLibrary().get(key).copy();
+			if (item == null) {
+				textOut.debug("Could not find item with key " + key + ". Creating blank/simple item.");
+				item = new BackpackItem(key);
+				addItem(item);
+			}
+		}
 	}
 
 	public void setMonsterKeys(List<String> monsterKeys) {
-		this.monsterKeys = monsterKeys;
-		
 		for (String key : monsterKeys) {
 			Monster monster = dungeon.getMonsterLibrary().get(key).copy();
+			if (monster == null) {
+				throw new AssertionError("Could not find monster with key " + key);
+			}
+			addMonster(monster);
 		}
 	}
 
