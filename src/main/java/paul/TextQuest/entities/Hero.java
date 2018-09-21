@@ -172,92 +172,6 @@ public class Hero implements Serializable {
     }
 
     private transient List<LevelUpCategory> levelUpTodo;
-    //This is for level-up
-    public void show () {
-    	System.err.println("**In hero.show()");
-        if (levelUpPlan == null) {
-            initLevelUpPlan();
-        }
-        List<Integer> levelAmts = levelUpPlan.getExpAmounts();
-        if (levelAmts.get(level) <= exp) {
-            level++;
-            if (levelUpPlan.levelingRestoresHealth()) {
-            	health = maxHealth;
-            }
-            if (levelUpPlan.levelingRestoresSpells()) {
-            	numSpellsAvailable = maxSpellsPerDay;
-            }
-            levelUpTodo = levelUpPlan.getLevelUpActions().get(level);
-            textOut.println("You are now level " + level + ". You can:");
-            levelUpTodo.stream()
-                    .map(LevelUpCategory::getPrettyName)
-                    .forEach(e -> textOut.println(e));
-            //Else if there are remaining level up actions to take
-            //return show();
-
-        } else if (levelUpTodo != null && levelUpTodo.size() > 0) {
-            LevelUpCategory category = levelUpTodo.get(0);
-            textOut.println("Right now you can: " + LevelUpCategory.getPrettyName(category));
-            textOut.println(LevelUpCategory.getPrompt(category));
-
-            
-        } else {
-            System.err.println("Leaving hero.show(), returning FINISHED");
-        }
-    }
-
-    public void handleResponse (String response) {
-    	System.err.println("**In hero.handleResponse() with input " + response);
-        LevelUpCategory category = levelUpTodo.get(0);
-        response = response.trim().toLowerCase();
-        switch (category) {
-            case INC_STATS:
-                if (response.equals("might") || response.equals("strength")) {
-                    might++;
-                    textOut.println("Might permanently increased by 1");
-                    levelUpTodo.remove(0);
-                } else if (response.equals("health") || response.equals("hp") || response.equals("hitpoints")) {
-                    maxHealth += 5;
-                    health = maxHealth;
-                    textOut.println("Max HP increased by 5");
-                    levelUpTodo.remove(0);
-                } else if (response.startsWith("def")){
-                    defense++;
-                    textOut.println("Defense increased by 1 permanently");
-                    levelUpTodo.remove(0);
-                } else {
-                    textOut.println("Could not read a stat");
-                }
-                break;
-
-            case NEW_SKILL:
-                if (response.contains("sneak") || response.contains("stealth")) {
-                    skillMap.put("sneak", skillMap.get("sneak") + 1);
-                    textOut.println("You've learned basic sneaking.");
-                    levelUpTodo.remove(0);
-                } else {
-                    textOut.println("Could not find a skill (only one available is sneak - try that).");
-                }
-                break;
-
-
-            case NEW_SPELL:
-                MagicUniversity magicUniversity = MagicUniversity.getInstance();
-                String spellMatch = magicUniversity.getSpellMatch(response);
-                if (spellMatch != null) {
-                    spellMap.put(spellMatch, possibleSpellMap.get(spellMatch));
-                    textOut.println("You've learned " + StringUtils.addAOrAn(StringUtils.capitalize(spellMatch)) + " spell.");
-                    spellbook.add(spellMatch);
-                    levelUpTodo.remove(0);
-                    maxSpellsPerDay++;
-                    numSpellsAvailable = maxSpellsPerDay;
-                } else {
-                    textOut.println("Could not find the spell you want to learn.");
-                }
-                break;
-
-        }
-    }
 
     private static LevelUpPlan levelUpPlan;
     public static final String LEVEL_UP_PLAN_LOCATION = "content_files/game/leveling/default_plan.json";
@@ -334,7 +248,7 @@ public class Hero implements Serializable {
     public static List<String> getHeroListForUser (String username) {
     	File folder = new File(SAVE_PATH + username);
     	return Arrays.stream(folder.listFiles())
-    			.map(file -> file.getName().split("\\.")[0])
+    			.map(file -> file.getName().split("\\.")[0]) //Files are named as heroName.json. We just want heroName
     			.collect(Collectors.toList());
     }
 
@@ -353,29 +267,27 @@ public class Hero implements Serializable {
 
     public void takeAction (String action) {
     	String onHeroAction = location.getOnHeroAction().get(action);
-    	boolean stops = false;
     	if (onHeroAction != null) {
     		location.doAction(onHeroAction);
     		if (onHeroAction.contains("!STOPS")) {
         		onHeroAction.replaceAll("!STOPS", "");
         		textOut.debug("This trigger stops the action.");
-        		stops = true;
+        		return;
         	}
     	}
-    	if (!stops) {
-	        VoidAction voidAction = heroVoidActions.get(action);
-	        if (voidAction != null) {
-	            voidAction.doAction(location);
-	        } else {
-	            if (location.getSpecialRoomActions().get(action) != null) {
-	                String roomAction = location.getSpecialRoomActions().get(action);
-	                location.doAction(roomAction);
-	            } else {
-	                textOut.debug("Action not in map.");
-	                throw new AssertionError();
-	            }
-	        }
-    	}
+        VoidAction voidAction = heroVoidActions.get(action);
+        if (voidAction != null) {
+            voidAction.doAction(location);
+        } else {
+            if (location.getSpecialRoomActions().get(action) != null) {
+                String roomAction = location.getSpecialRoomActions().get(action);
+                location.doAction(roomAction);
+            } else {
+                textOut.debug("Action not in map.");
+                throw new AssertionError();
+            }
+        }
+    	
     }
 
     public void takeAction (String action, String param) {
@@ -980,24 +892,20 @@ public class Hero implements Serializable {
         }
     }
 
-    public void takeDamage (int damage) {
+    public int takeDamage (int damage) {
         damage -= (defense / 5) * 2;
-        if (damage <= 0) {
-            textOut.println("Damage completely mitigated.");
-        } else {
-            health -= damage;
-            textOut.println("You took " + damage + " damage.");
-            if (health <= 0) {
-                health = 0;
-                //TODO : fix
-                throw new AssertionError("Died from damage. Or perhaps dafighter. Har har.");
-            }
+
+        health -= damage;
+        if (health <= 0) {
+            health = 0;
+            //TODO : fix
+            throw new AssertionError("Died from damage. Or perhaps dafighter. Har har.");
         }
+        return damage;
     }
 
     public void takeNonMitigatedDamage (int damage) {
         health -= damage;
-        textOut.println("You took " + damage + " damage.");
         if (health <= 0) {
         	//TODO : fix
             throw new AssertionError("Died from non-combat damage.");

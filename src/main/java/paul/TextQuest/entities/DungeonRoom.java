@@ -379,7 +379,12 @@ public class DungeonRoom extends TickTock {
         	DungeonRoom nextRoom = room.getDungeon().getRoom(roomId);
         	room.removeMonster(monster);
         	nextRoom.addMonster(monster);
-        	room.textOut.debug("Moved " + monster.getName() + " from " + room.getName() + " to " + nextRoom.getName());
+        	
+        	String monsterName = monster.getName();
+        	String roomName = room.getName();
+        	String otherRoomName = nextRoom.getName();
+        	room.textOut.debug("Moved " + monsterName + " from " + roomName + " to " + otherRoomName);
+        	//room.textOut.debug("Moved " + monster.getName() + " from " + room.getName() + " to " + nextRoom.getName());
         });
         
         paramActionMap.put("randomPatrol", (room, param) -> {

@@ -1,0 +1,15 @@
+Leveling notes:
+
+We want to add the following levelup options:
+
+Player's Choice
+Learn a skill
+Learn an area of magic
+Sacrifice from a stat
+
+No Choice
+Restore health
+Lose stat
+Increase max spells per day
+Increase a stat
+Learn a specific skill
