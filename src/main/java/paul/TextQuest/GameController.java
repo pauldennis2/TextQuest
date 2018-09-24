@@ -39,6 +39,8 @@ public class GameController {
     public static final String USERS_FILE = "save_data/users.txt";
     public static final String DUNGEON_GROUP_LOCATION = "content_files/test_dungeon_group.json";
     
+    public static final String VERSION_STR = "0.0.10";
+    
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public String home () {
         return "index";
@@ -71,6 +73,7 @@ public class GameController {
 
     @RequestMapping(path = "/game", method = RequestMethod.GET)
     public String game (Model model, HttpSession session) throws IOException {
+    	model.addAttribute("version", VERSION_STR);
     	String username = (String) session.getAttribute("username");
     	if (username == null) {
     		return "redirect:/login";
@@ -88,7 +91,7 @@ public class GameController {
     
     @RequestMapping(path = "/airship", method = RequestMethod.GET)
     public String airship (Model model, HttpSession session) {
-		
+    	model.addAttribute("version", VERSION_STR);
 		String username = (String) session.getAttribute("username");
 		if (username == null) {
     		return "redirect:/login";
@@ -185,6 +188,14 @@ public class GameController {
     
     @RequestMapping(path = "/levelup", method = RequestMethod.GET)
     public String levelUp (HttpSession session, Model model) {
+    	model.addAttribute("version", VERSION_STR);
+    	String username = (String) session.getAttribute("username");
+    	if (username == null) {
+    		return "redirect:/login";
+    	}
+    	Hero hero = (Hero) session.getAttribute("hero");
+    	model.addAttribute("username", username);
+    	model.addAttribute("hero", hero);
     	return "levelup";
     }
     
