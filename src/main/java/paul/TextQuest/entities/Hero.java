@@ -13,7 +13,6 @@ import paul.TextQuest.enums.EquipSlot;
 import paul.TextQuest.enums.LevelUpCategory;
 import paul.TextQuest.enums.SpeakingVolume;
 import paul.TextQuest.interfaces.*;
-import paul.TextQuest.new_interfaces.EquipableItem;
 import paul.TextQuest.utils.*;
 
 import java.io.File;
@@ -100,7 +99,7 @@ public class Hero implements Serializable {
     private transient List<String> buffs;
     private transient List<String> debuffs;
     
-    private Map<EquipSlot, EquipableItem> equippedItems;
+    private Map<EquipSlot, EquippableItem> equippedItems;
     
     private static Map<String, SpellAction> possibleSpellMap;
 
@@ -163,14 +162,14 @@ public class Hero implements Serializable {
         exp = 0;
         numSpellsAvailable = 1;
         maxSpellsPerDay = 1;
-        EquipableItem sword = new EquipableItem("Sword");
+        EquippableItem sword = new EquippableItem("Sword");
         sword.setMightMod(1);
         sword.setUndroppable(true);
         backpack.add(new BackpackItem("Torch"));
         backpack.add(sword);
         backpack.add(new BackpackItem("Bow"));
         
-        EquipableItem noiseHelm = new EquipableItem("Noisehelm");
+        EquippableItem noiseHelm = new EquippableItem("Noisehelm");
         noiseHelm.setOnEquip("print HELM_ON");
         noiseHelm.setOnUnequip("print HELM_OFF");
         backpack.add(noiseHelm);
@@ -642,7 +641,7 @@ public class Hero implements Serializable {
         	boolean found = false;
         	for (BackpackItem item : items) {
         		if (item.getName().toLowerCase().equals(param)) {
-        			if (item.getClass() == EquipableItem.class) {
+        			if (item.getClass() == EquippableItem.class) {
         				
         			} else {
         				textOut.println("That item isn't equipable, sorry.");
@@ -659,7 +658,7 @@ public class Hero implements Serializable {
         	//We'll attempt to find by item name first, then by slot
         	boolean found = false;
         	for (EquipSlot slot : equippedItems.keySet()) {
-        		EquipableItem item = equippedItems.get(slot);
+        		EquippableItem item = equippedItems.get(slot);
         		if (item.getName().toLowerCase().equals(param)) {
         			unequip(slot);
         			found = true;
@@ -791,7 +790,7 @@ public class Hero implements Serializable {
                 .findAny().ifPresent(item -> backpack.remove(item));
     }
     
-    public void equip (EquipableItem item) {
+    public void equip (EquippableItem item) {
     	unequip(item.getSlot());
     	
     	mightMod += item.getMightMod();
@@ -807,7 +806,7 @@ public class Hero implements Serializable {
     
     public void unequip (EquipSlot slot) {
     	if (equippedItems.get(slot) != null) {
-    		EquipableItem item = equippedItems.get(slot);
+    		EquippableItem item = equippedItems.get(slot);
     		mightMod -= item.getMightMod();
     		magicMod -= item.getMagicMod();
     		skillMods.put("sneak", skillMods.get("sneak") - item.getSneakMod());
@@ -1140,11 +1139,11 @@ public class Hero implements Serializable {
     	this.numSpellsAvailable = numSpellsAvailable;
     }
 
-	public Map<EquipSlot, EquipableItem> getEquippedItems() {
+	public Map<EquipSlot, EquippableItem> getEquippedItems() {
 		return equippedItems;
 	}
 
-	public void setEquippedItems(Map<EquipSlot, EquipableItem> equippedItems) {
+	public void setEquippedItems(Map<EquipSlot, EquippableItem> equippedItems) {
 		this.equippedItems = equippedItems;
 	}
 	

@@ -1,4 +1,4 @@
-package paul.TextQuest.new_interfaces;
+package paul.TextQuest.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
@@ -8,7 +8,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import paul.TextQuest.entities.BackpackItem;
 import paul.TextQuest.enums.EquipSlot;
 
 /**
@@ -16,8 +15,8 @@ import paul.TextQuest.enums.EquipSlot;
  */
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_type", visible = true)
-@JsonSubTypes({ @Type(value = EquipableItem.class, name = EquipableItem._TYPE) })
-public class EquipableItem extends BackpackItem {
+@JsonSubTypes({ @Type(value = EquippableItem.class, name = EquippableItem._TYPE) })
+public class EquippableItem extends BackpackItem {
 	
 	public static final String _TYPE = "equipment";
 
@@ -31,11 +30,11 @@ public class EquipableItem extends BackpackItem {
     private String onEquip;
     private String onUnequip;
     
-    public EquipableItem () {
+    public EquippableItem () {
     	
     }
     
-    public EquipableItem (String name) {
+    public EquippableItem (String name) {
     	super(name);
     }
 

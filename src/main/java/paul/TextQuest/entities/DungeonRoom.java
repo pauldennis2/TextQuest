@@ -12,7 +12,6 @@ import paul.TextQuest.interfaces.ParamAction;
 import paul.TextQuest.interfaces.VoidAction;
 import paul.TextQuest.interfaces.SpeechListener;
 import paul.TextQuest.utils.StringUtils;
-import paul.TextQuest.utils.VictoryException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -135,9 +134,6 @@ public class DungeonRoom extends TickTock {
         });
         voidActionMap.put("startFight", room -> {
         	room.getDungeon().getDungeonRunner().startCombat();
-        });
-        voidActionMap.put("victory", room -> {
-            throw new VictoryException("You win!");
         });
         voidActionMap.put("crackFloor", room -> {
             room.textOut.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
