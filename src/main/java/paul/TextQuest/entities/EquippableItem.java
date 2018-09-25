@@ -34,8 +34,9 @@ public class EquippableItem extends BackpackItem {
     	
     }
     
-    public EquippableItem (String name) {
+    public EquippableItem (String name, EquipSlot slot) {
     	super(name);
+    	this.slot = slot;
     }
 
 	public EquipSlot getSlot() {

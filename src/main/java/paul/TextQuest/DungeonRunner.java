@@ -49,6 +49,8 @@ public class DungeonRunner  {
          
         //Temporary
         hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
+        
+        
     }
 
     protected void handleResponse (String response) {

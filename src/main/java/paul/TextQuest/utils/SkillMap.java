@@ -25,4 +25,12 @@ public class SkillMap extends HashMap<String, Integer>{
 		}
 		return v;
 	}
+	
+	public void add (String key, int value) {
+		if (!this.containsKey(key)) {
+			this.put(key, value);
+		} else {
+			this.put(key, value + this.get(key));
+		}
+	}
 }

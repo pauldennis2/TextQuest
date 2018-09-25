@@ -44,6 +44,8 @@ status : stats, character
 backpack : pack, inventory, items
 map : dungeonmap
 spellbook : spells
+equipment : gear
+skills : abilities
 $use
 torch : lantern
 potion : healthpot, flask
