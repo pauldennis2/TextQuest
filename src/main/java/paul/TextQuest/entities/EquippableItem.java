@@ -28,12 +28,30 @@ public class EquippableItem extends BackpackItem {
     private String onUnequip;
     
     public EquippableItem () {
+    	super();
+    }
+    
+    public EquippableItem (EquippableItem other) {
+    	super(other);
     	
+    	this.slot = other.slot;
+    	this.mightMod = other.mightMod;
+    	this.magicMod = other.magicMod;
+    	this.sneakMod = other.sneakMod;
+    	this.defenseMod = other.defenseMod;
+    	
+    	this.onEquip = other.onEquip;
+    	this.onUnequip = other.onUnequip;
     }
     
     public EquippableItem (String name, EquipSlot slot) {
     	super(name);
     	this.slot = slot;
+    }
+    
+    @Override
+    public EquippableItem copy () {
+    	return new EquippableItem(this);
     }
 
 	public EquipSlot getSlot() {
