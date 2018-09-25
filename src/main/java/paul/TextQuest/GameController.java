@@ -40,6 +40,7 @@ public class GameController {
     public static final String DUNGEON_GROUP_LOCATION = "content_files/test_dungeon_group.json";
     
     public static final String VERSION_STR = "0.0.10";
+    public static final String UNAVAILBLE_STR = "?????";
     
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public String home () {
@@ -218,8 +219,7 @@ public class GameController {
     	userMap = new HashMap<>();
     	try (Scanner fileScanner = new Scanner(new File(USERS_FILE))) {
     		while (fileScanner.hasNextLine()) {
-    			String line = fileScanner.nextLine();
-    			String[] split = line.split(" ");
+    			String[] split = fileScanner.nextLine().split(" ");
     			userMap.put(split[0], split[1]);
     		}
     	} catch (FileNotFoundException ex) {
@@ -263,7 +263,7 @@ public class GameController {
     			if (heroClearedDungeons.containsAll(prereqs)) {
     				availableDungeons.add(name);
     			} else {
-    				unavailableDungeons.add("?????");
+    				unavailableDungeons.add(UNAVAILBLE_STR);
     			}
     		}
     	}
@@ -280,10 +280,6 @@ public class GameController {
             debug.add("There was no content in the buffer");
         }
         List<String> tutorial = textOut.flushTutorial();
-        if (tutorial.size() > 0 && tutorial.get(0) == null) {
-            tutorial = null;
-        }
-
         model.addAttribute("outputText", output);
         
 
