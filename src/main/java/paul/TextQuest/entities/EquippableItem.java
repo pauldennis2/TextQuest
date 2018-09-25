@@ -1,14 +1,11 @@
-package paul.TextQuest.new_interfaces;
+package paul.TextQuest.entities;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
-import paul.TextQuest.entities.BackpackItem;
 import paul.TextQuest.enums.EquipSlot;
 
 /**
@@ -16,8 +13,7 @@ import paul.TextQuest.enums.EquipSlot;
  */
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_type", visible = true)
-@JsonSubTypes({ @Type(value = EquipableItem.class, name = EquipableItem._TYPE) })
-public class EquipableItem extends BackpackItem {
+public class EquippableItem extends BackpackItem {
 	
 	public static final String _TYPE = "equipment";
 
@@ -31,12 +27,31 @@ public class EquipableItem extends BackpackItem {
     private String onEquip;
     private String onUnequip;
     
-    public EquipableItem () {
-    	
+    public EquippableItem () {
+    	super();
     }
     
-    public EquipableItem (String name) {
+    public EquippableItem (EquippableItem other) {
+    	super(other);
+    	
+    	this.slot = other.slot;
+    	this.mightMod = other.mightMod;
+    	this.magicMod = other.magicMod;
+    	this.sneakMod = other.sneakMod;
+    	this.defenseMod = other.defenseMod;
+    	
+    	this.onEquip = other.onEquip;
+    	this.onUnequip = other.onUnequip;
+    }
+    
+    public EquippableItem (String name, EquipSlot slot) {
     	super(name);
+    	this.slot = slot;
+    }
+    
+    @Override
+    public EquippableItem copy () {
+    	return new EquippableItem(this);
     }
 
 	public EquipSlot getSlot() {

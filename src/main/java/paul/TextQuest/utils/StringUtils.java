@@ -15,7 +15,7 @@ import paul.TextQuest.entities.BackpackItem;
 public class StringUtils {
 
 	public static String capitalize (String input) {
-		return input.substring(0, 1).toUpperCase() + input.substring(1);
+		return input.toLowerCase().substring(0, 1).toUpperCase() + input.substring(1);
 	}
 	
 	public static String prettyPrintList (List<?> list) {

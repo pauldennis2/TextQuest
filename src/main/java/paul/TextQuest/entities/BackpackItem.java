@@ -14,12 +14,13 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 		defaultImpl = BackpackItem.class,
         use = JsonTypeInfo.Id.NAME, 
         include = JsonTypeInfo.As.PROPERTY,
-        property = "type")//,
+        property = "_type")//,
         //visible = true)
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = Note.class, name = "note"),
-        //@JsonSubTypes.Type(value = EquipableItem.class, name = EquipableItem._TYPE)
+        @JsonSubTypes.Type(value = Note.class, name = Note._TYPE),
+        @JsonSubTypes.Type(value = EquippableItem.class, name = EquippableItem._TYPE)
 })
+
 @JsonInclude(Include.NON_NULL)
 public class BackpackItem extends DungeonRoomEntity {
 

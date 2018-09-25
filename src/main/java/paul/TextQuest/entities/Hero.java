@@ -13,7 +13,6 @@ import paul.TextQuest.enums.EquipSlot;
 import paul.TextQuest.enums.LevelUpCategory;
 import paul.TextQuest.enums.SpeakingVolume;
 import paul.TextQuest.interfaces.*;
-import paul.TextQuest.new_interfaces.EquipableItem;
 import paul.TextQuest.utils.*;
 
 import java.io.File;
@@ -70,10 +69,10 @@ public class Hero implements Serializable {
     
     private List<String> clearedDungeons;
     
-    private SkillMap skillMap;
-    
     private List<LevelUpCategory> levelUpTodo;
+    private Map<EquipSlot, EquippableItem> equippedItems;
     
+    private SkillMap skillMap;
     private transient SkillMap skillMods;
 
     private transient int mightMod;
@@ -93,14 +92,10 @@ public class Hero implements Serializable {
     private transient Map<String, VoidAction> views;
     
     private transient Map<String, SpellAction> spellMap;
-    
-    //TODO concept:
-    //Hero has a list of statuses the dungeon can modify (poisoned, diseased, buffed, etc)
-    //Buffs and debuffs
+
     private transient List<String> buffs;
     private transient List<String> debuffs;
     
-    private Map<EquipSlot, EquipableItem> equippedItems;
     
     private static Map<String, SpellAction> possibleSpellMap;
 
@@ -163,19 +158,21 @@ public class Hero implements Serializable {
         exp = 0;
         numSpellsAvailable = 1;
         maxSpellsPerDay = 1;
-        EquipableItem sword = new EquipableItem("Sword");
+        EquippableItem sword = new EquippableItem("Sword", EquipSlot.WEAPON);
+        EquippableItem boots = new EquippableItem("Stealthboots", EquipSlot.BOOTS);
+        boots.setSneakMod(1);
         sword.setMightMod(1);
         sword.setUndroppable(true);
         backpack.add(new BackpackItem("Torch"));
         backpack.add(sword);
+        //backpack.add(boots);
         backpack.add(new BackpackItem("Bow"));
         
-        EquipableItem noiseHelm = new EquipableItem("Noisehelm");
+        EquippableItem noiseHelm = new EquippableItem("Noisehelm", EquipSlot.HELM);
         noiseHelm.setOnEquip("print HELM_ON");
         noiseHelm.setOnUnequip("print HELM_OFF");
-        backpack.add(noiseHelm);
+        //backpack.add(noiseHelm);
     }
-
     
     //Defines what we can do at each level (i.e. what new skills, stat increases, etc are possible)
     private static void initLevelUpPlan () {
@@ -261,7 +258,6 @@ public class Hero implements Serializable {
     			.collect(Collectors.toList());
     }
 
-
     private void initMaps () {
         heroVoidActions = new HashMap<>();
         heroParamActions = new HashMap<>();
@@ -321,6 +317,36 @@ public class Hero implements Serializable {
                 textOut.println("Known Spells:");
                 spellbook.forEach(textOut::println);
             }
+        });
+        views.put("equipment", room -> {
+        	textOut.println("You have the following items equipped:");
+        	equippedItems.keySet().forEach(slot -> {
+        		EquippableItem item = equippedItems.get(slot);
+        		textOut.println(slot + ": " + item.getName());
+        	});
+        	if (equippedItems.keySet().size() == 0) {
+        		textOut.println("(You do not have any items equipped.)");
+        	}
+        });
+        views.put("skills", room -> {
+        	skillMap.keySet().forEach(skill -> {
+        		List<String> skillMessages = new ArrayList<>();
+        		int skillAmt = skillMap.get(skill);
+        		int skillModAmt = skillMods.get(skill);
+        		if (skillAmt != 0 || skillModAmt != 0) {
+        			String out = StringUtils.capitalize(skill) + ": " + skillAmt;
+        			if (skillModAmt != 0) {
+        				out += StringUtils.appendModifierWithSignInParens(skillModAmt);
+        			}
+        			skillMessages.add(out);
+        		}
+        		if (skillMessages.size() > 0) {
+        			textOut.println("You have the following skills:");
+        			skillMessages.forEach(textOut::println);
+        		} else {
+        			textOut.println("You do not have any skills.");
+        		}
+        	});
         });
     }
 
@@ -640,15 +666,20 @@ public class Hero implements Serializable {
         heroParamActions.put("equip", (room, param) -> {
         	List<BackpackItem> items = backpack.getItems();
         	boolean found = false;
+        	EquippableItem equippableItem = null;
         	for (BackpackItem item : items) {
         		if (item.getName().toLowerCase().equals(param)) {
-        			if (item.getClass() == EquipableItem.class) {
-        				
+        			if (item.getClass() == EquippableItem.class) {
+        				textOut.println("OK you are equipping " + item.getName());
+        				equippableItem = (EquippableItem) item;
         			} else {
-        				textOut.println("That item isn't equipable, sorry.");
+        				textOut.println("That item isn't equippable, sorry.");
         			}
         			found = true;
         		}
+        	}
+        	if (equippableItem != null) {
+        		equip(equippableItem);
         	}
         	if (!found) {
         		textOut.println("You don't have a " + param + " to equip.");
@@ -658,20 +689,23 @@ public class Hero implements Serializable {
         heroParamActions.put("unequip", (room, param) -> {
         	//We'll attempt to find by item name first, then by slot
         	boolean found = false;
+        	EquipSlot slotToBeRemoved = null;
         	for (EquipSlot slot : equippedItems.keySet()) {
-        		EquipableItem item = equippedItems.get(slot);
+        		EquippableItem item = equippedItems.get(slot);
         		if (item.getName().toLowerCase().equals(param)) {
-        			unequip(slot);
+        			slotToBeRemoved = slot;
         			found = true;
         			textOut.println("Unequipped " + item.getName());
         		} else if (slot.toString().toLowerCase().equals(param)) {
-        			unequip(slot);
+        			slotToBeRemoved = slot;
         			found = true;
         			textOut.println("Unequipped " + item.getName());
         		}
         	}
         	if (!found) {
         		textOut.println("You don't have a " + param + " equipped.");
+        	} else {
+        		unequip(slotToBeRemoved);
         	}
         });
         
@@ -791,7 +825,7 @@ public class Hero implements Serializable {
                 .findAny().ifPresent(item -> backpack.remove(item));
     }
     
-    public void equip (EquipableItem item) {
+    public void equip (EquippableItem item) {
     	unequip(item.getSlot());
     	
     	mightMod += item.getMightMod();
@@ -802,12 +836,13 @@ public class Hero implements Serializable {
     	if (item.getOnEquip() != null) {
     		location.doAction(item.getOnEquip());
     	}
+    	equippedItems.put(item.getSlot(), item);
     	backpack.remove(item);
     }
     
     public void unequip (EquipSlot slot) {
     	if (equippedItems.get(slot) != null) {
-    		EquipableItem item = equippedItems.get(slot);
+    		EquippableItem item = equippedItems.get(slot);
     		mightMod -= item.getMightMod();
     		magicMod -= item.getMagicMod();
     		skillMods.put("sneak", skillMods.get("sneak") - item.getSneakMod());
@@ -1140,11 +1175,11 @@ public class Hero implements Serializable {
     	this.numSpellsAvailable = numSpellsAvailable;
     }
 
-	public Map<EquipSlot, EquipableItem> getEquippedItems() {
+	public Map<EquipSlot, EquippableItem> getEquippedItems() {
 		return equippedItems;
 	}
 
-	public void setEquippedItems(Map<EquipSlot, EquipableItem> equippedItems) {
+	public void setEquippedItems(Map<EquipSlot, EquippableItem> equippedItems) {
 		this.equippedItems = equippedItems;
 	}
 	
