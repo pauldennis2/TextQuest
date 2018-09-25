@@ -90,14 +90,9 @@ public class Hero implements Serializable {
     private transient Map<String, VoidAction> heroVoidActions;
     private transient Map<String, ParamAction> heroParamActions;
     private transient Map<String, VoidAction> views;
-    
-    private transient Map<String, SpellAction> spellMap;
 
     private transient List<String> buffs;
     private transient List<String> debuffs;
-    
-    
-    private static Map<String, SpellAction> possibleSpellMap;
 
     private transient Random random;
     private transient TextInterface textOut;
@@ -251,7 +246,6 @@ public class Hero implements Serializable {
         heroVoidActions = new HashMap<>();
         heroParamActions = new HashMap<>();
         views = new HashMap<>();
-        spellMap = new HashMap<>();
         initActionMap();
         initViews();
     }
@@ -298,7 +292,7 @@ public class Hero implements Serializable {
         	textOut.println("You have the following items in your pack: " + StringUtils.prettyPrintList(backpack.getItems()));
         });
         views.put("spellbook", room -> {
-            if (spellMap.keySet().size() == 0) {
+            if (spellbook.size() == 0) {
                 textOut.println("You don't know any spells yet.");
             } else {
                 textOut.println("Spells: (Available/Max): (" + numSpellsAvailable + "/" + maxSpellsPerDay + ")");
@@ -517,23 +511,9 @@ public class Hero implements Serializable {
             if (numSpellsAvailable < 1) {
                 textOut.println("Cannot cast anymore spells today.");
             } else {
-                SpellAction action = spellMap.get(param);
-                if (action != null) {
-                    textOut.println("Casting " + param + " spell.");
-                    if (room.getOnSpellCast() != null) {
-                    	Map<String, String> onSpellCast = room.getOnSpellCast();
-                    	if (onSpellCast.containsKey("any")) {
-                    		room.doAction(onSpellCast.get("any"));
-                    	}
-                    	if (onSpellCast.containsKey(param)) {
-                    		room.doAction(onSpellCast.get(param));
-                    	}
-                    }
-                    action.doAction(this);
-                    numSpellsAvailable--;
-                } else {
-                    textOut.println("You do not know " + StringUtils.addAOrAn(StringUtils.capitalize(param)) + " spell.");
-                }
+            	Spellbook spellbook = room.getDungeon().getDungeonRunner().getSpellbook();
+            	Spell spell = spellbook.getSpell(param);
+                castSpell(spell);
             }
         });
 
@@ -696,6 +676,65 @@ public class Hero implements Serializable {
         	}
         });
         
+        heroParamActions.put("viewspells", (room, param) -> {
+        	textOut.println("If you know " + param + " magic, you can cast the following spells:");
+        	room.getDungeon().getDungeonRunner();
+        });
+        
+    }
+    
+    public void castSpell (Spell spell) {
+    	spell.getPrereqs().forEach(prereq -> {
+			if (prereq.contains(" ")) {
+				String[] splits = prereq.split(" ");
+				int requiredLevel = Integer.parseInt(splits[1]);
+				String type = splits[0];
+				if (spellbook.contains(type)) {
+					if (requiredLevel > 1) {
+						textOut.println("Your knowledge of " + prereq + " magic is not strong enough.");
+					}
+				} else {
+					textOut.println("You don't know the neccessary type of magic (" + prereq + ")");
+				}
+			} else {
+				if (!spellbook.contains(prereq)) {
+					textOut.println("You don't know the neccessary type of magic (" + prereq + ")");
+					return;
+				}
+			}
+		});
+		
+		//Check required items
+		spell.getRequiredItems().forEach(itemName -> {
+			if (backpack.contains(itemName)) {
+				textOut.println("You are missing a required item.");
+				return;
+			}
+		});
+		
+		//Check and remove reagents
+		spell.getReagents().forEach(reagent -> {
+			if (backpack.contains(reagent)) {
+				textOut.println("You are missing a required reagent: " + reagent + ".");
+				return;
+			} else {
+				backpack.remove(reagent);
+			}
+		});
+		
+		//Check status string
+		String statusString = spell.getStatusString();
+		if (statusString != null) {
+			if (hasStatus(statusString)) {
+				textOut.println("You are already affected by that spell.");
+				return;
+			} else {
+				addStatus(statusString);
+			}
+		}
+		
+		//Do spell actions
+		spell.getActions().forEach(location::doAction);
     }
 
     public void removeItem (String itemName) {
@@ -1006,19 +1045,8 @@ public class Hero implements Serializable {
     	return spellbook;
     }
     
-    /**
-     * Alert - this method does more than just a regular setter.
-     * It also attempts to rebuild a Map<String, SpellAction>
-     * @param spellbook
-     */
     public void setSpellbook (List<String> spellbook) {
     	this.spellbook = spellbook;
-    	//TODO - verify if this works
-    	//Goal is to rebuild the actual map of spells during deserialization
-    	spellMap = new HashMap<>();
-    	for(String spell : spellbook) {
-    		spellMap.put(spell, possibleSpellMap.get(spell));
-    	}
     }
     
     public List<String> getClearedDungeons () {
@@ -1038,10 +1066,8 @@ public class Hero implements Serializable {
     }
     
     public boolean addSpell (String spell) {
-    	//If it's a legit spell that we don't already have
-    	if (possibleSpellMap.containsKey(spell) && !spellbook.contains(spell)) {
+    	if (!spellbook.contains(spell)) {
     		spellbook.add(spell);
-    		spellMap.put(spell, possibleSpellMap.get(spell));
     		return true;
     	}
     	return false;

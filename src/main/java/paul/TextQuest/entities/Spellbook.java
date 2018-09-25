@@ -15,18 +15,11 @@ import paul.TextQuest.utils.StringUtils;
 
 public class Spellbook {
 	
-	Map<String, Spell> spellbook;
+	private List<String> spellTypes;
+	private Map<String, Spell> spellbook;
 	
 	public Spellbook () {
 		
-	}
-
-	public Map<String, Spell> getSpellbook() {
-		return spellbook;
-	}
-
-	public void setSpellbook(Map<String, Spell> spellbook) {
-		this.spellbook = spellbook;
 	}
 	
 	private static Spellbook jsonRestore(String spellbookJson) throws IOException {
@@ -38,9 +31,12 @@ public class Spellbook {
 		return jsonRestore(StringUtils.readFile(fileName));
 	}
 	
-	public String toString () {
-		return spellbook.toString();
+	//Convenience method to access spells quickly
+	public Spell getSpell (String key) {
+		return spellbook.get(key);
 	}
+	
+	
 	
 	//Get all spells that require the given type of magic
 	//i.e. get all Fire spells
@@ -62,5 +58,38 @@ public class Spellbook {
 				return false;
 			})
 			.collect(Collectors.toList());
-	}	
+	}
+	
+	//Adds all entries from the other spellbook, throwing errors on conflicts
+	public void addSpellbook (Spellbook other) {
+		other.spellTypes.forEach(spellType -> {
+			if (!this.spellTypes.contains(spellType)) {
+				this.spellTypes.add(spellType);
+			}
+		});
+		
+		other.spellbook.keySet().forEach(key -> {
+			Spell spell = other.spellbook.get(key);
+			if (this.spellbook.containsKey(key)) {
+				throw new AssertionError("Already have a mapping for " + key);
+			}
+			this.spellbook.put(key, spell);
+		});
+	}
+
+	public List<String> getSpellTypes() {
+		return spellTypes;
+	}
+
+	public void setSpellTypes(List<String> spellTypes) {
+		this.spellTypes = spellTypes;
+	}
+
+	public Map<String, Spell> getSpellbook() {
+		return spellbook;
+	}
+
+	public void setSpellbook(Map<String, Spell> spellbook) {
+		this.spellbook = spellbook;
+	}
 }

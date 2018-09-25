@@ -4,10 +4,8 @@
  */
 package paul.TextQuest.entities;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 import paul.TextQuest.TextInterface;
 import paul.TextQuest.enums.SpellTargetType;
@@ -33,26 +31,9 @@ public class Spell {
 		requiredItems = new ArrayList<>();
 	}
 	
-	public static void main(String[] args) throws IOException {
-		Spellbook spellbook = Spellbook.buildFromFile("content_files/game/spellbook.json");
-		System.out.println(Spellbook.buildFromFile("content_files/game/spellbook.json"));
-		Scanner inputScanner = new Scanner(System.in);
-		
-		while (true) {
-			String input = inputScanner.nextLine();
-			if (input.equals("")) {
-				break;
-			}
-			System.out.println("All spells with type " + input + ":");
-			List<Spell> spellsOfType = spellbook.getSpellsOfType(input);
-			spellsOfType.forEach(spell -> System.out.println("\t" + spell.getName()));
-		}
-		
-		inputScanner.close();
-	}
-	
 	
 	//Sandbox area for writing this code. Will probably end up in Hero
+	//TODO move to Hero (or other appropriate location)
 	public static void castSpell (Spell spell, DungeonRoom location, Hero hero) {
 		TextInterface textOut = hero.getTextOut();
 		//Check prereqs
@@ -169,6 +150,11 @@ public class Spell {
 	public void setStatusString (String statusString) {
 		this.statusString = statusString;
 	}
+
+	public String getStatusString() {
+		return statusString;
+	}
+
 
 	@Override
 	public String toString() {

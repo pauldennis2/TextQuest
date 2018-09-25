@@ -5,6 +5,7 @@ import paul.TextQuest.entities.Dungeon;
 import paul.TextQuest.entities.DungeonRoom;
 import paul.TextQuest.entities.Hero;
 import paul.TextQuest.entities.NormalCombat;
+import paul.TextQuest.entities.Spellbook;
 import paul.TextQuest.parsing.StatementAnalysis;
 import paul.TextQuest.parsing.StatementAnalyzer;
 
@@ -28,6 +29,8 @@ public class DungeonRunner  {
     private static final List<String> CLEAR_REQUIRED_FOR_ACTION = Arrays.asList("move", "loot", "plunder", "rescue", "search");
     
     private TextInterface textOut;
+    
+    private Spellbook spellbook;
     
     public DungeonRunner(Hero hero, String fileName) throws IOException {
     	this.hero = hero;
@@ -135,4 +138,11 @@ public class DungeonRunner  {
     	}
     }
 
+	public Spellbook getSpellbook() {
+		return spellbook;
+	}
+
+	public void setSpellbook(Spellbook spellbook) {
+		this.spellbook = spellbook;
+	}
 }

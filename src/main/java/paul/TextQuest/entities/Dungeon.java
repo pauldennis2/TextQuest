@@ -30,7 +30,6 @@ public class Dungeon extends MetaLocation {
 
     private DungeonRoom template;
     
-    
     private transient boolean cleared;
     private transient DungeonRoom entrance;
     private Map<String, Integer> levels;
