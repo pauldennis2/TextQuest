@@ -165,13 +165,13 @@ public class Hero implements Serializable {
         sword.setUndroppable(true);
         backpack.add(new BackpackItem("Torch"));
         backpack.add(sword);
-        backpack.add(boots);
+        //backpack.add(boots);
         backpack.add(new BackpackItem("Bow"));
         
         EquippableItem noiseHelm = new EquippableItem("Noisehelm", EquipSlot.HELM);
         noiseHelm.setOnEquip("print HELM_ON");
         noiseHelm.setOnUnequip("print HELM_OFF");
-        backpack.add(noiseHelm);
+        //backpack.add(noiseHelm);
     }
     
     //Defines what we can do at each level (i.e. what new skills, stat increases, etc are possible)
@@ -329,7 +329,6 @@ public class Hero implements Serializable {
         	}
         });
         views.put("skills", room -> {
-        	
         	skillMap.keySet().forEach(skill -> {
         		List<String> skillMessages = new ArrayList<>();
         		int skillAmt = skillMap.get(skill);

@@ -1,0 +1,20 @@
+{
+	"itemMap":
+	{
+		"Noisehelm":
+		{
+			"name":"Noisehelm",
+			"onEquip":"print HELM_ON",
+			"onUnequip":"print HELM_OFF",
+			"_type":"equipment",
+			"slot":"HELM"
+		},
+		"Stealthboots":
+		{
+			"name":"Stealthboots",
+			"slot":"BOOTS",
+			"_type":"equipment",
+			"sneakMod":1
+		}
+	}
+}

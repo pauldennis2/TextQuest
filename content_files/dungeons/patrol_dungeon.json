@@ -6,7 +6,8 @@
   ],
   "itemLibraries":
   [
-  	"potions.json"
+  	"potions.json",
+  	"equipment.json"
   ],
   "monsterLibrary":
   {
@@ -36,7 +37,7 @@
   		"name":"Entrance",
   		"id":0,
   		"description":"There's a fountain with murky weird looking water.",
-  		"itemKeys":["Antidote"],
+  		"itemKeys":["Noisehelm", "Stealthboots"],
   		"specialRoomActions":
   		{
   			"drink":"setHeroStatus -poisoned;print \"You've been poisoned, dummy\"",

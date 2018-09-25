@@ -5,6 +5,8 @@ package paul.TextQuest.entities;
  */
 public class Note extends BackpackItem {
 
+	public static final String _TYPE = "note";
+	
     private String text;
 
     public Note () {

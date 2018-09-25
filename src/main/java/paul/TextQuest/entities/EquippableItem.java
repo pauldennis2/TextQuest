@@ -3,8 +3,6 @@ package paul.TextQuest.entities;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.annotation.JsonSubTypes;
-import com.fasterxml.jackson.annotation.JsonSubTypes.Type;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
@@ -15,7 +13,6 @@ import paul.TextQuest.enums.EquipSlot;
  */
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_type", visible = true)
-@JsonSubTypes({ @Type(value = EquippableItem.class, name = EquippableItem._TYPE) })
 public class EquippableItem extends BackpackItem {
 	
 	public static final String _TYPE = "equipment";
