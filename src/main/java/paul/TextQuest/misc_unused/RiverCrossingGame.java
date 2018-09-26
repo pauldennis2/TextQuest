@@ -2,10 +2,9 @@ package paul.TextQuest.misc_unused;
 
 
 
-import paul.TextQuest.enums.BoatThings;
 import paul.TextQuest.utils.SafeNumScanner;
 
-import static paul.TextQuest.enums.BoatThings.*;
+import static paul.TextQuest.misc_unused.BoatThings.*;
 
 import java.util.HashSet;
 import java.util.Scanner;

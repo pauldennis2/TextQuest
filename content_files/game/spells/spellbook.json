@@ -1,4 +1,8 @@
 {
+	"spellTypes":
+	[
+		"fire", "air", "shielding", "ice", "lightning", "force", "light", "shadow", "earth"
+	],
 	"spellbook": 
 	{
 		"fireblast":

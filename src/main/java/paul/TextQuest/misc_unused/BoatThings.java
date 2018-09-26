@@ -1,4 +1,4 @@
-package paul.TextQuest.enums;
+package paul.TextQuest.misc_unused;
 
 /**
  * Created by Paul Dennis on 8/9/2017.
