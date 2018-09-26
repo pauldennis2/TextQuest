@@ -92,19 +92,6 @@ public class StatementAnalyzer {
             } else if (actionWord.equals("say") || actionWord.equals("whisper") || actionWord.equals("shout")) {
                 analysis.setActionable(true);
                 analysis.setActionWord(actionWord);
-            } else if (actionWord.equals("cast")) {
-            	//TODO make alternations here
-                MagicUniversity magicUniversity = MagicUniversity.getInstance();
-                String[] tokens = analysis.getTokens();
-                List<String> matches = Arrays.stream(tokens)
-                        .map(magicUniversity::getSpellMatch)
-                        .filter(e -> e != null)
-                        .collect(Collectors.toList());
-                if (matches.size() > 0) {
-                    analysis.setAnalysis("cast", matches.get(0));
-                } else {
-                    analysis.addComment("Could not find a spell to cast");
-                }
             } else if (actionWord.equals("search")) {
                 Set<String> hiddenItemLocations = location.getHiddenItems().keySet();
                 String[] tokens = analysis.getTokens();
@@ -154,23 +141,11 @@ public class StatementAnalyzer {
             			analysis.addComment("Can only use one item at a time.");
             		}
             	}
-            } else if (actionWord.equals("drop")) {
-            	String itemName = StringUtils.squishTokens(analysis.getTokens());
-            	analysis.setAnalysis("drop", itemName);
-            } else if (actionWord.equals("insert")) {
-            	String itemName = StringUtils.squishTokens(analysis.getTokens());
-            	
-            	analysis.setAnalysis("insert", itemName);
-            } else if (actionWord.equals("equip")) {
-            	String itemName = StringUtils.squishTokens(analysis.getTokens());
-            	analysis.setAnalysis("equip", itemName);
-            } else if (actionWord.equals("unequip")) {
-            	String itemName = StringUtils.squishTokens(analysis.getTokens());
-            	analysis.setAnalysis("unequip", itemName);
-            } else if (actionWord.equals("viewspells")) {
-            	String spells = StringUtils.squishTokens(analysis.getTokens());
-            	analysis.setAnalysis("viewspells", spells);
-            	//Ugh all this is so hacky and ugly
+            } else if (actionWord.equals("drop") || actionWord.equals("insert") || actionWord.equals("equip")
+            		|| actionWord.equals("unequip") || actionWord.equals("viewspells") || actionWord.equals("cast")
+            		|| actionWord.equals("detail")) {
+            	String squished = StringUtils.squishTokens(analysis.getTokens());
+            	analysis.setAnalysis(actionWord, squished);
             } else {
                 List<String> conceptWords = analysis.getTokenMatchMap().get(WordType.CONCEPT);
                 if (conceptWords.size() > 0) {

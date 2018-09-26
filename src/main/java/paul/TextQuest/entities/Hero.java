@@ -292,23 +292,27 @@ public class Hero implements Serializable {
         	textOut.println("You have the following items in your pack: " + StringUtils.prettyPrintList(backpack.getItems()));
         });
         views.put("spellbook", room -> {
+            
+            textOut.println("Spells: (Available/Max): (" + numSpellsAvailable + "/" + maxSpellsPerDay + ")");
             if (spellbook.size() == 0) {
-                textOut.println("You don't know any spells yet.");
+                textOut.println("You don't know any areas of magic yet.");
             } else {
-                textOut.println("Spells: (Available/Max): (" + numSpellsAvailable + "/" + maxSpellsPerDay + ")");
-                textOut.println("Known Spells:");
+                
+                textOut.println("Known Areas of Magic:");
                 spellbook.forEach(textOut::println);
             }
         });
         views.put("equipment", room -> {
+        	if (equippedItems.keySet().size() == 0) {
+        		textOut.println("You do not have any items equipped.");
+        		return;
+        	}
         	textOut.println("You have the following items equipped:");
         	equippedItems.keySet().forEach(slot -> {
         		EquippableItem item = equippedItems.get(slot);
         		textOut.println(slot + ": " + item.getName());
         	});
-        	if (equippedItems.keySet().size() == 0) {
-        		textOut.println("(You do not have any items equipped.)");
-        	}
+        	
         });
         views.put("skills", room -> {
         	skillMap.keySet().forEach(skill -> {
@@ -513,7 +517,11 @@ public class Hero implements Serializable {
             } else {
             	Spellbook spellbook = room.getDungeon().getDungeonRunner().getSpellbook();
             	Spell spell = spellbook.getSpell(param);
-                castSpell(spell);
+            	if (spell != null) {
+            		castSpell(spell);
+            	} else {
+            		textOut.println("Could not find spell " + param);
+            	}
             }
         });
 
@@ -525,8 +533,8 @@ public class Hero implements Serializable {
                 if (onUse == null) {
                 	textOut.println("You can't use that item directly.");
                 } else {
-                	if (onUse.contains("!CONSUMES")) {
-                		onUse = onUse.replaceAll("!CONSUMES", "").trim();
+                	if (onUse.contains(BackpackItem.CONSUMES)) {
+                		onUse = onUse.replaceAll(BackpackItem.CONSUMES, "").trim();
                 		getBackpack().remove(item);
                 	}
                 	room.doAction(onUse);
@@ -698,6 +706,22 @@ public class Hero implements Serializable {
         	
         	textOut.println("The following spells use " + param + " magic:");
         	spellsOfType.forEach(textOut::println);
+        });
+        
+        heroParamActions.put("detail", (room, param) -> {
+        	//Look for an Item
+        	BackpackItem item = backpack.getItem(param);
+        	if (item != null) {
+        		textOut.println(item.toDetailedString());
+        	}
+        	//Look for a Spell
+        	Spell spell = room.getDungeon().getDungeonRunner().getSpellbook().getSpell(param);
+        	if (spell != null) {
+        		textOut.println(spell.toDetailedString());
+        	}
+        	if (item == null && spell == null) {
+        		textOut.println("Unable to find a spell or item called " + param + " on which to provide detail.");
+        	}
         });
         
     }

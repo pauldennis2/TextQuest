@@ -44,6 +44,7 @@
   			"think":"$if[true] print\"I think therefore I am.\"",
   			"check":"$if[hero->hasStatus(poisoned)] print \"You are poisoned.\"",
   			"shield":"teachSpell aegis",
+  			"ice":"teachSpell ice",
   			"clear":"setDungeonCleared"
   		},
   		"connectedRoomIds":

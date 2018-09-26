@@ -9,6 +9,7 @@
 		{
 			"name":"Fireblast",
 			"key":"fireblast",
+			"description":"Unleashes a blast of fire, dealing 5 damage to all enemies.",
 			"targetType":"ALL_ENEMIES",
 			"actions":["dealDamage 5"],
 			"prereqs":["fire"]
@@ -17,15 +18,17 @@
 		{
 			"name":"Minor Aegis",
 			"key":"aegis",
+			"description":"Creates a defensive barrier, increasing defense by 5.",
 			"statusString":"+aegis",
 			"targetType":"SELF",
-			"actions":["modStat defense +5"],
+			"actions":["modStat defense 5"],
 			"prereqs":["shielding"]
 		},
 		"heal":
 		{
 			"name":"Minor Healing",
 			"key":"heal",
+			"description":"Restores 10 health to the hero.",
 			"targetType":"SELF",
 			"actions":["heal 10"]
 		},
@@ -33,6 +36,7 @@
 		{
 			"name":"Iceblast",
 			"key":"iceblast",
+			"description":"Strikes a random enemy for 8 damage, stunning them.",
 			"targetType":"RANDOM_ENEMY",
 			"actions":["dealDamage 8", "disable 1"],
 			"prereqs":["ice"]
@@ -41,6 +45,7 @@
 		{
 			"name":"Lightningblast",
 			"key":"lightningblast",
+			"description":"Strikes a random enemy for 12 damage.",
 			"targetType":"RANDOM_ENEMY",
 			"actions":["dealDamage 12"],
 			"prereqs":["lightning"]
@@ -49,6 +54,7 @@
 		{
 			"name":"Telekinetic Push",
 			"key":"push",
+			"description":"Pushes all enemies away from the hero, doing minor damage and stunning them.",
 			"targetType":"ALL_ENEMIES",
 			"actions":["dealDamage 2", "disable 1"],
 			"prereqs":["force"]
@@ -73,18 +79,21 @@
 		{
 			"name":"Shadow Cloak",
 			"key":"shadowcloak",
+			"description":"Bends shadow around the hero, making them harder to detect while sneaking.",
 			"statusString":"+shadowcloak",
 			"targetType":"SELF",
-			"actions":["modStat stealth +5"],
+			"actions":["modStat stealth 5"],
 			"prereqs":["shadow"]
 		},
 		"fireball":
 		{
 			"name":"Fireball",
 			"key":"fireball",
+			"description":"Unleashes a massive fiery explosion, dealing 20 damage to all enemies and stunning them.",
 			"targetType":"ALL_ENEMIES",
 			"actions":["dealDamage 20", "disable 1"],
-			"prereqs":["fire 2"]
+			"prereqs":["fire 2"],
+			"requiredItems":["Wizard's Staff"]
 		}
 	}
 }

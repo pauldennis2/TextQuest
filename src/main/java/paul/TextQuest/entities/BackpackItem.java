@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
+import paul.TextQuest.interfaces.Detailable;
+
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
@@ -22,7 +24,7 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 })
 
 @JsonInclude(Include.NON_NULL)
-public class BackpackItem extends DungeonRoomEntity {
+public class BackpackItem extends DungeonRoomEntity implements Detailable{
 
     private String name;
     
@@ -38,6 +40,9 @@ public class BackpackItem extends DungeonRoomEntity {
     private String onUse;
     
     private String description;
+    
+    public static final double DEFAULT_VISIBILITY_THRESHHOLD = 0.6;
+    public static final String CONSUMES = "!CONSUMES"; //Pronounced like consommés 
 
     public BackpackItem () {
 
@@ -78,7 +83,6 @@ public class BackpackItem extends DungeonRoomEntity {
     public void setName(String name) {
         this.name = name;
     }
-
     
     public Boolean isQuestItem() {
         return isQuestItem;
@@ -114,19 +118,26 @@ public class BackpackItem extends DungeonRoomEntity {
     public String toString () {
         return name;
     }
-    
-
-    public static final double DEFAULT_VISIBILITY_THRESHHOLD = 0.6;
-	public String toDetailedString() {
-		return "BackpackItem [" + (name != null ? "name=" + name + ", " : "")
-				+ (isQuestItem != null ? "isQuestItem=" + isQuestItem + ", " : "") + "value=" + value + ", "
-				+ (onPickup != null ? "onPickup=" + onPickup + ", " : "")
-				+ (onDrop != null ? "onDrop=" + onDrop + ", " : "") 
-				+ "darklight=" + darklight 
-				+ ", undroppable=" + undroppable 
-				+ ", numCharges=" + numCharges + ", " 
-				+ (onUse != null ? "onUse=" + onUse + ", " : "")
-				+ (description != null ? "description=" + description : "") + "]";
+	
+	public String toDetailedString () {
+		String response = name;
+		//description, consume, quest item, value
+		if (description != null) {
+			response += " - " + description;
+		}
+		if (onUse != null && onUse.contains(CONSUMES)) {
+			response += ", (Consumable)";
+		}
+		if (numCharges > 0) {
+			response += ", Charges: " + numCharges;
+		}
+		if (isQuestItem != null && isQuestItem) {
+			response += ", Quest Item";
+		}
+		if (value != 0) {
+			response += ", Value - " + value;
+		}
+		return response;
 	}
 
 	public boolean isVisible (double lighting) {

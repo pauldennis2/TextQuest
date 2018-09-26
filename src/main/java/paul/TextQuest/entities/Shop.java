@@ -1,7 +1,6 @@
 package paul.TextQuest.entities;
 
 import paul.TextQuest.TextInterface;
-import paul.TextQuest.utils.SafeNumScanner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +68,8 @@ public class Shop extends Location {
     }
 
     public void browseItems () {
-        int yourGold = 10000;
+        /*int yourGold = 10000;
+        
         SafeNumScanner safeNumScanner = new SafeNumScanner(System.in);
 
         while (true) {
@@ -87,6 +87,8 @@ public class Shop extends Location {
                 yourGold -= item.getValue();
             }
         }
+        */
+        
     }
 
     public static void main(String[] args) {

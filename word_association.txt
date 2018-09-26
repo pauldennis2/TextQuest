@@ -35,6 +35,7 @@ drop : drop
 equip : equip, don, wear
 unequip : unequip
 viewspells : spelllookup, tome, listspells
+detail : details
 |
 |Concept Words:
 |===

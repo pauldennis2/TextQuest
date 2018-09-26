@@ -7,6 +7,7 @@ import paul.TextQuest.entities.obstacles.RiddleObstacle;
 import paul.TextQuest.enums.Direction;
 import paul.TextQuest.enums.LightingLevel;
 import paul.TextQuest.enums.SpeakingVolume;
+import paul.TextQuest.enums.SpellTargetType;
 import paul.TextQuest.interfaces.MultiParamAction;
 import paul.TextQuest.interfaces.ParamAction;
 import paul.TextQuest.interfaces.VoidAction;
@@ -555,6 +556,11 @@ public class DungeonRoom extends TickTock {
         		}
         		newRoom.addMonster(monster);
         	});
+        });
+        
+        multiParamActionMap.put("dealDamage", (room, args) -> {
+        	SpellTargetType targetType = SpellTargetType.getType(args[1]);
+        	int damageAmt = Integer.parseInt(args[2]);
         });
         
     }

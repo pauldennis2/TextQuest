@@ -15,7 +15,8 @@ import paul.TextQuest.entities.BackpackItem;
 public class StringUtils {
 
 	public static String capitalize (String input) {
-		return input.toLowerCase().substring(0, 1).toUpperCase() + input.substring(1);
+		input = input.toLowerCase();
+		return input.substring(0, 1).toUpperCase() + input.substring(1);
 	}
 	
 	public static String prettyPrintList (List<?> list) {
@@ -57,6 +58,14 @@ public class StringUtils {
 			return "(" + (modifier > 0 ? "+":"") + modifier + ")";
 		} else {
 			return "";
+		}
+	}
+	
+	public static String appendModifierWithSign (int modifier) {
+		if (modifier >= 0) {
+			return "+" + modifier;
+		} else {
+			return "" + modifier;
 		}
 	}
 	
