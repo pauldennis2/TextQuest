@@ -74,10 +74,6 @@ public class LevelUpPlan {
 		this.levelingRestoresSpells = levelingRestoresSpells;
 	}
 
-	public static void main(String[] args) throws IOException {
-		System.out.println(buildFromFile("content_files/game/leveling/default_plan.json"));
-	}
-
 	@Override
 	public String toString() {
 		return "LevelUpPlan [expAmounts=" + expAmounts + ", levelUpActions=" + levelUpActions + "]";

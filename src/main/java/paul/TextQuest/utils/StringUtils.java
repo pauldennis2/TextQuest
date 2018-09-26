@@ -8,14 +8,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
-
-import paul.TextQuest.entities.BackpackItem;
 
 public class StringUtils {
 
 	public static String capitalize (String input) {
-		return input.toLowerCase().substring(0, 1).toUpperCase() + input.substring(1);
+		input = input.toLowerCase();
+		return input.substring(0, 1).toUpperCase() + input.substring(1);
 	}
 	
 	public static String prettyPrintList (List<?> list) {
@@ -36,11 +34,35 @@ public class StringUtils {
 		return response;
 	}
 	
+	/**
+	 * Squishes the given tokens to one string, skipping the first.
+	 * @param tokens
+	 * @return
+	 */
+	public static String squishTokens (String[] tokens) {
+		String response = "";
+		for (int i = 1; i < tokens.length; i++) {
+    		response += tokens[i];
+    		if (i + 1 < tokens.length) {
+    			response += " ";
+    		}
+    	}
+		return response;
+	}
+	
 	public static String appendModifierWithSignInParens (int modifier) {
 		if (modifier != 0) {
 			return "(" + (modifier > 0 ? "+":"") + modifier + ")";
 		} else {
 			return "";
+		}
+	}
+	
+	public static String appendModifierWithSign (int modifier) {
+		if (modifier >= 0) {
+			return "+" + modifier;
+		} else {
+			return "" + modifier;
 		}
 	}
 	
@@ -59,13 +81,6 @@ public class StringUtils {
 			}
 		}
 		return response;
-	}
-	
-	public static String prettyPrintCount (List<BackpackItem> list) {
-		List<String> itemNames = list.stream().map(BackpackItem::getName).collect(Collectors.toList());
-		CountMap<String> itemNameCountMap = new CountMap<>();
-		itemNames.forEach(itemNameCountMap::add);
-		return "null";
 	}
 	
 	public static String addAOrAn (String input) {

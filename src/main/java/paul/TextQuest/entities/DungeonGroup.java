@@ -66,10 +66,5 @@ public class DungeonGroup {
 	public String toString() {
 		return "DungeonGroup [name=" + name + ", dungeonInfo=" + dungeonInfo + "]";
 	}
-
-	public static void main(String[] args) throws Exception {
-		DungeonGroup group = buildGroupFromFile("content_files/first_dungeon_group.json");
-		System.out.println(group);
-	}
 	
 }

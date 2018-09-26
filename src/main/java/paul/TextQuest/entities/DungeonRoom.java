@@ -7,10 +7,12 @@ import paul.TextQuest.entities.obstacles.RiddleObstacle;
 import paul.TextQuest.enums.Direction;
 import paul.TextQuest.enums.LightingLevel;
 import paul.TextQuest.enums.SpeakingVolume;
+import paul.TextQuest.enums.SpellTargetType;
 import paul.TextQuest.interfaces.MultiParamAction;
 import paul.TextQuest.interfaces.ParamAction;
 import paul.TextQuest.interfaces.VoidAction;
 import paul.TextQuest.interfaces.SpeechListener;
+import paul.TextQuest.utils.CollectionUtils;
 import paul.TextQuest.utils.StringUtils;
 
 import java.util.*;
@@ -557,6 +559,68 @@ public class DungeonRoom extends TickTock {
         	});
         });
         
+        multiParamActionMap.put("dealDamage", (room, args) -> {
+        	int damageAmt = Integer.parseInt(args[1]);
+        	SpellTargetType targetType = SpellTargetType.getType(args[2]);
+        	
+        	switch (targetType) {
+        	case SELF:
+        		room.getHero().takeDamage(damageAmt);
+        		break;
+        	case ALL_ENEMIES:
+        		if (room.getMonsters().size() > 0) {
+        			room.getMonsters().forEach(monster -> monster.takeDamage(damageAmt));
+        		} else {
+        			room.textOut.println("There were no targets for the spell to hit.");
+        		}
+        		break;
+        	case RANDOM_ENEMY:
+        		Monster monster = CollectionUtils.getRandom(room.getMonsters());
+        		if (monster != null) {
+        			monster.takeDamage(damageAmt);
+        		} else {
+        			room.textOut.println("There were no targets for the spell to hit.");
+        		}
+        		break;
+        	case NONE:
+        		room.textOut.debug("Why are we damaging no one?");
+        		break;
+        	default:
+        		throw new AssertionError("Unreachable");
+        	}
+        });
+        
+        multiParamActionMap.put("disable", (room, args) -> {
+        	int disableAmt = Integer.parseInt(args[1]);
+        	SpellTargetType targetType = SpellTargetType.getType(args[2]);
+        	
+        	switch (targetType) {
+        	case SELF:
+        		room.getHero().disable(disableAmt);
+        		break;
+        	case ALL_ENEMIES:
+        		if (room.getMonsters().size() > 0) {
+        			room.getMonsters().forEach(monster -> monster.disable(disableAmt));
+        		} else {
+        			room.textOut.println("There were no targets for the spell to hit.");
+        		}
+        		break;
+        	case RANDOM_ENEMY:
+        		Monster target = CollectionUtils.getRandom(room.getMonsters());
+        		if (target != null) {
+        			target.disable(disableAmt);
+        		} else {
+        			room.textOut.println("There were no targets for the spell to hit.");
+        		}
+        		break;
+        	case NONE:
+        		room.textOut.debug("Why are we disabling no one?");
+        		break;
+        	default:
+        		throw new AssertionError("Unreachable");
+        	}
+        });
+        
     }
 
     public List<BackpackItem> searchForHiddenItems (String location) {
@@ -1022,7 +1086,6 @@ public class DungeonRoom extends TickTock {
     }
     
     private String replaceVariables (String input) {
-    	System.out.println("Replacing variables for input: " + input);
     	Map<String, String> variables = getDungeon().getDungeonVariables();
     	Map<String, Integer> values = getDungeon().getDungeonValues();
     	while (input.contains("{")) {
@@ -1070,12 +1133,10 @@ public class DungeonRoom extends TickTock {
     		
     		input = input.substring(0, openIndex) + value + input.substring(closeIndex + 1);
     	}
-    	System.out.println("Returning: " + input);
     	return input;
     }
     
     private static boolean evaluateCondition (String condition) {
-    	System.out.println("Evaluating condition:" + condition);
     	if (condition.trim().equals("true")) {
     		return true;
     	}
@@ -1139,7 +1200,6 @@ public class DungeonRoom extends TickTock {
         if (voidActionMap == null || paramActionMap == null || multiParamActionMap == null) {
             initActionMaps();
         }
-        System.out.println("action = " + action);
         //If action contains a semi-colon it contains multiple sub-actions
         if (action.startsWith("$if")) {
         	if (action.contains("{")) {
@@ -1532,7 +1592,6 @@ public class DungeonRoom extends TickTock {
 	}
 	
 	public void buildObjectsFromKeys () {
-		System.out.println("in buildObjectsFromKeys()");
 		if (monsterKeys != null) {
 			for (String key : monsterKeys) {
 				Monster monster = dungeon.getMonsterLibrary().get(key).copy();
@@ -1551,8 +1610,6 @@ public class DungeonRoom extends TickTock {
 					item = new BackpackItem(key);
 				}
 				addItem(item);
-
-            	System.out.println(item.toDetailedString());
 			}
 		}
 	}

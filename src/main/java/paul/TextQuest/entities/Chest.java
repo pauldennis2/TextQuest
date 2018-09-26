@@ -56,7 +56,6 @@ public class Chest extends Container {
 
     public List<BackpackItem> removeContents () {
         if (locked) {
-            System.out.println(name + " is locked.");
             return null;
         }
         List<BackpackItem> returnContent = contents;

@@ -11,6 +11,7 @@ import org.springframework.web.servlet.ModelAndView;
 import paul.TextQuest.entities.Dungeon;
 import paul.TextQuest.entities.DungeonGroup;
 import paul.TextQuest.entities.DungeonInfo;
+import paul.TextQuest.entities.GamePlan;
 import paul.TextQuest.entities.Hero;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,9 +39,14 @@ public class GameController {
     
     public static final String USERS_FILE = "save_data/users.txt";
     public static final String DUNGEON_GROUP_LOCATION = "content_files/test_dungeon_group.json";
+    public static final String GAME_PLAN_LOCATION = "content_files/game/default_gameplan.json";
     
-    public static final String VERSION_STR = "0.0.10";
+    public static final String VERSION_STR = "0.0.11";
     public static final String UNAVAILBLE_STR = "?????";
+    
+    //Currently Gameplans can have multiple dungeongroups.
+    //quick hack to select the first one. TODO remove when expanding
+    public static final int FIRST_GROUP = 0;
     
     @RequestMapping(path = "/", method = RequestMethod.GET)
     public String home () {
@@ -86,7 +92,7 @@ public class GameController {
     	addOutputTextToModel(model, dungeonRunner.getTextOut());
     	
         model.addAttribute("location", dungeonRunner.getDungeon().getDungeonName());
-        model.addAttribute("roomName", "  " + dungeonRunner.getHero().getLocation().getName());
+        model.addAttribute("roomName", dungeonRunner.getHero().getLocation().getName());
         return "game";
     }
     
@@ -109,13 +115,14 @@ public class GameController {
     		model.addAttribute("levelUpAvailable", true);
     	}
     	
+    	GamePlan gamePlan = (GamePlan) session.getAttribute("gamePlan");
     	//Eventually this would be replaced by the GamePlan that contains a dungeongroup
-    	DungeonGroup dungeonGroup = (DungeonGroup) session.getAttribute("dungeonGroup");
-    	if (dungeonGroup == null) {
-    		dungeonGroup = buildDungeonGroup();
-    		session.setAttribute("dungeonGroup", dungeonGroup);
-    	}
     	
+    	if (gamePlan == null) {
+    		gamePlan = buildGamePlan();
+    		session.setAttribute("gamePlan", gamePlan);
+    	}
+    	DungeonGroup dungeonGroup = gamePlan.getDungeonGroups().get(FIRST_GROUP);
     	addDungeonInfoToModel(model, dungeonGroup, hero.getClearedDungeons());
     	
     	return "airship";
@@ -160,7 +167,7 @@ public class GameController {
     
     @RequestMapping(path = "/load-hero", method = RequestMethod.POST)
     public String receiveLoadHero (HttpSession session, Model model, String heroName) {
-    	System.out.println("Loading hero: " + heroName);
+    	System.err.println("!Loading hero: " + heroName);
     	String username = (String) session.getAttribute("username");
     	Hero hero = Hero.loadHeroFromFile(username, heroName);
     	if (hero == null) {
@@ -172,14 +179,16 @@ public class GameController {
     
     @RequestMapping(path = "/startDungeon", method = RequestMethod.GET)
     public String startDungeon (@RequestParam String dungeonName, HttpSession session) {
-    	System.out.println("Attempting to start dungeon with name: " + dungeonName);
+    	System.err.println("!Attempting to start dungeon with name: " + dungeonName);
     	
-    	DungeonGroup dungeonGroup = (DungeonGroup) session.getAttribute("dungeonGroup");
+    	GamePlan gamePlan = (GamePlan) session.getAttribute("gamePlan");
+    	DungeonGroup dungeonGroup = gamePlan.getDungeonGroups().get(FIRST_GROUP);
     	String fileName = dungeonGroup.getDungeonInfo().get(dungeonName).getFileLocation();
     	Hero hero = (Hero) session.getAttribute("hero");
 
     	try {
     		DungeonRunner dungeonRunner = new DungeonRunner(hero, fileName);
+    		dungeonRunner.setSpellbook(gamePlan.getSpellbook());
     		session.setAttribute("dungeonRunner", dungeonRunner);
     		return "redirect:/game";
     	} catch (IOException ex) {
@@ -240,9 +249,9 @@ public class GameController {
     	}
     }
     
-    private static DungeonGroup buildDungeonGroup () {
+    private static GamePlan buildGamePlan () {
     	try {
-    		return DungeonGroup.buildGroupFromFile(DUNGEON_GROUP_LOCATION);
+    		return GamePlan.buildFromFile(GAME_PLAN_LOCATION);
     	} catch (IOException ex) {
     		throw new AssertionError(ex);
     	}

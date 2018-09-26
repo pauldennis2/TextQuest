@@ -30,7 +30,6 @@ public class Dungeon extends MetaLocation {
 
     private DungeonRoom template;
     
-    
     private transient boolean cleared;
     private transient DungeonRoom entrance;
     private Map<String, Integer> levels;
@@ -269,7 +268,6 @@ public class Dungeon extends MetaLocation {
 	}
 	
 	public void setItemLibraries (List<String> itemLibraries) {
-		System.out.println("Initializing item libraries:" + itemLibraries);
 		if (itemLibrary == null) {
 			itemLibrary = new HashMap<>();
 		}
@@ -291,7 +289,6 @@ public class Dungeon extends MetaLocation {
 				ex.printStackTrace();
 			}
 		}
-		System.out.println(itemLibrary);
 	}
 
 	public Map<String, Integer> getDungeonValues () {

@@ -4,10 +4,11 @@
 	"heroStartingInfoLocation":"content_files/game/default_starting_info.json",
 	"dungeonGroupLocations":
 	[
-		"content_files/first_dungeon_group.json"
+		"content_files/test_dungeon_group.json"
 	],
 	"spellbookLocations":
 	[
-		"content_files/game/spells/spellbook.json"
+		"content_files/game/spells/spellbook.json",
+		"content_files/game/spells/reagent_spells.json"
 	]
 }

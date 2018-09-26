@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 import paul.TextQuest.enums.EquipSlot;
+import paul.TextQuest.utils.StringUtils;
 
 /**
  * Created by Paul Dennis on 9/5/2017.
@@ -50,6 +51,25 @@ public class EquippableItem extends BackpackItem {
     }
     
     @Override
+    public String toDetailedString () {
+    	String response = super.toDetailedString();
+    	response += ", Slot: " + slot;
+    	if (mightMod != 0) {
+    		response += ", Might " + StringUtils.appendModifierWithSign(mightMod);
+    	}
+    	if (magicMod != 0) {
+    		response += ", Magic " + StringUtils.appendModifierWithSign(magicMod);
+    	}
+    	if (sneakMod != 0) {
+    		response += ", Sneak " + StringUtils.appendModifierWithSign(sneakMod);
+    	}
+    	if (defenseMod != 0) {
+    		response += ", Defense " + StringUtils.appendModifierWithSign(defenseMod);
+    	}
+    	return response;
+    }
+
+	@Override
     public EquippableItem copy () {
     	return new EquippableItem(this);
     }
