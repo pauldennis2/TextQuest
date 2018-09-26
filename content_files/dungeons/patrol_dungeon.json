@@ -43,7 +43,8 @@
   			"drink":"setHeroStatus -poisoned;print \"You've been poisoned, dummy\"",
   			"think":"$if[true] print\"I think therefore I am.\"",
   			"check":"$if[hero->hasStatus(poisoned)] print \"You are poisoned.\"",
-  			"shield":"teachSpell aegis",
+  			"shield":"teachSpell shielding",
+  			"fuego":"teachSpell fire",
   			"ice":"teachSpell ice",
   			"clear":"setDungeonCleared"
   		},

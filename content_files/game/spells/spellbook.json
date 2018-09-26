@@ -11,7 +11,7 @@
 			"key":"fireblast",
 			"description":"Unleashes a blast of fire, dealing 5 damage to all enemies.",
 			"targetType":"ALL_ENEMIES",
-			"actions":["dealDamage 5"],
+			"actions":["dealDamage 5 ALL_ENEMIES"],
 			"prereqs":["fire"]
 		},
 		"aegis":
@@ -38,7 +38,7 @@
 			"key":"iceblast",
 			"description":"Strikes a random enemy for 8 damage, stunning them.",
 			"targetType":"RANDOM_ENEMY",
-			"actions":["dealDamage 8", "disable 1"],
+			"actions":["dealDamage 8 RANDOM_ENEMY", "disable 1 RANDOM_ENEMY"],
 			"prereqs":["ice"]
 		},
 		"lightningblast":
@@ -47,7 +47,7 @@
 			"key":"lightningblast",
 			"description":"Strikes a random enemy for 12 damage.",
 			"targetType":"RANDOM_ENEMY",
-			"actions":["dealDamage 12"],
+			"actions":["dealDamage 12 RANDOM_ENEMY"],
 			"prereqs":["lightning"]
 		},
 		"push":
@@ -56,7 +56,7 @@
 			"key":"push",
 			"description":"Pushes all enemies away from the hero, doing minor damage and stunning them.",
 			"targetType":"ALL_ENEMIES",
-			"actions":["dealDamage 2", "disable 1"],
+			"actions":["dealDamage 2 ALL_ENEMIES", "disable 1 ALL_ENEMIES"],
 			"prereqs":["force"]
 		},
 		"weaken":
@@ -91,7 +91,7 @@
 			"key":"fireball",
 			"description":"Unleashes a massive fiery explosion, dealing 20 damage to all enemies and stunning them.",
 			"targetType":"ALL_ENEMIES",
-			"actions":["dealDamage 20", "disable 1"],
+			"actions":["dealDamage 20 ALL_ENEMIES", "disable 1 ALL_ENEMIES"],
 			"prereqs":["fire 2"],
 			"requiredItems":["Wizard's Staff"]
 		}

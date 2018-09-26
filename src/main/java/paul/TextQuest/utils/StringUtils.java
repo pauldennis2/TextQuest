@@ -8,9 +8,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.List;
 import java.util.Scanner;
-import java.util.stream.Collectors;
-
-import paul.TextQuest.entities.BackpackItem;
 
 public class StringUtils {
 
@@ -84,13 +81,6 @@ public class StringUtils {
 			}
 		}
 		return response;
-	}
-	
-	public static String prettyPrintCount (List<BackpackItem> list) {
-		List<String> itemNames = list.stream().map(BackpackItem::getName).collect(Collectors.toList());
-		CountMap<String> itemNameCountMap = new CountMap<>();
-		itemNames.forEach(itemNameCountMap::add);
-		return "null";
 	}
 	
 	public static String addAOrAn (String input) {

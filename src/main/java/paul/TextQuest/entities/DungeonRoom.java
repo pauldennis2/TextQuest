@@ -12,6 +12,7 @@ import paul.TextQuest.interfaces.MultiParamAction;
 import paul.TextQuest.interfaces.ParamAction;
 import paul.TextQuest.interfaces.VoidAction;
 import paul.TextQuest.interfaces.SpeechListener;
+import paul.TextQuest.utils.CollectionUtils;
 import paul.TextQuest.utils.StringUtils;
 
 import java.util.*;
@@ -559,8 +560,65 @@ public class DungeonRoom extends TickTock {
         });
         
         multiParamActionMap.put("dealDamage", (room, args) -> {
-        	SpellTargetType targetType = SpellTargetType.getType(args[1]);
-        	int damageAmt = Integer.parseInt(args[2]);
+        	int damageAmt = Integer.parseInt(args[1]);
+        	SpellTargetType targetType = SpellTargetType.getType(args[2]);
+        	
+        	switch (targetType) {
+        	case SELF:
+        		room.getHero().takeDamage(damageAmt);
+        		break;
+        	case ALL_ENEMIES:
+        		if (room.getMonsters().size() > 0) {
+        			room.getMonsters().forEach(monster -> monster.takeDamage(damageAmt));
+        		} else {
+        			room.textOut.println("There were no targets for the spell to hit.");
+        		}
+        		break;
+        	case RANDOM_ENEMY:
+        		Monster monster = CollectionUtils.getRandom(room.getMonsters());
+        		if (monster != null) {
+        			monster.takeDamage(damageAmt);
+        		} else {
+        			room.textOut.println("There were no targets for the spell to hit.");
+        		}
+        		break;
+        	case NONE:
+        		room.textOut.debug("Why are we damaging no one?");
+        		break;
+        	default:
+        		throw new AssertionError("Unreachable");
+        	}
+        });
+        
+        multiParamActionMap.put("disable", (room, args) -> {
+        	int disableAmt = Integer.parseInt(args[1]);
+        	SpellTargetType targetType = SpellTargetType.getType(args[2]);
+        	
+        	switch (targetType) {
+        	case SELF:
+        		room.getHero().disable(disableAmt);
+        		break;
+        	case ALL_ENEMIES:
+        		if (room.getMonsters().size() > 0) {
+        			room.getMonsters().forEach(monster -> monster.disable(disableAmt));
+        		} else {
+        			room.textOut.println("There were no targets for the spell to hit.");
+        		}
+        		break;
+        	case RANDOM_ENEMY:
+        		Monster target = CollectionUtils.getRandom(room.getMonsters());
+        		if (target != null) {
+        			target.disable(disableAmt);
+        		} else {
+        			room.textOut.println("There were no targets for the spell to hit.");
+        		}
+        		break;
+        	case NONE:
+        		room.textOut.debug("Why are we disabling no one?");
+        		break;
+        	default:
+        		throw new AssertionError("Unreachable");
+        	}
         });
         
     }

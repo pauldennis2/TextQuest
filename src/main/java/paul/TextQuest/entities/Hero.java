@@ -297,9 +297,10 @@ public class Hero implements Serializable {
             if (spellbook.size() == 0) {
                 textOut.println("You don't know any areas of magic yet.");
             } else {
-                
                 textOut.println("Known Areas of Magic:");
-                spellbook.forEach(textOut::println);
+                StringUtils.prettyPrintList(spellbook.stream()
+                	.map(StringUtils::capitalize)
+                	.collect(Collectors.toList()));
             }
         });
         views.put("equipment", room -> {
@@ -727,43 +728,44 @@ public class Hero implements Serializable {
     }
     
     public void castSpell (Spell spell) {
-    	spell.getPrereqs().forEach(prereq -> {
+    	for (String prereq : spell.getPrereqs()) {
 			if (prereq.contains(" ")) {
 				String[] splits = prereq.split(" ");
 				int requiredLevel = Integer.parseInt(splits[1]);
 				String type = splits[0];
 				if (spellbook.contains(type)) {
 					if (requiredLevel > 1) {
-						textOut.println("Your knowledge of " + prereq + " magic is not strong enough.");
+						textOut.println("Your knowledge of " + StringUtils.capitalize(splits[0]) + " magic is not strong enough.");
+						return;
 					}
 				} else {
-					textOut.println("You don't know the neccessary type of magic (" + prereq + ")");
+					textOut.println("You don't know the neccessary type of magic (" + StringUtils.capitalize(prereq) + ")");
+					return;
 				}
 			} else {
 				if (!spellbook.contains(prereq)) {
-					textOut.println("You don't know the neccessary type of magic (" + prereq + ")");
+					textOut.println("You don't know the neccessary type of magic (" + StringUtils.capitalize(prereq) + ")");
 					return;
 				}
 			}
-		});
-		
+		}
 		//Check required items
-		spell.getRequiredItems().forEach(itemName -> {
+		for (String itemName : spell.getRequiredItems()) {
 			if (backpack.contains(itemName)) {
 				textOut.println("You are missing a required item.");
 				return;
 			}
-		});
+		}
 		
 		//Check and remove reagents
-		spell.getReagents().forEach(reagent -> {
+		for (String reagent : spell.getReagents()) {
 			if (backpack.contains(reagent)) {
 				textOut.println("You are missing a required reagent: " + reagent + ".");
 				return;
 			} else {
 				backpack.remove(reagent);
 			}
-		});
+		}
 		
 		//Check status string
 		String statusString = spell.getStatusString();
@@ -778,6 +780,17 @@ public class Hero implements Serializable {
 		
 		//Do spell actions
 		spell.getActions().forEach(location::doAction);
+		
+		/*
+		spell.getActions().forEach(action -> {
+			//TODO this is kinda hacky/non-scalable.
+			if (action.contains("dealdamage") || action.contains("disable")) {
+				location.doAction(action + " " + spell.getTargetType());
+			} else {
+				location.doAction(action);
+			}
+		});
+		*/
     }
 
     public void removeItem (String itemName) {
