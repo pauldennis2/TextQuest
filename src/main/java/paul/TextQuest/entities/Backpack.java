@@ -25,10 +25,7 @@ public class Backpack extends Location {
     }
 
     public void remove (BackpackItem item) {
-    	System.out.println("attempting to remove: " + item);
         items.remove(item);
-        
-        System.out.println(items);
     }
     
     public void remove (String itemName) {

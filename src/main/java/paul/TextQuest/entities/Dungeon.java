@@ -268,7 +268,6 @@ public class Dungeon extends MetaLocation {
 	}
 	
 	public void setItemLibraries (List<String> itemLibraries) {
-		System.out.println("Initializing item libraries:" + itemLibraries);
 		if (itemLibrary == null) {
 			itemLibrary = new HashMap<>();
 		}
@@ -290,7 +289,6 @@ public class Dungeon extends MetaLocation {
 				ex.printStackTrace();
 			}
 		}
-		System.out.println(itemLibrary);
 	}
 
 	public Map<String, Integer> getDungeonValues () {

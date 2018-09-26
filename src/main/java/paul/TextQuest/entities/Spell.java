@@ -22,6 +22,8 @@ public class Spell {
 	private List<String> prereqs;
 	private List<String> requiredItems;
 	
+	private String description;
+	
 	private SpellTargetType targetType;
 	
 	public Spell () {
@@ -155,10 +157,21 @@ public class Spell {
 		return statusString;
 	}
 
+	public String getDescription() {
+		return description;
+	}
+
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 
 	@Override
 	public String toString() {
-		return "Spell [name=" + name + ", key=" + key + ", actions=" + actions + ", reagents=" + reagents + ", prereqs="
-				+ prereqs + ", targetType=" + targetType + "]";
-	}	
+		if (description == null) {
+			return name;
+		}
+		return name + " - " + description;
+	}
 }

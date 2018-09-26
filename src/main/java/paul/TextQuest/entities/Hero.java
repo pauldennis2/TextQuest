@@ -223,7 +223,7 @@ public class Hero implements Serializable {
     		String json = fileScanner.nextLine();
     		return jsonRestore(json);
     	} catch (FileNotFoundException ex) {
-    		System.out.println("Could not find hero file at " + fileName);
+    		System.err.println("!Could not find hero file at " + fileName);
     		return null;
     	} catch (IOException ex) {
     		throw new AssertionError(ex);
@@ -677,8 +677,27 @@ public class Hero implements Serializable {
         });
         
         heroParamActions.put("viewspells", (room, param) -> {
-        	textOut.println("If you know " + param + " magic, you can cast the following spells:");
-        	room.getDungeon().getDungeonRunner();
+        	Spellbook possibleSpells = room.getDungeon().getDungeonRunner().getSpellbook();
+        	List<Spell> spellsOfType = possibleSpells.getSpellsOfType(param);
+        	List<String> spellTypes = possibleSpells.getSpellTypes();
+        	
+        	if (param.equals("")) {
+        		if (spellsOfType.size() != 0) {
+        			textOut.println("The following spells do not require any special knowledge to cast:");
+        			spellsOfType.forEach(textOut::println);
+        		} else {
+        			textOut.println("All spells require special knowledge of an area of magic in order to cast them");
+        		}
+        		return;
+        	}
+        	
+        	if (!spellTypes.contains(param)) {
+        		textOut.println("That type of magic does not exist (" + param + ")");
+        		return;
+        	}
+        	
+        	textOut.println("The following spells use " + param + " magic:");
+        	spellsOfType.forEach(textOut::println);
         });
         
     }
@@ -1170,7 +1189,6 @@ public class Hero implements Serializable {
 	}
 	
 	public boolean getHasField (String methodName, String arg) {
-		System.out.println("In getHasField(). Params: methodName = " + methodName + ", arg = " + arg + ".");
 		try {
 			Method method = getClass().getDeclaredMethod(methodName, String.class);
 			return (boolean) method.invoke(this, arg);

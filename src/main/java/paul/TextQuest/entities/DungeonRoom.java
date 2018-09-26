@@ -1022,7 +1022,6 @@ public class DungeonRoom extends TickTock {
     }
     
     private String replaceVariables (String input) {
-    	System.out.println("Replacing variables for input: " + input);
     	Map<String, String> variables = getDungeon().getDungeonVariables();
     	Map<String, Integer> values = getDungeon().getDungeonValues();
     	while (input.contains("{")) {
@@ -1070,12 +1069,10 @@ public class DungeonRoom extends TickTock {
     		
     		input = input.substring(0, openIndex) + value + input.substring(closeIndex + 1);
     	}
-    	System.out.println("Returning: " + input);
     	return input;
     }
     
     private static boolean evaluateCondition (String condition) {
-    	System.out.println("Evaluating condition:" + condition);
     	if (condition.trim().equals("true")) {
     		return true;
     	}
@@ -1139,7 +1136,6 @@ public class DungeonRoom extends TickTock {
         if (voidActionMap == null || paramActionMap == null || multiParamActionMap == null) {
             initActionMaps();
         }
-        System.out.println("action = " + action);
         //If action contains a semi-colon it contains multiple sub-actions
         if (action.startsWith("$if")) {
         	if (action.contains("{")) {
@@ -1550,8 +1546,6 @@ public class DungeonRoom extends TickTock {
 					item = new BackpackItem(key);
 				}
 				addItem(item);
-
-            	System.out.println(item.toDetailedString());
 			}
 		}
 	}

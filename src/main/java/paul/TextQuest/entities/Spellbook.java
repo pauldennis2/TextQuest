@@ -39,12 +39,22 @@ public class Spellbook {
 		return spellbook.get(key);
 	}
 	
-	
+	public List<Spell> getSpellsOfNoType () {
+		return spellbook.keySet()
+			.stream()
+			.map(spellbook::get)
+			.filter(spell -> spell.getPrereqs().size() == 0)
+			.collect(Collectors.toList());
+	}
 	
 	//Get all spells that require the given type of magic
 	//i.e. get all Fire spells
 	public List<Spell> getSpellsOfType (String type) {
-		 return spellbook.keySet()
+		if (type.equals("")) {
+			return getSpellsOfNoType();
+		}
+		
+		return spellbook.keySet()
 			.stream()
 			.map(spellbook::get)
 			.filter(spell -> {

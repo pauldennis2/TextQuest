@@ -167,7 +167,7 @@ public class GameController {
     
     @RequestMapping(path = "/load-hero", method = RequestMethod.POST)
     public String receiveLoadHero (HttpSession session, Model model, String heroName) {
-    	System.out.println("Loading hero: " + heroName);
+    	System.err.println("!Loading hero: " + heroName);
     	String username = (String) session.getAttribute("username");
     	Hero hero = Hero.loadHeroFromFile(username, heroName);
     	if (hero == null) {
@@ -179,7 +179,7 @@ public class GameController {
     
     @RequestMapping(path = "/startDungeon", method = RequestMethod.GET)
     public String startDungeon (@RequestParam String dungeonName, HttpSession session) {
-    	System.out.println("Attempting to start dungeon with name: " + dungeonName);
+    	System.err.println("!Attempting to start dungeon with name: " + dungeonName);
     	
     	GamePlan gamePlan = (GamePlan) session.getAttribute("gamePlan");
     	DungeonGroup dungeonGroup = gamePlan.getDungeonGroups().get(FIRST_GROUP);

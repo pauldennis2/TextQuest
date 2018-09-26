@@ -1,0 +1,37 @@
+{
+	"spellTypes":
+	[
+		"fire", "air", "shielding", "earth"
+	],
+	"spellbook": 
+	{
+		"flight":
+		{
+			"name":"Flight",
+			"key":"flight",
+			"targetType":"SELF",
+			"actions":["print \"You're flying now!\""],
+			"prereqs":["air"],
+			"reagents":["Swan Feather"]
+		},
+		"fireshield":
+		{
+			"name":"Fireshield",
+			"key":"fireshield",
+			"statusString":"+fireshield",
+			"targetType":"SELF",
+			"actions":["print \"You're protected from fire.\""],
+			"prereqs":["fire", "shielding"],
+			"reagents":["Copper Shield"]
+		},
+		"dig":
+		{
+			"name":"Excavate",
+			"key":"dig",
+			"targetType":"NONE",
+			"actions":["print \"Digging around...\""],
+			"prereqs":["earth"],
+			"reagents":["Monster Claw"]
+		}
+	}
+}

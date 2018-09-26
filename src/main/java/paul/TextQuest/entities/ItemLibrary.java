@@ -21,6 +21,5 @@ public class ItemLibrary {
 
 	public void setItemMap(Map<String, BackpackItem> itemMap) {
 		this.itemMap = itemMap;
-		System.out.println(itemMap);
 	}
 }
