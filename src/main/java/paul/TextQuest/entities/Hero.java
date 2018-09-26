@@ -298,9 +298,9 @@ public class Hero implements Serializable {
                 textOut.println("You don't know any areas of magic yet.");
             } else {
                 textOut.println("Known Areas of Magic:");
-                StringUtils.prettyPrintList(spellbook.stream()
+                textOut.println(StringUtils.prettyPrintList(spellbook.stream()
                 	.map(StringUtils::capitalize)
-                	.collect(Collectors.toList()));
+                	.collect(Collectors.toList())));
             }
         });
         views.put("equipment", room -> {
@@ -751,7 +751,7 @@ public class Hero implements Serializable {
 		}
 		//Check required items
 		for (String itemName : spell.getRequiredItems()) {
-			if (backpack.contains(itemName)) {
+			if (!backpack.contains(itemName)) {
 				textOut.println("You are missing a required item.");
 				return;
 			}
@@ -760,10 +760,10 @@ public class Hero implements Serializable {
 		//Check and remove reagents
 		for (String reagent : spell.getReagents()) {
 			if (backpack.contains(reagent)) {
+				backpack.remove(reagent);
+			} else {
 				textOut.println("You are missing a required reagent: " + reagent + ".");
 				return;
-			} else {
-				backpack.remove(reagent);
 			}
 		}
 		

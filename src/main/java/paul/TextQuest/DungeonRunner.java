@@ -58,7 +58,6 @@ public class DungeonRunner  {
 
     protected void handleResponse (String response) {
         StatementAnalysis analysis = analyzer.analyzeStatement(response, currentRoom);
-        System.out.println(analysis);
         doActionFromAnalysis(analysis);
         if (analysis.hasAnd() && analysis.isSecondActionable()) {
             String nextActionWord = analysis.getSecondActionWord();
