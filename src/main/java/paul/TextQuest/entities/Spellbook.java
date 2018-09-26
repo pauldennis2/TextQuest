@@ -5,6 +5,8 @@
 package paul.TextQuest.entities;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -19,7 +21,8 @@ public class Spellbook {
 	private Map<String, Spell> spellbook;
 	
 	public Spellbook () {
-		
+		spellTypes = new ArrayList<>();
+		spellbook = new HashMap<>();
 	}
 	
 	private static Spellbook jsonRestore(String spellbookJson) throws IOException {
