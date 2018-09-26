@@ -251,9 +251,7 @@ public class GameController {
     
     private static GamePlan buildGamePlan () {
     	try {
-    		GamePlan gamePlan = GamePlan.buildFromFile(GAME_PLAN_LOCATION);
-    		gamePlan.build();
-    		return gamePlan;
+    		return GamePlan.buildFromFile(GAME_PLAN_LOCATION);
     	} catch (IOException ex) {
     		throw new AssertionError(ex);
     	}

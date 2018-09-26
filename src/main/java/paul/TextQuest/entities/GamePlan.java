@@ -42,7 +42,7 @@ public class GamePlan {
 		spellbook = new Spellbook();
 	}
 	
-	public void build () {
+	private void build () {
 
 		heroStartingInfo = Hero.loadHeroFromFile(heroStartingInfoLocation);
 		
@@ -80,7 +80,9 @@ public class GamePlan {
     }
 	
 	public static GamePlan buildFromFile (String fileName) throws IOException {
-		return jsonRestore(StringUtils.readFile(fileName));
+		GamePlan gamePlan = jsonRestore(StringUtils.readFile(fileName));
+		gamePlan.build();
+		return gamePlan;
 	}
 
 	public String getLevelingPlanLocation() {

@@ -36,6 +36,22 @@ public class StringUtils {
 		return response;
 	}
 	
+	/**
+	 * Squishes the given tokens to one string, skipping the first.
+	 * @param tokens
+	 * @return
+	 */
+	public static String squishTokens (String[] tokens) {
+		String response = "";
+		for (int i = 1; i < tokens.length; i++) {
+    		response += tokens[i];
+    		if (i + 1 < tokens.length) {
+    			response += " ";
+    		}
+    	}
+		return response;
+	}
+	
 	public static String appendModifierWithSignInParens (int modifier) {
 		if (modifier != 0) {
 			return "(" + (modifier > 0 ? "+":"") + modifier + ")";

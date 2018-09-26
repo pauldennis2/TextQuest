@@ -151,7 +151,7 @@ public class Hero implements Serializable {
 
         level = 0;
         exp = 0;
-        numSpellsAvailable = 1;
+        numSpellsAvailable = 5;
         maxSpellsPerDay = 1;
         backpack.add(new BackpackItem("Torch"));
         //backpack.add(boots);

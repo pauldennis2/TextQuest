@@ -1532,7 +1532,6 @@ public class DungeonRoom extends TickTock {
 	}
 	
 	public void buildObjectsFromKeys () {
-		System.out.println("in buildObjectsFromKeys()");
 		if (monsterKeys != null) {
 			for (String key : monsterKeys) {
 				Monster monster = dungeon.getMonsterLibrary().get(key).copy();

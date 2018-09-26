@@ -7,6 +7,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import paul.TextQuest.entities.DungeonRoom;
+import paul.TextQuest.utils.StringUtils;
 
 /**
  * Created by Paul Dennis on 8/10/2017.
@@ -83,7 +84,7 @@ public class StatementAnalyzer {
             if (actionWord.equals("move")) {
                 List<String> directionWords = analysis.getTokenMatchMap().get(WordType.DIRECTION);
                 if (directionWords.size() > 0) {
-                    analysis.setAnalysis("move", directionWords.get(0), true);
+                    analysis.setAnalysis("move", directionWords.get(0));
                 } else {
                     analysis.addComment("Received move param but no direction. Move where?");
                 }
@@ -92,6 +93,7 @@ public class StatementAnalyzer {
                 analysis.setActionable(true);
                 analysis.setActionWord(actionWord);
             } else if (actionWord.equals("cast")) {
+            	//TODO make alternations here
                 MagicUniversity magicUniversity = MagicUniversity.getInstance();
                 String[] tokens = analysis.getTokens();
                 List<String> matches = Arrays.stream(tokens)
@@ -99,9 +101,7 @@ public class StatementAnalyzer {
                         .filter(e -> e != null)
                         .collect(Collectors.toList());
                 if (matches.size() > 0) {
-                    analysis.setActionable(true);
-                    analysis.setActionParam(matches.get(0));
-                    analysis.setActionWord("cast");
+                    analysis.setAnalysis("cast", matches.get(0));
                 } else {
                     analysis.addComment("Could not find a spell to cast");
                 }
@@ -113,9 +113,7 @@ public class StatementAnalyzer {
                         .collect(Collectors.toList());
                 if (matches.size() > 0) {
                     String param = matches.get(0);
-                    analysis.setActionable(true);
-                    analysis.setActionParam(param);
-                    analysis.setActionWord(actionWord);
+                    analysis.setAnalysis(actionWord, param);
                     if (matches.size() > 1) {
                         analysis.addComment("Can only search one place at a time.");
                     }
@@ -134,6 +132,7 @@ public class StatementAnalyzer {
                         analysis.setActionable(true);
                         analysis.setActionWord(actionWord);
                         analysis.setActionParam(param);
+                        analysis.setAnalysis(actionWord, param);
                         if (nonmatches.size() > 1) {
                             analysis.addComment("Can only search one place at a time.");
                         }
@@ -149,66 +148,33 @@ public class StatementAnalyzer {
             			.collect(Collectors.toList());
             	if (matches.size() > 0) {
             		String param = matches.get(0);
-            		analysis.setActionable(true);
-            		analysis.setActionParam(param);
-            		analysis.setActionWord("use");
+            		analysis.setAnalysis("use", param);
+            		
             		if (matches.size() > 1) {
             			analysis.addComment("Can only use one item at a time.");
             		}
             	}
             } else if (actionWord.equals("drop")) {
-            	String[] tokens = analysis.getTokens();
-            	String itemName = "";
-            	for (int i = 1; i < tokens.length; i++) {
-            		itemName += tokens[i];
-            		if (i + 1 < tokens.length) {
-            			itemName += " ";
-            		}
-            	}
-            	analysis.setActionable(true);
-            	analysis.setActionWord("drop");
-            	analysis.setActionParam(itemName);
+            	String itemName = StringUtils.squishTokens(analysis.getTokens());
+            	analysis.setAnalysis("drop", itemName);
             } else if (actionWord.equals("insert")) {
-            	String[] tokens = analysis.getTokens();
-            	String itemName = "";
-            	for (int i = 1; i < tokens.length; i++) {
-            		itemName += tokens[i];
-            		if (i + 1 < tokens.length) {
-            			itemName += " ";
-            		}
-            	}
+            	String itemName = StringUtils.squishTokens(analysis.getTokens());
             	
-            	analysis.setActionable(true);
-            	analysis.setActionWord("insert");
-            	analysis.setActionParam(itemName);
+            	analysis.setAnalysis("insert", itemName);
             } else if (actionWord.equals("equip")) {
-            	String[] tokens = analysis.getTokens();
-            	String itemName = "";
-            	for (int i = 1; i < tokens.length; i++) {
-            		itemName += tokens[i];
-            		if (i + 1 < tokens.length) {
-            			itemName += " ";
-            		}
-            	}
-            	analysis.setActionable(true);
-            	analysis.setActionWord("equip");
-            	analysis.setActionParam(itemName);
+            	String itemName = StringUtils.squishTokens(analysis.getTokens());
+            	analysis.setAnalysis("equip", itemName);
             } else if (actionWord.equals("unequip")) {
-            	String[] tokens = analysis.getTokens();
-            	String itemName = "";
-            	for (int i = 1; i < tokens.length; i++) {
-            		itemName += tokens[i];
-            		if (i + 1 < tokens.length) {
-            			itemName += " ";
-            		}
-            	}
-            	analysis.setActionable(true);
-            	analysis.setActionWord("unequip");
-            	analysis.setActionParam(itemName);
+            	String itemName = StringUtils.squishTokens(analysis.getTokens());
+            	analysis.setAnalysis("unequip", itemName);
+            } else if (actionWord.equals("viewspells")) {
+            	String spells = StringUtils.squishTokens(analysis.getTokens());
+            	analysis.setAnalysis("viewspells", spells);
+            	//Ugh all this is so hacky and ugly
             } else {
                 List<String> conceptWords = analysis.getTokenMatchMap().get(WordType.CONCEPT);
                 if (conceptWords.size() > 0) {
-                    analysis.setAnalysis(actionWord,conceptWords.get(0), true);
+                    analysis.setAnalysis(actionWord, conceptWords.get(0));
                     if (conceptWords.size() > 1) {
                         analysis.addComment("Ignoring extra concept words.");
                     }
