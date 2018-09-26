@@ -4,6 +4,11 @@
   [
   	"shadow_beastiary.json"
   ],
+  "itemLibraries":
+  [
+  	"potions.json",
+  	"equipment.json"
+  ],
   "monsterLibrary":
   {
   	"BlueGoblin":
@@ -14,6 +19,7 @@
   },
   "description":"",
   "entranceRoomId":0,
+  "onTick":"$if[hero->hasStatus(poisoned)] takeSourcedDamage 1 poison",
   "template":
   {
   	"name":"Dungeon Template",
@@ -21,7 +27,8 @@
   	{
   		"tick":"doTick",
   		"exp":"giveExp 250",
-  		"meditate":"modStat numSpellsAvailable 2"
+  		"meditate":"modStat numSpellsAvailable 2",
+  		"tock":"doTock"
   	}
   },
   "rooms":
@@ -30,12 +37,16 @@
   		"name":"Entrance",
   		"id":0,
   		"description":"There's a fountain with murky weird looking water.",
+  		"itemKeys":["Noisehelm", "Stealthboots"],
   		"specialRoomActions":
   		{
-  			"drink":"setHeroStatus poisoned;print \"You've been poisoned, dummy\"",
+  			"drink":"setHeroStatus -poisoned;print \"You've been poisoned, dummy\"",
   			"think":"$if[true] print\"I think therefore I am.\"",
   			"check":"$if[hero->hasStatus(poisoned)] print \"You are poisoned.\"",
-  			"shield":"teachSpell aegis"
+  			"shield":"teachSpell shielding",
+  			"fuego":"teachSpell fire",
+  			"ice":"teachSpell ice",
+  			"clear":"setDungeonCleared"
   		},
   		"connectedRoomIds":
   		{

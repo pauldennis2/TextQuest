@@ -171,7 +171,33 @@ In version 0.0.9, you can now define a "clock" for your dungeon. Nearly ever com
 
 **Note**: You **will** get stuck in an infinite loop if you do something like `"onTick":"doTick"` (it keeps triggering itself over and over). This might seem obvious, particular if you have experience programming. But it's also possible to get stuck in a less obvious way: `"onTick":"light" [...] "onLightingChange:{"WELL_LIT":"doTick"}` would have the same effect.
 
-**Note 2**: If you have multiple tick/tock actions, it's hard to specify the order in which they will happen. In general, you should assume that tick/tock events will happen in a random order. (If A, B, and C all have `tick` events, then the actual order in which those events happen could be A, B, C; B, C, A; C, B, A - etc). 
+**Note 2**: If you have multiple tick/tock actions, it's hard to specify the order in which they will happen. In general, you should assume that tick/tock events will happen in a random order. (If A, B, and C all have `tick` events, then the actual order in which those events happen could be A, B, C; B, C, A; C, B, A - etc).
+
+### Hero Status, Method Conditions
+
+You now have the ability to add "status effects" to the hero. These are often referred to as "buffs" for positive effects like shielding spells and "debuffs" for negative effects like being poisoned, diseased, encumbered, etc. Status effects don't have any effect by themselves - i.e. just because the hero is "poisoned" doesn't mean that they will naturally take damage over time. Let's look at how to use statuses.
+
+#### Setting a Status Effect
+
+You can add a status effect to the hero using the `setHeroStatus` event. You will need to include the name of the status you want to set, starting with a `+` to indicate a buff or a `-` to indicate a debuff. Example: `setHeroStatus -poisoned`. If you don't include the +/- it will crash. **Note**: when you refer back to these statuses later you should leave off the +/-. The +/- is just for the initial setting of the status.
+
+#### Referring to a Status - Method Conditions
+
+We discussed above how we can make conditions based on dungeon variables and even the hero's statistics. With status effects, we're introducing a new type of condition: the **Method Condition**. The syntax is different from the conditions we've used previously. It still defines the condition with `$if[<condition>]` but the condition part looks different. We use the arrow operator `->` (this is just a dash and a greater than symbol) to indicate a method call. The source is to the left and the method is to the right. So the general syntax is:
+
+`$if[source->method(param)]`
+
+That probably sounds a bit complex. Luckily as of now there is only one "source" (the Hero) and only two methods:
+
+* hasStatus(status)
+* hasItem(item name)
+
+So, putting it all together if we wanted to have the hero be "poisoned" and take damage with every tick, we could do something like this:
+`"onTick":"$if[hero->hasStatus(poisoned)] takeDamage 1"`
+
+And of course you'd need some type of event to trigger the ticks in the first place.
+
+Note: you should not use additional quotes around the parameter. Don't do this: `hero->hasStatus("poisoned")`, even though that might look more natural if you're a programmer.
 
 ## Creating A Dungeon
 
@@ -332,12 +358,14 @@ These events need an extra bit of information, often a number. For example if yo
 * removeMonster (monster name) - removes all monsters with the given name from the room.
 * patrol (monster's patroller id) - moves the monster to the next room in its patrol route.
 * randomPatrol (monster's patroller id) - moves the monster to a random place in its patrol route.
+* setHeroStatus (status name) - gives the Hero the given status. **NOTE**: This MUST be prefaced with a + to indicate a positive status or a - to indicate negative (i.e. "+shield", "-poisoned")
+* removeHeroStatus (status name) - attempts to remove the given status from the Hero. Do NOT include the +/- mentioned above.
 
 #### MultiParam Events
 
 These events require multiple parameters.
 
-* modStat - modifies the stats of the Hero. Currently WIP. First param is the stat to modify. Second is the way in which it's modified AND the amount. Modification can be absolute (i.e. set the stat to a given value) or relative (add or subtract a certain amount). 
+* modStat - modifies the stats of the Hero. First param is the stat to modify, the second is the amount.
 * createHiddenItem - adds a hidden object to this room. First param is the item name (you will need to refer to your itemLibrary if you want the item to do anything interesting), second param the location where it is hidden.
 * addTrigger - allows you to add a triggered event to this room. The first param is the trigger group (specialRoomActions, onLightingChange, onItemUse, onSpellCast, or onSearch - these are the only trigger groups that can be changed right now). The second param is the event that should be triggered, along with any parameters for that event.
 * removeTrigger - allows you to remove a triggered event from the room. The first param is the trigger group (see addTrigger). The second param is the event to be removed.
@@ -351,7 +379,7 @@ These events require multiple parameters.
 
 Damaging Events:
 
-If you want the hero to take some damage, you can always use the simple event `takeDamage` to do that, and print your own custom message ("A spike trap hits you for 10 damage"). However, for convenience, these methods print a quick message about the damage type (i.e. fire, acid, piercing, electrical, whatever) and/or the source (i.e. "a goblin", "a spike trap") depending on the method.
+If you want the hero to take some damage, you can always use the simple event `takeDamage` to do that, and print your own custom message ("A spike trap hits you for 10 damage"). However, for convenience, these methods print a quick message about the damage type (i.e. fire, acid, piercing, electrical, whatever) and/or the source (i.e. "a goblin", "a spike trap") depending on the method. **Note**: if you use takeDamage and DON'T print a custom error message the player will have no idea they took damage (probably a bad thing).
 
 * takeTypedDamage - does damage and prints "You take <amount> <type> damage."
 * takeSourcedDamage - does damage and prints "You take <amount> damage from <source>."
@@ -372,6 +400,8 @@ These events just happen, and they don't need any extra information.
 * doTick - does one tick (see "Tick Tock Goes the Clock")
 * doTock - does one tock
 * removeMonsters - removes ALL monsters from the room
+* removeAllBuffs - removes all positive status effects from the Hero. Probably a bad idea to use this, since their *actual* effects aren't removed. Explanation: When the hero casts "aegis", their defenseMod is increased by 5 and they get the status "aegis", preventing them from casting it again. Removing the status "aegis" doesn't change the defenseMod and would allow the hero to cast the spell again to double the effect.
+* removeAllDebuffs - removes all negative status effects from the Hero. This is probably a bit safer, since debuffs are determined by you, the dungeon designer (at the moment). But still, use with caution.
 
 Hopefully soon we'll add many more possible events, and even the ability to create custom events.
 
@@ -390,4 +420,3 @@ Items:
 * equip - force the hero to equip a given item
 * unequip - force the hero to unequip an item they currently have equipped
 * addObstacle
-* castSpell - generate a spell-like effect

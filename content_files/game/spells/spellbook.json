@@ -1,36 +1,34 @@
 {
+	"spellTypes":
+	[
+		"fire", "air", "shielding", "ice", "lightning", "force", "light", "shadow", "earth"
+	],
 	"spellbook": 
 	{
 		"fireblast":
 		{
 			"name":"Fireblast",
 			"key":"fireblast",
+			"description":"Unleashes a blast of fire, dealing 5 damage to all enemies.",
 			"targetType":"ALL_ENEMIES",
-			"actions":["dealDamage 5"],
+			"actions":["dealDamage 5 ALL_ENEMIES"],
 			"prereqs":["fire"]
-		},
-		"flight":
-		{
-			"name":"Flight",
-			"key":"flight",
-			"targetType":"SELF",
-			"actions":["print \"You're flying now!\""],
-			"prereqs":["air"],
-			"reagents":["Swan Feather"]
 		},
 		"aegis":
 		{
 			"name":"Minor Aegis",
 			"key":"aegis",
-			"statusString":"aegis",
+			"description":"Creates a defensive barrier, increasing defense by 5.",
+			"statusString":"+aegis",
 			"targetType":"SELF",
-			"actions":["modStat defense +5"],
+			"actions":["modStat defense 5"],
 			"prereqs":["shielding"]
 		},
 		"heal":
 		{
 			"name":"Minor Healing",
 			"key":"heal",
+			"description":"Restores 10 health to the hero.",
 			"targetType":"SELF",
 			"actions":["heal 10"]
 		},
@@ -38,24 +36,27 @@
 		{
 			"name":"Iceblast",
 			"key":"iceblast",
+			"description":"Strikes a random enemy for 8 damage, stunning them.",
 			"targetType":"RANDOM_ENEMY",
-			"actions":["dealDamage 8", "disable 1"],
+			"actions":["dealDamage 8 RANDOM_ENEMY", "disable 1 RANDOM_ENEMY"],
 			"prereqs":["ice"]
 		},
 		"lightningblast":
 		{
 			"name":"Lightningblast",
 			"key":"lightningblast",
+			"description":"Strikes a random enemy for 12 damage.",
 			"targetType":"RANDOM_ENEMY",
-			"actions":["dealDamage 12"],
+			"actions":["dealDamage 12 RANDOM_ENEMY"],
 			"prereqs":["lightning"]
 		},
 		"push":
 		{
 			"name":"Telekinetic Push",
 			"key":"push",
+			"description":"Pushes all enemies away from the hero, doing minor damage and stunning them.",
 			"targetType":"ALL_ENEMIES",
-			"actions":["dealDamage 2", "disable 1"],
+			"actions":["dealDamage 2 ALL_ENEMIES", "disable 1 ALL_ENEMIES"],
 			"prereqs":["force"]
 		},
 		"weaken":
@@ -78,37 +79,21 @@
 		{
 			"name":"Shadow Cloak",
 			"key":"shadowcloak",
-			"statusString":"shadowcloak",
+			"description":"Bends shadow around the hero, making them harder to detect while sneaking.",
+			"statusString":"+shadowcloak",
 			"targetType":"SELF",
-			"actions":["modStat stealth +5"],
+			"actions":["modStat stealth 5"],
 			"prereqs":["shadow"]
-		},
-		"fireshield":
-		{
-			"name":"Fireshield",
-			"key":"fireshield",
-			"statusString":"fireshield",
-			"targetType":"SELF",
-			"actions":["print \"You're protected from fire.\""],
-			"prereqs":["fire", "shielding"],
-			"reagents":["Copper Shield"]
-		},
-		"dig":
-		{
-			"name":"Excavate",
-			"key":"dig",
-			"targetType":"NONE",
-			"actions":["print \"Digging around...\""],
-			"prereqs":["earth"],
-			"reagents":["Monster Claw"]
 		},
 		"fireball":
 		{
 			"name":"Fireball",
 			"key":"fireball",
+			"description":"Unleashes a massive fiery explosion, dealing 20 damage to all enemies and stunning them.",
 			"targetType":"ALL_ENEMIES",
-			"actions":["dealDamage 20", "disable 1"],
-			"prereqs":["fire 2"]
+			"actions":["dealDamage 20 ALL_ENEMIES", "disable 1 ALL_ENEMIES"],
+			"prereqs":["fire 2"],
+			"requiredItems":["Wizard's Staff"]
 		}
 	}
 }

@@ -39,6 +39,23 @@ public class Monster extends DungeonRoomEntity {
         name = "Biff the Understudy";
         behavior = new HashMap<>();
     }
+    
+    public Monster copy () {
+    	Monster monster = new Monster();
+    	
+    	monster.name = this.name;
+    	monster.might = this.might;
+    	monster.health = this.health;
+    	monster.defense = this.defense;
+    	monster.behavior = this.behavior;
+    	
+    	monster.onTakeDamage = this.onTakeDamage;
+    	monster.onDealDamage = this.onDealDamage;
+    	monster.onDeath = this.onDeath;
+    	monster.onDisable = this.onDisable;
+    	
+    	return monster;
+    }
 
     public Monster(int health, int might, String name) {
         this.health = health;

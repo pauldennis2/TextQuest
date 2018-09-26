@@ -112,6 +112,12 @@ public class StatementAnalysis {
     public String[] getSecondTokens() {
         return secondTokens;
     }
+    
+    public void setAnalysis (String actionWord, String actionParam) {
+    	this.actionWord = actionWord;
+    	this.actionParam = actionParam;
+    	this.actionable = true;
+    }
 
     public void setAnalysis (String actionWord, String actionParam, boolean actionable) {
         this.actionWord = actionWord;

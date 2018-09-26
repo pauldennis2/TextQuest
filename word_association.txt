@@ -34,6 +34,8 @@ search : examine, look
 drop : drop
 equip : equip, don, wear
 unequip : unequip
+viewspells : spelllookup, tome, listspells
+detail : details
 |
 |Concept Words:
 |===
@@ -44,10 +46,10 @@ status : stats, character
 backpack : pack, inventory, items
 map : dungeonmap
 spellbook : spells
+equipment : gear
+skills : abilities
 $use
 torch : lantern
-potion : healthpot, flask
-bow : arrow, ranged attack, shoot, snipe
 $none
 monster : enemy, goblin, fiend
 goal : quest, objective, mission

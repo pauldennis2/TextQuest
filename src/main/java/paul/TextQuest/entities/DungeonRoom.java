@@ -7,12 +7,13 @@ import paul.TextQuest.entities.obstacles.RiddleObstacle;
 import paul.TextQuest.enums.Direction;
 import paul.TextQuest.enums.LightingLevel;
 import paul.TextQuest.enums.SpeakingVolume;
+import paul.TextQuest.enums.SpellTargetType;
 import paul.TextQuest.interfaces.MultiParamAction;
 import paul.TextQuest.interfaces.ParamAction;
 import paul.TextQuest.interfaces.VoidAction;
 import paul.TextQuest.interfaces.SpeechListener;
+import paul.TextQuest.utils.CollectionUtils;
 import paul.TextQuest.utils.StringUtils;
-import paul.TextQuest.utils.VictoryException;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,7 +37,7 @@ public class DungeonRoom extends TickTock {
     private List<Obstacle> obstacles;
     private Chest chest;
     private List<Feature> features;
-
+    
     private Map<String, String> specialRoomActions;
     private Map<String, String> onLightingChange;
     private Map<Direction, LeavingRoomAction> onHeroLeave;
@@ -50,6 +51,9 @@ public class DungeonRoom extends TickTock {
     private String onCombatEnd;
     
     private EnteringRoomAction onHeroEnter;
+    
+    private List<String> itemKeys;
+    private List<String> monsterKeys;
 
     //Temporary variables for JSONification
     private Map<Direction, Integer> connectedRoomIds;
@@ -133,9 +137,6 @@ public class DungeonRoom extends TickTock {
         voidActionMap.put("startFight", room -> {
         	room.getDungeon().getDungeonRunner().startCombat();
         });
-        voidActionMap.put("victory", room -> {
-            throw new VictoryException("You win!");
-        });
         voidActionMap.put("crackFloor", room -> {
             room.textOut.println("CRAAACK!!!! The floor of the room splits and a giant chasm appears.");
             Chasm chasm = new Chasm();
@@ -182,6 +183,10 @@ public class DungeonRoom extends TickTock {
         });
         
         voidActionMap.put("removeMonsters", room -> room.removeMonsters());
+        
+        voidActionMap.put("removeAllBuffs", room -> room.getHero().removeAllBuffs());
+        
+        voidActionMap.put("removeAllDebuffs", room -> room.getHero().removeAllBuffs());
         
         //Param Actions\\
         paramActionMap.put("createMonster", (room, param) -> {
@@ -379,7 +384,12 @@ public class DungeonRoom extends TickTock {
         	DungeonRoom nextRoom = room.getDungeon().getRoom(roomId);
         	room.removeMonster(monster);
         	nextRoom.addMonster(monster);
-        	room.textOut.debug("Moved " + monster.getName() + " from " + room.getName() + " to " + nextRoom.getName());
+        	
+        	String monsterName = monster.getName();
+        	String roomName = room.getName();
+        	String otherRoomName = nextRoom.getName();
+        	room.textOut.debug("Moved " + monsterName + " from " + roomName + " to " + otherRoomName);
+        	//room.textOut.debug("Moved " + monster.getName() + " from " + room.getName() + " to " + nextRoom.getName());
         });
         
         paramActionMap.put("randomPatrol", (room, param) -> {
@@ -547,6 +557,68 @@ public class DungeonRoom extends TickTock {
         		}
         		newRoom.addMonster(monster);
         	});
+        });
+        
+        multiParamActionMap.put("dealDamage", (room, args) -> {
+        	int damageAmt = Integer.parseInt(args[1]);
+        	SpellTargetType targetType = SpellTargetType.getType(args[2]);
+        	
+        	switch (targetType) {
+        	case SELF:
+        		room.getHero().takeDamage(damageAmt);
+        		break;
+        	case ALL_ENEMIES:
+        		if (room.getMonsters().size() > 0) {
+        			room.getMonsters().forEach(monster -> monster.takeDamage(damageAmt));
+        		} else {
+        			room.textOut.println("There were no targets for the spell to hit.");
+        		}
+        		break;
+        	case RANDOM_ENEMY:
+        		Monster monster = CollectionUtils.getRandom(room.getMonsters());
+        		if (monster != null) {
+        			monster.takeDamage(damageAmt);
+        		} else {
+        			room.textOut.println("There were no targets for the spell to hit.");
+        		}
+        		break;
+        	case NONE:
+        		room.textOut.debug("Why are we damaging no one?");
+        		break;
+        	default:
+        		throw new AssertionError("Unreachable");
+        	}
+        });
+        
+        multiParamActionMap.put("disable", (room, args) -> {
+        	int disableAmt = Integer.parseInt(args[1]);
+        	SpellTargetType targetType = SpellTargetType.getType(args[2]);
+        	
+        	switch (targetType) {
+        	case SELF:
+        		room.getHero().disable(disableAmt);
+        		break;
+        	case ALL_ENEMIES:
+        		if (room.getMonsters().size() > 0) {
+        			room.getMonsters().forEach(monster -> monster.disable(disableAmt));
+        		} else {
+        			room.textOut.println("There were no targets for the spell to hit.");
+        		}
+        		break;
+        	case RANDOM_ENEMY:
+        		Monster target = CollectionUtils.getRandom(room.getMonsters());
+        		if (target != null) {
+        			target.disable(disableAmt);
+        		} else {
+        			room.textOut.println("There were no targets for the spell to hit.");
+        		}
+        		break;
+        	case NONE:
+        		room.textOut.debug("Why are we disabling no one?");
+        		break;
+        	default:
+        		throw new AssertionError("Unreachable");
+        	}
         });
         
     }
@@ -1013,16 +1085,7 @@ public class DungeonRoom extends TickTock {
 		return hero.getHasField(methodName, arg);
     }
     
-    public static void main(String[] args) {
-		DungeonRoom room = new DungeonRoom();
-		room.hero = new Hero();
-		room.hero.addStatus("poisoned");
-		boolean result = room.callHasMethod("hero->hasStatus(poisoned)");
-		System.out.println(result);
-	}
-    
     private String replaceVariables (String input) {
-    	System.out.println("Replacing variables for input: " + input);
     	Map<String, String> variables = getDungeon().getDungeonVariables();
     	Map<String, Integer> values = getDungeon().getDungeonValues();
     	while (input.contains("{")) {
@@ -1070,12 +1133,10 @@ public class DungeonRoom extends TickTock {
     		
     		input = input.substring(0, openIndex) + value + input.substring(closeIndex + 1);
     	}
-    	System.out.println("Returning: " + input);
     	return input;
     }
     
     private static boolean evaluateCondition (String condition) {
-    	System.out.println("Evaluating condition:" + condition);
     	if (condition.trim().equals("true")) {
     		return true;
     	}
@@ -1139,7 +1200,6 @@ public class DungeonRoom extends TickTock {
         if (voidActionMap == null || paramActionMap == null || multiParamActionMap == null) {
             initActionMaps();
         }
-        System.out.println("action = " + action);
         //If action contains a semi-colon it contains multiple sub-actions
         if (action.startsWith("$if")) {
         	if (action.contains("{")) {
@@ -1521,8 +1581,40 @@ public class DungeonRoom extends TickTock {
         }
         obstacle.setLocation(this);
     }
+    
 
-    public String getTutorial() {
+	public void setItemKeys(List<String> itemKeys) {
+		this.itemKeys = itemKeys;
+	}
+
+	public void setMonsterKeys(List<String> monsterKeys) {
+		this.monsterKeys = monsterKeys;
+	}
+	
+	public void buildObjectsFromKeys () {
+		if (monsterKeys != null) {
+			for (String key : monsterKeys) {
+				Monster monster = dungeon.getMonsterLibrary().get(key).copy();
+				if (monster == null) {
+					throw new AssertionError("Could not find monster with key " + key);
+				}
+				addMonster(monster);
+			}
+		}
+		
+		if (itemKeys != null) {
+			for (String key : itemKeys) {
+				BackpackItem item = dungeon.getItemLibrary().get(key).copy();
+				if (item == null) {
+					textOut.debug("Could not find item with key " + key + ". Creating blank/simple item.");
+					item = new BackpackItem(key);
+				}
+				addItem(item);
+			}
+		}
+	}
+
+	public String getTutorial() {
         return tutorial;
     }
 

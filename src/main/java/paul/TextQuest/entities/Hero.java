@@ -13,8 +13,6 @@ import paul.TextQuest.enums.EquipSlot;
 import paul.TextQuest.enums.LevelUpCategory;
 import paul.TextQuest.enums.SpeakingVolume;
 import paul.TextQuest.interfaces.*;
-import paul.TextQuest.new_interfaces.EquipableItem;
-import paul.TextQuest.parsing.MagicUniversity;
 import paul.TextQuest.utils.*;
 
 import java.io.File;
@@ -71,8 +69,10 @@ public class Hero implements Serializable {
     
     private List<String> clearedDungeons;
     
-    private SkillMap skillMap;
+    private List<LevelUpCategory> levelUpTodo;
+    private Map<EquipSlot, EquippableItem> equippedItems;
     
+    private SkillMap skillMap;
     private transient SkillMap skillMods;
 
     private transient int mightMod;
@@ -89,19 +89,10 @@ public class Hero implements Serializable {
 
     private transient Map<String, VoidAction> heroVoidActions;
     private transient Map<String, ParamAction> heroParamActions;
-    private transient ItemActionMap itemActions;
     private transient Map<String, VoidAction> views;
-    
-    private transient Map<String, SpellAction> spellMap;
-    
-    //TODO concept:
-    //Hero has a list of statuses the dungeon can modify (poisoned, diseased, buffed, etc)
-    //Buffs and debuffs
-    private transient List<String> statusEffects;
-    
-    private Map<EquipSlot, EquipableItem> equippedItems;
-    
-    private static Map<String, SpellAction> possibleSpellMap;
+
+    private transient List<String> buffs;
+    private transient List<String> debuffs;
 
     private transient Random random;
     private transient TextInterface textOut;
@@ -110,6 +101,9 @@ public class Hero implements Serializable {
     public static final int POTION_VALUE = 9;
     
     public static final String SAVE_PATH = "save_data/";
+
+    private static LevelUpPlan levelUpPlan;
+    public static final String LEVEL_UP_PLAN_LOCATION = "content_files/game/leveling/default_plan.json";
 
 
     public Hero () {
@@ -121,7 +115,8 @@ public class Hero implements Serializable {
         skillMap = new SkillMap();
         skillMods = new SkillMap();
         
-        statusEffects = new ArrayList<>();
+        buffs = new ArrayList<>();
+        debuffs = new ArrayList<>();
         initMaps();
     }
     
@@ -156,111 +151,13 @@ public class Hero implements Serializable {
 
         level = 0;
         exp = 0;
-        numSpellsAvailable = 1;
+        numSpellsAvailable = 5;
         maxSpellsPerDay = 1;
-        EquipableItem sword = new EquipableItem("Sword");
-        sword.setMightMod(1);
-        sword.setUndroppable(true);
         backpack.add(new BackpackItem("Torch"));
-        backpack.add(sword);
+        //backpack.add(boots);
         backpack.add(new BackpackItem("Bow"));
-        
-        EquipableItem noiseHelm = new EquipableItem("Noisehelm");
-        noiseHelm.setOnEquip("print HELM_ON");
-        noiseHelm.setOnUnequip("print HELM_OFF");
-        backpack.add(noiseHelm);
     }
-
-    private transient List<LevelUpCategory> levelUpTodo;
-    //This is for level-up
-    public void show () {
-    	System.err.println("**In hero.show()");
-        if (levelUpPlan == null) {
-            initLevelUpPlan();
-        }
-        List<Integer> levelAmts = levelUpPlan.getExpAmounts();
-        if (levelAmts.get(level) <= exp) {
-            level++;
-            if (levelUpPlan.levelingRestoresHealth()) {
-            	health = maxHealth;
-            }
-            if (levelUpPlan.levelingRestoresSpells()) {
-            	numSpellsAvailable = maxSpellsPerDay;
-            }
-            levelUpTodo = levelUpPlan.getLevelUpActions().get(level);
-            textOut.println("You are now level " + level + ". You can:");
-            levelUpTodo.stream()
-                    .map(LevelUpCategory::getPrettyName)
-                    .forEach(e -> textOut.println(e));
-            //Else if there are remaining level up actions to take
-            //return show();
-
-        } else if (levelUpTodo != null && levelUpTodo.size() > 0) {
-            LevelUpCategory category = levelUpTodo.get(0);
-            textOut.println("Right now you can: " + LevelUpCategory.getPrettyName(category));
-            textOut.println(LevelUpCategory.getPrompt(category));
-
-            
-        } else {
-            System.err.println("Leaving hero.show(), returning FINISHED");
-        }
-    }
-
-    public void handleResponse (String response) {
-    	System.err.println("**In hero.handleResponse() with input " + response);
-        LevelUpCategory category = levelUpTodo.get(0);
-        response = response.trim().toLowerCase();
-        switch (category) {
-            case INC_STATS:
-                if (response.equals("might") || response.equals("strength")) {
-                    might++;
-                    textOut.println("Might permanently increased by 1");
-                    levelUpTodo.remove(0);
-                } else if (response.equals("health") || response.equals("hp") || response.equals("hitpoints")) {
-                    maxHealth += 5;
-                    health = maxHealth;
-                    textOut.println("Max HP increased by 5");
-                    levelUpTodo.remove(0);
-                } else if (response.startsWith("def")){
-                    defense++;
-                    textOut.println("Defense increased by 1 permanently");
-                    levelUpTodo.remove(0);
-                } else {
-                    textOut.println("Could not read a stat");
-                }
-                break;
-
-            case NEW_SKILL:
-                if (response.contains("sneak") || response.contains("stealth")) {
-                    skillMap.put("sneak", skillMap.get("sneak") + 1);
-                    textOut.println("You've learned basic sneaking.");
-                    levelUpTodo.remove(0);
-                } else {
-                    textOut.println("Could not find a skill (only one available is sneak - try that).");
-                }
-                break;
-
-
-            case NEW_SPELL:
-                MagicUniversity magicUniversity = MagicUniversity.getInstance();
-                String spellMatch = magicUniversity.getSpellMatch(response);
-                if (spellMatch != null) {
-                    spellMap.put(spellMatch, possibleSpellMap.get(spellMatch));
-                    textOut.println("You've learned " + StringUtils.addAOrAn(StringUtils.capitalize(spellMatch)) + " spell.");
-                    spellbook.add(spellMatch);
-                    levelUpTodo.remove(0);
-                    maxSpellsPerDay++;
-                    numSpellsAvailable = maxSpellsPerDay;
-                } else {
-                    textOut.println("Could not find the spell you want to learn.");
-                }
-                break;
-
-        }
-    }
-
-    private static LevelUpPlan levelUpPlan;
-    public static final String LEVEL_UP_PLAN_LOCATION = "content_files/game/leveling/default_plan.json";
+    
     //Defines what we can do at each level (i.e. what new skills, stat increases, etc are possible)
     private static void initLevelUpPlan () {
     	try {
@@ -270,6 +167,7 @@ public class Hero implements Serializable {
     	}
     }
     
+    private transient Map<Integer, Boolean> messagePrintedForLevel;
     public void addExp (int expToAdd) {
         if (expToAdd < 0) {
             throw new AssertionError();
@@ -279,9 +177,15 @@ public class Hero implements Serializable {
         if (levelUpPlan == null) {
         	initLevelUpPlan();
         }
+        if (messagePrintedForLevel == null) {
+        	messagePrintedForLevel = new HashMap<>();
+        }
         if (levelUpPlan.getExpAmounts().get(level) <= exp) {
-            textOut.println("***Ding! Level up.");
-            textOut.println("After the dungeon is complete you'll be able to level up");
+        	if (messagePrintedForLevel.get(level) == false) {
+	            textOut.println("***Ding! Level up.");
+	            textOut.println("After the dungeon is complete you'll be able to level up.");
+	            messagePrintedForLevel.put(level, true);
+        	}
         }
     }
 
@@ -319,7 +223,7 @@ public class Hero implements Serializable {
     		String json = fileScanner.nextLine();
     		return jsonRestore(json);
     	} catch (FileNotFoundException ex) {
-    		System.out.println("Could not find hero file at " + fileName);
+    		System.err.println("!Could not find hero file at " + fileName);
     		return null;
     	} catch (IOException ex) {
     		throw new AssertionError(ex);
@@ -334,48 +238,41 @@ public class Hero implements Serializable {
     public static List<String> getHeroListForUser (String username) {
     	File folder = new File(SAVE_PATH + username);
     	return Arrays.stream(folder.listFiles())
-    			.map(file -> file.getName().split("\\.")[0])
+    			.map(file -> file.getName().split("\\.")[0]) //Files are named as heroName.json. We just want heroName
     			.collect(Collectors.toList());
     }
-
 
     private void initMaps () {
         heroVoidActions = new HashMap<>();
         heroParamActions = new HashMap<>();
-        itemActions = new ItemActionMap();
         views = new HashMap<>();
-        spellMap = new HashMap<>();
         initActionMap();
-        initItemActions();
         initViews();
-        initPossibleSpellMap();
     }
 
     public void takeAction (String action) {
     	String onHeroAction = location.getOnHeroAction().get(action);
-    	boolean stops = false;
     	if (onHeroAction != null) {
     		location.doAction(onHeroAction);
     		if (onHeroAction.contains("!STOPS")) {
         		onHeroAction.replaceAll("!STOPS", "");
         		textOut.debug("This trigger stops the action.");
-        		stops = true;
+        		return;
         	}
     	}
-    	if (!stops) {
-	        VoidAction voidAction = heroVoidActions.get(action);
-	        if (voidAction != null) {
-	            voidAction.doAction(location);
-	        } else {
-	            if (location.getSpecialRoomActions().get(action) != null) {
-	                String roomAction = location.getSpecialRoomActions().get(action);
-	                location.doAction(roomAction);
-	            } else {
-	                textOut.debug("Action not in map.");
-	                throw new AssertionError();
-	            }
-	        }
-    	}
+        VoidAction voidAction = heroVoidActions.get(action);
+        if (voidAction != null) {
+            voidAction.doAction(location);
+        } else {
+            if (location.getSpecialRoomActions().get(action) != null) {
+                String roomAction = location.getSpecialRoomActions().get(action);
+                location.doAction(roomAction);
+            } else {
+                textOut.debug("Action not in map.");
+                throw new AssertionError();
+            }
+        }
+    	
     }
 
     public void takeAction (String action, String param) {
@@ -388,19 +285,6 @@ public class Hero implements Serializable {
         }
     }
 
-    private void initItemActions () {
-        itemActions.put("torch", room -> {
-            room.setLighting(TORCH_LIGHT);
-            textOut.println("The room brightens up.");
-        });
-        itemActions.put("potion", room -> {
-            this.restoreHealth(POTION_VALUE);
-            this.removeItem("Potion");
-            textOut.println("Drank a potion.");
-        });
-        itemActions.put("bow", room -> textOut.println("You don't know how to use that yet."));
-    }
-
     private void initViews () {
         views.put("status", room -> printStats());
         views.put("map", room -> textOut.println("Map not yet implemented."));
@@ -408,18 +292,52 @@ public class Hero implements Serializable {
         	textOut.println("You have the following items in your pack: " + StringUtils.prettyPrintList(backpack.getItems()));
         });
         views.put("spellbook", room -> {
-            if (spellMap.keySet().size() == 0) {
-                textOut.println("You don't know any spells yet.");
+            
+            textOut.println("Spells: (Available/Max): (" + numSpellsAvailable + "/" + maxSpellsPerDay + ")");
+            if (spellbook.size() == 0) {
+                textOut.println("You don't know any areas of magic yet.");
             } else {
-                textOut.println("Spells: (Available/Max): (" + numSpellsAvailable + "/" + maxSpellsPerDay + ")");
-                textOut.println("Known Spells:");
-                spellbook.forEach(textOut::println);
+                textOut.println("Known Areas of Magic:");
+                textOut.println(StringUtils.prettyPrintList(spellbook.stream()
+                	.map(StringUtils::capitalize)
+                	.collect(Collectors.toList())));
             }
+        });
+        views.put("equipment", room -> {
+        	if (equippedItems.keySet().size() == 0) {
+        		textOut.println("You do not have any items equipped.");
+        		return;
+        	}
+        	textOut.println("You have the following items equipped:");
+        	equippedItems.keySet().forEach(slot -> {
+        		EquippableItem item = equippedItems.get(slot);
+        		textOut.println(slot + ": " + item.getName());
+        	});
+        	
+        });
+        views.put("skills", room -> {
+        	skillMap.keySet().forEach(skill -> {
+        		List<String> skillMessages = new ArrayList<>();
+        		int skillAmt = skillMap.get(skill);
+        		int skillModAmt = skillMods.get(skill);
+        		if (skillAmt != 0 || skillModAmt != 0) {
+        			String out = StringUtils.capitalize(skill) + ": " + skillAmt;
+        			if (skillModAmt != 0) {
+        				out += StringUtils.appendModifierWithSignInParens(skillModAmt);
+        			}
+        			skillMessages.add(out);
+        		}
+        		if (skillMessages.size() > 0) {
+        			textOut.println("You have the following skills:");
+        			skillMessages.forEach(textOut::println);
+        		} else {
+        			textOut.println("You do not have any skills.");
+        		}
+        	});
         });
     }
 
-    private void initActionMap () {
-    	
+    private void initActionMap () {	
     	//TODO remove this when no longer needed
     	heroVoidActions.put("save", room -> {
     		saveHeroToFile("paul", this);
@@ -598,29 +516,30 @@ public class Hero implements Serializable {
             if (numSpellsAvailable < 1) {
                 textOut.println("Cannot cast anymore spells today.");
             } else {
-                SpellAction action = spellMap.get(param);
-                if (action != null) {
-                    textOut.println("Casting " + param + " spell.");
-                    if (room.getOnSpellCast() != null) {
-                    	Map<String, String> onSpellCast = room.getOnSpellCast();
-                    	if (onSpellCast.containsKey("any")) {
-                    		room.doAction(onSpellCast.get("any"));
-                    	}
-                    	if (onSpellCast.containsKey(param)) {
-                    		room.doAction(onSpellCast.get(param));
-                    	}
-                    }
-                    action.doAction(this);
-                    numSpellsAvailable--;
-                } else {
-                    textOut.println("You do not know " + StringUtils.addAOrAn(StringUtils.capitalize(param)) + " spell.");
-                }
+            	Spellbook spellbook = room.getDungeon().getDungeonRunner().getSpellbook();
+            	Spell spell = spellbook.getSpell(param);
+            	if (spell != null) {
+            		castSpell(spell);
+            	} else {
+            		textOut.println("Could not find spell " + param);
+            	}
             }
         });
 
         heroParamActions.put("use", (room, param) -> {
-            if (room.getHero().getBackpack().contains(param)) {
-                itemActions.get(param).doAction(room);
+        	
+            if (getBackpack().contains(param)) {
+            	BackpackItem item = getBackpack().getItem(param);
+                String onUse = item.getOnUse();
+                if (onUse == null) {
+                	textOut.println("You can't use that item directly.");
+                } else {
+                	if (onUse.contains(BackpackItem.CONSUMES)) {
+                		onUse = onUse.replaceAll(BackpackItem.CONSUMES, "").trim();
+                		getBackpack().remove(item);
+                	}
+                	room.doAction(onUse);
+                }
                 if (room.getOnItemUse() != null) {
 	                if (room.getOnItemUse().containsKey("any")) {
 	                	room.doAction(room.getOnItemUse().get("any"));
@@ -723,15 +642,20 @@ public class Hero implements Serializable {
         heroParamActions.put("equip", (room, param) -> {
         	List<BackpackItem> items = backpack.getItems();
         	boolean found = false;
+        	EquippableItem equippableItem = null;
         	for (BackpackItem item : items) {
         		if (item.getName().toLowerCase().equals(param)) {
-        			if (item.getClass() == EquipableItem.class) {
-        				
+        			if (item.getClass() == EquippableItem.class) {
+        				textOut.println("OK you are equipping " + item.getName());
+        				equippableItem = (EquippableItem) item;
         			} else {
-        				textOut.println("That item isn't equipable, sorry.");
+        				textOut.println("That item isn't equippable, sorry.");
         			}
         			found = true;
         		}
+        	}
+        	if (equippableItem != null) {
+        		equip(equippableItem);
         	}
         	if (!found) {
         		textOut.println("You don't have a " + param + " to equip.");
@@ -741,131 +665,132 @@ public class Hero implements Serializable {
         heroParamActions.put("unequip", (room, param) -> {
         	//We'll attempt to find by item name first, then by slot
         	boolean found = false;
+        	EquipSlot slotToBeRemoved = null;
         	for (EquipSlot slot : equippedItems.keySet()) {
-        		EquipableItem item = equippedItems.get(slot);
+        		EquippableItem item = equippedItems.get(slot);
         		if (item.getName().toLowerCase().equals(param)) {
-        			unequip(slot);
+        			slotToBeRemoved = slot;
         			found = true;
         			textOut.println("Unequipped " + item.getName());
         		} else if (slot.toString().toLowerCase().equals(param)) {
-        			unequip(slot);
+        			slotToBeRemoved = slot;
         			found = true;
         			textOut.println("Unequipped " + item.getName());
         		}
         	}
         	if (!found) {
         		textOut.println("You don't have a " + param + " equipped.");
+        	} else {
+        		unequip(slotToBeRemoved);
+        	}
+        });
+        
+        heroParamActions.put("viewspells", (room, param) -> {
+        	Spellbook possibleSpells = room.getDungeon().getDungeonRunner().getSpellbook();
+        	List<Spell> spellsOfType = possibleSpells.getSpellsOfType(param);
+        	List<String> spellTypes = possibleSpells.getSpellTypes();
+        	
+        	if (param.equals("")) {
+        		if (spellsOfType.size() != 0) {
+        			textOut.println("The following spells do not require any special knowledge to cast:");
+        			spellsOfType.forEach(textOut::println);
+        		} else {
+        			textOut.println("All spells require special knowledge of an area of magic in order to cast them");
+        		}
+        		return;
+        	}
+        	
+        	if (!spellTypes.contains(param)) {
+        		textOut.println("That type of magic does not exist (" + param + ")");
+        		return;
+        	}
+        	
+        	textOut.println("The following spells use " + param + " magic:");
+        	spellsOfType.forEach(textOut::println);
+        });
+        
+        heroParamActions.put("detail", (room, param) -> {
+        	//Look for an Item
+        	BackpackItem item = backpack.getItem(param);
+        	if (item != null) {
+        		textOut.println(item.toDetailedString());
+        	}
+        	//Look for a Spell
+        	Spell spell = room.getDungeon().getDungeonRunner().getSpellbook().getSpell(param);
+        	if (spell != null) {
+        		textOut.println(spell.toDetailedString());
+        	}
+        	if (item == null && spell == null) {
+        		textOut.println("Unable to find a spell or item called " + param + " on which to provide detail.");
         	}
         });
         
     }
-
-    private static void initPossibleSpellMap () {
-        possibleSpellMap = new HashMap<>();
-        possibleSpellMap.put("heal", hero -> {
-            hero.restoreHealth(15);
-            hero.textOut.println("You are healed for 15 health.");
-        });
-        possibleSpellMap.put("shadow", hero -> {
-            hero.skillMods.put("sneak", hero.skillMods.get("sneak") + 5);
-            hero.textOut.println("The shadows surround you.");
-        });
-        possibleSpellMap.put("fire", hero -> {
-            DungeonRoom room = hero.getLocation();
-            room.getMonsters().forEach(e -> e.takeDamage(5));
-            room.updateMonsters();
-            hero.textOut.println("All monsters are hit by a small fireblast, and take 5 damage.");
-        });
-        possibleSpellMap.put("lightning", hero -> {
-            DungeonRoom room = hero.getLocation();
-            Monster target = CollectionUtils.getRandom(room.getMonsters());
-            if (target != null) {
-            	hero.textOut.println(target.getName() + " took 10 lightning damage.");
-                target.takeDamage(10);
-                room.updateMonsters();
-            } else {
-            	hero.textOut.println("There were no monsters to use lightning on. Spell wasted.");
-            }
-        });
-        possibleSpellMap.put("ice", hero -> {
-            DungeonRoom room = hero.getLocation();
-            Monster target = CollectionUtils.getRandom(room.getMonsters());
-            if (target != null) {
-            	hero.textOut.println(target.getName() + " took 8 cold damage and is disabled 1 round.");
-                target.takeDamage(8);
-                target.disable(1);
-                room.updateMonsters();
-            } else {
-            	hero.textOut.println("No targets for ice spell. It was wasted.");
-            }
-        });
-        possibleSpellMap.put("light", hero -> {
-        	hero.textOut.debug("This spell doesn't really do what it should yet.");
-        	hero.textOut.println("The room brightens up.");
-            hero.getLocation().setLighting(TORCH_LIGHT);
-        });
-        possibleSpellMap.put("aegis", hero -> {
-        	if (!hero.hasStatus("aegis")) {
-        	    hero.defenseMod = 5;
-	            hero.addStatus("aegis");
-	            hero.textOut.debug("Aegis lasts forever.");
-	            hero.textOut.println("A magic shield surrounds you.");
-        	} else {
-        		hero.textOut.println("You are already affected by that spell.");
-        	}
-        });
-        possibleSpellMap.put("push", hero -> {
-            List<Monster> monsters = hero.getLocation().getMonsters();
-            monsters.forEach(monster -> {
-                monster.takeDamage(2);
-                monster.disable(1);
-            });
-            hero.textOut.println("All monsters knocked down and damaged.");
-        });
-        possibleSpellMap.put("weaken", hero ->  {
-            hero.getLocation().getMonsters()
-                    .forEach(e -> e.setMight(e.getMight() - 1));
-            hero.textOut.println("All enemies weakened.");
-        });
-    }
     
-    public static void reagentSpells () {
-    	//TODO: use
-    	possibleSpellMap.put("flight", hero -> {
-    		String reagentName = "Swan Feather";
-    		if (hero.getBackpack().contains(reagentName) && hero.spellbook.contains("air")) {
-    			hero.getBackpack().remove(reagentName);
-    			hero.textOut.println("You're flying!");
-    		} else if (!hero.spellbook.contains("air")){
-    			hero.textOut.println("You can't fly without air magic.");
-    		} else {
-    			hero.textOut.println("You're missing the reagent (" + reagentName + ").");
-    		}
-    	});
-    	
-    	possibleSpellMap.put("dig", hero -> {
-    		String reagentName = "Monster Claw";
-    		if (hero.getBackpack().contains(reagentName) && hero.spellbook.contains("earth")) {
-    			hero.getBackpack().remove(reagentName);
-    			hero.textOut.println("You're digging!");
-    		} else if (!hero.spellbook.contains("earth")){
-    			hero.textOut.println("You can't dig without earth magic.");
-    		} else {
-    			hero.textOut.println("You're missing the reagent (" + reagentName + ").");
-    		}
-    	});
-    	
-    	possibleSpellMap.put("fireshield", hero -> {
-    		String reagentName = "Copper Shield";
-    		if (hero.getBackpack().contains(reagentName) && hero.spellbook.contains("fire")) {
-    			hero.getBackpack().remove(reagentName);
-    			hero.textOut.println("You're protected from heat!");
-    		} else if (!hero.spellbook.contains("air")){
-    			hero.textOut.println("You can't protect yourself from heat without fire magic.");
-    		} else {
-    			hero.textOut.println("You're missing the reagent (" + reagentName + ").");
-    		}
-    	});
+    public void castSpell (Spell spell) {
+    	for (String prereq : spell.getPrereqs()) {
+			if (prereq.contains(" ")) {
+				String[] splits = prereq.split(" ");
+				int requiredLevel = Integer.parseInt(splits[1]);
+				String type = splits[0];
+				if (spellbook.contains(type)) {
+					if (requiredLevel > 1) {
+						textOut.println("Your knowledge of " + StringUtils.capitalize(splits[0]) + " magic is not strong enough.");
+						return;
+					}
+				} else {
+					textOut.println("You don't know the neccessary type of magic (" + StringUtils.capitalize(prereq) + ")");
+					return;
+				}
+			} else {
+				if (!spellbook.contains(prereq)) {
+					textOut.println("You don't know the neccessary type of magic (" + StringUtils.capitalize(prereq) + ")");
+					return;
+				}
+			}
+		}
+		//Check required items
+		for (String itemName : spell.getRequiredItems()) {
+			if (!backpack.contains(itemName)) {
+				textOut.println("You are missing a required item.");
+				return;
+			}
+		}
+		
+		//Check and remove reagents
+		for (String reagent : spell.getReagents()) {
+			if (backpack.contains(reagent)) {
+				backpack.remove(reagent);
+			} else {
+				textOut.println("You are missing a required reagent: " + reagent + ".");
+				return;
+			}
+		}
+		
+		//Check status string
+		String statusString = spell.getStatusString();
+		if (statusString != null) {
+			if (hasStatus(statusString)) {
+				textOut.println("You are already affected by that spell.");
+				return;
+			} else {
+				addStatus(statusString);
+			}
+		}
+		
+		//Do spell actions
+		spell.getActions().forEach(location::doAction);
+		
+		/*
+		spell.getActions().forEach(action -> {
+			//TODO this is kinda hacky/non-scalable.
+			if (action.contains("dealdamage") || action.contains("disable")) {
+				location.doAction(action + " " + spell.getTargetType());
+			} else {
+				location.doAction(action);
+			}
+		});
+		*/
     }
 
     public void removeItem (String itemName) {
@@ -874,7 +799,7 @@ public class Hero implements Serializable {
                 .findAny().ifPresent(item -> backpack.remove(item));
     }
     
-    public void equip (EquipableItem item) {
+    public void equip (EquippableItem item) {
     	unequip(item.getSlot());
     	
     	mightMod += item.getMightMod();
@@ -885,12 +810,13 @@ public class Hero implements Serializable {
     	if (item.getOnEquip() != null) {
     		location.doAction(item.getOnEquip());
     	}
+    	equippedItems.put(item.getSlot(), item);
     	backpack.remove(item);
     }
     
     public void unequip (EquipSlot slot) {
     	if (equippedItems.get(slot) != null) {
-    		EquipableItem item = equippedItems.get(slot);
+    		EquippableItem item = equippedItems.get(slot);
     		mightMod -= item.getMightMod();
     		magicMod -= item.getMagicMod();
     		skillMods.put("sneak", skillMods.get("sneak") - item.getSneakMod());
@@ -900,6 +826,7 @@ public class Hero implements Serializable {
     			location.doAction(item.getOnUnequip());
     		}
     		backpack.add(equippedItems.remove(slot));
+    		equippedItems.remove(slot);
     	}
     }
 
@@ -916,17 +843,18 @@ public class Hero implements Serializable {
     }
 
     public void printStats () {
-        //textOut.println("Hero: " + name + "\nHealth: " + health + "/" + maxHealth + "  (Might, Magic, Defense) (" +
-        //        might + ", " + magic + ", " + defense + ") Level: " + level + ", Exp: " + exp);
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append("Hero: " + name + "\nHealth: " + health + "/" + maxHealth);
-        stringBuilder.append("\nMight: " + might);
-        stringBuilder.append(StringUtils.appendModifierWithSignInParens(mightMod));
-        stringBuilder.append("\nDefense: " + defense);
-        stringBuilder.append(StringUtils.appendModifierWithSignInParens(defenseMod));
-        stringBuilder.append("\nMagic: " + magic);
-        stringBuilder.append(StringUtils.appendModifierWithSignInParens(magicMod));
-        stringBuilder.append("\nLevel: " + level + ", Exp: " + exp);
+    	textOut.println("Hero: " + name + "\nHealth: " + health + "/" + maxHealth);
+    	textOut.println("Level: " + level + ", Exp: " + exp);
+        textOut.println("Might: " + might + StringUtils.appendModifierWithSignInParens(mightMod));
+        textOut.println("Defense: " + defense + StringUtils.appendModifierWithSignInParens(defenseMod));
+        textOut.println("Magic: " + magic + StringUtils.appendModifierWithSignInParens(magicMod));
+        
+        if (buffs.size() > 0) {
+        	textOut.println("You are affected by the following positive statuses: " + StringUtils.prettyPrintList(buffs));
+        }
+        if (debuffs.size() > 0) {
+        	textOut.println("You are affected by the following negative statuses: " + StringUtils.prettyPrintList(debuffs));
+        }
     }
 
     private void proceed (Direction direction) {
@@ -980,24 +908,20 @@ public class Hero implements Serializable {
         }
     }
 
-    public void takeDamage (int damage) {
+    public int takeDamage (int damage) {
         damage -= (defense / 5) * 2;
-        if (damage <= 0) {
-            textOut.println("Damage completely mitigated.");
-        } else {
-            health -= damage;
-            textOut.println("You took " + damage + " damage.");
-            if (health <= 0) {
-                health = 0;
-                //TODO : fix
-                throw new AssertionError("Died from damage. Or perhaps dafighter. Har har.");
-            }
+
+        health -= damage;
+        if (health <= 0) {
+            health = 0;
+            //TODO : fix
+            throw new AssertionError("Died from damage. Or perhaps dafighter. Har har.");
         }
+        return damage;
     }
 
     public void takeNonMitigatedDamage (int damage) {
         health -= damage;
-        textOut.println("You took " + damage + " damage.");
         if (health <= 0) {
         	//TODO : fix
             throw new AssertionError("Died from non-combat damage.");
@@ -1177,19 +1101,8 @@ public class Hero implements Serializable {
     	return spellbook;
     }
     
-    /**
-     * Alert - this method does more than just a regular setter.
-     * It also attempts to rebuild a Map<String, SpellAction>
-     * @param spellbook
-     */
     public void setSpellbook (List<String> spellbook) {
     	this.spellbook = spellbook;
-    	//TODO - verify if this works
-    	//Goal is to rebuild the actual map of spells during deserialization
-    	spellMap = new HashMap<>();
-    	for(String spell : spellbook) {
-    		spellMap.put(spell, possibleSpellMap.get(spell));
-    	}
     }
     
     public List<String> getClearedDungeons () {
@@ -1209,10 +1122,8 @@ public class Hero implements Serializable {
     }
     
     public boolean addSpell (String spell) {
-    	//If it's a legit spell that we don't already have
-    	if (possibleSpellMap.containsKey(spell) && !spellbook.contains(spell)) {
+    	if (!spellbook.contains(spell)) {
     		spellbook.add(spell);
-    		spellMap.put(spell, possibleSpellMap.get(spell));
     		return true;
     	}
     	return false;
@@ -1226,11 +1137,11 @@ public class Hero implements Serializable {
     	this.numSpellsAvailable = numSpellsAvailable;
     }
 
-	public Map<EquipSlot, EquipableItem> getEquippedItems() {
+	public Map<EquipSlot, EquippableItem> getEquippedItems() {
 		return equippedItems;
 	}
 
-	public void setEquippedItems(Map<EquipSlot, EquipableItem> equippedItems) {
+	public void setEquippedItems(Map<EquipSlot, EquippableItem> equippedItems) {
 		this.equippedItems = equippedItems;
 	}
 	
@@ -1242,6 +1153,14 @@ public class Hero implements Serializable {
 		this.textOut = textOut;
 	}
 	
+	public List<LevelUpCategory> getLevelUpTodo() {
+		return levelUpTodo;
+	}
+
+	public void setLevelUpTodo(List<LevelUpCategory> levelUpTodo) {
+		this.levelUpTodo = levelUpTodo;
+	}
+
 	//TODO: seems like there's some commonality between this and monster - shared base class?
 	public boolean isDisabled () {
 		return disabledForRounds > 0;
@@ -1265,11 +1184,26 @@ public class Hero implements Serializable {
 	}
 	
 	public void addStatus (String status) {
-		statusEffects.add(status);
+		if (status.startsWith("+")) {
+			buffs.add(status.substring(1));
+		} else if (status.startsWith("-")) {
+			debuffs.add(status.substring(1));
+		} else {
+			throw new AssertionError("Status must start with + or - to indicate buff/debuff.");
+		}
 	}
 	
 	public void removeStatus (String toRemove) {
-		statusEffects.removeIf(status -> status.equals(toRemove));
+		buffs.removeIf(status -> status.equals(toRemove));
+		debuffs.removeIf(status -> status.equals(toRemove));
+	}
+	
+	public void removeAllBuffs () {
+		buffs = new ArrayList<>();
+	}
+	
+	public void removeAllDebuffs () {
+		debuffs = new ArrayList<>();
 	}
 	
 	public boolean hasItem (String itemName) {
@@ -1277,7 +1211,7 @@ public class Hero implements Serializable {
 	}
 	
 	public boolean hasStatus (String status) {
-		return statusEffects.contains(status);
+		return buffs.contains(status) || debuffs.contains(status);
 	}
 	
 	public Integer getIntField (String fieldName) {
@@ -1292,12 +1226,18 @@ public class Hero implements Serializable {
 	}
 	
 	public boolean getHasField (String methodName, String arg) {
-		System.out.println("In getHasField(). Params: methodName = " + methodName + ", arg = " + arg + ".");
 		try {
 			Method method = getClass().getDeclaredMethod(methodName, String.class);
 			return (boolean) method.invoke(this, arg);
 		} catch (ReflectiveOperationException ex) {
 			throw new AssertionError(ex);
 		}
+	}
+	
+	public static LevelUpPlan getLevelUpPlan () {
+		if (levelUpPlan == null) {
+        	initLevelUpPlan();
+        }
+		return levelUpPlan;
 	}
 }

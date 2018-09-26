@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 /**
  * Created by pauldennis on 8/19/17.
  */
+@Deprecated
 public class MagicUniversity {
 
 

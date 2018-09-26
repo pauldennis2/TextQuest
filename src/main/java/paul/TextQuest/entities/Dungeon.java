@@ -5,9 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import paul.TextQuest.DungeonRunner;
 import paul.TextQuest.TextInterface;
 import paul.TextQuest.enums.Direction;
+import paul.TextQuest.utils.StringUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -22,19 +21,14 @@ public class Dungeon extends MetaLocation {
     private String description;
     private String dungeonName;
     
-    private List<String> beastiaries;
-    
     private Map<String, BackpackItem> itemLibrary;
     private Map<String, Monster> monsterLibrary;
-    
-    //private String onVariableSet;
     
     private Map<String, String> onVariableSet;
     
     private Integer entranceRoomId;
 
     private DungeonRoom template;
-    
     
     private transient boolean cleared;
     private transient DungeonRoom entrance;
@@ -109,7 +103,7 @@ public class Dungeon extends MetaLocation {
 
    public static Dungeon buildDungeonFromFile (String fileName) throws IOException {
 	   	System.err.println("Building from file: " + fileName);
-        Dungeon restored = jsonRestore(readFromFile(fileName));
+        Dungeon restored = jsonRestore(StringUtils.readFile(fileName));
         restored.connectRooms();
         return restored;
     }
@@ -122,19 +116,19 @@ public class Dungeon extends MetaLocation {
     public static final String BEASTIARY_PATH = "content_files/beastiaries/";
     public static Beastiary buildBeastiaryFromFile (String fileName) throws IOException {
     	ObjectMapper mapper = new ObjectMapper();
-    	return mapper.readValue(readFromFile(BEASTIARY_PATH + fileName), Beastiary.class);
+    	return mapper.readValue(StringUtils.readFile(BEASTIARY_PATH + fileName), Beastiary.class);
     }
-
-    private static String readFromFile (String fileName) {
-        try (Scanner fileScanner = new Scanner(new File(fileName))) {
-            StringBuilder stringBuilder = new StringBuilder(fileScanner.nextLine());
-            while (fileScanner.hasNext()) {
-                stringBuilder.append(fileScanner.nextLine());
-            }
-            return stringBuilder.toString();
-        } catch (FileNotFoundException ex) {
-            throw new AssertionError("Could not read from file");
-        }
+    
+    public static final String ITEM_LIBRARY_PATH = "content_files/items/";
+    public static ItemLibrary buildItemLibraryFromFile (String fileName) throws IOException {
+    	ObjectMapper mapper = new ObjectMapper();
+    	return mapper.readValue(StringUtils.readFile(fileName), ItemLibrary.class);
+    }
+    
+    @SuppressWarnings("unchecked")
+	public static <E> E buildObjectFromFile (String fileName, Class<?> type) throws IOException {
+    	ObjectMapper mapper = new ObjectMapper();
+    	return (E)mapper.readValue(StringUtils.readFile(fileName), type);
     }
 
     private void connectRooms () {
@@ -168,15 +162,6 @@ public class Dungeon extends MetaLocation {
         	entrance = roomsById.get(entranceRoomId);
         }
     }
-    
-    public static void main(String[] args) throws Exception {
-    	/*
-		System.out.println("Testing dungeon evaluater.");
-		Dungeon test = buildDungeonFromFile("content_files/dungeons/evaluate_dungeon_test.json");
-		test.evaluateDungeon();
-		*/
-    	buildDungeonFromFile("content_files/dungeons/patrol_dungeon.json");
-	}
     
     public void evaluateDungeon () throws Exception {
     	List<String> oneWayWarnings = new ArrayList<>();
@@ -259,14 +244,7 @@ public class Dungeon extends MetaLocation {
     	roomsByName.put(room.getName(), room);
     }
     
-    
-    
-    public List<String> getBeastiaries() {
-		return beastiaries;
-	}
-
 	public void setBeastiaries(List<String> beastiaries) {
-		this.beastiaries = beastiaries;
 		
 		if (monsterLibrary == null) {
 			monsterLibrary = new HashMap<>();
@@ -274,17 +252,39 @@ public class Dungeon extends MetaLocation {
 		
 		for (String fileName : beastiaries) {
 			try {
-				Beastiary beastiary = buildBeastiaryFromFile(fileName);
-				Map<String, Monster> monsterMap = beastiary.getMonsterMap();
-				System.out.println(monsterMap);
+				Map<String, Monster> monsterMap = buildBeastiaryFromFile(fileName).getMonsterMap();
 				for (String key : monsterMap.keySet()) {
-					if (monsterLibrary != null && monsterLibrary.containsKey(key)) {
+					if (monsterLibrary.containsKey(key)) {
 						throw new AssertionError("Namespace conflict. Can't have two monsters named " +
 								key + ". Duplicate comes from " + fileName + ".");
 					}
 					
 					monsterLibrary.put(key, monsterMap.get(key));
 				}
+			} catch (IOException ex) {
+				ex.printStackTrace();
+			}
+		}
+	}
+	
+	public void setItemLibraries (List<String> itemLibraries) {
+		if (itemLibrary == null) {
+			itemLibrary = new HashMap<>();
+		}
+		
+		for (String fileName : itemLibraries) {
+			try {
+				ItemLibrary lib = buildObjectFromFile(ITEM_LIBRARY_PATH + fileName, ItemLibrary.class);
+				Map<String, BackpackItem> itemMap = lib.getItemMap();
+				for (String key : itemMap.keySet()) {
+					if (itemLibrary.containsKey(key)) {
+						throw new AssertionError("Namespace conflict. Can't have two items named " + key
+								+ ". Duplicate comes from " + fileName + ".");
+					}
+					itemLibrary.put(key, itemMap.get(key));
+				}
+				
+				
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}

@@ -25,7 +25,10 @@
                     Might: {{hero.might}} <br>
                     Defense: {{hero.defense}} <br>
                     Magic: {{hero.magic}} <br>
-                    Exp: {{hero.exp}}
+                    Exp: {{hero.exp}} <br>
+                    {{#levelUpAvailable}}
+                    	<a href="/levelup">Level Up</a>
+                    {{/levelUpAvailable}}
                 </div>
                 <div class="game-output-box">
 					<h4>Spellbook</h4>
@@ -47,6 +50,11 @@
                         {{/hero.backpack.items}}
                     </ul>
                 </div>
+                
+                <div>
+                	<a href="/savegame">Save Game</a>
+                </div>
+                
                 <div class="game-output-box">
                 	<h4>Dungeon Progress</h4>
                 	{{#clearedDungeons}}
@@ -68,7 +76,7 @@
             </div>
         </main>
         <footer class="site">
-            <p>TextQuest v. 0.0.5c | Current User: {{username}}</p>
+            <p>TextQuest v{{version}} | Current User: {{username}}</p>
             <p>Developed by <a href="https://github.com/pauldennis2">Paul Dennis</a></p>
         </footer>
     </body>

@@ -22,27 +22,27 @@ import paul.TextQuest.utils.StringUtils;
  */
 public class GamePlan {
 	
+	//These properties get deserialized
 	private String levelingPlanLocation;
 	private String lookAndFeelLocation;
 	private String heroStartingInfoLocation;
 	private List<String> dungeonGroupLocations;
 	private List<String> spellbookLocations;
 	
+	//These properties are built from file IO (don't need setters)
 	private LevelUpPlan levelingPlan;
 	private LookAndFeel lookAndFeel;
 	private Hero heroStartingInfo;
 	private List<DungeonGroup> dungeonGroups;
-	private List<Spellbook> spellbooks;
+	private Spellbook spellbook;
 	
 	public GamePlan () {
 		spellbookLocations = new ArrayList<>();
-		
 		dungeonGroups = new ArrayList<>();
-		spellbooks = new ArrayList<>();
-		
+		spellbook = new Spellbook();
 	}
 	
-	public void build () {
+	private void build () {
 
 		heroStartingInfo = Hero.loadHeroFromFile(heroStartingInfoLocation);
 		
@@ -67,35 +67,11 @@ public class GamePlan {
 		
 		for (String spellbookLocation : spellbookLocations) {
 			try {
-				spellbooks.add(Spellbook.buildFromFile(spellbookLocation));
+				spellbook.addSpellbook(Spellbook.buildFromFile(spellbookLocation));
 			} catch (IOException ex) {
 				throw new AssertionError(ex);
 			}
 		}
-	}
-	
-	public static void main(String[] args) throws IOException {
-		GamePlan plan = buildFromFile("content_files/game/default_gameplan.json");
-		System.out.println(plan);
-		plan.build();
-		System.out.println("======");
-		System.out.println(plan);
-	}
-	
-	@Override
-	public String toString() {
-		return "GamePlan ["
-				+ (levelingPlanLocation != null ? "levelingPlanLocation=" + levelingPlanLocation + ", " : "")
-				+ (lookAndFeelLocation != null ? "lookAndFeelLocation=" + lookAndFeelLocation + ", " : "")
-				+ (heroStartingInfoLocation != null ? "heroStartingInfoLocation=" + heroStartingInfoLocation + ", "
-						: "")
-				+ (dungeonGroupLocations != null ? "dungeonGroupLocations=" + dungeonGroupLocations + ", " : "")
-				+ (spellbookLocations != null ? "spellbookLocations=" + spellbookLocations + ", " : "")
-				+ (levelingPlan != null ? "levelingPlan=" + levelingPlan + ", " : "")
-				+ (lookAndFeel != null ? "lookAndFeel=" + lookAndFeel + ", " : "")
-				+ (heroStartingInfo != null ? "heroStartingInfo=" + heroStartingInfo + ", " : "")
-				+ (dungeonGroups != null ? "dungeonGroups=" + dungeonGroups + ", " : "")
-				+ (spellbooks != null ? "spellbooks=" + spellbooks : "") + "]";
 	}
 
 	private static GamePlan jsonRestore(String levelUpJson) throws IOException {
@@ -104,7 +80,9 @@ public class GamePlan {
     }
 	
 	public static GamePlan buildFromFile (String fileName) throws IOException {
-		return jsonRestore(StringUtils.readFile(fileName));
+		GamePlan gamePlan = jsonRestore(StringUtils.readFile(fileName));
+		gamePlan.build();
+		return gamePlan;
 	}
 
 	public String getLevelingPlanLocation() {
@@ -163,7 +141,7 @@ public class GamePlan {
 		return dungeonGroups;
 	}
 
-	public List<Spellbook> getSpellbooks() {
-		return spellbooks;
+	public Spellbook getSpellbook () {
+		return spellbook;
 	}
 }

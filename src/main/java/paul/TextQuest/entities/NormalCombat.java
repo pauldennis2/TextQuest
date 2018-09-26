@@ -103,7 +103,8 @@ public class NormalCombat {
                     double mChance = calcAccuracy(monsterMight, hero.getModdedDefense());
                     double mRoll = Math.random();
                     if (mChance > mRoll) {
-                        hero.takeDamage(monsterDamageRoll);
+                        int damageTaken = hero.takeDamage(monsterDamageRoll);
+                        textOut.println("You took " + damageTaken + " damage from " + monster.getName());
                         String onDealDamage = monster.getOnDealDamage();
                         if (onDealDamage != null) {
                         	room.doAction(onDealDamage);

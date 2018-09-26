@@ -5,6 +5,7 @@ import paul.TextQuest.entities.Dungeon;
 import paul.TextQuest.entities.DungeonRoom;
 import paul.TextQuest.entities.Hero;
 import paul.TextQuest.entities.NormalCombat;
+import paul.TextQuest.entities.Spellbook;
 import paul.TextQuest.parsing.StatementAnalysis;
 import paul.TextQuest.parsing.StatementAnalyzer;
 
@@ -29,13 +30,20 @@ public class DungeonRunner  {
     
     private TextInterface textOut;
     
+    private Spellbook spellbook;
+    
     public DungeonRunner(Hero hero, String fileName) throws IOException {
     	this.hero = hero;
     	analyzer = StatementAnalyzer.getInstance();
     	dungeon = Dungeon.buildDungeonFromFile(fileName);
     	dungeon.setDungeonRunner(this);
     	
+    	
     	textOut = TextInterface.getInstance();
+    	dungeon.getRooms().forEach(room -> {
+    		room.setTextOut(textOut);
+    		room.buildObjectsFromKeys();
+    	});
         currentRoom = dungeon.getEntrance();
         textOut.println(dungeon.getDescription());
         hero.setTextOut(textOut);
@@ -44,6 +52,8 @@ public class DungeonRunner  {
          
         //Temporary
         hero.getBackpack().add(new BackpackItem("Boots of Vaulting"));
+        
+        
     }
 
     protected void handleResponse (String response) {
@@ -128,4 +138,11 @@ public class DungeonRunner  {
     	}
     }
 
+	public Spellbook getSpellbook() {
+		return spellbook;
+	}
+
+	public void setSpellbook(Spellbook spellbook) {
+		this.spellbook = spellbook;
+	}
 }

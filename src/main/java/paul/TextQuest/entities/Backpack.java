@@ -53,6 +53,20 @@ public class Backpack extends Location {
                 .contains(itemName.toLowerCase());
     }
     
+    /**
+     * Looks for the given item WITHOUT removing it.
+     * @param itemName
+     * @return
+     */
+    public BackpackItem getItem (String itemName) {
+    	for (BackpackItem item : items) {
+    		if (item.getName().equalsIgnoreCase(itemName)) {
+    			return item;
+    		}
+    	}
+    	return null;
+    }
+    
     public List<BackpackItem> getItems () {
     	return items;
     }
