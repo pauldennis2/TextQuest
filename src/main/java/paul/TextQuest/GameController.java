@@ -137,6 +137,7 @@ public class GameController {
         }
         //TODO - temporary code. Change/remove
         if (userInput.equals("leave")) {
+        	System.err.println("~Leave command detected.");
         	textOut.debug("~Leave command detected.");
         	Dungeon dungeon = runner.getDungeon();
         	System.err.println(dungeon);
@@ -146,7 +147,7 @@ public class GameController {
         		Hero hero = runner.getHero();
         		String username = (String) session.getAttribute("username");
         		Hero.saveHeroToFile(username, hero);
-        		return "airship";
+        		return "redirect:/airship";
         	} else {
         		textOut.debug("~But dungeon isn't cleared.");
         	}
