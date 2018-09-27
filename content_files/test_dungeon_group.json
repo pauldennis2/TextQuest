@@ -11,7 +11,7 @@
 			"fileLocation":"content_files/dungeons/dungeon2a.json",
 			"prereqs":
 			[
-				"Dungeon 1"
+				"Patrol Dungeon"
 			]
 		},
 		"Dungeon 2B":

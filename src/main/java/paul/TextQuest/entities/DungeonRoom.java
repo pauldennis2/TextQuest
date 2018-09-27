@@ -153,9 +153,8 @@ public class DungeonRoom extends TickTock {
         
         voidActionMap.put("setDungeonCleared", room -> {
         	Dungeon dungeon = room.getDungeon();
-        	room.getDungeon().setCleared(true);
-        	System.err.println("dungeon.isCleared() = " + dungeon.isCleared());
-        	System.err.println(dungeon);
+        	dungeon.setCleared(true);
+        	room.getHero().addClearedDungeon(dungeon.getDungeonName());
         });
         
         voidActionMap.put("doTick", room -> {

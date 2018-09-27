@@ -210,6 +210,7 @@ public class Hero implements Serializable {
     
     public static void saveHeroToFile (String username, Hero hero) {
     	String fileName = SAVE_PATH + username + "/" + hero.getName() + ".json";
+    	System.err.println("!Attempting to save hero to " + fileName);
     	new File(SAVE_PATH + username).mkdirs();
     	try (FileWriter fileWriter = new FileWriter(new File(fileName))){
     		fileWriter.write(hero.createJsonString());
@@ -972,14 +973,17 @@ public class Hero implements Serializable {
         return isSneaking;
     }
 
+    @JsonIgnore
     public int getModdedMight() {
         return might + mightMod;
     }
 
+    @JsonIgnore
     public int getModdedMagic() {
         return magic + magicMod;
     }
 
+    @JsonIgnore
     public int getModdedDefense() {
         return defense + defenseMod;
     }
@@ -1162,6 +1166,7 @@ public class Hero implements Serializable {
 	}
 
 	//TODO: seems like there's some commonality between this and monster - shared base class?
+	@JsonIgnore
 	public boolean isDisabled () {
 		return disabledForRounds > 0;
 	}
