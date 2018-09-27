@@ -17,7 +17,7 @@ public class Feature extends Container {
 
     public Feature () {
 
-    }
+    }//test change
     
     public Feature (String name) {
     	this.name = name;
