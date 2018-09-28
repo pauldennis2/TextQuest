@@ -38,7 +38,7 @@ TextQuest is based on a swords and sorcery dungeon crawling concept. And even th
 
 The hero has a `magic` stat that does nothing.
 
-The hero can have knowledge of various areas of magic (defined by the designer). These could be traditional elements like fire magic, earth magic, whatever, or whatever categories you want to come up with.
+The hero can have knowledge of various areas of magic (defined by the designer). These could be traditional elements like fire magic, earth magic, etc., or whatever categories you want to come up with.
 
 Spells are defined in JSON like dungeons and make use of the same library of events.
 
@@ -46,6 +46,9 @@ Properties:
 * prereqs - The areas of magic the hero must know in order to cast the spell. Optionally can be specified with a number like "fire 2" meaning the hero needs a 2nd level of fire mastery to cast the spell.
 * reagents - any items that are required for and consumed by the spell. If missing, spell will fail. If present they'll be consumed.
 * requiredItems - any items that are required for the spell. If missing, spell will fail. If present spell will be cast without consuming the item.
-* actions - the actual effects of thespell.
+* actions - the actual effects of the spell, expressed in the same syntax as events.
+* statusString - if the spell places a buff or debuff, it should have a statusString associated with it. This string should start with a + to indicate a buff or a - to indicate a debuff. 
 
-The hero will be offered opportunities on levelup to learn new areas of magic or perhaps to advance in an area in which they already have some skill.
+The hero will be offered opportunities on leveling up to learn new areas of magic or perhaps to advance in an area in which they already have some skill.
+
+The concept of "magic areas" is meant to give flexibility, so that you can allow the hero to cast multiple types of spells from learning one area of magic. If you *don't* want this to be the case, you can always define each spell as it's own "area" of magic. (So the hero would need to directly know "fireball" magic to cast the "Fireball" spell).
