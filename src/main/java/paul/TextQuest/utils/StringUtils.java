@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
@@ -112,12 +114,31 @@ public class StringUtils {
 			}
 			return stringBuilder.toString();
 		} catch (FileNotFoundException ex) {
-			throw new AssertionError(ex);
+			System.err.println("!Could not find file: " + fileName + ". Returning null.");
+			return null;
 		}
 	}
 	
 	@SuppressWarnings("unchecked")
 	public static <E> E buildObjectFromFile (String fileName, Class<?> type) throws IOException {
-    	return (E) new ObjectMapper().readValue(StringUtils.readFile(fileName), type);
+		String json = readFile(fileName);
+		if (json != null) {
+			return (E) new ObjectMapper().readValue(json, type);
+		}
+		return null;
+    	
+    }
+	
+	public static String serializeIgnoringTransient (Object obj) {
+    	ObjectMapper objectMapper = new ObjectMapper();
+    	
+    	objectMapper.configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);    	
+    	
+    	try {
+    		return objectMapper.writeValueAsString(obj);
+    	} catch (JsonProcessingException ex) {
+    		ex.printStackTrace();
+    		throw new AssertionError("Error");
+    	}
     }
 }

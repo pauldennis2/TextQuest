@@ -13,6 +13,7 @@ import paul.TextQuest.entities.DungeonGroup;
 import paul.TextQuest.entities.DungeonInfo;
 import paul.TextQuest.entities.GamePlan;
 import paul.TextQuest.entities.Hero;
+import paul.TextQuest.utils.DefeatExceptionMessage;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -152,8 +153,12 @@ public class GameController {
         		textOut.debug("~But dungeon isn't cleared.");
         	}
         }
+        try {
+        	runner.handleResponse(userInput);
+        } catch (DefeatExceptionMessage ex) {
+        	return "dead";
+        }
         
-        runner.handleResponse(userInput);
          
         return "redirect:/game";
     }

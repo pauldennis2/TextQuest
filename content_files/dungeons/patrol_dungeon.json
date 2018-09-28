@@ -19,7 +19,7 @@
   },
   "description":"",
   "entranceRoomId":0,
-  "onTick":"$if[hero->hasStatus(poisoned)] takeSourcedDamage 1 poison",
+  "onTick":"$if[hero->hasStatus(poisoned)] takeSourcedDamage 10 poison",
   "template":
   {
   	"name":"Dungeon Template",

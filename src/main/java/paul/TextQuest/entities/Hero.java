@@ -1,9 +1,6 @@
 package paul.TextQuest.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import paul.TextQuest.TextInterface;
 import paul.TextQuest.entities.obstacles.Obstacle;
@@ -15,7 +12,6 @@ import paul.TextQuest.interfaces.*;
 import paul.TextQuest.utils.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
@@ -195,45 +191,24 @@ public class Hero implements Serializable {
     	}
     }
 
-    private static Hero jsonRestore(String heroJson) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(heroJson, Hero.class);
-    }
-
-    //Don't name this method like a getter or it causes SO Error
-    public String createJsonString() {
-    	ObjectMapper objectMapper = new ObjectMapper();
-    	
-    	objectMapper.configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);    	
-    	
-    	try {
-    		return objectMapper.writeValueAsString(this);
-    	} catch (JsonProcessingException ex) {
-    		ex.printStackTrace();
-    		throw new AssertionError("Error");
-    	}
-    }
     
     public static void saveHeroToFile (String username, Hero hero) {
     	String fileName = SAVE_PATH + username + "/" + hero.getName() + ".json";
     	System.err.println("!Attempting to save hero to " + fileName);
     	new File(SAVE_PATH + username).mkdirs();
     	try (FileWriter fileWriter = new FileWriter(new File(fileName))){
-    		fileWriter.write(hero.createJsonString());
+    		fileWriter.write(StringUtils.serializeIgnoringTransient(hero));
     	} catch (IOException ex) {
     		ex.printStackTrace();
     	}
     }
     
     public static Hero loadHeroFromFile (String fileName) {
-    	try (Scanner fileScanner = new Scanner(new File(fileName))) {
-    		String json = fileScanner.nextLine();
-    		return jsonRestore(json);
-    	} catch (FileNotFoundException ex) {
-    		System.err.println("!Could not find hero file at " + fileName);
-    		return null;
+    	try {
+    		return StringUtils.buildObjectFromFile(fileName, Hero.class);
     	} catch (IOException ex) {
-    		throw new AssertionError(ex);
+    		System.err.println("!Not found, returing null.");
+    		return null;
     	}
     }
     
@@ -787,17 +762,6 @@ public class Hero implements Serializable {
 		
 		//Do spell actions
 		spell.getActions().forEach(location::doAction);
-		
-		/*
-		spell.getActions().forEach(action -> {
-			//TODO this is kinda hacky/non-scalable.
-			if (action.contains("dealdamage") || action.contains("disable")) {
-				location.doAction(action + " " + spell.getTargetType());
-			} else {
-				location.doAction(action);
-			}
-		});
-		*/
     }
 
     public void removeItem (String itemName) {
@@ -921,8 +885,7 @@ public class Hero implements Serializable {
         health -= damage;
         if (health <= 0) {
             health = 0;
-            //TODO : fix
-            throw new AssertionError("Died from damage. Or perhaps dafighter. Har har.");
+            throw new DefeatExceptionMessage("Died from damage - or perhaps dafighter, har har");
         }
         return damage;
     }
@@ -930,8 +893,7 @@ public class Hero implements Serializable {
     public void takeNonMitigatedDamage (int damage) {
         health -= damage;
         if (health <= 0) {
-        	//TODO : fix
-            throw new AssertionError("Died from non-combat damage.");
+        	throw new DefeatExceptionMessage("Died from non-combat damage.");
         }
     }
     
