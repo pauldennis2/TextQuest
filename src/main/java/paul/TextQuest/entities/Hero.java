@@ -1133,6 +1133,20 @@ public class Hero extends CombatEntity implements Serializable {
 		return buffs.contains(status) || debuffs.contains(status);
 	}
 	
+	public boolean hasSkill (String skillAndAmt) {
+		String[] splits = skillAndAmt.split(" ");
+		String skill = splits[0];
+		int amt = Integer.parseInt(splits[1]);
+		
+		int herosSkill = skillMap.get(skill);
+		
+		if (herosSkill >= amt) {
+			return true;
+		}
+		
+		return false;
+	}
+	
 	public Integer getIntField (String fieldName) {
 		try {
 			String methodName = "get" + StringUtils.capitalize(fieldName);

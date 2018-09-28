@@ -34,3 +34,5 @@ One of the components you want to be able to determine is the starting configura
 ### Dungeon Groups
 
 ### Spellbooks
+
+As the designer, you can decide what spells are available to the Hero. There are existing libraries of spells that you can use if you want to. You can also use these libraries but supplement them with your own spells. The one thing you can't do is have two spells with the same name, because the game would be unable to disambiguate them. So if one library you're using has a spell called "Fireblast", you could not define such a spell elsewhere. See GameMechanics for a more in-depth description of how spells and magic work.
