@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import paul.TextQuest.DungeonRunner;
 import paul.TextQuest.TextInterface;
 import paul.TextQuest.enums.Direction;
+import paul.TextQuest.gameplan.Beastiary;
+import paul.TextQuest.gameplan.ItemLibrary;
 import paul.TextQuest.utils.StringUtils;
 
 import java.io.IOException;

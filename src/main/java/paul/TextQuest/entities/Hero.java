@@ -8,6 +8,7 @@ import paul.TextQuest.entities.obstacles.SmashableObstacle;
 import paul.TextQuest.enums.Direction;
 import paul.TextQuest.enums.EquipSlot;
 import paul.TextQuest.enums.SpeakingVolume;
+import paul.TextQuest.gameplan.LevelUpPlan;
 import paul.TextQuest.interfaces.*;
 import paul.TextQuest.utils.*;
 

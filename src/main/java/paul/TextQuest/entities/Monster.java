@@ -74,7 +74,9 @@ public class Monster extends CombatEntity {
     	health = getModdedStat(health, 1);
     	defense = getModdedStat(defense, 0);
     	
-    	behavior = new HashMap<>();
+    	if (behavior == null) {
+    		behavior = new HashMap<>();
+    	}
     }
     
     /**
@@ -127,32 +129,8 @@ public class Monster extends CombatEntity {
         return name;
     }
 
-    public int getHealth () {
-        return health;
-    }
-
-    public int getMight () {
-        return might;
-    }
-
-    public void setMight (int might) {
-        this.might = might;
-    }
-
     public int getExp () {
         return health + 2 * might + 3;
-    }
-
-    public void setHealth (int health) {
-        this.health = health;
-    }
-
-    public int getDefense () {
-        return defense;
-    }
-
-    public void setDefense (int defense) {
-        this.defense = defense;
     }
 
     public Map<BehaviorTiming, String> getBehavior () {

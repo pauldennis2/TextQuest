@@ -2,7 +2,7 @@
  * @author Paul Dennis
  * Sep 17, 2018
  */
-package paul.TextQuest.entities;
+package paul.TextQuest.gameplan;
 
 import java.io.IOException;
 import java.util.HashMap;

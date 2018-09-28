@@ -9,10 +9,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import paul.TextQuest.entities.Dungeon;
-import paul.TextQuest.entities.DungeonGroup;
-import paul.TextQuest.entities.DungeonInfo;
-import paul.TextQuest.entities.GamePlan;
 import paul.TextQuest.entities.Hero;
+import paul.TextQuest.gameplan.DungeonGroup;
+import paul.TextQuest.gameplan.DungeonInfo;
+import paul.TextQuest.gameplan.GamePlan;
 import paul.TextQuest.utils.DefeatExceptionMessage;
 
 import javax.servlet.http.HttpServletRequest;
