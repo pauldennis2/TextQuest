@@ -9,11 +9,7 @@ import java.util.Random;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class Monster extends DungeonEntity {
-
-    private int health;
-    private int might;
-    private int defense;
+public class Monster extends CombatEntity {
 
     private Map<BehaviorTiming, String> behavior;
     private boolean isMiniboss;
@@ -25,7 +21,6 @@ public class Monster extends DungeonEntity {
     
     private PatrolRoute patrolRoute;
     
-    private transient int disabledForRounds = 0;
     private transient DungeonRoom location;
 
     public Monster () {
@@ -104,20 +99,11 @@ public class Monster extends DungeonEntity {
     	return stat;
     }
 
+    @Override
     public void disable (int rounds) {
         disabledForRounds += rounds;
         if (onDisable != null) {
         	location.doAction(onDisable);
-        }
-    }
-
-    public boolean isDisabled () {
-        return disabledForRounds > 0;
-    }
-
-    public void nextRound () {
-        if (disabledForRounds > 0) {
-            disabledForRounds--;
         }
     }
 

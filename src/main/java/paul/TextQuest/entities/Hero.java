@@ -23,16 +23,11 @@ import java.util.stream.Collectors;
  * Created by Paul Dennis on 8/8/2017.
  */
 
-public class Hero implements Serializable {
+public class Hero extends CombatEntity implements Serializable {
 
-    private String name;
-
-    private int health;
     private int maxHealth;
 
-    private int might;
     private int magic;
-    private int defense;
     private int maxSpellsPerDay;
 
     //Base chance to be hit is 50%
@@ -76,7 +71,6 @@ public class Hero implements Serializable {
     private transient int numSpellsAvailable;
     
     private transient int block;
-    private transient int disabledForRounds;
 
     private transient DungeonRoom location;
     private transient DungeonRoom previousLocation;
@@ -928,10 +922,6 @@ public class Hero implements Serializable {
 				+ clearedDungeons + ", skillMap=" + skillMap + ", equippedItems=" + equippedItems + "]";
 	}
 
-	public int getHealth() {
-        return health;
-    }
-
     public int getMaxHealth() {
         return maxHealth;
     }
@@ -956,24 +946,12 @@ public class Hero implements Serializable {
         return defense + defenseMod;
     }
     
-    public int getMight() {
-		return might;
-	}
-
 	public int getMagic() {
 		return magic;
 	}
 
-	public int getDefense() {
-		return defense;
-	}
-
 	public int getSkill (String skillName) {
     	return skillMap.get(skillName) + skillMods.get(skillName);
-    }
-
-    public void setDefense(int defense) {
-        this.defense = defense;
     }
 
     public int getLevel() {
@@ -1001,16 +979,8 @@ public class Hero implements Serializable {
         }
     }
 
-    public void setHealth(int health) {
-        this.health = health;
-    }
-
     public void setMaxHealth(int maxHealth) {
         this.maxHealth = maxHealth;
-    }
-
-    public void setMight(int might) {
-        this.might = might;
     }
 
     public void setMagic(int magic) {
@@ -1035,14 +1005,6 @@ public class Hero implements Serializable {
 
     public void setBackpack(Backpack backpack) {
         this.backpack = backpack;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public TextInterface getTextOut() {
@@ -1133,27 +1095,10 @@ public class Hero implements Serializable {
 		this.levelUpTodo = levelUpTodo;
 	}
 
-	//TODO: seems like there's some commonality between this and monster - shared base class?
+	@Override
 	@JsonIgnore
 	public boolean isDisabled () {
 		return disabledForRounds > 0;
-	}
-	
-	public void disable (int numRounds) {
-		disabledForRounds += numRounds;
-	}
-	
-	public void unDisable () {
-		disabledForRounds = 0;
-	}
-	
-	public void nextRound () {
-		if (disabledForRounds > 0) {
-			disabledForRounds--;
-		}
-		if (block > 0) {
-			block--;
-		}
 	}
 	
 	public void addStatus (String status) {
