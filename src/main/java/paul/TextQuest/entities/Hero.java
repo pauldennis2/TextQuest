@@ -10,7 +10,6 @@ import paul.TextQuest.entities.obstacles.Obstacle;
 import paul.TextQuest.entities.obstacles.SmashableObstacle;
 import paul.TextQuest.enums.Direction;
 import paul.TextQuest.enums.EquipSlot;
-import paul.TextQuest.enums.LevelUpCategory;
 import paul.TextQuest.enums.SpeakingVolume;
 import paul.TextQuest.interfaces.*;
 import paul.TextQuest.utils.*;
@@ -69,7 +68,7 @@ public class Hero implements Serializable {
     
     private List<String> clearedDungeons;
     
-    private List<LevelUpCategory> levelUpTodo;
+    private List<String> levelUpTodo;
     private Map<EquipSlot, EquippableItem> equippedItems;
     
     private SkillMap skillMap;
@@ -187,6 +186,13 @@ public class Hero implements Serializable {
 	            messagePrintedForLevel.put(level, true);
         	}
         }
+    }
+    
+    public void prepareLevelUpTodos () {
+    	while (levelUpPlan.getExpAmounts().get(level) <= exp) {
+    		levelUpTodo.addAll(levelUpPlan.getLevelUpActions().get(level));
+    		level++;
+    	}
     }
 
     private static Hero jsonRestore(String heroJson) throws IOException {
@@ -1157,11 +1163,11 @@ public class Hero implements Serializable {
 		this.textOut = textOut;
 	}
 	
-	public List<LevelUpCategory> getLevelUpTodo() {
+	public List<String> getLevelUpTodo() {
 		return levelUpTodo;
 	}
 
-	public void setLevelUpTodo(List<LevelUpCategory> levelUpTodo) {
+	public void setLevelUpTodo(List<String> levelUpTodo) {
 		this.levelUpTodo = levelUpTodo;
 	}
 

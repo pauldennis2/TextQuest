@@ -9,10 +9,7 @@ public class Chest extends Container {
 
     private boolean locked;
     private String key;
-    private String name;
 
-    private boolean darklight;
-    
     private transient boolean isOpen;
 
     public Chest() {
@@ -62,14 +59,6 @@ public class Chest extends Container {
         contents = new ArrayList<>();
         return returnContent;
     }
-    
-    public static final double DEFAULT_VISIBILITY_THRESHHOLD = 0.6;
-    public boolean isVisible (double lighting) {
-        if (darklight) {
-            return lighting == 0.0;
-        }
-        return lighting >= DEFAULT_VISIBILITY_THRESHHOLD;
-    }
 
     public boolean isLocked() {
         return locked;
@@ -93,14 +82,6 @@ public class Chest extends Container {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public boolean isDarklight() {
-        return darklight;
-    }
-
-    public void setDarklight(boolean darklight) {
-        this.darklight = darklight;
     }
     
     public boolean isOpen () {

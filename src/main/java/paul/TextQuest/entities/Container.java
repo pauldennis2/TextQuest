@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Created by Paul Dennis on 8/10/2017.
  */
-public abstract class Container extends TickTock {
+public abstract class Container extends DungeonEntity {
 	
     List<BackpackItem> contents;
     Map<String, String> onInsert;

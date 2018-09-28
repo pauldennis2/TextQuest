@@ -1,12 +1,15 @@
-/**
- * @author Paul Dennis
- * Sep 13, 2018
- */
 package paul.TextQuest.entities;
 
 import java.util.List;
 import java.util.Random;
 
+/**
+ * Class representing all the information a monster needs
+ * to patrol around. Owned by Monster.
+ * 
+ * @author Paul Dennis
+ * Sep 13, 2018
+ */
 public class PatrolRoute {
 	
 	private List<Integer> roomIds;

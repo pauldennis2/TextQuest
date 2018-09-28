@@ -11,7 +11,6 @@ import java.util.Map;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import paul.TextQuest.enums.LevelUpCategory;
 import paul.TextQuest.utils.StringUtils;
 
 public class LevelUpPlan {
@@ -20,7 +19,7 @@ public class LevelUpPlan {
 	private boolean levelingRestoresSpells;
 	
 	private List<Integer> expAmounts;
-	private Map<Integer, List<LevelUpCategory>> levelUpActions;
+	private Map<Integer, List<String>> levelUpActions;
 	
 	public LevelUpPlan () {
 		levelUpActions = new HashMap<>();
@@ -50,11 +49,11 @@ public class LevelUpPlan {
 		}
 	}
 
-	public Map<Integer, List<LevelUpCategory>> getLevelUpActions() {
+	public Map<Integer, List<String>> getLevelUpActions() {
 		return levelUpActions;
 	}
 
-	public void setLevelUpActions(Map<Integer, List<LevelUpCategory>> levelUpActions) {
+	public void setLevelUpActions(Map<Integer, List<String>> levelUpActions) {
 		this.levelUpActions = levelUpActions;
 	}
 	

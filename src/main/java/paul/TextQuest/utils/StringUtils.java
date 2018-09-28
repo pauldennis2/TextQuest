@@ -6,9 +6,16 @@ package paul.TextQuest.utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+/**
+ * A class to group together static utility functions
+ * mostly for string manipulation and File IO.
+ */
 public class StringUtils {
 
 	public static String capitalize (String input) {
@@ -108,4 +115,9 @@ public class StringUtils {
 			throw new AssertionError(ex);
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static <E> E buildObjectFromFile (String fileName, Class<?> type) throws IOException {
+    	return (E) new ObjectMapper().readValue(StringUtils.readFile(fileName), type);
+    }
 }

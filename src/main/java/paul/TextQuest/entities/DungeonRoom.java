@@ -21,10 +21,8 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRoom extends TickTock {
+public class DungeonRoom extends DungeonEntity {
 
-    private String name;
-    private String description;
     private int id;
     private String tutorial;
 

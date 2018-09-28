@@ -9,19 +9,11 @@ import java.util.Random;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class Monster extends DungeonRoomEntity {
+public class Monster extends DungeonEntity {
 
     private int health;
     private int might;
     private int defense;
-    private String name;
-    
-    private String description;
-
-    private transient int disabledForRounds = 0;
-
-    //Not sure what this is for/what it was intended for
-    //private static Map<String, VoidAction> actionMap;
 
     private Map<BehaviorTiming, String> behavior;
     private boolean isMiniboss;
@@ -33,6 +25,7 @@ public class Monster extends DungeonRoomEntity {
     
     private PatrolRoute patrolRoute;
     
+    private transient int disabledForRounds = 0;
     private transient DungeonRoom location;
 
     public Monster () {
@@ -164,16 +157,8 @@ public class Monster extends DungeonRoomEntity {
         return health + 2 * might + 3;
     }
 
-    public String getName () {
-        return name;
-    }
-
     public void setHealth (int health) {
         this.health = health;
-    }
-
-    public void setName (String name) {
-        this.name = name;
     }
 
     public int getDefense () {
@@ -234,18 +219,6 @@ public class Monster extends DungeonRoomEntity {
     
     public void addRoomReference (DungeonRoom room) {
     	this.location = room;
-    }
-    
-    public void setDescription (String description) {
-    	this.description = description;
-    }
-    
-    public String getDescription () {
-    	return description;
-    }
-    
-    public boolean hasDescription () {
-    	return description != null && !description.trim().equals("");
     }
 
 	public PatrolRoute getPatrolRoute() {

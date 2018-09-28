@@ -1,59 +1,31 @@
 package paul.TextQuest.entities;
 
 /**
+ * Features represent Things in a dungeon room - could be a fountain,
+ * a big machine, a stream, whatever. They're an opportunity for
+ * dungeon designers to better describe the room and create things
+ * to interact with.
+ * 
  * Created by Paul Dennis on 9/6/2017.
  */
 public class Feature extends Container {
-
-    private String name;
-    private boolean darklight;
-    private String description;
     
+	//This isn't great. While all Features are Containers in a Java sense,
+	//only some Features are containers in a game sense.
     private boolean isContainer;
 
+    //This is kinda useless. think about removing
     private transient boolean bumped;
     
     private String status;
 
     public Feature () {
 
-    }//test change
+    }
     
     public Feature (String name) {
     	this.name = name;
-    }
-
-    public boolean isDarklight() {
-        return darklight;
-    }
-
-    public void setDarklight(boolean darklight) {
-        this.darklight = darklight;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public static final double DEFAULT_VISIBILITY_THRESHHOLD = 0.6;
-    public boolean isVisible (double lighting) {
-        if (darklight) {
-            return lighting == 0.0;
-        }
-        return lighting >= DEFAULT_VISIBILITY_THRESHHOLD;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
+    }    
 
     public boolean isBumped() {
         return bumped;
@@ -78,6 +50,5 @@ public class Feature extends Container {
 	public void setIsContainer(boolean isContainer) {
 		this.isContainer = isContainer;
 	}
-    
     
 }
