@@ -18,13 +18,23 @@ There are currently 3 core stats that the game tracks for the hero and monsters:
 * Defense - representing physical defense. Decreases damage taken and increases avoidance/reduces chance for opponent to hit (Every 2 points 5% avoidance, -1 damage taken)
 * Health - when it gets to zero, dead.
 
-The Hero has two additional stats that don't much matter right now: stealth and magic.
+The Hero has an additional stat that don't much matter right now: magic.
 
 #### Experience and Leveling Up
 
-The hero gets experience from fighting monsters, solving puzzles, and so on. On level up, depending on level, you'll have the ability to increase your stats and learn new spells and skills. The game will provide prompts asking what stats to increase and what type of spell you want to learn.
+The hero gets experience from fighting monsters, solving puzzles, and so on. On level up, depending on level, you'll have the ability to increase your stats and learn new spells and skills. You can only level up between dungeons. The dungeon/game designer has the ability to determine what leveling looks like in the game. 
 
-Coming Eventually: the ability to define custom level up actions and operations (basically allow the dungeon designer to decide what leveling up looks like in their game). 
+You can define this using a JSON version of the LevelUpPlan. Here are the components of a LevelUpPlan:
+* expAmounts - the **total** amount of experience points the hero needs to level up, expressed as a List of Integers. These amounts should always be increasing, even if you don't want to slow down leveling because it represents a total. For example, if you wanted the hero to level up every 500 exp, the amounts would look like this: `[500, 1000, 1500, 2000, 2500...]`.
+* levelUpActions - this is what the hero gets to do at each level up, expressed as a Map<Integer, List<String>>. You have to define a mapping for each level, even if the hero doesn't get anything. `"1":["INC_STATS"], "2":[], "3":["INC_STATS"]` means that the hero gets a chance to increase their stats at levels 1 and 3, and nothing for level 2.
+
+What are the available level up actions? (Right now nothing is working/wired up)
+* Inc stats
+* Restore health
+* Learn area of magic
+* ???
+
+The hero starts at level 0 by default. 
 
 ### Dungeon
 
