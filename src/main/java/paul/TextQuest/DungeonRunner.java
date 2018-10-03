@@ -39,7 +39,7 @@ public class DungeonRunner  {
     	dungeon.setDungeonRunner(this);
     	
     	
-    	textOut = TextInterface.getInstance();
+    	textOut = new TextInterface();
     	dungeon.getRooms().forEach(room -> {
     		room.setTextOut(textOut);
     		room.buildObjectsFromKeys();

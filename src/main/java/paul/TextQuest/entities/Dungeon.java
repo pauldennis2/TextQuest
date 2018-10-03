@@ -181,7 +181,7 @@ public class Dungeon extends MetaLocation {
     		//Check triggers
     		Map<String, Map<String, String>> metaMap = room.getMetaMap();
     		Hero hero = new Hero("Tester");
-    		TextInterface textOut = TextInterface.getInstance();
+    		TextInterface textOut = new TextInterface();
     		hero.setTextOut(textOut);
     		room.setHero(hero);
     		for (String mapName : metaMap.keySet()) {
