@@ -176,7 +176,12 @@ public class GameController {
     	String username = (String) session.getAttribute("username");
     	Hero hero = Hero.loadHeroFromFile(username, heroName);
     	if (hero == null) {
-    		hero = new Hero(heroName);
+    		GamePlan gamePlan = (GamePlan) session.getAttribute("gamePlan");
+    		if (gamePlan == null) {
+        		gamePlan = buildGamePlan();
+        		session.setAttribute("gamePlan", gamePlan);
+        	}
+    		hero = new Hero(gamePlan.getHeroStartingInfo(), heroName);
     	}
     	session.setAttribute("hero", hero);
     	return "redirect:/airship";
@@ -262,6 +267,11 @@ public class GameController {
     	}
     }
     
+    /**
+     * Helper method for airship endpoint.
+     * @param dungeonGroup
+     * @param heroClearedDungeons
+     */
     private static void addDungeonInfoToModel (Model model, DungeonGroup dungeonGroup, List<String> heroClearedDungeons) {
     	List<String> clearedDungeons = new ArrayList<>();
     	List<String> availableDungeons = new ArrayList<>();
@@ -287,6 +297,10 @@ public class GameController {
 		model.addAttribute("unavailableDungeons", unavailableDungeons);
     }
     
+    /**
+     * Helper method for main game endpoint.
+     * @param textOut
+     */
     private static void addOutputTextToModel (Model model, TextInterface textOut) {
     	List<String> output = textOut.flush();
         List<String> debug = textOut.flushDebug();

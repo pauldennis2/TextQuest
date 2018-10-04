@@ -23,7 +23,7 @@
       "name":"Guard Room",
       "id":2,
       "description":"This is the guard room. It's hard to see but there are probably monsters!",
-      "tutorial":"Uh-oh - there's a monster in this room. You can retreat, but you won't be able to proceed further until you've defeated him. Try typing: \"fight\" (no quotes).",
+      "tutorial":"Uh-oh - there's a monster in this room. You can retreat, but you won't be able to proceed further until you've defeated the guard. Try typing: \"fight\" (no quotes).",
       "lighting": 0.4,
       "itemKeys": ["Potion"],
       "monsters":

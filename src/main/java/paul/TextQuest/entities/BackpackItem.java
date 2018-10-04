@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import paul.TextQuest.interfaces.Detailable;
+import paul.TextQuest.utils.StringUtils;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
@@ -98,11 +99,6 @@ public class BackpackItem extends DungeonEntity implements Detailable{
 
     public boolean hasPickupAction () {
         return onPickup != null;
-    }
-
-    @Override
-    public String toString () {
-        return name;
     }
 	
 	public String toDetailedString () {

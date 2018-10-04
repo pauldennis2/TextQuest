@@ -112,6 +112,8 @@ public class Hero extends CombatEntity implements Serializable {
     
     public Hero (Hero startingInfo, String name) {
     	this();
+    	System.out.println("In heroStartingInfo constructor.");
+    	System.out.println("input = " + startingInfo);
     	if (name.contains(" ") || name.contains("/")) {
     		throw new AssertionError("Hero names cannot contain spaces or slashes. Name was: " + name);
     	}
@@ -346,7 +348,7 @@ public class Hero extends CombatEntity implements Serializable {
                     room.doAction(item.getOnPickup());
                 }
                 backpack.add(item);
-                textOut.println("Picked up " + item.getName());
+                textOut.println("Picked up " + item + ".");
             });
         	Chest chest = room.getChest();
         	if (chest != null && chest.isOpen()) {
@@ -355,7 +357,7 @@ public class Hero extends CombatEntity implements Serializable {
                     if (item.hasPickupAction()) {
                         room.doAction(item.getOnPickup());
                     }
-                    textOut.println("Looted " + item.getName() + " from chest.");
+                    textOut.println("Looted " + item + " from chest.");
                     backpack.add(item);
                 });
         	} else if (room.getChest() != null) {

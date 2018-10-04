@@ -1,1 +1,1 @@
-{"name":"Erro","health":46,"maxHealth":50,"might":4,"magic":2,"defense":0,"maxSpellsPerDay":1,"level":0,"exp":0,"backpack":{"items":[]},"spellbook":["ice"],"clearedDungeons":["Lair of Pihop-pi"]}
+{"name":"Erro","health":50,"maxHealth":50,"might":4,"magic":2,"defense":0,"maxSpellsPerDay":1,"level":0,"exp":0,"backpack":{"items":[{"name":"Torch", "onUse":"light"}]},"spellbook":["ice"],"clearedDungeons":["Lair of Pihop-pi"]}

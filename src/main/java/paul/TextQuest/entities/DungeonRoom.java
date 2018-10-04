@@ -868,7 +868,7 @@ public class DungeonRoom extends DungeonEntity {
         if (visibleItemsNoDescription.size() > 1) {
         	textOut.println("You can see the following items: " + StringUtils.prettyPrintList(visibleItemsNoDescription));
         } else if (visibleItemsNoDescription.size() == 1) {
-        	textOut.println("You can see " + StringUtils.addAOrAn(visibleItemsNoDescription.get(0).getName()) + ".");
+        	textOut.println("You can see " + visibleItemsNoDescription.get(0) + ".");
         }
 	    
         //7. Features with a description

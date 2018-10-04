@@ -21,6 +21,7 @@
 			"name":"Boots of Vaulting",
 			"slot":"BOOTS",
 			"_type":"equipment",
+			"named":true,
 			"defenseMod":1
 		}
 	}
