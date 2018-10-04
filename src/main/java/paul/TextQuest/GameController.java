@@ -39,7 +39,6 @@ public class GameController {
     private Map<String, String> userMap;
     
     public static final String USERS_FILE = "save_data/users.txt";
-    public static final String DUNGEON_GROUP_LOCATION = "content_files/test_dungeon_group.json";
     public static final String GAME_PLAN_LOCATION = "content_files/game/default_gameplan.json";
     
     public static final String VERSION_STR = "0.0.11";

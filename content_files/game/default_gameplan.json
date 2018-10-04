@@ -4,7 +4,7 @@
 	"heroStartingInfoLocation":"content_files/game/default_starting_info.json",
 	"dungeonGroupLocations":
 	[
-		"content_files/test_dungeon_group.json"
+		"content_files/first_dungeon_group.json"
 	],
 	"spellbookLocations":
 	[

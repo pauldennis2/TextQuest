@@ -102,7 +102,7 @@ public abstract class Obstacle extends DungeonEntity {
     }
 
     public void addBlockedDirection(Direction direction) {
-        if (blockedDirections.get(0) == Direction.NONE) {
+        if (blockedDirections.size() > 0 && blockedDirections.get(0) == Direction.NONE) {
             blockedDirections.remove(0);
         }
         blockedDirections.add(direction);

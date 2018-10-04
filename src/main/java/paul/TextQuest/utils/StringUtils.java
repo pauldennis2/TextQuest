@@ -25,6 +25,10 @@ public class StringUtils {
 		return input.substring(0, 1).toUpperCase() + input.substring(1);
 	}
 	
+	public static String capitalizeWithoutLowerCasing (String input) {
+		return input.substring(0, 1).toUpperCase() + input.substring(1);
+	}
+	
 	public static String prettyPrintList (List<?> list) {
 		if (list.size() == 2) {
 			return list.get(0) + " and " + list.get(1) + ".";

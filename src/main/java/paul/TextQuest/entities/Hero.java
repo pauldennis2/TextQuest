@@ -171,7 +171,7 @@ public class Hero extends CombatEntity implements Serializable {
         	messagePrintedForLevel = new HashMap<>();
         }
         if (levelUpPlan.getExpAmounts().get(level) <= exp) {
-        	if (messagePrintedForLevel.get(level) == false) {
+        	if (messagePrintedForLevel.get(level) != null && messagePrintedForLevel.get(level) == false) {
 	            textOut.println("***Ding! Level up.");
 	            textOut.println("After the dungeon is complete you'll be able to level up.");
 	            messagePrintedForLevel.put(level, true);
@@ -1147,9 +1147,16 @@ public class Hero extends CombatEntity implements Serializable {
 		return false;
 	}
 	
+	@Override
+	public int getHealth () {
+		return health;
+	}
+	
+	//TODO this causes problems when trying to look at a field like health
+	//contained in CombatEntity. Workaround for now (see above)
 	public Integer getIntField (String fieldName) {
 		try {
-			String methodName = "get" + StringUtils.capitalize(fieldName);
+			String methodName = "get" + StringUtils.capitalizeWithoutLowerCasing(fieldName);
 			Method method = getClass().getDeclaredMethod(methodName);
 			Object response = method.invoke(this);
 			return (Integer) response;
