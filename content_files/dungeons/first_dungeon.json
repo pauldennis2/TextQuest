@@ -1,6 +1,11 @@
 {
   "dungeonName":"Lair of Pihop-pi",
   "description":"",
+  "itemLibraries":
+  [
+  	"potions.json"
+  ],
+  
   "rooms":
   [
     {
@@ -20,12 +25,7 @@
       "description":"This is the guard room. It's hard to see but there are probably monsters!",
       "tutorial":"Uh-oh - there's a monster in this room. You can retreat, but you won't be able to proceed further until you've defeated him. Try typing: \"fight\" (no quotes).",
       "lighting": 0.4,
-      "items":
-      [
-        {
-          "name":"Potion"
-        }
-      ],
+      "itemKeys": ["Potion"],
       "monsters":
       [
         {
