@@ -22,6 +22,8 @@ public class StatementAnalyzer {
     private DungeonRoom location;
 
     private static StatementAnalyzer instance;
+    
+    public static final String WORD_ASSOCIATION_FILE = "word_associations/word_association.txt";
 
     private StatementAnalyzer () {
         initializeWordGroups();
@@ -315,7 +317,7 @@ public class StatementAnalyzer {
 
     private void initializeWordGroups () {
         wordGroups = new ArrayList<>();
-        File wordAssocFile = new File("word_association.txt");
+        File wordAssocFile = new File(WORD_ASSOCIATION_FILE);
         WordType currentType = null;
         try (Scanner fileScanner = new Scanner(wordAssocFile)) {
             while (fileScanner.hasNext()) {
