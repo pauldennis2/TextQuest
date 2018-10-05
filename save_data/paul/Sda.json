@@ -1,1 +1,0 @@
-{"name":"Sda","health":50,"maxHealth":50,"might":4,"magic":2,"defense":0,"maxSpellsPerDay":1,"level":0,"exp":0,"backpack":{"items":[{"_type":"BackpackItem","name":"Torch"},{"_type":"BackpackItem","name":"Bow"},{"_type":"BackpackItem","name":"Boots of Vaulting"}]},"spellbook":[],"clearedDungeons":["Patrol Dungeon"],"levelUpTodo":null,"equippedItems":{}}
