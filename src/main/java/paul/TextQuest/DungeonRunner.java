@@ -39,7 +39,7 @@ public class DungeonRunner  {
     	dungeon.setDungeonRunner(this);
     	
     	
-    	textOut = TextInterface.getInstance();
+    	textOut = new TextInterface();
     	dungeon.getRooms().forEach(room -> {
     		room.setTextOut(textOut);
     		room.buildObjectsFromKeys();
@@ -81,7 +81,6 @@ public class DungeonRunner  {
 
     public void doActionFromAnalysis (StatementAnalysis analysis) {
         if (analysis.isActionable()) {
-            analysis.printFinalAnalysis();
             String actionWord = analysis.getActionWord();
             if (CLEAR_REQUIRED_FOR_ACTION.contains(actionWord) && !currentRoom.isCleared()) {
                 textOut.println("You have to clear the room of monsters first.");

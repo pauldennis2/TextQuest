@@ -9,10 +9,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import paul.TextQuest.entities.Dungeon;
-import paul.TextQuest.entities.DungeonGroup;
-import paul.TextQuest.entities.DungeonInfo;
-import paul.TextQuest.entities.GamePlan;
 import paul.TextQuest.entities.Hero;
+import paul.TextQuest.gameplan.DungeonGroup;
+import paul.TextQuest.gameplan.DungeonInfo;
+import paul.TextQuest.gameplan.GamePlan;
+import paul.TextQuest.utils.DefeatExceptionMessage;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -38,10 +39,9 @@ public class GameController {
     private Map<String, String> userMap;
     
     public static final String USERS_FILE = "save_data/users.txt";
-    public static final String DUNGEON_GROUP_LOCATION = "content_files/test_dungeon_group.json";
     public static final String GAME_PLAN_LOCATION = "content_files/game/default_gameplan.json";
     
-    public static final String VERSION_STR = "0.0.11";
+    public static final String VERSION_STR = "0.0.12";
     public static final String UNAVAILBLE_STR = "?????";
     
     //Currently Gameplans can have multiple dungeongroups.
@@ -49,7 +49,14 @@ public class GameController {
     public static final int FIRST_GROUP = 0;
     
     @RequestMapping(path = "/", method = RequestMethod.GET)
-    public String home () {
+    public String home (Model model, HttpSession session) {
+    	String username = (String) session.getAttribute("username");
+    	if (username == null) {
+    		model.addAttribute("username", "Not logged in");
+    	} else {
+    		model.addAttribute("username", username);
+    	}
+    	model.addAttribute("version", VERSION_STR);
         return "index";
     }
     
@@ -152,17 +159,23 @@ public class GameController {
         		textOut.debug("~But dungeon isn't cleared.");
         	}
         }
+        try {
+        	runner.handleResponse(userInput);
+        } catch (DefeatExceptionMessage ex) {
+        	return "dead";
+        }
         
-        runner.handleResponse(userInput);
          
         return "redirect:/game";
     }
     
     @RequestMapping(path = "/load-hero", method = RequestMethod.GET)
     public String loadHeroView (HttpSession session, Model model) {
+    	model.addAttribute("version", VERSION_STR);
     	String username = (String) session.getAttribute("username");
     	List<String> heroList = Hero.getHeroListForUser(username);
     	model.addAttribute("heroList", heroList);
+    	model.addAttribute("username", username);
     	return null;
     }
     
@@ -172,7 +185,12 @@ public class GameController {
     	String username = (String) session.getAttribute("username");
     	Hero hero = Hero.loadHeroFromFile(username, heroName);
     	if (hero == null) {
-    		hero = new Hero(heroName);
+    		GamePlan gamePlan = (GamePlan) session.getAttribute("gamePlan");
+    		if (gamePlan == null) {
+        		gamePlan = buildGamePlan();
+        		session.setAttribute("gamePlan", gamePlan);
+        	}
+    		hero = new Hero(gamePlan.getHeroStartingInfo(), heroName);
     	}
     	session.setAttribute("hero", hero);
     	return "redirect:/airship";
@@ -216,10 +234,13 @@ public class GameController {
     }
 
     @ExceptionHandler(Exception.class)
-    public ModelAndView handleError(HttpServletRequest req, Exception ex) {
+    public ModelAndView handleError(HttpServletRequest req, Exception ex, HttpSession session) {
         ModelAndView mav = new ModelAndView();
         mav.addObject("exception", ex);
         mav.addObject("stackTrace", ex.getStackTrace());
+        mav.addObject("version", VERSION_STR);
+        String username = (String) session.getAttribute("username");
+        mav.addObject("username", username);
         mav.setViewName("error");
         ex.printStackTrace();
         return mav; //Queen of Air and Darkness
@@ -258,6 +279,11 @@ public class GameController {
     	}
     }
     
+    /**
+     * Helper method for airship endpoint.
+     * @param dungeonGroup
+     * @param heroClearedDungeons
+     */
     private static void addDungeonInfoToModel (Model model, DungeonGroup dungeonGroup, List<String> heroClearedDungeons) {
     	List<String> clearedDungeons = new ArrayList<>();
     	List<String> availableDungeons = new ArrayList<>();
@@ -283,6 +309,10 @@ public class GameController {
 		model.addAttribute("unavailableDungeons", unavailableDungeons);
     }
     
+    /**
+     * Helper method for main game endpoint.
+     * @param textOut
+     */
     private static void addOutputTextToModel (Model model, TextInterface textOut) {
     	List<String> output = textOut.flush();
         List<String> debug = textOut.flushDebug();

@@ -1,63 +1,66 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>TextQuest</title>
-        <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i|UnifrakturCook:700" rel="stylesheet">
-        <link rel="icon" href="./images/favicon.png" type="img/png">
-        <link rel="stylesheet" href="css/reset.css" type="text/css">
-        <link rel="stylesheet" href="css/main.css" type="text/css">
-    </head>
-    <body>
-        <header class="site">
-          <h1>Text<span class="gold">Quest</span></h1>
-          <p class="tagline">A text-based dungeon adventure game</p>
-        </header>
-        <main class="site">
-            <header>
-                <h2>{{location}}</h2>
-            </header>
-            <div class="main-box-parent">
-                <div class="game-output-box">
-                    <h3>{{roomName}}</h3>
-                    <ul class="game-output-list">
-                        {{#outputText}}
-                        <li>
-                            {{.}}
-                        </li>
-                        {{/outputText}}
-                    </ul>
-                </div>
-                <div class="tutorial-output-box">
-                    <h4>Tutorial</h4>
-                    {{#tutorial}}
-                    <span class="tutorial-color">{{.}}</span>
-                    {{/tutorial}}
-                </div>
-            </div>
-            <section class="input">
-                <div>
-                    <h2>Enter Commands</h2>
-                    <a href="/interface_help.html">Help</a>
-                </div>
-                <form action="/submit-action" method="post">
-                    <input name="userInput" placeholder="Type your action here" autofocus/>
-                    <button type="submit">Enter</button>
-                </form>
-            </section>
-            <section class="debug">
-                <h4>Debug</h4>
-                <ul class="debug-output-list">
-                    {{#debugText}}
-                    <li>{{.}}</li>
-                    {{/debugText}}
-                </ul>
-            </section>
-        </main>
-        <footer class="site">
-            <p>TextQuest v{{version}} | Current User: {{username}}</p>
-            <p>Developed by <a href="https://github.com/pauldennis2">Paul Dennis</a></p>
-        </footer>
-    </body>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TextQuest</title>
+<link
+	href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i|UnifrakturCook:700"
+	rel="stylesheet">
+<link rel="icon" href="./images/favicon.png" type="img/png">
+<link rel="stylesheet" href="css/reset.css" type="text/css">
+<link rel="stylesheet" href="css/main.css" type="text/css">
+</head>
+<body>
+	<header class="site">
+		<h1>
+			Text<span class="gold">Quest</span>
+		</h1>
+		<p class="tagline">A text-based dungeon adventure game</p>
+	</header>
+	<main class="site"> <header>
+		<h2>{{location}}</h2>
+	</header>
+	<div class="main-box-parent">
+		<div class="game-output-box">
+			<h3>{{roomName}}</h3>
+			<ul class="game-output-list">
+				{{#outputText}}
+					<li>{{.}}</li> 
+				{{/outputText}}
+			</ul>
+		</div>
+		<div class="tutorial-output-box">
+			<h4>Tutorial</h4>
+			{{#tutorial}}
+				<span class="tutorial-color">{{.}}</span>
+			{{/tutorial}}
+		</div>
+	</div>
+	<section class="input">
+		<div>
+			<h2>Enter Commands</h2>
+			<a href="/interface_help.html">Help</a>
+		</div>
+		<form action="/submit-action" method="post">
+			<input name="userInput" placeholder="Type your action here" autofocus />
+			<button type="submit">Enter</button>
+		</form>
+	</section>
+	<section class="debug">
+		<h4>Debug</h4>
+		<ul class="debug-output-list">
+			{{#debugText}}
+				<li>{{.}}</li>
+			{{/debugText}}
+		</ul>
+	</section>
+	</main>
+	<footer class="site">
+		<p>TextQuest v{{version}} | Current User: {{username}}</p>
+		<p>
+			Developed by <a href="https://github.com/pauldennis2">Paul Dennis</a>
+		</p>
+	</footer>
+</body>
 </html>

@@ -21,10 +21,8 @@ import java.util.stream.Collectors;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class DungeonRoom extends TickTock {
+public class DungeonRoom extends DungeonEntity {
 
-    private String name;
-    private String description;
     private int id;
     private String tutorial;
 
@@ -870,7 +868,7 @@ public class DungeonRoom extends TickTock {
         if (visibleItemsNoDescription.size() > 1) {
         	textOut.println("You can see the following items: " + StringUtils.prettyPrintList(visibleItemsNoDescription));
         } else if (visibleItemsNoDescription.size() == 1) {
-        	textOut.println("You can see " + StringUtils.addAOrAn(visibleItemsNoDescription.get(0).getName()) + ".");
+        	textOut.println("You can see " + visibleItemsNoDescription.get(0) + ".");
         }
 	    
         //7. Features with a description

@@ -6,13 +6,26 @@ package paul.TextQuest.utils;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Scanner;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MapperFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+/**
+ * A class to group together static utility functions
+ * mostly for string manipulation and File IO.
+ */
 public class StringUtils {
 
 	public static String capitalize (String input) {
 		input = input.toLowerCase();
+		return input.substring(0, 1).toUpperCase() + input.substring(1);
+	}
+	
+	public static String capitalizeWithoutLowerCasing (String input) {
 		return input.substring(0, 1).toUpperCase() + input.substring(1);
 	}
 	
@@ -93,7 +106,7 @@ public class StringUtils {
 	
 	public static boolean startsWithVowel (String input) {
 		input = input.toLowerCase(); //Don't try to economize this line, dummy
-		return input.toLowerCase().startsWith("a") || input.startsWith("e") || input.startsWith("i")
+		return input.startsWith("a") || input.startsWith("e") || input.startsWith("i")
 				|| input.startsWith("o") || input.startsWith("u") || input.startsWith("h"); //"an historic event"
 	}
 	
@@ -105,7 +118,31 @@ public class StringUtils {
 			}
 			return stringBuilder.toString();
 		} catch (FileNotFoundException ex) {
-			throw new AssertionError(ex);
+			System.err.println("!Could not find file: " + fileName + ". Returning null.");
+			return null;
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	public static <E> E buildObjectFromFile (String fileName, Class<?> type) throws IOException {
+		String json = readFile(fileName);
+		if (json != null) {
+			return (E) new ObjectMapper().readValue(json, type);
+		}
+		return null;
+    	
+    }
+	
+	public static String serializeIgnoringTransient (Object obj) {
+    	ObjectMapper objectMapper = new ObjectMapper();
+    	
+    	objectMapper.configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);    	
+    	
+    	try {
+    		return objectMapper.writeValueAsString(obj);
+    	} catch (JsonProcessingException ex) {
+    		ex.printStackTrace();
+    		throw new AssertionError("Error");
+    	}
+    }
 }

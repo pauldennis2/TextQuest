@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import paul.TextQuest.interfaces.Detailable;
+import paul.TextQuest.utils.StringUtils;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
@@ -24,24 +25,18 @@ import paul.TextQuest.interfaces.Detailable;
 })
 
 @JsonInclude(Include.NON_NULL)
-public class BackpackItem extends DungeonRoomEntity implements Detailable{
-
-    private String name;
+public class BackpackItem extends DungeonEntity implements Detailable{
     
     private Boolean isQuestItem;
     private int value;
     
     private String onPickup;
     private String onDrop;
-    private boolean darklight; //Item can only be seen in the dark
     private boolean undroppable;
     
     private int numCharges;
     private String onUse;
     
-    private String description;
-    
-    public static final double DEFAULT_VISIBILITY_THRESHHOLD = 0.6;
     public static final String CONSUMES = "!CONSUMES"; //Pronounced like consommés 
 
     public BackpackItem () {
@@ -76,14 +71,6 @@ public class BackpackItem extends DungeonRoomEntity implements Detailable{
     	return new BackpackItem(this);
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    
     public Boolean isQuestItem() {
         return isQuestItem;
     }
@@ -113,11 +100,6 @@ public class BackpackItem extends DungeonRoomEntity implements Detailable{
     public boolean hasPickupAction () {
         return onPickup != null;
     }
-
-    @Override
-    public String toString () {
-        return name;
-    }
 	
 	public String toDetailedString () {
 		String response = name;
@@ -140,17 +122,7 @@ public class BackpackItem extends DungeonRoomEntity implements Detailable{
 		return response;
 	}
 
-	public boolean isVisible (double lighting) {
-        if (darklight) {
-            return lighting == 0.0;
-        }
-        return lighting >= DEFAULT_VISIBILITY_THRESHHOLD;
-    }
-
-    public boolean isDarklight () {
-        return darklight;
-    }
-
+	@Override
     @JsonInclude(Include.NON_DEFAULT)
     public void setDarklight (boolean darklight) {
         this.darklight = darklight;
@@ -188,17 +160,5 @@ public class BackpackItem extends DungeonRoomEntity implements Detailable{
 
 	public void setOnUse(String onUse) {
 		this.onUse = onUse;
-		System.err.println("setOnUse() called param = " + onUse);
-		System.err.println(this.toDetailedString());
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public void setDescription(String description) {
-		this.description = description;
-	}
-    
-    
+	}    
 }

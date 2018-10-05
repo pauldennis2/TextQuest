@@ -2,7 +2,7 @@
  * @author Paul Dennis
  * Sep 11, 2018
  */
-package paul.TextQuest.entities;
+package paul.TextQuest.gameplan;
 
 import java.io.File;
 import java.io.FileNotFoundException;

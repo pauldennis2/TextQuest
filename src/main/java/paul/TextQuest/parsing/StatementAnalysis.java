@@ -60,43 +60,6 @@ public class StatementAnalysis {
         comments = new ArrayList<>();
     }
 
-    public void printAnalysis () {
-        System.out.println("Analysis of \"" + originalStatement + "\":");
-        System.out.print("Matches: ");
-
-        tokenMatchMap.keySet()
-                .forEach(wordType -> {
-                    List<String> tokenMatches = tokenMatchMap.get(wordType);
-                    if (tokenMatches.size() > 0) {
-                        System.out.print("\n" + wordType + ":");
-                        tokenMatches.forEach(word -> System.out.print(word + ", "));
-                        System.out.println();
-                    }
-                });
-        if (hasAnd) {
-            System.out.print("2nd part matches: ");
-            secondTokenMatchMap.keySet()
-                    .forEach(wordType -> {
-                        List<String> tokenMatches = secondTokenMatchMap.get(wordType);
-                        if (tokenMatches.size() > 0) {
-                            System.out.print("\n" + wordType + ":");
-                            tokenMatches.forEach(word -> System.out.print(word + ", "));
-                            System.out.println();
-                        }
-                    });
-        }
-        System.out.println();
-    }
-
-    public void printFinalAnalysis () {
-        System.out.println("Final analysis of \"" + originalStatement + "\":");
-        System.out.println("Action Word: " + actionWord + ", Param Word: " + actionParam + ", Actionable: " + actionable);
-        if (comments.size() > 0) {
-            System.out.println("Comments:");
-            comments.forEach(e -> System.out.println("\t" + e));
-        }
-    }
-
     public String getOriginalStatement() {
         return originalStatement;
     }

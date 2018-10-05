@@ -1,22 +1,18 @@
 package paul.TextQuest.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MapperFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import paul.TextQuest.TextInterface;
 import paul.TextQuest.entities.obstacles.Obstacle;
 import paul.TextQuest.entities.obstacles.SmashableObstacle;
 import paul.TextQuest.enums.Direction;
 import paul.TextQuest.enums.EquipSlot;
-import paul.TextQuest.enums.LevelUpCategory;
 import paul.TextQuest.enums.SpeakingVolume;
+import paul.TextQuest.gameplan.LevelUpPlan;
 import paul.TextQuest.interfaces.*;
 import paul.TextQuest.utils.*;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
@@ -28,16 +24,11 @@ import java.util.stream.Collectors;
  * Created by Paul Dennis on 8/8/2017.
  */
 
-public class Hero implements Serializable {
+public class Hero extends CombatEntity implements Serializable {
 
-    private String name;
-
-    private int health;
     private int maxHealth;
 
-    private int might;
     private int magic;
-    private int defense;
     private int maxSpellsPerDay;
 
     //Base chance to be hit is 50%
@@ -69,7 +60,7 @@ public class Hero implements Serializable {
     
     private List<String> clearedDungeons;
     
-    private List<LevelUpCategory> levelUpTodo;
+    private List<String> levelUpTodo;
     private Map<EquipSlot, EquippableItem> equippedItems;
     
     private SkillMap skillMap;
@@ -81,7 +72,6 @@ public class Hero implements Serializable {
     private transient int numSpellsAvailable;
     
     private transient int block;
-    private transient int disabledForRounds;
 
     private transient DungeonRoom location;
     private transient DungeonRoom previousLocation;
@@ -181,53 +171,39 @@ public class Hero implements Serializable {
         	messagePrintedForLevel = new HashMap<>();
         }
         if (levelUpPlan.getExpAmounts().get(level) <= exp) {
-        	if (messagePrintedForLevel.get(level) == false) {
+        	if (messagePrintedForLevel.get(level) != null && messagePrintedForLevel.get(level) == false) {
 	            textOut.println("***Ding! Level up.");
 	            textOut.println("After the dungeon is complete you'll be able to level up.");
 	            messagePrintedForLevel.put(level, true);
         	}
         }
     }
-
-    private static Hero jsonRestore(String heroJson) throws IOException {
-        ObjectMapper mapper = new ObjectMapper();
-        return mapper.readValue(heroJson, Hero.class);
-    }
-
-    //Don't name this method like a getter or it causes SO Error
-    public String createJsonString() {
-    	ObjectMapper objectMapper = new ObjectMapper();
-    	
-    	objectMapper.configure(MapperFeature.PROPAGATE_TRANSIENT_MARKER, true);    	
-    	
-    	try {
-    		return objectMapper.writeValueAsString(this);
-    	} catch (JsonProcessingException ex) {
-    		ex.printStackTrace();
-    		throw new AssertionError("Error");
+    
+    public void prepareLevelUpTodos () {
+    	while (levelUpPlan.getExpAmounts().get(level) <= exp) {
+    		levelUpTodo.addAll(levelUpPlan.getLevelUpActions().get(level));
+    		level++;
     	}
     }
+
     
     public static void saveHeroToFile (String username, Hero hero) {
     	String fileName = SAVE_PATH + username + "/" + hero.getName() + ".json";
     	System.err.println("!Attempting to save hero to " + fileName);
     	new File(SAVE_PATH + username).mkdirs();
     	try (FileWriter fileWriter = new FileWriter(new File(fileName))){
-    		fileWriter.write(hero.createJsonString());
+    		fileWriter.write(StringUtils.serializeIgnoringTransient(hero));
     	} catch (IOException ex) {
     		ex.printStackTrace();
     	}
     }
     
     public static Hero loadHeroFromFile (String fileName) {
-    	try (Scanner fileScanner = new Scanner(new File(fileName))) {
-    		String json = fileScanner.nextLine();
-    		return jsonRestore(json);
-    	} catch (FileNotFoundException ex) {
-    		System.err.println("!Could not find hero file at " + fileName);
-    		return null;
+    	try {
+    		return StringUtils.buildObjectFromFile(fileName, Hero.class);
     	} catch (IOException ex) {
-    		throw new AssertionError(ex);
+    		System.err.println("!Not found, returing null.");
+    		return null;
     	}
     }
     
@@ -370,7 +346,7 @@ public class Hero implements Serializable {
                     room.doAction(item.getOnPickup());
                 }
                 backpack.add(item);
-                textOut.println("Picked up " + item.getName());
+                textOut.println("Picked up " + item + ".");
             });
         	Chest chest = room.getChest();
         	if (chest != null && chest.isOpen()) {
@@ -379,7 +355,7 @@ public class Hero implements Serializable {
                     if (item.hasPickupAction()) {
                         room.doAction(item.getOnPickup());
                     }
-                    textOut.println("Looted " + item.getName() + " from chest.");
+                    textOut.println("Looted " + item + " from chest.");
                     backpack.add(item);
                 });
         	} else if (room.getChest() != null) {
@@ -781,17 +757,6 @@ public class Hero implements Serializable {
 		
 		//Do spell actions
 		spell.getActions().forEach(location::doAction);
-		
-		/*
-		spell.getActions().forEach(action -> {
-			//TODO this is kinda hacky/non-scalable.
-			if (action.contains("dealdamage") || action.contains("disable")) {
-				location.doAction(action + " " + spell.getTargetType());
-			} else {
-				location.doAction(action);
-			}
-		});
-		*/
     }
 
     public void removeItem (String itemName) {
@@ -915,8 +880,7 @@ public class Hero implements Serializable {
         health -= damage;
         if (health <= 0) {
             health = 0;
-            //TODO : fix
-            throw new AssertionError("Died from damage. Or perhaps dafighter. Har har.");
+            throw new DefeatExceptionMessage("Died from damage - or perhaps dafighter, har har");
         }
         return damage;
     }
@@ -924,8 +888,7 @@ public class Hero implements Serializable {
     public void takeNonMitigatedDamage (int damage) {
         health -= damage;
         if (health <= 0) {
-        	//TODO : fix
-            throw new AssertionError("Died from non-combat damage.");
+        	throw new DefeatExceptionMessage("Died from non-combat damage.");
         }
     }
     
@@ -960,10 +923,6 @@ public class Hero implements Serializable {
 				+ clearedDungeons + ", skillMap=" + skillMap + ", equippedItems=" + equippedItems + "]";
 	}
 
-	public int getHealth() {
-        return health;
-    }
-
     public int getMaxHealth() {
         return maxHealth;
     }
@@ -988,24 +947,12 @@ public class Hero implements Serializable {
         return defense + defenseMod;
     }
     
-    public int getMight() {
-		return might;
-	}
-
 	public int getMagic() {
 		return magic;
 	}
 
-	public int getDefense() {
-		return defense;
-	}
-
 	public int getSkill (String skillName) {
     	return skillMap.get(skillName) + skillMods.get(skillName);
-    }
-
-    public void setDefense(int defense) {
-        this.defense = defense;
     }
 
     public int getLevel() {
@@ -1033,16 +980,8 @@ public class Hero implements Serializable {
         }
     }
 
-    public void setHealth(int health) {
-        this.health = health;
-    }
-
     public void setMaxHealth(int maxHealth) {
         this.maxHealth = maxHealth;
-    }
-
-    public void setMight(int might) {
-        this.might = might;
     }
 
     public void setMagic(int magic) {
@@ -1067,14 +1006,6 @@ public class Hero implements Serializable {
 
     public void setBackpack(Backpack backpack) {
         this.backpack = backpack;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public TextInterface getTextOut() {
@@ -1157,35 +1088,18 @@ public class Hero implements Serializable {
 		this.textOut = textOut;
 	}
 	
-	public List<LevelUpCategory> getLevelUpTodo() {
+	public List<String> getLevelUpTodo() {
 		return levelUpTodo;
 	}
 
-	public void setLevelUpTodo(List<LevelUpCategory> levelUpTodo) {
+	public void setLevelUpTodo(List<String> levelUpTodo) {
 		this.levelUpTodo = levelUpTodo;
 	}
 
-	//TODO: seems like there's some commonality between this and monster - shared base class?
+	@Override
 	@JsonIgnore
 	public boolean isDisabled () {
 		return disabledForRounds > 0;
-	}
-	
-	public void disable (int numRounds) {
-		disabledForRounds += numRounds;
-	}
-	
-	public void unDisable () {
-		disabledForRounds = 0;
-	}
-	
-	public void nextRound () {
-		if (disabledForRounds > 0) {
-			disabledForRounds--;
-		}
-		if (block > 0) {
-			block--;
-		}
 	}
 	
 	public void addStatus (String status) {
@@ -1219,9 +1133,30 @@ public class Hero implements Serializable {
 		return buffs.contains(status) || debuffs.contains(status);
 	}
 	
+	public boolean hasSkill (String skillAndAmt) {
+		String[] splits = skillAndAmt.split(" ");
+		String skill = splits[0];
+		int amt = Integer.parseInt(splits[1]);
+		
+		int herosSkill = skillMap.get(skill);
+		
+		if (herosSkill >= amt) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	@Override
+	public int getHealth () {
+		return health;
+	}
+	
+	//TODO this causes problems when trying to look at a field like health
+	//contained in CombatEntity. Workaround for now (see above)
 	public Integer getIntField (String fieldName) {
 		try {
-			String methodName = "get" + StringUtils.capitalize(fieldName);
+			String methodName = "get" + StringUtils.capitalizeWithoutLowerCasing(fieldName);
 			Method method = getClass().getDeclaredMethod(methodName);
 			Object response = method.invoke(this);
 			return (Integer) response;

@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import paul.TextQuest.DungeonRunner;
 import paul.TextQuest.TextInterface;
 import paul.TextQuest.enums.Direction;
+import paul.TextQuest.gameplan.Beastiary;
+import paul.TextQuest.gameplan.ItemLibrary;
 import paul.TextQuest.utils.StringUtils;
 
 import java.io.IOException;
@@ -68,6 +70,13 @@ public class Dungeon extends MetaLocation {
     /**Note: this method is a bit weird, in that it gets called BY the room,
      * then calls all the individual rooms. The calling room is responsible
      * for triggering the dungeon's tick, if present.
+     * 
+     * Note: this method looks awkward - seems like we could save time by just
+     * doing for (rooms) { for(tickTocks) doTick}. The problem is that this
+     * could lead to patrolling monsters getting ticked twice (or more).
+     * 
+     * It's important to build the Map/list of tickTocks first, then do all of them
+     * at once.
      */
     public void doTick () {
     	Map<DungeonRoom, List<TickTock>> tickTockMap = new HashMap<>();
@@ -114,22 +123,8 @@ public class Dungeon extends MetaLocation {
     }
     
     public static final String BEASTIARY_PATH = "content_files/beastiaries/";
-    public static Beastiary buildBeastiaryFromFile (String fileName) throws IOException {
-    	ObjectMapper mapper = new ObjectMapper();
-    	return mapper.readValue(StringUtils.readFile(BEASTIARY_PATH + fileName), Beastiary.class);
-    }
     
     public static final String ITEM_LIBRARY_PATH = "content_files/items/";
-    public static ItemLibrary buildItemLibraryFromFile (String fileName) throws IOException {
-    	ObjectMapper mapper = new ObjectMapper();
-    	return mapper.readValue(StringUtils.readFile(fileName), ItemLibrary.class);
-    }
-    
-    @SuppressWarnings("unchecked")
-	public static <E> E buildObjectFromFile (String fileName, Class<?> type) throws IOException {
-    	ObjectMapper mapper = new ObjectMapper();
-    	return (E)mapper.readValue(StringUtils.readFile(fileName), type);
-    }
 
     private void connectRooms () {
         roomsById = new HashMap<>();
@@ -163,6 +158,12 @@ public class Dungeon extends MetaLocation {
         }
     }
     
+    /**
+     * A method meant to be run independently of the web app
+     * to do some validation on the dungeon (i.e. check for
+     * bugs before going live).
+     * 
+     */
     public void evaluateDungeon () throws Exception {
     	List<String> oneWayWarnings = new ArrayList<>();
     	List<String> triggerWarnings = new ArrayList<>();
@@ -180,7 +181,7 @@ public class Dungeon extends MetaLocation {
     		//Check triggers
     		Map<String, Map<String, String>> metaMap = room.getMetaMap();
     		Hero hero = new Hero("Tester");
-    		TextInterface textOut = TextInterface.getInstance();
+    		TextInterface textOut = new TextInterface();
     		hero.setTextOut(textOut);
     		room.setHero(hero);
     		for (String mapName : metaMap.keySet()) {
@@ -252,7 +253,8 @@ public class Dungeon extends MetaLocation {
 		
 		for (String fileName : beastiaries) {
 			try {
-				Map<String, Monster> monsterMap = buildBeastiaryFromFile(fileName).getMonsterMap();
+				Beastiary beastiary = StringUtils.buildObjectFromFile(BEASTIARY_PATH + fileName, Beastiary.class);
+				Map<String, Monster> monsterMap = beastiary.getMonsterMap();
 				for (String key : monsterMap.keySet()) {
 					if (monsterLibrary.containsKey(key)) {
 						throw new AssertionError("Namespace conflict. Can't have two monsters named " +
@@ -274,7 +276,7 @@ public class Dungeon extends MetaLocation {
 		
 		for (String fileName : itemLibraries) {
 			try {
-				ItemLibrary lib = buildObjectFromFile(ITEM_LIBRARY_PATH + fileName, ItemLibrary.class);
+				ItemLibrary lib = StringUtils.buildObjectFromFile(ITEM_LIBRARY_PATH + fileName, ItemLibrary.class);
 				Map<String, BackpackItem> itemMap = lib.getItemMap();
 				for (String key : itemMap.keySet()) {
 					if (itemLibrary.containsKey(key)) {

@@ -1,83 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8"/>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>TextQuest</title>
-        <link href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i|UnifrakturCook:700" rel="stylesheet">
-        <link rel="icon" href="./images/favicon.png" type="img/png">
-        <link rel="stylesheet" href="css/reset.css" type="text/css">
-        <link rel="stylesheet" href="css/main.css" type="text/css">
-    </head>
-    <body>
-        <header class="site">
-          <h1>Text<span class="gold">Quest</span></h1>
-          <p class="tagline">A text-based dungeon adventure game</p>
-        </header>
-        <main class="site">
-            <header>
-                <h2>Airship</h2>
-            </header>
-            <div class="main-box-parent">
-                <div class="game-output-box">
-                	<h3>{{hero.name}} - Level {{hero.level}}</h3>
-                    Health: {{hero.health}} / {{hero.maxHealth}} <br>
-                    Might: {{hero.might}} <br>
-                    Defense: {{hero.defense}} <br>
-                    Magic: {{hero.magic}} <br>
-                    Exp: {{hero.exp}} <br>
-                    {{#levelUpAvailable}}
-                    	<a href="/levelup">Level Up</a>
-                    {{/levelUpAvailable}}
-                </div>
-                <div class="game-output-box">
-					<h4>Spellbook</h4>
-					<ul class="game-output-list">
-                        {{#hero.spellbook}}
-                        <li>
-                            {{.}}
-                        </li>
-                        {{/hero.spellbook}}
-                    </ul>
-                </div>
-                <div class="game-output-box">
-					<h4>Inventory</h4>
-					<ul class="game-output-list">
-                        {{#hero.backpack.items}}
-                        <li>
-                            {{.}}
-                        </li>
-                        {{/hero.backpack.items}}
-                    </ul>
-                </div>
-                
-                <div>
-                	<a href="/savegame">Save Game</a>
-                </div>
-                
-                <div class="game-output-box">
-                	<h4>Dungeon Progress</h4>
-                	{{#clearedDungeons}}
-                        <li>
-                            {{.}}
-                        </li>
-                    {{/clearedDungeons}}
-                    {{#availableDungeons}}
-                    	<li>
-                    		<a href="startDungeon/?dungeonName={{.}}">{{.}}</a>
-                    	</li>
-                    {{/availableDungeons}}
-                    {{#unavailableDungeons}}
-                    	<li>
-                    		{{.}}
-                    	</li>
-                    {{/unavailableDungeons}}
-                </div>
-            </div>
-        </main>
-        <footer class="site">
-            <p>TextQuest v{{version}} | Current User: {{username}}</p>
-            <p>Developed by <a href="https://github.com/pauldennis2">Paul Dennis</a></p>
-        </footer>
-    </body>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TextQuest</title>
+<link
+	href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i|UnifrakturCook:700"
+	rel="stylesheet">
+<link rel="icon" href="./images/favicon.png" type="img/png">
+<link rel="stylesheet" href="css/reset.css" type="text/css">
+<link rel="stylesheet" href="css/main.css" type="text/css">
+</head>
+<body>
+	<header class="site">
+		<h1>
+			Text<span class="gold">Quest</span>
+		</h1>
+		<p class="tagline">A text-based dungeon adventure game</p>
+	</header>
+	<main class="site"> <header>
+		<h2>Airship</h2>
+	</header>
+	<div class="main-box-parent">
+		<div class="game-output-box">
+			<h3>{{hero.name}} - Level {{hero.level}}</h3>
+			Health: {{hero.health}} / {{hero.maxHealth}} <br> Might:
+			{{hero.might}} <br> Defense: {{hero.defense}} <br> Magic:
+			{{hero.magic}} <br> Exp: {{hero.exp}} <br>
+			{{#levelUpAvailable}} 
+				<a href="/levelup">Level Up</a>
+			{{/levelUpAvailable}}
+		</div>
+		<div class="game-output-box">
+			<h4>Spellbook</h4>
+			<ul class="game-output-list">
+				{{#hero.spellbook}}
+					<li>{{.}}</li> 
+				{{/hero.spellbook}}
+			</ul>
+		</div>
+		<div class="game-output-box">
+			<h4>Inventory</h4>
+			<ul class="game-output-list">
+				{{#hero.backpack.items}}
+					<li>{{.}}</li> 
+				{{/hero.backpack.items}}
+			</ul>
+		</div>
+
+		<div>
+			<a href="/savegame">Save Game</a>
+		</div>
+
+		<div class="game-output-box">
+			<h4>Dungeon Progress</h4>
+			{{#clearedDungeons}}
+				<li>{{.}}</li> 
+			{{/clearedDungeons}}
+			{{#availableDungeons}}
+				<li><a href="startDungeon/?dungeonName={{.}}">{{.}}</a></li>
+			{{/availableDungeons}} 
+			{{#unavailableDungeons}}
+				<li>{{.}}</li> 
+			{{/unavailableDungeons}}
+		</div>
+	</div>
+	</main>
+	<footer class="site">
+		<p>TextQuest v{{version}} | Current User: {{username}}</p>
+		<p>
+			Developed by <a href="https://github.com/pauldennis2">Paul Dennis</a>
+		</p>
+	</footer>
+</body>
 </html>

@@ -2,7 +2,7 @@
  * @author Paul Dennis
  * Sep 18, 2018
  */
-package paul.TextQuest.entities;
+package paul.TextQuest.gameplan;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -10,6 +10,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import paul.TextQuest.entities.Hero;
+import paul.TextQuest.entities.Spellbook;
 import paul.TextQuest.utils.StringUtils;
 
 /**

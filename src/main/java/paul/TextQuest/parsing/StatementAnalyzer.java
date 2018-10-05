@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import paul.TextQuest.TextInterface;
 import paul.TextQuest.entities.DungeonRoom;
 import paul.TextQuest.utils.StringUtils;
 
@@ -237,26 +238,28 @@ public class StatementAnalyzer {
     }
 
     public void learnNewAssociation () {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("No hits. Would you like to teach me an association? (y/n");
+    	TextInterface textOut = new TextInterface();
+    	//PrintStream textOut = System.out;
+    	Scanner scanner = new Scanner(System.in);
+        textOut.println("No hits. Would you like to teach me an association? (y/n");
         String yesNoResponse = scanner.nextLine().toLowerCase();
         if (yesNoResponse.contains("y")) {
-            System.out.println("Add to an existing association group or create new?(add/new)");
+        	textOut.println("Add to an existing association group or create new?(add/new)");
             String userResponse = scanner.nextLine().toLowerCase();
             if (userResponse.contains("add")) {
-                System.out.println("Enter word from an existing association group you want to add to:");
+            	textOut.println("Enter word from an existing association group you want to add to:");
                 String existingWord = scanner.nextLine().trim().toLowerCase();
                 WordGroup wg = wordMap.get(existingWord);
                 if (wg == null) {
-                    System.out.println("Sorry, cannot find the association. Start over?");
+                	textOut.println("Sorry, cannot find the association. Start over?");
                     yesNoResponse = scanner.nextLine().toLowerCase();
                     if (yesNoResponse.contains("y")) {
-                        System.out.println("For reference here are the possibilities for existing words:");
+                    	textOut.println("For reference here are the possibilities for existing words:");
                         wordMap.keySet().forEach(e -> System.out.print(e + " "));
                         learnNewAssociation();
                     }
                 } else {
-                    System.out.println("Enter word(s) to add to association with "
+                	textOut.println("Enter word(s) to add to association with "
                             + existingWord + "(empty string \"\" to exit)");
                     String wordToAdd;
                     while (true) {
@@ -266,19 +269,19 @@ public class StatementAnalyzer {
                         }
                         wg.addRelatedWord(wordToAdd);
                     }
-                    System.out.println("Printing updated word group");
+                    textOut.println("Printing updated word group");
                     updateWordMap(wg);
-                    System.out.println(wg);
+                    textOut.println(wg);
                 }
             } else if (userResponse.contains("new")) {
-                System.out.println("Enter new primary word");
+            	textOut.println("Enter new primary word");
                 String newWord = scanner.nextLine().trim().toLowerCase();
                 if (wordMap.get(newWord) != null) {
-                    System.out.println("That word is already mapped, sorry.");
+                    textOut.println("That word is already mapped, sorry.");
                 } else {
                     WordGroup newGroup = new WordGroup(newWord, new HashSet<>(), null);
                     //TODO fix: causes AssertionError directly
-                    System.out.println("Enter word(s) to associate with " + newWord + " (empty string\"\" to exit):");
+                    textOut.println("Enter word(s) to associate with " + newWord + " (empty string\"\" to exit):");
                     String wordToAdd;
                     while (true) {
                         wordToAdd = scanner.nextLine();
@@ -287,17 +290,17 @@ public class StatementAnalyzer {
                         }
                         newGroup.addRelatedWord(wordToAdd);
                     }
-                    System.out.println("Printing new word group");
+                    textOut.println("Printing new word group");
                     updateWordMap(newGroup);
-                    System.out.println(newGroup);
+                    textOut.println(newGroup);
                 }
             } else {
-                System.out.println("Could not parse response.");
+            	textOut.println("Could not parse response.");
             }
         } else if (yesNoResponse.contains("n")) {
-            System.out.println("OK. No problem.");
+        	textOut.println("OK. No problem.");
         } else {
-            System.out.println("Response did not contain a yes or no. (Defaulted to no)");
+        	textOut.println("Response did not contain a yes or no. (Defaulted to no)");
         }
         scanner.close();
     }
@@ -325,7 +328,6 @@ public class StatementAnalyzer {
                     continue;
                 }
                 if (token.startsWith("$")) {
-                    System.out.println("Inference = " + token);
                     continue;
                 }
                 String primaryWord = token.split(":")[0].trim();

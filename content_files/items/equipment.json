@@ -15,6 +15,14 @@
 			"slot":"BOOTS",
 			"_type":"equipment",
 			"sneakMod":1
+		},
+		"Boots of Vaulting":
+		{
+			"name":"Boots of Vaulting",
+			"slot":"BOOTS",
+			"_type":"equipment",
+			"named":true,
+			"defenseMod":1
 		}
 	}
 }

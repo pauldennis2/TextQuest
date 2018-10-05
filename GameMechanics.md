@@ -18,13 +18,23 @@ There are currently 3 core stats that the game tracks for the hero and monsters:
 * Defense - representing physical defense. Decreases damage taken and increases avoidance/reduces chance for opponent to hit (Every 2 points 5% avoidance, -1 damage taken)
 * Health - when it gets to zero, dead.
 
-The Hero has two additional stats that don't much matter right now: stealth and magic.
+The Hero has an additional stat that don't much matter right now: magic.
 
 #### Experience and Leveling Up
 
-The hero gets experience from fighting monsters, solving puzzles, and so on. On level up, depending on level, you'll have the ability to increase your stats and learn new spells and skills. The game will provide prompts asking what stats to increase and what type of spell you want to learn.
+The hero gets experience from fighting monsters, solving puzzles, and so on. On level up, depending on level, you'll have the ability to increase your stats and learn new spells and skills. You can only level up between dungeons. The dungeon/game designer has the ability to determine what leveling looks like in the game. 
 
-Coming Eventually: the ability to define custom level up actions and operations (basically allow the dungeon designer to decide what leveling up looks like in their game). 
+You can define this using a JSON version of the LevelUpPlan. Here are the components of a LevelUpPlan:
+* expAmounts - the **total** amount of experience points the hero needs to level up, expressed as a List of Integers. These amounts should always be increasing, even if you don't want to slow down leveling because it represents a total. For example, if you wanted the hero to level up every 500 exp, the amounts would look like this: `[500, 1000, 1500, 2000, 2500...]`.
+* levelUpActions - this is what the hero gets to do at each level up, expressed as a Map<Integer, List<String>>. You have to define a mapping for each level, even if the hero doesn't get anything. `"1":["INC_STATS"], "2":[], "3":["INC_STATS"]` means that the hero gets a chance to increase their stats at levels 1 and 3, and nothing for level 2.
+
+What are the available level up actions? (Right now nothing is working/wired up)
+* Inc stats
+* Restore health
+* Learn area of magic
+* ???
+
+The hero starts at level 0 by default. 
 
 ### Dungeon
 
@@ -38,7 +48,7 @@ TextQuest is based on a swords and sorcery dungeon crawling concept. And even th
 
 The hero has a `magic` stat that does nothing.
 
-The hero can have knowledge of various areas of magic (defined by the designer). These could be traditional elements like fire magic, earth magic, whatever, or whatever categories you want to come up with.
+The hero can have knowledge of various areas of magic (defined by the designer). These could be traditional elements like fire magic, earth magic, etc., or whatever categories you want to come up with.
 
 Spells are defined in JSON like dungeons and make use of the same library of events.
 
@@ -46,6 +56,9 @@ Properties:
 * prereqs - The areas of magic the hero must know in order to cast the spell. Optionally can be specified with a number like "fire 2" meaning the hero needs a 2nd level of fire mastery to cast the spell.
 * reagents - any items that are required for and consumed by the spell. If missing, spell will fail. If present they'll be consumed.
 * requiredItems - any items that are required for the spell. If missing, spell will fail. If present spell will be cast without consuming the item.
-* actions - the actual effects of thespell.
+* actions - the actual effects of the spell, expressed in the same syntax as events.
+* statusString - if the spell places a buff or debuff, it should have a statusString associated with it. This string should start with a + to indicate a buff or a - to indicate a debuff. 
 
-The hero will be offered opportunities on levelup to learn new areas of magic or perhaps to advance in an area in which they already have some skill.
+The hero will be offered opportunities on leveling up to learn new areas of magic or perhaps to advance in an area in which they already have some skill.
+
+The concept of "magic areas" is meant to give flexibility, so that you can allow the hero to cast multiple types of spells from learning one area of magic. If you *don't* want this to be the case, you can always define each spell as it's own "area" of magic. (So the hero would need to directly know "fireball" magic to cast the "Fireball" spell).

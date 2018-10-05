@@ -6,6 +6,11 @@ import java.util.List;
 
 /**
  * Created by Paul Dennis on 8/16/2017.
+ * 
+ * This class is basically a big buffer of different types of messages.
+ * Right now it has three different "channels": debug, tutorial, and main
+ * (referred to as "buffer"). These three channels show up in different
+ * places in the web app template.
  */
 
 public class TextInterface {
@@ -14,17 +19,7 @@ public class TextInterface {
     private List<String> debug;
     private List<String> tutorial;
     
-    private static TextInterface instance;
-    
-    
-    public static TextInterface getInstance () {
-    	if (instance == null) {
-    		instance = new TextInterface();
-    	}
-    	return instance;
-    }
-    
-    private TextInterface () {
+    public TextInterface () {
     	buffer = new ArrayList<>();
         debug = new ArrayList<>();
         tutorial = new ArrayList<>();

@@ -1,6 +1,11 @@
 {
   "dungeonName":"Lair of Pihop-pi",
   "description":"",
+  "itemLibraries":
+  [
+  	"potions.json",
+  	"equipment.json"
+  ],
   "rooms":
   [
     {
@@ -18,14 +23,9 @@
       "name":"Guard Room",
       "id":2,
       "description":"This is the guard room. It's hard to see but there are probably monsters!",
-      "tutorial":"Uh-oh - there's a monster in this room. You can retreat, but you won't be able to proceed further until you've defeated him. Try typing: \"fight\" (no quotes).",
+      "tutorial":"Uh-oh - there's a monster in this room. You can retreat, but you won't be able to proceed further until you've defeated the guard. Try typing: \"fight\" (no quotes).",
       "lighting": 0.4,
-      "items":
-      [
-        {
-          "name":"Potion"
-        }
-      ],
+      "itemKeys": ["Potion"],
       "monsters":
       [
         {
@@ -60,21 +60,19 @@
       "description":"A skeletal figure guards a pedastal with some very fancy boots.",
       "tutorial":"This room has a very important item that you'll want to *loot*. First, you'll need to fight the mini-boss. Then \"loot\" to get the boots.",
       "lighting": 1.0,
+      "onHeroAction":
+      {
+      	"loot":"crackFloor"
+      },
       "monsters":
       [
         {
-          "name":"I am Jack's First Miniboss",
+          "name":"Skeleton Captain",
           "health": 15,
           "might": 2
         }
       ],
-      "items":
-      [
-        {
-          "name": "Boots of Vaulting",
-          "onPickup": "crackFloor"
-        }
-      ],
+      "itemKeys": ["Boots of Vaulting"],
       "connectedRoomIds":
       {
         "WEST":3
@@ -211,7 +209,16 @@
       "id":10,
       "description":"The lair of Pihop-pi. It kinda stinks in here.",
       "lighting":1.0,
-      "tutorial":"This is the lair of the dungeon boss. Not yet 100% perfectly implemented. Thanks for playing!",
+      "tutorial":"This is the lair of the dungeon boss. Get ready!",
+      "monsters":
+      [
+      	{
+      		"name":"Pihop Pi",
+      		"health":20,
+      		"might":3,
+      		"onDeath": "setDungeonCleared"
+      	}
+      ],
       "chest":
       {
         "name":"Pihop-pi's Chest",
@@ -220,7 +227,10 @@
         "contents":
         [
           {
-            "name":"Longsword + 1"
+            "name":"Fine Longsword",
+			"slot":"WEAPON",
+			"_type":"equipment",
+			"mightMod":2
           }
         ]
       },

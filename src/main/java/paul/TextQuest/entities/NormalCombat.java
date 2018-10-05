@@ -77,7 +77,7 @@ public class NormalCombat {
 	                int taken = firstMonster.takeDamage(damageRoll);
 	                textOut.println("You hit " + firstMonster.getName() + " for " + taken + " damage.");
 	                if (firstMonster.getHealth() <= 0) {
-	                    textOut.println("You killed " + firstMonster.getName());
+	                    textOut.println("You killed " + firstMonster.getName() + ".");
 	                    room.updateMonsters();
 	                }
 	            } else {
@@ -91,6 +91,7 @@ public class NormalCombat {
 
             if (monsters.size() == 0) {
                 endCombat();
+                return;
             }
             monsters.forEach(monster -> {
                 if (monster.isDisabled()) {
@@ -104,7 +105,7 @@ public class NormalCombat {
                     double mRoll = Math.random();
                     if (mChance > mRoll) {
                         int damageTaken = hero.takeDamage(monsterDamageRoll);
-                        textOut.println("You took " + damageTaken + " damage from " + monster.getName());
+                        textOut.println("You took " + damageTaken + " damage from " + monster.getName() + ".");
                         String onDealDamage = monster.getOnDealDamage();
                         if (onDealDamage != null) {
                         	room.doAction(onDealDamage);
@@ -129,19 +130,22 @@ public class NormalCombat {
             roundNum++;
         } else {
             endCombat();
+            return;
         }
         textOut.println("End of combat round. Take an action? Enter to proceed with no special action.");
     }
 
     private void endCombat () {
     	room.getHero().unDisable();
+    	textOut.println("Combat ended.");
         if (expCalc > 0) {
             room.getHero().addExp(expCalc + BASE_COMBAT_XP);
         }
         if (onCombatEnd != null) {
         	room.doAction(onCombatEnd);
         }
-        room.doAction("print Health:{hero.health}/{hero.maxHealth}"); //This is a cute wiring workaround
+        
+        room.doAction("print \"Health: {hero.health}/{hero.maxHealth}\""); //This is a cute wiring workaround
         expCalc = 0;
         finished = true;
         dungeonRunner.endCombat();

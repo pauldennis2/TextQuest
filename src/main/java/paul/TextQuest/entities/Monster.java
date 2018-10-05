@@ -9,19 +9,7 @@ import java.util.Random;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
-public class Monster extends DungeonRoomEntity {
-
-    private int health;
-    private int might;
-    private int defense;
-    private String name;
-    
-    private String description;
-
-    private transient int disabledForRounds = 0;
-
-    //Not sure what this is for/what it was intended for
-    //private static Map<String, VoidAction> actionMap;
+public class Monster extends CombatEntity {
 
     private Map<BehaviorTiming, String> behavior;
     private boolean isMiniboss;
@@ -86,7 +74,9 @@ public class Monster extends DungeonRoomEntity {
     	health = getModdedStat(health, 1);
     	defense = getModdedStat(defense, 0);
     	
-    	behavior = new HashMap<>();
+    	if (behavior == null) {
+    		behavior = new HashMap<>();
+    	}
     }
     
     /**
@@ -111,20 +101,11 @@ public class Monster extends DungeonRoomEntity {
     	return stat;
     }
 
+    @Override
     public void disable (int rounds) {
         disabledForRounds += rounds;
         if (onDisable != null) {
         	location.doAction(onDisable);
-        }
-    }
-
-    public boolean isDisabled () {
-        return disabledForRounds > 0;
-    }
-
-    public void nextRound () {
-        if (disabledForRounds > 0) {
-            disabledForRounds--;
         }
     }
 
@@ -148,40 +129,8 @@ public class Monster extends DungeonRoomEntity {
         return name;
     }
 
-    public int getHealth () {
-        return health;
-    }
-
-    public int getMight () {
-        return might;
-    }
-
-    public void setMight (int might) {
-        this.might = might;
-    }
-
     public int getExp () {
         return health + 2 * might + 3;
-    }
-
-    public String getName () {
-        return name;
-    }
-
-    public void setHealth (int health) {
-        this.health = health;
-    }
-
-    public void setName (String name) {
-        this.name = name;
-    }
-
-    public int getDefense () {
-        return defense;
-    }
-
-    public void setDefense (int defense) {
-        this.defense = defense;
     }
 
     public Map<BehaviorTiming, String> getBehavior () {
@@ -234,18 +183,6 @@ public class Monster extends DungeonRoomEntity {
     
     public void addRoomReference (DungeonRoom room) {
     	this.location = room;
-    }
-    
-    public void setDescription (String description) {
-    	this.description = description;
-    }
-    
-    public String getDescription () {
-    	return description;
-    }
-    
-    public boolean hasDescription () {
-    	return description != null && !description.trim().equals("");
     }
 
 	public PatrolRoute getPatrolRoute() {
