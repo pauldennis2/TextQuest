@@ -41,7 +41,7 @@ public class GameController {
     public static final String USERS_FILE = "save_data/users.txt";
     public static final String GAME_PLAN_LOCATION = "content_files/game/default_gameplan.json";
     
-    public static final String VERSION_STR = "0.0.11";
+    public static final String VERSION_STR = "0.0.12";
     public static final String UNAVAILBLE_STR = "?????";
     
     //Currently Gameplans can have multiple dungeongroups.
