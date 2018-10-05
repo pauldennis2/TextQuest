@@ -49,7 +49,14 @@ public class GameController {
     public static final int FIRST_GROUP = 0;
     
     @RequestMapping(path = "/", method = RequestMethod.GET)
-    public String home () {
+    public String home (Model model, HttpSession session) {
+    	String username = (String) session.getAttribute("username");
+    	if (username == null) {
+    		model.addAttribute("username", "Not logged in");
+    	} else {
+    		model.addAttribute("username", username);
+    	}
+    	model.addAttribute("version", VERSION_STR);
         return "index";
     }
     
@@ -164,9 +171,11 @@ public class GameController {
     
     @RequestMapping(path = "/load-hero", method = RequestMethod.GET)
     public String loadHeroView (HttpSession session, Model model) {
+    	model.addAttribute("version", VERSION_STR);
     	String username = (String) session.getAttribute("username");
     	List<String> heroList = Hero.getHeroListForUser(username);
     	model.addAttribute("heroList", heroList);
+    	model.addAttribute("username", username);
     	return null;
     }
     
@@ -225,10 +234,13 @@ public class GameController {
     }
 
     @ExceptionHandler(Exception.class)
-    public ModelAndView handleError(HttpServletRequest req, Exception ex) {
+    public ModelAndView handleError(HttpServletRequest req, Exception ex, HttpSession session) {
         ModelAndView mav = new ModelAndView();
         mav.addObject("exception", ex);
         mav.addObject("stackTrace", ex.getStackTrace());
+        mav.addObject("version", VERSION_STR);
+        String username = (String) session.getAttribute("username");
+        mav.addObject("username", username);
         mav.setViewName("error");
         ex.printStackTrace();
         return mav; //Queen of Air and Darkness

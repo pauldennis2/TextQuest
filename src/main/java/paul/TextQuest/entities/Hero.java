@@ -112,8 +112,6 @@ public class Hero extends CombatEntity implements Serializable {
     
     public Hero (Hero startingInfo, String name) {
     	this();
-    	System.out.println("In heroStartingInfo constructor.");
-    	System.out.println("input = " + startingInfo);
     	if (name.contains(" ") || name.contains("/")) {
     		throw new AssertionError("Hero names cannot contain spaces or slashes. Name was: " + name);
     	}

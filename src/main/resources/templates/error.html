@@ -1,25 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"/>
-    <title>An Error Occurred</title>
-    <link rel="icon" href="assets/sword_in_speech.png"/>
+<meta charset="UTF-8" />
+<title>An Error Occurred</title>
+<link rel="icon" href="assets/sword_in_speech.png" />
+<link
+	href="https://fonts.googleapis.com/css?family=Lora:400,400i,700,700i|UnifrakturCook:700"
+	rel="stylesheet">
+<link rel="icon" href="./images/favicon.png" type="img/png">
+<link rel="stylesheet" href="css/reset.css" type="text/css">
+<link rel="stylesheet" href="css/main.css" type="text/css">
 </head>
 <body>
-In the deep dark dungeon, an error occurred. Sorry! Coming soon: ability to report issues. Thanks for playing!<br>
-You can try using Back on your browser to resolve the issue.
-<br>
-<br>
-<hr>
-<br>
-<br>
-<h4>Developer Info:</h4>
-Exception: {{exception}} <br>
-Stack trace:<br>
-<div style="overflow:auto; height:300px; border:1px solid;">
-{{#stackTrace}}
-{{.}}<br>
-{{/stackTrace}}
-</div>
+	<header class="site">
+		<h1>
+			Text<span class="gold">Quest</span>
+		</h1>
+		<p class="tagline">A text-based dungeon adventure game</p>
+	</header>
+	In the deep dark dungeon, an error occurred. Sorry! Coming soon:
+	ability to report issues. Thanks for playing!
+	<br> You can try using Back on your browser to resolve the issue.
+	<br>
+	<br>
+	<hr>
+	<br>
+	<br>
+	<h4>Developer Info:</h4>
+	Exception: {{exception}}
+	<br> Stack trace:
+	<br>
+	<div style="overflow: auto; height: 300px; border: 1px solid;">
+		{{#stackTrace}} {{.}}<br> {{/stackTrace}}
+	</div>
+
+	<footer class="site">
+		<p>TextQuest v{{version}} | Current User: {{username}}</p>
+		<p>
+			Developed by <a href="https://github.com/pauldennis2">Paul Dennis</a>
+		</p>
+	</footer>
 </body>
 </html>
