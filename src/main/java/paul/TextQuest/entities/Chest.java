@@ -4,6 +4,9 @@ import java.util.*;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
+ * 
+ * A chest is an optional component in a room, usually with loot or important items for the hero.
+ * Chests can be locked and require keys to open.
  */
 public class Chest extends Container {
 

@@ -10,8 +10,9 @@ package paul.TextQuest.entities;
  */
 public class Feature extends Container {
     
-	//This isn't great. While all Features are Containers in a Java sense,
-	//only some Features are containers in a game sense.
+	//This isn't great. Logic for why it is the way it is:
+	//While all Features are Containers in a Java sense,
+	//only some Features are containers in a game sense. (Look how nicely that lined up)
     private boolean isContainer;
 
     //This is kinda useless. think about removing

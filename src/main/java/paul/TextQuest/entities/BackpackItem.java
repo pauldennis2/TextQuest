@@ -7,12 +7,25 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
 import paul.TextQuest.interfaces.Detailable;
-import paul.TextQuest.utils.StringUtils;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
+ * 
+ * This class represents any item that the hero can pick up and
+ * put in their backpack. I'm not wild about the class name but,
+ * tradition.
  */
 
+
+/*
+ * These annotations ensure that different sub-classes of this class
+ * can be properly serialized/deserialized.
+ * 
+ * Each subclass should have a public static final String _TYPE field
+ * with the name of the subtype.
+ * 
+ * For example EquippableItem has _TYPE = "equipment"
+ */
 @JsonTypeInfo(
 		defaultImpl = BackpackItem.class,
         use = JsonTypeInfo.Id.NAME, 
@@ -25,7 +38,7 @@ import paul.TextQuest.utils.StringUtils;
 })
 
 @JsonInclude(Include.NON_NULL)
-public class BackpackItem extends DungeonEntity implements Detailable{
+public class BackpackItem extends DungeonEntity implements Detailable {
     
     private Boolean isQuestItem;
     private int value;

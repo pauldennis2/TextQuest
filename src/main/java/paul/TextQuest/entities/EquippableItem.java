@@ -11,6 +11,13 @@ import paul.TextQuest.utils.StringUtils;
 
 /**
  * Created by Paul Dennis on 9/5/2017.
+ * 
+ * Represents an item that can be equipped or worn, such as
+ * boots, shield, gloves, helm, weapons, or shields. See
+ * EquipSlot enum for the various slots.
+ * 
+ * EquippableItems can modify stats and have triggers for
+ * when they are equipped or unequipped.
  */
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "_type", visible = true)
