@@ -42,7 +42,7 @@ public class GameController {
     public static final String GAME_PLAN_LOCATION = "content_files/game/default_gameplan.json";
     
     public static final String VERSION_STR = "0.0.12";
-    public static final String UNAVAILBLE_STR = "?????";
+    public static final String UNAVAILABLE_STR = "?????";
     
     //Currently Gameplans can have multiple dungeongroups.
     //quick hack to select the first one. TODO remove when expanding
@@ -299,7 +299,7 @@ public class GameController {
     			if (heroClearedDungeons.containsAll(prereqs)) {
     				availableDungeons.add(name);
     			} else {
-    				unavailableDungeons.add(UNAVAILBLE_STR);
+    				unavailableDungeons.add(UNAVAILABLE_STR);
     			}
     		}
     	}

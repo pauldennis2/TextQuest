@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import paul.TextQuest.TextInterface;
 import paul.TextQuest.entities.DungeonRoom;
+import paul.TextQuest.enums.WordType;
 import paul.TextQuest.utils.StringUtils;
 
 /**

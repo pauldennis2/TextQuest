@@ -1,0 +1,20 @@
+{
+  "name": "TextQuest",
+  "version": "1.0.0",
+  "description": "Hello and welcome! I started this project because I have an interest in  [Natural Language Processing](https://en.wikipedia.org/wiki/Natural_language_processing) and wanted to learn more. I came up with the idea of a \"natural language\" text dungeon (the user is \"talking\" to the dungeon master). Not a [new concept](https://en.wikipedia.org/wiki/Interactive_fiction#Natural_language_processing) of course.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pauldennis2/TextQuest.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pauldennis2/TextQuest/issues"
+  },
+  "homepage": "https://github.com/pauldennis2/TextQuest#readme"
+}

@@ -1,6 +1,8 @@
 package paul.TextQuest.parsing;
 
 
+import paul.TextQuest.enums.WordType;
+
 import java.util.*;
 
 /**

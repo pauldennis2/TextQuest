@@ -1,5 +1,7 @@
 package paul.TextQuest.parsing;
 
+import paul.TextQuest.enums.SpellType;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;

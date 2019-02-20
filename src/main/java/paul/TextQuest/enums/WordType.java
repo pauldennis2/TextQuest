@@ -1,4 +1,4 @@
-package paul.TextQuest.parsing;
+package paul.TextQuest.enums;
 
 /**
  * Created by Paul Dennis on 8/10/2017.
