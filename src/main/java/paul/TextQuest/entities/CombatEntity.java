@@ -1,6 +1,11 @@
 /**
- * @author Paul Dennis (pd236m)
+ * @author Paul Dennis
  * Sep 28, 2018
+ * 
+ * CombatEntity is a shared base class for Hero and Monster,
+ * since they both have some shared stats and behavior - 
+ * namely health, might, defense, and disabling behavior.
+ * (Disabled creatures can't attack for a certain number of rounds)
  */
 package paul.TextQuest.entities;
 

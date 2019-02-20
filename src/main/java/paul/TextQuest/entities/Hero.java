@@ -22,6 +22,9 @@ import java.util.stream.Collectors;
 
 /**
  * Created by Paul Dennis on 8/8/2017.
+ * 
+ * This class represents the Hero/Adventurer/player character,
+ * and contains a huge amount of code defining potential behavior.
  */
 
 public class Hero extends CombatEntity implements Serializable {
@@ -892,6 +895,16 @@ public class Hero extends CombatEntity implements Serializable {
         }
     }
     
+    /**
+     * Attempts to modify the given stat by the given amount.
+     * 
+     * Note: there is no "history" attached to modified stats, so if your
+     * strenght mod is +5 I don't have any information about how you got there.
+     * 
+     * @throws AssertionError if the stat is not legit.
+     * @param statName
+     * @param amount
+     */
     public void modStat (String statName, int amount) {
     	switch (statName.toLowerCase()) {
     	case "might":

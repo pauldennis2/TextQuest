@@ -7,6 +7,8 @@ import java.util.stream.Stream;
 
 /**
  * Created by Paul Dennis on 8/10/2017.
+ * 
+ * The Backpack represent's the Hero's inventory.
  */
 public class Backpack {
 
@@ -56,7 +58,7 @@ public class Backpack {
     /**
      * Looks for the given item WITHOUT removing it.
      * @param itemName
-     * @return
+     * @return the item in question, or null if not present.
      */
     public BackpackItem getItem (String itemName) {
     	for (BackpackItem item : items) {

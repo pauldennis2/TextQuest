@@ -7,11 +7,14 @@ import java.util.Map;
 
 /**
  * Created by Paul Dennis on 8/10/2017.
+ * 
+ * Abstract class representing any DungeonEntity that can "contain" things.
+ * Extended by Feature and Chest.
  */
 public abstract class Container extends DungeonEntity {
 	
-    List<BackpackItem> contents;
-    Map<String, String> onInsert;
+    protected List<BackpackItem> contents;
+    protected Map<String, String> onInsert;
     
     public Container () {
     	contents = new ArrayList<>();
