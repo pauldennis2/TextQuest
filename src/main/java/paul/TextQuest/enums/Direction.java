@@ -5,6 +5,7 @@ import java.util.List;
 /**
  * Created by Paul Dennis on 8/8/2017.
  */
+//test
 public enum Direction {
     NORTH, EAST, SOUTH, WEST, UP, DOWN, PORTAL,
     ALL, //Represents ALL directions (i.e. an obstacle that blocks travel in all directions)
